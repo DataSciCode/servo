@@ -1,0 +1,98 @@
+{% extends "default.html" %}
+{% load i18n %}
+{% block content %}
+<div class="tableView">
+    <table id="orders" data-url="/orders/index">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>{% trans "Luotu" %}</th>
+                <th>{% trans "Asiakas" %}</th>
+                <th>{% trans "Laite" %}</th>
+                <th>{% trans "Status" %}</th>
+            </tr>
+        </thead>
+        <tbody data-collection="orders">
+<?php
+
+        foreach($this->data as $order):
+
+            $status_int = 0;
+            $status = $order['status'];
+            $status_alert = 'undefined';
+            $customer = @$order['customer'];
+
+            if(empty($order['status']['title']))
+            {
+                $status_link = __('Ei statusta');
+            } else {
+            
+                $status_alert = 'green';
+                
+                if($status['limit']['green'] < time()) {
+                    $status_alert = 'yellow';
+                }
+                
+                if ($status['limit']['yellow'] < time()) {
+                    $status_alert = 'red';
+                }
+                
+                $status_title = mb_strimwidth($status['title'], 0, 25, '…');
+                $status_link = '<a href="/orders/index/status/'.$status['_id'].'">'.$status_title.'</a>';
+            }
+            
+            $status_img = sprintf('<img style="float:right" src="/static/images/status_%s_16.png" alt=""/>',
+                $status_alert);
+            
+            $dev = '';
+            
+            // format devices
+            if(isset($order['devices']))
+            {
+                $device = current($order['devices']);
+                $dev_count = count($order['devices']);
+                $dev_link_text = $device['description'];
+                $dev_link_uri = '/orders/index/spec/'.@$device['spec'];
+                $dev = '<a href="'.$dev_link_uri.'">'.$dev_link_text.'</a>';
+            }
+
+            $date_string = '';
+
+            // show relative dates
+            $param = 'date';
+            $date = new Zend_Date($order['created_at']->sec);
+            $date_param = $date->toString('Y-M-d');
+
+            if(!$date->isToday() && !$date->isYesterday()) {
+                $param = 'week';
+            }
+            
+            $customer_name = '';
+            
+            if( isset( $order['customer']['name'] )) {
+                $customer_name = mb_strimwidth(
+                    $order['customer']['name'], 0, 25, '…'
+                );
+            }
+
+?>
+
+{% if data %}
+  {% for order in data %}
+    <tr data-url="/orders/edit/id/<?php print $order['_id']; ?>"
+        class="<?php print $this->cycle(array('', 'even'))->next() ?>">
+        <td><a href="/orders/edit/id/{{ order._id }}">{{ order.id }}</a></td>
+        <td><?php printf('<a href="/orders/index/%s/%s">%s</a>',
+            $param, $date_param, $this->relativeDate($order['created_at'])) ?></td>
+        <td><a href="/orders/index/customer/<?php print $customer['_id'] ?>"><?php print $customer_name ?></a></td>
+        <td><?php print $dev ?></td>
+        <td><?php print $status_link ?> <?php print $status_img ?> </td>
+    </tr>
+{% endfor %}
+{% else %}
+    <tr><td colspan="5" class="empty">{% trans "Ei yhtään tilausta" %}</td></tr>
+{% endif %}
+    </tbody>
+</table>
+</div>
+{% endblock %}

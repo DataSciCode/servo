@@ -1,9 +1,10 @@
 from django.db import models
+from pymongo import Connection
 
-# Create your models here.
-class Order(models.Model):
-  """docstring for Order"""
-  def __init__(self, arg):
-    super(Order, self).__init__()
-    self.arg = arg
-    
+connection = Connection()
+db = connection.servo
+
+class Order():
+  def all(self):
+    collection = db.orders
+    return collection.find()

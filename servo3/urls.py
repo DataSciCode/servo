@@ -1,4 +1,5 @@
 from django.conf.urls import patterns, include, url
+from django.utils.translation import ugettext as _
 
 # Uncomment the next two lines to enable the admin:
 # from django.contrib import admin
@@ -6,7 +7,7 @@ from django.conf.urls import patterns, include, url
 
 urlpatterns = patterns('',
     # Examples:
-    # url(r'^$', 'servo3.views.home', name='home'),
+    url(r'^$', 'orders.views.index', name='home'),
     # url(r'^servo3/', include('servo3.foo.urls')),
 
     # Uncomment the admin/doc line below to enable admin documentation:

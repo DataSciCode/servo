@@ -4,7 +4,7 @@ class Order:
 class Issue(models.Model):
   symptom = models.TextField()
   diagnosis = models.TextField()
-  solution models.TextField()
+  solution = models.TextField()
 
 class Message:
   pass
@@ -20,4 +20,3 @@ class Event:
 
 class Status:
   pass
-
