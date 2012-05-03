@@ -1,11 +1,22 @@
+import logging
 from django.template import RequestContext
 from django.shortcuts import get_object_or_404, render
 
-from pymongo import Connection
-
-connection = Connection()
-db = connection.servo
+from models import Order, Message
 
 def index(req):
-  orders = db.orders.find()
-  return render(req, 'index.html', {"data" : orders })
+  return render(req, 'index.html', {"data" : Order.objects })
+
+def issues(req):
+  pass
+
+def messages(req):
+  messages = Message.objects
+  return render(req, 'messages.html', {'messages' : messages })
+
+def message_form(req):
+  return render(req, 'message_form.html')
+
+def message_save(req):
+  m = Message(body="test", subject="Subject")
+  m.save()

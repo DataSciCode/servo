@@ -4,6 +4,7 @@
     <link rel="icon" type="image/jpeg" href="/images/favicon.jpg" />
     <link rel="apple-touch-icon" href="/images/servo_logo.jpg" />
     {% load staticfiles %}
+    {% load i18n %}
     <script src="{{STATIC_URL }}js/jquery-min.js" type="text/javascript"></script>
     <script src="{{STATIC_URL }}js/underscore-min.js" type="text/javascript"></script>
     <script src="{{STATIC_URL }}js/backbone-min.js" type="text/javascript"></script>	
@@ -31,8 +32,8 @@
             <div id="drawer" class="searchTab"></div>
             <div class="buttons">
                 <div>
-                    <a href="javascript:;" class="save button"><span><?php print __('OK') ?></span></a>
-                    <a href="javascript:;" class="cancel button"><span><?php print __('Peruuta') ?></span></a>
+                    <a href="javascript:;" class="save button"><span>{% trans 'OK' %}</span></a>
+                    <a href="javascript:;" class="cancel button"><span>{% trans 'Peruuta' %}</span></a>
                 </div>
             </div>
         </div><!-- //#popup -->
@@ -40,7 +41,7 @@
     <div id="toolbar">
         <ul id="primary">
             <li><a class="create" id="create-button" href="javascript:;" title="<?php print __('Lisää') ?>"></a>
-<?php print $this->navigation()->menu() ?>
+            {% block toolbar %}{% endblock %}
             </li>
             <li><a href="javascript:;" class="delete disabled popup" id="delete-button" title="<?php print __('Poista') ?>"></a></li>
             <li><a href="javascript:;" class="edit disabled" id="edit-button" title="<?php print __('Muokkaa') ?>"></a></li>

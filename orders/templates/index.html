@@ -81,7 +81,7 @@
   {% for order in data %}
     <tr data-url="/orders/edit/id/<?php print $order['_id']; ?>"
         class="<?php print $this->cycle(array('', 'even'))->next() ?>">
-        <td><a href="/orders/edit/id/{{ order._id }}">{{ order.id }}</a></td>
+        <td><a href="/orders/edit/id/{{ order.pk }}">{{ order.id }}</a></td>
         <td><?php printf('<a href="/orders/index/%s/%s">%s</a>',
             $param, $date_param, $this->relativeDate($order['created_at'])) ?></td>
         <td><a href="/orders/index/customer/<?php print $customer['_id'] ?>"><?php print $customer_name ?></a></td>

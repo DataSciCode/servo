@@ -8,6 +8,10 @@ from django.utils.translation import ugettext as _
 urlpatterns = patterns('',
     # Examples:
     url(r'^$', 'orders.views.index', name='home'),
+    url(r'^issues/$', 'orders.views.issues', name='home'),
+    url(r'^messages/$', 'orders.views.messages'),
+    url(r'^message/save$', 'orders.views.message_save'),
+    url(r'^messages/create', 'orders.views.message_form'),
     # url(r'^servo3/', include('servo3.foo.urls')),
 
     # Uncomment the admin/doc line below to enable admin documentation:
