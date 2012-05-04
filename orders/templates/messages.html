@@ -3,7 +3,7 @@
 
 {% block toolbar %}
   <ul>
-    <li><a href="/messages/create" class="popup">{% trans "Uusi viesti" %}</a></li>
+    <li><a href="/message/create" class="popup">{% trans "Uusi viesti" %}</a></li>
   </ul>
 {% endblock %}
 
@@ -12,11 +12,11 @@
 <div class="listView small_block">
     <ul id="messages">
 {% for i in messages %}
-        <li data-url="/message/view/id/{{ i.subject }}">{{ i.subject }}</li>
+        <li data-url="/message/view/id/{{ i.id }}">{{ i.subject }}</li>
 {% endfor %}
     </ul>
 </div>
 
-<div class="detailView" style="padding: 10px"></div>
+<div id="detailView" style="padding: 10px"></div>
 
 {% endblock %}

@@ -1,0 +1,28 @@
+{%extends "default.html" %}
+
+{%block toolbar %}
+
+  <ul class="navigation">
+      <li>
+          <a class="popup" href="/admin/status/create">Uusi status</a>
+      </li>
+  </ul>
+
+{% endblock %}
+
+{% block content %}
+
+<div class="small_block listView" id="statuses" data-url="/admin/status">
+  <ul data-collection="status">
+
+{% for status in statuses %}
+
+    <li class="<?php print $this->cycle(array('', 'even'))->next() ?>" data-url="/admin/status/edit/id/<?php print $s['_id'] ?>"><?php print $s['title']?></li>
+
+{% endfor %}
+
+  </ul>
+</div>
+<div id="detailView"></div>
+
+{% endblock %}

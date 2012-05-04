@@ -239,12 +239,11 @@ var AppView = Backbone.View.extend(
         var preloadImages = ["action.png", "action-active.png", "work.png",
             "home.png", "checkbox-checked.png", "checkbox-inactive.png",
             "todo.png", "todo-done.png", "radio.png", "radio-active.png", 
-            "filter.png", "filter-active.png", "30/filter.png",
             "30/filter-active.png", "searchable-right.png",
             "searchable-right-active.png"];
 
         for( var i = preloadImages.length - 1; i >= 0; i-- ){
-            (new Image()).src = "/static/images/dark/" + preloadImages[i];
+//            (new Image()).src = "/static/images/dark/" + preloadImages[i];
         };
 
         (new Image()).src = "/static/images/moonkit/button.png";
@@ -553,17 +552,17 @@ var ListView = Backbone.View.extend(
 		this.$("li").removeClass("current");
 		$(e).addClass("current");
         
-        var url = $(e).data("url");
-        
-        $("#delete-button").attr("href",
-            url.replace(/^\/(\w+)\/\w+/, '/$1/remove')
-        );
-            
+    var url = $(e).data("url");
+    
+    $("#delete-button").attr("href",
+        url.replace(/^\/(\w+)\/\w+/, '/$1/remove')
+    );
+          
 		$("#delete-button").removeClass("disabled");
 		
-        $("#edit-button").attr("href",
-            url.replace(/^\/(\w+)\/\w+/, '/$1/edit')
-        );
+    $("#edit-button").attr("href",
+        url.replace(/^\/(\w+)\/\w+/, '/$1/edit')
+    );
         
 		$("#edit-button").addClass("popup");
 		

@@ -1,0 +1,16 @@
+{% load i18n %}
+<form method="post" action="/admin/fields/save/" accept-charset="utf-8" rel="fields">
+  {% csrf_token %}
+	<input type="hidden" name="id" value="{{ id }}"/>
+	<label>{% trans 'Otsikko' %}:</label>
+	<input type="text" id="title" name="title" value="{{ title }}"/>
+	<br/>
+	<label>{% trans 'Muoto' %}:</label>
+ 	<input type="text" id="format" name="format" value="{{ format }}"/>
+ 	<br/>
+ 	<label>{% trans 'Tyyppi' %}:</label>
+ 	<select name="type">
+ 	  <option value="customer">{% trans 'Asiakas' %}</option>
+ 	  <option value="spec">{% trans 'Malli' %}</option>
+ 	</select>
+</form>

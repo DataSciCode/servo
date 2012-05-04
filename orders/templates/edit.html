@@ -1,0 +1,213 @@
+{% extends "default.html" %}
+{% load i18n %}
+
+{% block toolbar %}
+
+<ul class="navigation">
+    <li>
+        <a class="popup customer" href="/customer/create/order/{{ order.id }}">{% trans 'Asiakas' %}</a>
+    </li>
+    <li>
+        <a class="popup device" href="/device/create/order/{{ order.id }}">{% trans 'Laite' %}</a>
+    </li>
+    <li>
+        <a class="popup issue" href="/issue/create/order/{{ order.id }}">{% trans 'Tehtävä' %}</a>
+    </li>
+    <li>
+        <a class="popup product" href="/products/create/order/{{ order.id }}">{% trans 'Tuote' %}</a>
+    </li>
+    <li>
+        <a class="popup message" href="/message/create/order/{{ order.id }}">{% trans 'Viesti' %}</a>
+    </li>
+</ul>
+
+{% endblock %}
+
+{% block sidebar %}
+
+<div class="block_header"><p style="padding:10px"><a href="/orders/">Servo &gt; </a><a href="/orders/edit/id/{{ order.id }}">{{ order.number }}</a></p></div>
+<div style="padding:5px" class="droppable">
+    <span class="label">{% trans 'Jono' %}</span>
+<?php print $this->formSelect('set_queue', $this->order['queue']['_id'], null, $this->queues); ?>
+    <br/>
+    <span class="label">{% trans 'Status' %}</span>
+<?php print $this->formSelect('set_status', $this->order['status']['_id'], null, $this->statuses); ?>
+    <br/>
+    <span class="label">{% trans 'Käsittelijä' %}</span>
+<?php print $this->formSelect('set_user', $this->order['user']['_id'], null, $this->users); ?>
+    <br/>
+    <span class="label">{% trans 'Prioriteetti' %}</span>
+<?php print $this->formSelect('set_priority', $this->order['priority'], null, $this->priorities); ?>
+    <hr/>
+    <div id="tags" data-url="/orders/tags/id/<?php print $this->order['_id'] ?>" style="border-bottom:none">
+<?php include 'orders/tags.phtml' ?>
+    </div>
+    <br/><hr/>
+<?php include 'orders/customer.phtml' ?>    
+    <form id="miniform" method="post" action="/orders/update/id/<?php print $this->order['_id'] ?>">
+        <span class="label">{% trans 'Pikaviesti' %}</span>
+        <textarea name="message" id="minimessage"></textarea>
+    </form>
+    <div class="buttons">
+        <a href="javascript:;" class="save button"><span>{% trans 'Tallenna' %}</span></a>
+<?php if(in_array($_SESSION['user']['username'], $this->order['followed_by'])) { ?>
+        <a href="/orders/unfollow/id/<?php print $this->order['_id'] ?>" class="follow button active"><span><?php print $this->follow_string ?></span></a>
+<?php } else { ?>
+    <a href="/orders/follow/id/<?php print $this->order['_id'] ?>" class="follow button"><span><?php print __('Seuraa') ?></span></a>
+<?php } ?>
+    </div>
+</div>
+
+
+{% endblock %}
+
+{% block content %}
+
+<div id="devices" class="block tableView" data-url="/orders/devices/id/<?php print $this->order['_id'] ?>">
+
+	<table>
+		<thead>
+			<tr>
+				<th colspan="2">{% trans 'Laitteet' %}</th>
+				<th>{% trans 'Käyttäjä' %}</th>
+				<th>{% trans 'Salasana' %}</th>
+				<th>{% trans 'MRI status' %}</th>
+			</tr>
+		</thead>
+		<tbody data-collection="device">
+
+            <tr data-url="/device/edit/id/<?php print $d['_id'] ?>" class="<?php print $this->cycle(array('', 'even'))->next() ?>">
+            	<td><a href="/device/edit/id/<?php print $d['_id'] ?>" class="popup"><?php print $d['sn']?></a></td>
+            	<td><?php print $d['description'] ?></td>
+            	<td><?php print $d['username'] ?></td>
+            	<td><?php print $d['password'] ?></td>
+            	<td><a href="/device/mri/sn/<?php print $d['sn'] ?>"><?php print __('Tuntematon') ?></a></td>
+            </tr>
+
+		</tbody>
+	</table>
+
+</div>
+
+<div
+    id="issues"
+    class="block tableView"
+    data-url="/orders/issues/id/<?php print $this->order['_id'] ?>">
+
+    <table>
+        <thead><tr><th colspan="4">{% trans 'Tehtävät' %}</th></tr></thead>
+        <tbody data-collection="orders">
+
+<?php
+
+    foreach($this->order['issues'] as $k => $i):
+
+        $created = _t($i['created_at']);
+        $link = '<a href="#issue-'.$i['_id'].'">'.$created.'</a>';
+        $description = stripslashes(Markdown($i['symptom']));
+
+?>
+
+<tr data-action="edit-issue"
+    class="<?php print $this->cycle(array('', 'even' ))->next() ?>"
+    data-url="/orders/edit-issue/order/<?php print $this->order['_id'] ?>/id/<?php print $k ?>">
+    <td>
+        <span class="user"><?php print $i['created_by'] ?></span>
+        <span class="date"><?php print $this->relativeDate($i['created_at']) ?></span>
+<?php print $description ?>
+<?php if(!empty($i['diagnosis'])): ?>
+      <hr/>
+<?php print Markdown($i['diagnosis']) ?>
+      <span class="small"><?php print $i['diagnosed_by'] ?> @ <?php print $this->relativeDate($i['diagnosed_at']) ?></span>
+<?php endif ?>
+<?php if(!empty($i['solution'])): ?>
+      <hr/>
+<?php print Markdown($i['solution']) ?>
+      <span class="small"><?php print $i['solved_by'] ?> @ <?php print $this->relativeDate($i['solved_at']) ?></span>
+<?php endif ?>
+        </td>
+    </tr>
+
+<?php endforeach ?>
+
+        </tbody>
+    </table>
+
+</div><!-- //#issues -->
+
+<div class="block tableView" id="messages" data-url="/orders/messages/id/<?php print $this->order['_id'] ?>">
+
+	<table>
+		<thead><tr><th>{% trans 'Viestit' %}</th></tr></thead>
+		<tbody data-collection="message">
+<?php
+    
+    foreach($this->messages as $i):
+        $indent = substr_count($i['path'], ',') + 1;
+        
+?>
+
+{% for msg in order.message %}
+
+            <tr data-url="/message/edit/id/<?php print $i['_id'] ?>" class="<?php print $this->cycle(array('', 'even'))->next() ?>">
+                <td style="padding-left:<?php print $indent*10 ?>px">
+                    <span class="user"><?php print $this->escape($i['from']) ?></span>
+                    <span class="date"><?php print $this->relativeDate($i['created_at']) ?></span>        
+<?php if(@$i['mailto']) { ?><span class="email"><?php print @$i['mailto'] ?></span><?php } ?><br/>
+        <?php print Markdown($i['body']) ?>
+<?php if(isset($i['attachments'])) { foreach($i['attachments'] as $k => $v) { ?>
+        <a class="window attachment" href="/attachment/view/id/<?php print $k ?>"><?php print $v ?></a>
+<?php }} ?>
+	</td>
+</tr>
+{% endfor %}
+<?php endforeach ?>
+		</tbody>
+	</table>
+
+</div>
+
+<div 
+    id="products"
+    class="tableView"
+    data-url="/orders/products/id/<?php print $this->order['_id'] ?>">
+<?php if($this->order['products']): ?>
+    <table>
+        <thead><tr><th colspan="5"><?php print __('Tuotteet') ?></th></tr></thead>
+        <tbody data-collection="orders">
+<?php foreach($this->order['products'] as $k => $p): ?>
+            <tr data-url="/products/edit/order/<?php print $this->order['_id'] ?>/idx/<?php print $k ?>"
+                class="<?php print $this->cycle(array( '', 'even'))->next() ?>">
+                <td><a href="/products/edit/order/<?php print $this->order['_id'] ?>/idx/<?php print $k ?>" class="popup"><?php print $p['sku'] ?></a></td>
+                <td><?php print $this->escape($p['title']) ?></td>
+                <td><?php print _m( $p['price']['sales'] ) ?></td>
+                <td><a href="/purchase-order/view/id/" class="popup">20116</a></td>
+                <td><a href="/orders/report/product/<?php print $k ?>" class="async report"></a></td>
+            </tr>
+<?php endforeach ?>
+        </tbody>
+    </table>
+<?php endif ?>
+</div>
+<!-- //#products -->
+
+<div id="events" data-url="/orders/events/id/<?php print $this->order['_id'] ?>">
+<?php if($this->events->count()): ?>
+<table>
+    <thead>
+        <tr><th colspan="3"><?php print __('Tapahtumat') ?></th></tr>
+    </thead>
+    <tbody>
+<?php foreach($this->events as $e): ?>
+        <tr class="<?php print $this->cycle(array('', 'even'))->next() ?>">
+            <td><img src="/images/event-<?php print $e['type'] ?>.png" alt="<?php print $e['description'] ?>" class="icon"/></td>
+            <td style="width:55%"><?php print $e['description'] ?></td>
+            <td><?php print $e['started_by'] ?> @ <?php print $this->relativeDate( $e['started_at'] ) ?></td>
+        </tr>
+<?php endforeach ?>
+    </tbody>
+</table>
+<?php endif ?>
+</div>
+
+{% endblock %}

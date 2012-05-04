@@ -1,0 +1,21 @@
+{% load i18n %}
+
+<table>
+    <tr style="background:none">
+        <td class="label">{% trans 'Lähettäjä' %}:</td>
+        <td>{{ sender }}</td>
+    </tr>
+    <tr style="background:none">
+        <td class="label">{% trans 'Päivämäärä' %}:</td>
+        <td>{{ created_at }}</td>
+    </tr>
+    <tr style="background:none">
+        <td class="label">{% trans 'Saaja' %}:</td>
+        <td>{{ recipient }}</td>
+    </tr>
+</table>
+
+<br/><hr/>
+<div>
+    {{ body }}
+</div>

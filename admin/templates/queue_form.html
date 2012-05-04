@@ -1,0 +1,48 @@
+{% load i18n %}
+
+<div class="tabView">
+    <form method="post" action="/queue/save" accept-charset="utf-8" rel="queues">
+        <ul class="tabs"><li><a href="#info">{% trans 'Perustiedot' %}</a></li><li><a href="#templates">{% trans 'Pohjat' %}</a></li></ul>
+<?php if( isset( $this->queue['_id'] )): ?>
+        <input type="hidden" name="_id" value="<?php print $this->queue['_id'] ?>" />
+<?php endif ?>
+        <div id="info" class="tab">
+            <label>{% trans 'Nimi' %}:</label>
+            <input type="text" name="title" value="{{ queue.title }}" />
+            <br/>
+            <label>{% trans 'Kuvaus' %}:</label>
+            <textarea name="description">{{ queue.description }}</textarea>
+            <br/>
+            <label>{% trans 'Rajapinta' %}:</label>
+<?php print $this->formSelect( 'ws_account', $this->queue['ws_account'], NULL, $this->accounts ) ?>
+        </div>
+    
+    <div id="templates" class="tab">
+        <ul>
+<?php foreach( $this->files as $f ): ?>
+            <li><a href="/orders/print/id/<?php print $f['_id'] ?>"><?php print $f['name'] ?></a></li>
+<?php endforeach ?>
+        </ul>
+<?php if( isset( $this->queue['_id'] )): ?>
+        <label><?php print __('Pohja') ?>:</label>
+        <input type="file" name="incoming" id="fileupload"/>
+        <ul id="attachments"></ul>
+<?php endif ?>
+    </div>
+    
+    </form>
+</div>
+    
+<script type="text/javascript">
+    $("#fileupload").fileupload({
+        url: "/attachment/create",
+        done: function(e, data) {
+            var file = data.result;
+            $("<li/>").text(file.name).appendTo($("#attachments"));
+            $("<input/>").attr("type", "hidden")
+                .attr("name", "attachments["+file._id+"]")
+                .val(file.name)
+                .insertAfter("#fileupload");
+        }
+    });
+</script>

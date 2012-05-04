@@ -1,0 +1,24 @@
+{% extends "default.html" %}
+
+{% block toolbar %}
+
+<ul class="navigation">
+    <li>
+        <a class="popup" href="/admin/queue/create">Uusi jono</a>
+    </li>
+</ul>
+
+{% endblock %}
+
+{% block content %}
+<div class="small_block listView" id="queues" data-url="/admin/queues">
+    <ul data-collection="queue">
+{% for q in queues %}
+        <li data-url="/queue/edit/id/{{ q.title }}" class="<?php print $this->cycle( array( '', 'even' ))->next() ?>">
+            {{ q.title }}
+        </li>
+{% endfor %}
+    </ul>
+</div>
+
+{% endblock %}

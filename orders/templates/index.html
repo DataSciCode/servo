@@ -1,5 +1,12 @@
 {% extends "default.html" %}
 {% load i18n %}
+
+{% block toolbar %}
+  <ul>
+    <li><a href="/orders/create">{% trans "Uusi tilaus" %}</a></li>
+  </ul>
+{% endblock %}
+
 {% block content %}
 <div class="tableView">
     <table id="orders" data-url="/orders/index">
@@ -79,14 +86,13 @@
 
 {% if data %}
   {% for order in data %}
-    <tr data-url="/orders/edit/id/<?php print $order['_id']; ?>"
-        class="<?php print $this->cycle(array('', 'even'))->next() ?>">
-        <td><a href="/orders/edit/id/{{ order.pk }}">{{ order.id }}</a></td>
+    <tr data-url="/orders/edit/{{ order.id }}" class="<?php print $this->cycle(array('', 'even'))->next() ?>">
+        <td><a href="/orders/edit/{{ order.id }}">{{ order.number }}</a></td>
         <td><?php printf('<a href="/orders/index/%s/%s">%s</a>',
             $param, $date_param, $this->relativeDate($order['created_at'])) ?></td>
         <td><a href="/orders/index/customer/<?php print $customer['_id'] ?>"><?php print $customer_name ?></a></td>
         <td><?php print $dev ?></td>
-        <td><?php print $status_link ?> <?php print $status_img ?> </td>
+        <td><a href="/orders/index/status/blaa">{{ order.status }}</a> <?php print $status_img ?> </td>
     </tr>
 {% endfor %}
 {% else %}

@@ -6,17 +6,44 @@ from django.utils.translation import ugettext as _
 # admin.autodiscover()
 
 urlpatterns = patterns('',
-    # Examples:
-    url(r'^$', 'orders.views.index', name='home'),
-    url(r'^issues/$', 'orders.views.issues', name='home'),
-    url(r'^messages/$', 'orders.views.messages'),
+  
+    url(r'^customer/index', 'customers.views.index'),
+    url(r'^customer/edit$', 'customers.views.edit'),
+    url(r'^customer/create$', 'customers.views.edit'),
+    url(r'^customer/remove$', 'customers.views.remove'),
+    url(r'^customer/save$', 'customers.views.save'),
+    
+    url(r'^$', 'orders.views.index'),
+    url(r'^orders/$', 'orders.views.index'),
+    url(r'^orders/index/(\w+)/(\w+)/$', 'orders.views.index'),
+    
+    url(r'^orders/edit/(\w+)$', 'orders.views.edit'),
+    
+    url(r'^orders/create$', 'orders.views.create'),
+    url(r'^issue/create/order/(\w+)$', 'orders.views.issue_create'),
+    
+    url(r'^message/$', 'orders.views.messages'),
     url(r'^message/save$', 'orders.views.message_save'),
-    url(r'^messages/create', 'orders.views.message_form'),
+    url(r'^message/view/id/(\w+)$', 'orders.views.message_view'),
+    url(r'^message/create/order/(\w+)$', 'orders.views.message_form'),
+    
+    url(r'^admin/status/$', 'admin.views.status'),
+    url(r'^admin/queues/$', 'admin.views.queues'),
+    url(r'^admin/status/create$', 'admin.views.status_form'),
+    url(r'^admin/queue/create$', 'admin.views.queue_form'),
+    url(r'^admin/fields/$', 'admin.views.fields'),
+    url(r'^admin/fields/edit/$', 'admin.views.edit_field'),
+    url(r'^fields/edit/(\w+)$', 'admin.views.edit_field'),
+    url(r'^fields/remove/$', 'admin.views.remove_field'),
+    url(r'^fields/remove/(\w+)$', 'admin.views.remove_field'),
+    url(r'^admin/fields/save/$', 'admin.views.save_field'),
+    
+    url(r'^gsx/accounts$', 'admin.views.gsx_accounts'),
+    url(r'^gsx/create_account$', 'admin.views.gsx_form'),
+    url(r'^gsx/edit_account$', 'admin.views.gsx_form'),
+    url(r'^gsx/remove_account$', 'admin.views.gsx_remove'),
+    
+    url(r'^products/create/order/(\w+)$', 'products.views.create'),
+    
     # url(r'^servo3/', include('servo3.foo.urls')),
-
-    # Uncomment the admin/doc line below to enable admin documentation:
-    # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
-
-    # Uncomment the next line to enable the admin:
-    # url(r'^admin/', include(admin.site.urls)),
 )

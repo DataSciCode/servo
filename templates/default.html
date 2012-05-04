@@ -22,7 +22,7 @@
         @import url("{{STATIC_URL }}css/dark.css");
         @import url("{{STATIC_URL }}css/Aristo/Aristo.css");
     </style>
-    <title>{% block title %}{% endblock %}</title>
+    <title>{{ title }}</title>
 </head>
 
 <body>
@@ -43,18 +43,12 @@
             <li><a class="create" id="create-button" href="javascript:;" title="<?php print __('Lisää') ?>"></a>
             {% block toolbar %}{% endblock %}
             </li>
-            <li><a href="javascript:;" class="delete disabled popup" id="delete-button" title="<?php print __('Poista') ?>"></a></li>
-            <li><a href="javascript:;" class="edit disabled" id="edit-button" title="<?php print __('Muokkaa') ?>"></a></li>
+            <li><a href="javascript:;" class="delete disabled popup" id="delete-button" title="{% trans 'Poista' %}"></a></li>
+            <li><a href="javascript:;" class="edit disabled" id="edit-button" title="{% trans 'Muokkaa' %}"></a></li>
         </ul>
 
         <ul id="secondary">
-<?php if(!empty($this->secondaryMenu)): ?>
-    <?php foreach($this->secondaryMenu as $i): ?>
-            <li><a class="popup" href="<?php print $i['uri']?>"><?php print $i['label']?></li>
-    <?php endforeach ?>
-<?php else: ?>
-    <?php print $this->layout()->toolbar ?>
-<?php endif ?>
+          {% block secondary %}{% endblock %}
         </ul><!-- //#secondary -->
 
         <form action="<?php print $this->searchAction ?>" id="search">
@@ -64,27 +58,75 @@
 
     <div id="main_view">
         <div id="side_pane">
-<?php if(is_array($this->sidePane)): ?>
+{% block sidebar %}
             <ul>
-<?php $idx = 0; foreach($this->sidePane as $i): $idx++ ?>
                 <li>
-                    <span class="head" id="sidebar-item-<?php print $idx?>"><?php print $i['label'] ?></span>
-                    <ul class="sidebar-item-<?php print $idx?>">
-<?php foreach($i['pages'] as $p): ?>
-                        <li class="<?php print($p['uri'] == $_SERVER['REQUEST_URI']) ? 'current' : '' ?>"><a href="<?php print $p['uri'] ?>" class="<?php print $p['class'] ?>"><?php print $p['label'] ?><?php if(@$p['count']) { ?><div class="counter"><?php print $p['count'] ?></div><?php } ?></a></li>
-<?php endforeach; ?>
+                    <span class="head" id="sidebar-item-1">Filipp Lepalaan</span>
+                    <ul class="sidebar-item-1">
+                        <li class=""><a href="/orders/index/user/filipp" class="home">Kotisivu</a></li>
+                        <li><a href="/message/" class="message">Viestit</a></li>
+                        <li class=""><a href="/calendar/" class="calendar">Kalenterit</a></li>
+                        <li class=""><a href="/article/" class="article">Artikkelit<div class="counter">1</div></a></li>
+                        <li class=""><a href="/user/settings" class="prefs popup">Asetukset</a></li>
+                        <li class=""><a href="/user/logout" class="lock popup">Kirjaudu ulos...</a></li>
                     </ul>
                 </li>
-<?php endforeach; ?>
+                <li>
+                    <span class="head" id="sidebar-item-2">Tilaukset</span>
+                    <ul class="sidebar-item-2">
+                        <li class=""><a href="/orders/index/user/nobody" class="table">Jonossa<div class="counter">1</div></a></li>
+                        <li class=""><a href="/orders/index/state/open" class="table">Avoimet</a></li>
+                        <li class=""><a href="/orders/index/search/4f8c7f1034db74e25c000000" class="gear draggable">My aging repairs</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <span class="head" id="sidebar-item-3">Varasto</span>
+                    <ul class="sidebar-item-3">
+                        <li class=""><a href="/products/index" class="table">Tuotteet<div class="counter">1</div></a></li>
+                        <li class=""><a href="/purchase-order/incoming" class="down">Saapuvat</a></li>
+                        <li class=""><a href="/products/outgoing" class="up">Lähtevät</a></li>
+                        <li class=""><a href="/purchase-order/index" class="table">Ostotilaukset</a></li>
+                        <li class=""><a href="/invoice/index" class="table">Myyntilaskut</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <span class="head" id="sidebar-item-4">Asiakkaat</span>
+                    <ul class="sidebar-item-4">
+                        <li class=""><a href="/customer/index" class="ab">Selaa</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <span class="head" id="sidebar-item-5">Laitteet</span>
+                    <ul class="sidebar-item-5">
+                        <li class=""><a href="/device/index" class="device">Selaa<div class="counter">1</div></a></li>
+                        <li class=""><a href="/specs/index" class="db">Mallit<div class="counter">1</div></a></li>
+                    </ul>
+                </li>
+                <li>
+                    <span class="head" id="sidebar-item-6">Ylläpito</span>
+                    <ul class="sidebar-item-6">
+                        <li class=""><a href="/admin/settings" class="prefs popup">Asetukset</a></li>
+                        <li class=""><a href="/admin/queues" class="inbox">Jonot</a></li>
+                        <li class=""><a href="/admin/status" class="color">Statukset</a></li>
+                        <li class=""><a href="/admin/locations" class="globe">Toimipaikat</a></li>
+                        <li class=""><a href="/admin/users" class="user">Käyttäjät</a></li>
+                        <li class=""><a href="/gsx/accounts" class="db">GSX-tilit</a></li>
+                        <li class=""><a href="/admin/automation" class="gear">Automaatiot</a></li>
+                        <li class=""><a href="/admin/fields/" class="db">Kentät</a></li>
+                        <li class=""><a href="/admin/templates" class="document">Pohjat</a></li>
+                        <li class=""><a href="/admin/files" class="folder">Tiedostot</a></li>
+                        <li class=""><a href="/admin/tags" class="db">Tagit</a></li>
+                    </ul>
+                </li>
+{% endblock %}
             </ul>
-<?php else: print $this->sidePane; endif; ?>
         </div><!-- //#side_pane -->
 
         <div id="main_pane">
             <div id="pager">
                 <img id="pager_icon" src="/static/images/dark/info.png" alt=""/>
                 <div id="pager_msg"></div>
-                <a href="javascript:;" class="button"><span><?php print __('OK') ?></span></a>
+                <a href="javascript:;" class="button"><span>{% trans 'OK' %}</span></a>
             </div><!-- //#pager -->
             
             <div id="main_content">

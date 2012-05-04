@@ -1,0 +1,56 @@
+{% load i18n %}
+<form method="post" action="/customer/save" accept-charset="utf-8" rel="customers">
+  {% csrf_token %}
+    <input name="_id" type="hidden" value="{{ customer.id }}"/>
+{% if customer.order %}
+    <input name="order" type="hidden" value="{{ customer.order }}"/>
+{% endif %}
+
+{% if customer.parent %}
+    
+    <input type="hidden" name="parent" value="{{ customer.parent }}"/>
+    
+{% endif %}
+
+    <label>{% trans 'Nimi' %}:</label>
+    <input type="text" name="name" value="{{ customer.name }}">
+    <a href="javascript:;" class="search" data-url="/customer/search-drawer"></a>
+
+{% for prop in customer.properties %}
+
+    <div class="property">
+        <select name="properties[title][]">
+<?php
+
+    // determine which of the default props are selected
+    foreach($this->properties as $ap):
+        $sel = ($ap['title'] == $k) ? ' selected="selected"' : '';
+
+?>
+            <option <?php print $sel ?>><?php print $ap['title'] ?></option>
+<?php endforeach ?>
+		</select>
+		<input type="text" name="properties[value][]" value="<?php print $v ?>"/>
+	</div>
+  
+{% endfor %}
+  
+	<div class="property">
+    	<select name="properties[title][]">
+{% for f in fields %}
+			<option>{{ f.title }}</option>
+{% endfor %}
+		</select>
+    	<input type="text" name="properties[value][]"/>
+	</div>
+	<a href="javascript:;" class="plus" id="add_property"></a>
+</form>
+            
+<script type="text/javascript" charset="utf-8">
+    $("#add_property").click(function() {
+        $(".property:last").clone().insertAfter($(".property:last"));
+        $(".property:last option:selected").next()
+            .attr("selected", "selected");
+        $(".property:last input").val("");
+    });
+</script>

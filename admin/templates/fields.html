@@ -1,0 +1,22 @@
+{% extends "default.html" %}
+{% load i18n %}
+
+{% block toolbar %}
+
+<ul class="navigation">
+  <li><a href="/admin/fields/edit/" class="popup">{% trans 'Uusi kenttä' %}</a></li>
+</ul>
+
+{% endblock %}
+
+{% block content %}
+
+<div class="small_block listView" id="fields" data-url="/admin/fields">
+  <ul>
+{% for f in fields %}
+		<li data-url="/fields/edit/{{ f.id }}">{{ f.title }}</li>
+{% endfor %}
+	</ul>
+</div>
+
+{% endblock %}
