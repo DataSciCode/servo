@@ -1,0 +1,21 @@
+{% extends "default.html" %}
+
+{% block content %}
+
+<div class="small_block listView" id="templates" data-url="/admin/templates/">
+	<ul data-collection="templates">
+{% for t in templates %}
+
+		<li data-url="/templates/edit/{{ t.id }}">{{ t.title }}</li>
+  
+{% endfor %}
+
+	</ul>
+</div>
+
+<div class="detailView"></div>
+<script type="text/javascript">
+    $("#create-button").attr("href", "/template/create").addClass("popup");
+</script>
+
+{% endblock content %}

@@ -33,7 +33,7 @@
 <script type="text/javascript">
     $(".chooser").change( function() {
         var ta = "#" + $(this).attr("rel");
-        $(ta).load("/templates/view", {id: $(this).val()});
+        $(ta).load("/template/view/" + $(this).val());
     });
 
     $("#fileupload").fileupload({

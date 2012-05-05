@@ -3,4 +3,4 @@ from servo3.models import Product
 
 def create(req, order_id=None):
   p = Product()
-  return render(req, 'form.html', p)
+  return render(req, 'products/form.html', p)

@@ -22,7 +22,7 @@
         @import url("{{STATIC_URL }}css/dark.css");
         @import url("{{STATIC_URL }}css/Aristo/Aristo.css");
     </style>
-    <title>{{ title }}</title>
+    <title>{% block title %}{% endblock title %}</title>
 </head>
 
 <body>
@@ -40,7 +40,7 @@
 
     <div id="toolbar">
         <ul id="primary">
-            <li><a class="create" id="create-button" href="javascript:;" title="<?php print __('Lisää') ?>"></a>
+            <li><a class="create" id="create-button" href="javascript:;" title="{% trans 'Lisää' %}"></a>
             {% block toolbar %}{% endblock %}
             </li>
             <li><a href="javascript:;" class="delete disabled popup" id="delete-button" title="{% trans 'Poista' %}"></a></li>

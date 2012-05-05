@@ -1,0 +1,8 @@
+{% load i18n %}
+<form action="/message/remove" method="post" accept-charset="utf-8" rel="messages">
+  {% csrf_token %}
+  <input type="hidden" name="id" value="{{ id }}" />
+  <img src="/static/images/alert_48.png" alt="alert" class="alert" />
+  <h2>{% trans "Haluatko varmasti poistaa tämän viestin?" %}</h2>
+  <p>{% trans "Tätä toimintoa ei voida peruuttaa." %}</p>
+</form>

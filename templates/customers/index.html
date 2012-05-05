@@ -14,15 +14,14 @@
 {% block content %}
 
 <div class="small_block listView" id="customers" data-url="/customer/index">
-    <ul data-collection="customer">
-<?php
+  <ul data-collection="customer">
+    
+    {% for c in customers %}
+    
+        <li style="padding-left: {{ c.get_indent }}em" data-url="/customer/view/{{ c.id }}" class="{% cycle  'odd' 'even' %}">{{ c.name }}</li>
+          
+    {% endfor %}
 
-    foreach($this->data as $c):
-        $indent = substr_count($c['path'], ',');
-        
-?>
-        <li data-url="/customer/view/id/<?php print $c['_id'] ?>" class="<?php print $this->cycle(array('', 'even'))->next() ?> <?php print ($c['_id'] == $this->customer['_id']) ? 'current' : '' ?>"><a style="padding-left:<?php print $indent*15 ?>px"><?php print $c['name'] ?></li>
-<?php endforeach; ?>
     </ul>
 </div>
 

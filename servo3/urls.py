@@ -8,23 +8,33 @@ from django.utils.translation import ugettext as _
 urlpatterns = patterns('',
   
     url(r'^customer/index', 'customers.views.index'),
-    url(r'^customer/edit$', 'customers.views.edit'),
-    url(r'^customer/create$', 'customers.views.edit'),
+    url(r'^customer/edit/(\w+)$', 'customers.views.edit'),
+    
+    url(r'^customer/create$', 'customers.views.create'),
+    url(r'^customer/create/(\w+)$', 'customers.views.create'),
+    
     url(r'^customer/remove$', 'customers.views.remove'),
+    url(r'^customer/remove/(\w+)$', 'customers.views.remove'),
     url(r'^customer/save$', 'customers.views.save'),
+    url(r'^customer/view/(\w+)$', 'customers.views.view'),
+    url(r'^customer/move$', 'customers.views.move'),
+    url(r'^customer/move/(\w+)$', 'customers.views.move'),
     
     url(r'^$', 'orders.views.index'),
     url(r'^orders/$', 'orders.views.index'),
     url(r'^orders/index/(\w+)/(\w+)/$', 'orders.views.index'),
     
     url(r'^orders/edit/(\w+)$', 'orders.views.edit'),
-    
+    url(r'^orders/remove/(\w+)$', 'orders.views.remove'),
+    url(r'^orders/remove$', 'orders.views.remove'),
     url(r'^orders/create$', 'orders.views.create'),
     url(r'^issue/create/order/(\w+)$', 'orders.views.issue_create'),
     
     url(r'^message/$', 'orders.views.messages'),
     url(r'^message/save$', 'orders.views.message_save'),
-    url(r'^message/view/id/(\w+)$', 'orders.views.message_view'),
+    url(r'^message/view/(\w+)$', 'orders.views.message_view'),
+    url(r'^message/remove$', 'orders.views.remove_message'),
+    url(r'^message/remove/(\w+)$', 'orders.views.remove_message'),
     url(r'^message/create/order/(\w+)$', 'orders.views.message_form'),
     
     url(r'^admin/status/$', 'admin.views.status'),
@@ -37,6 +47,10 @@ urlpatterns = patterns('',
     url(r'^fields/remove/$', 'admin.views.remove_field'),
     url(r'^fields/remove/(\w+)$', 'admin.views.remove_field'),
     url(r'^admin/fields/save/$', 'admin.views.save_field'),
+    url(r'^admin/templates/$', 'admin.views.templates'),
+    url(r'^template/create$', 'admin.views.create_template'),
+    url(r'^template/save$', 'admin.views.save_template'),
+    url(r'^template/view/(\w+)$', 'admin.views.view_template'),
     
     url(r'^gsx/accounts$', 'admin.views.gsx_accounts'),
     url(r'^gsx/create_account$', 'admin.views.gsx_form'),

@@ -1,0 +1,26 @@
+{%load i18n %}
+
+<table>
+    <tr>
+        <td class="label">{% trans 'Asiakasnumero' %}:</td>
+        <td>{{ customer.number }}</td>
+    </tr>
+    <tr>
+        <td class="label">{% trans 'Nimi' %}:</td>
+        <td>{{ customer.fullname }}</td>
+    </tr>
+
+{% for key, value in customer.fullprops.items %}
+
+    <tr>
+        <td class="label">{{ key }}:</td>
+        <td>{{ value }}</td>
+    </tr>
+
+{% endfor %}
+
+</table>
+
+<a href="/orders/index/customer/{{ customer.id }}">{% trans 'Tilaukset' %}</a>
+<a href="/customer/move/{{ customer.id }}" class="popup">{% trans 'Siirrä' %}</a>
+<a href="/customer/create/{{ customer.id }}" class="popup">{% trans 'Lisää kontakti' %}</a>

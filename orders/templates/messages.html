@@ -12,7 +12,7 @@
 <div class="listView small_block">
     <ul id="messages">
 {% for i in messages %}
-        <li data-url="/message/view/id/{{ i.id }}">{{ i.subject }}</li>
+        <li data-url="/message/view/{{ i.id }}" class="{% cycle 'odd' 'even'  %}">{{ i.subject }}</li>
 {% endfor %}
     </ul>
 </div>

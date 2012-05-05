@@ -1,0 +1,8 @@
+{% load i18n %}
+<form action="/customer/remove" method="post" accept-charset="utf-8" rel="customers">
+  {% csrf_token %}
+	<input type="hidden" name="id" value="{{ id }}" />
+	<img src="/static/images/alert_48.png" alt="alert" class="alert"/>
+	<h2>{% blocktrans %}Haluatko varmasti poistaa asiakkaan "{{ name }}"? {% endblocktrans %}</h2>
+	<p>{% trans 'Toimintoa ei voi peruuttaa. Asiakkaan tilauksia ei poisteta.' %}</p>
+</form>

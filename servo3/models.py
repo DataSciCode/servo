@@ -1,5 +1,6 @@
 from mongoengine import *
 from datetime import datetime
+from pymongo.objectid import ObjectId
 
 connect('servo')
 
@@ -30,14 +31,19 @@ class GsxAccount(Document):
   is_default = StringField(max_length=1, default='Y')
 
 class Queue(Document):
-  title = StringField(default="Uusi jono")
+  title = StringField(default = "Uusi jono")
   description = StringField()
   gsx_account = ReferenceField(GsxAccount)
 
 class Order(Document):
   number = SequenceField()
   priority = IntField()
+  created_at = DateTimeField(default=datetime.now())
+  closed_at = DateTimeField()
   
+  def messages(self):
+    return Message.objects
+    
   def status(self):
     return "Ei statusta"
   
@@ -61,6 +67,7 @@ class Issue(Document):
   solution = StringField()
   solved_at = DateTimeField()
   solved_by = ReferenceField(User)
+  order = ReferenceField(Order)
 
 class Message(Document):
   subject = StringField()
@@ -94,9 +101,45 @@ class Template(Document):
   body = StringField(required=True)
 
 class Customer(Document):
+  meta = { 'ordering': ['path', '-id'] }
+  number = SequenceField()
   name = StringField(required=True, default="Uusi asiakas")
+  """
+  path is a comma-separated list of Customer ids with the last one always being the
+  current customer
+  """
   path = StringField()
   properties = DictField()
+  
+  def get_indent(self):
+    """docstring for get_indent"""
+    return self.path.count(',')+1
+  
+  def fullname(self):
+    """
+    Get the entire info tree for this customer, upwards
+    """
+    title = []
+    
+    for c in self.path.split(','):
+      customer = Customer.objects(id = ObjectId(c))[0]
+      title.append(customer.name)
+    
+    title.reverse()
+    
+    return str(', ').join(title)
+
+  def fullprops(self):
+    """
+    Get the combined view of all the properties for this customer
+    """
+    props = {}
+    for c in self.path.split(','):
+      parent = Customer.objects(id = ObjectId(c))[0]
+      for key, value in parent.properties.items():
+        props[key] = value
+    
+    return props
 
 class Calendar(Document):
   title = StringField(required=True)

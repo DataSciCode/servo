@@ -1,6 +1,6 @@
 {% extends "default.html" %}
 {% load i18n %}
-
+{% load extras %}
 {% block toolbar %}
 
 <ul class="navigation">
@@ -147,14 +147,14 @@
         
 ?>
 
-{% for msg in order.message %}
+{% for msg in order.messages %}
 
-            <tr data-url="/message/edit/id/<?php print $i['_id'] ?>" class="<?php print $this->cycle(array('', 'even'))->next() ?>">
+            <tr data-url="/message/edit/{{ msg.id }}" class="{% cycle 'odd' 'even' %}">
                 <td style="padding-left:<?php print $indent*10 ?>px">
-                    <span class="user"><?php print $this->escape($i['from']) ?></span>
-                    <span class="date"><?php print $this->relativeDate($i['created_at']) ?></span>        
+                    <span class="user">{{ m.sender }}</span>
+                    <span class="date">{{ m.created_at|relative_date }}</span>        
 <?php if(@$i['mailto']) { ?><span class="email"><?php print @$i['mailto'] ?></span><?php } ?><br/>
-        <?php print Markdown($i['body']) ?>
+        {{ msg.body }}
 <?php if(isset($i['attachments'])) { foreach($i['attachments'] as $k => $v) { ?>
         <a class="window attachment" href="/attachment/view/id/<?php print $k ?>"><?php print $v ?></a>
 <?php }} ?>

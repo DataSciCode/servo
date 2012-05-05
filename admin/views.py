@@ -6,16 +6,16 @@ from django.shortcuts import get_object_or_404, render, redirect
 from datetime import datetime
 from django.http import HttpResponse
 
-from servo3.models import Status, Queue, GsxAccount, Field
+from servo3.models import Status, Queue, GsxAccount, Field, Template
 from pymongo.objectid import ObjectId
 
 def status(req):
   statuses = Status.objects
-  return render(req, 'status.html', statuses)
+  return render(req, 'admin/status.html', statuses)
 
 def status_form(req):
   status = Status()
-  return render(req, 'status_form.html', status)
+  return render(req, 'admin/status_form.html', status)
 
 def status_save(req):
   status = Status(title=req.POST['title'], description=req.POST['description'])
@@ -23,17 +23,17 @@ def status_save(req):
 
 def queues(req):
   queues = Queue.objects
-  return render(req, 'queues.html', queues)
+  return render(req, 'admin/queues.html', queues)
 
 def queue_form(req):
-  return render(req, 'queue_form.html')
+  return render(req, 'admin/queue_form.html')
 
 def gsx_accounts(req):
-  return render(req, 'gsx_accounts.html')
+  return render(req, 'admin/gsx_accounts.html')
 
 def gsx_form(req):
   act = GsxAccount()
-  return render(req, 'gsx_form.html', act)
+  return render(req, 'admin/gsx_form.html', act)
 
 def gsx_save(req):
   pass
@@ -42,13 +42,13 @@ def gsx_remove(req):
   pass
 
 def fields(req):
-  return render(req, 'fields.html', {'fields' : Field.objects})
+  return render(req, 'admin/fields.html', {'fields' : Field.objects})
 
 def edit_field(req, id=None):
   field = Field()
   if(id):
     field = Field.objects(id=ObjectId(id))[0]
-  return render(req, 'field_form.html', field)
+  return render(req, 'admin/field_form.html', field)
 
 def save_field(req):
   if(req.POST['id']):
@@ -70,4 +70,26 @@ def remove_field(req, id=None):
     return HttpResponse("Kenttä poistettu")
   else:
     field = Field.objects(id=ObjectId(id))[0]
-    return render(req, 'field_remove.html', field)
+    return render(req, 'admin/field_remove.html', field)
+
+def templates(req):
+  return render(req, 'admin/templates.html', {'templates': Template.objects})
+
+def create_template(req):
+  return render(req, 'admin/template_form.html')
+
+def save_template(req):
+  template = Template()
+  
+  if 'id' in req.POST:
+    template = Template.objects(id = ObjectId(req.POST['id']))[0]
+  
+  template.title = req.POST['title']
+  template.body = req.POST['body']
+  template.save()
+  
+  return HttpResponse('Pohja tallennettu')
+
+def view_template(req, id):
+  t = Template.objects(id = ObjectId(id))[0]
+  return HttpResponse(t.body)
