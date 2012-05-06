@@ -30,7 +30,8 @@ urlpatterns = patterns('',
     url(r'^orders/remove$', 'orders.views.remove'),
     url(r'^orders/create$', 'orders.views.create'),
     url(r'^orders/follow/(\w+)$', 'orders.views.follow'),
-    
+    url(r'^orders/tags/(\w+)$', 'orders.views.tags'),
+     
     url(r'^message/$', 'messages.views.index'),
     url(r'^message/save$', 'messages.views.save'),
     url(r'^message/view/(\w+)$', 'messages.views.view'),
@@ -71,5 +72,8 @@ urlpatterns = patterns('',
     url(r'^issue/save$', 'issues.views.save'),
     url(r'^issue/remove$', 'issues.views.remove'),
     url(r'^issue/remove/(\w+)$', 'issues.views.remove'),
+    
+    url(r'^tag/create/(\w+)$', 'tags.views.create'),
+    url(r'^tag/index$', 'tags.views.index'),
     # url(r'^servo3/', include('servo3.foo.urls')),
 )

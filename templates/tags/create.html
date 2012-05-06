@@ -1,0 +1,20 @@
+<form action="{{ action }}" method="post" accept-charset="utf-8" id="new_tag_form">
+  <input id="newTag" type="text" class="shortest" name="title"/>
+  {% csrf_token %}
+</form>
+
+<script type="text/javascript">
+    $.get("/tag/index", function(tags) {
+        $("#newTag").focus();
+        $("#newTag").autocomplete({source: tags});
+    });
+
+    $("#tags").click(function(event) {
+        var v = $("#newTag").val();
+        var url = $("#tags").data("url");
+        $("#tags").load(url, {
+            action: "add", title: v,
+            type: "{{ type }}"
+        });
+    });    
+</script>

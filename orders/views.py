@@ -1,12 +1,12 @@
 # coding=utf-8
-import logging
+import logging, json
 from django.template import RequestContext
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from datetime import datetime
 
 from bson.objectid import ObjectId
-from servo3.models import Order, Message, Template, Event, Queue
+from servo3.models import Order, Message, Template, Event, Queue, Tag
 
 def index(req, param="", value=""):
   return render(req, 'index.html', {'data' : Order.objects })
@@ -19,7 +19,22 @@ def create(req):
   e.save()
   
   return redirect('/orders/edit/' + str(o.id))
-
+  
+def tags(req, id):
+  if 'title' in req.POST:
+    order = Order.objects(id = ObjectId(id))[0]
+    title = req.POST['title']
+    
+    if title not in order.tags:
+      order.tags.append(title)
+      order.save()
+    
+    if len(Tag.objects(title = title, type = 'order')) < 1:
+      tag = Tag(title = title, type = 'order')
+      tag.save()
+    
+    return HttpResponse(json.dumps({order.tags}), content_type='application/json')
+  
 def edit(req, id):
   o = Order.objects(id=ObjectId(id))[0]
   queues = Queue.objects

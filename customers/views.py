@@ -3,7 +3,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 
 from bson.objectid import ObjectId
-from servo3.models import Customer, Field
+from servo3.models import Customer, Field, Order
 
 def index(req):
   customers = Customer.objects
@@ -17,7 +17,7 @@ def create(req, parent=None, order=None):
     parent = Customer.objects(id=ObjectId(parent))[0]
     customer.path = parent.path
   
-  return render(req, 'customers/form.html', {'fields' : fields, 'customer': customer})
+  return render(req, 'customers/form.html', {'fields' : fields, 'customer': customer, 'order' : order})
   
 def edit(req, id):
   fields = Field.objects(type='customer')
@@ -48,6 +48,11 @@ def save(req):
   if 'path' in req.POST:
     if not re.search(str(c.id), c.path):
       c.path += ',' + str(c.id) # adding a contact for an existing customer
+  
+  if 'order' in req.POST:
+    order = Order.objects(id = ObjectId(req.POST['order']))[0]
+    order.customer = c
+    order.save()
   
   c.save()
   

@@ -4,6 +4,10 @@ from bson.objectid import ObjectId
 
 connect('servo')
 
+class Tag(Document):
+  title = StringField(required=True, default='Uusi tagi')
+  type = StringField(required=True)
+  
 class Config(Document):
   mail_from = EmailField(default = 'servo@example.com')
   imap_host = StringField()
@@ -90,6 +94,7 @@ class Order(Document):
   closed_at = DateTimeField()
   followers = ListField()
   customer = ReferenceField(Customer)
+  tags = ListField()
   
   def issues(self):
     return Issue.objects(order = self)
