@@ -1,22 +1,19 @@
 {% extends "default.html" %}
+{% load i18n %}
 
 {% block toolbar %}
-
   <ul class="navigation">
       <li>
-          <a class="popup" href="/gsx/create_account">Uusi tili</a>
+          <a class="popup" href="/gsx/create_account">{% trans "Uusi tili" %}</a>
       </li>
   </ul>
-
 {% endblock %}
 
 {% block content %}
 <div class="small_block listView" id="accounts" data-url="/gsx/accounts">
 	<ul data-collection="gsx">
 {% for act in accounts %}
-		<li data-id="<?php print $i['_id'] ?>" data-action="edit-account">
-			<a href="/gsx/edit-account/id/<?php print $i['_id'] ?>" class="popup">{{ act.title }}</a>
-		</li>
+		<li data-url="/gsx/edit/{{ act.id }}">{{ act.title }}</li>
 {% endfor %}
 	</ul>
 </div>

@@ -1,7 +1,7 @@
 {% load i18n %}
 <form method="post" action="/gsx/save_account" accept-charset="utf-8" rel="accounts">
     {% csrf_token %}
-    <input name="_id" type="hidden" value="{{ id }}"/>
+    {% if id %}<input name="id" type="hidden" value="{{ id }}"/>{% endif %}
     <label>{% trans 'Otsikko' %}:</label>
     <input type="text" name="title" value="{{ title }}"/>
     <label>{% trans 'Sold-To' %}:</label>
@@ -17,10 +17,13 @@
     <input type="password" name="password"/>
     <br/>
     <label>{% trans 'Ympäristö' %}:</label>
-<?php print $this->formSelect('environment', $this->account['environment'],
-        NULL, $this->environments); ?>
-        <a href="/gsx/test-account/id/<?php print $this->account['_id'] ?>"><?php print __('Testaa yhteys') ?></a>
+    <select name="environment">
+{% for k, v in environments.items %}
+      <option value="{{ k }}">{{ v }}</option>
+{% endfor %}
+    </select>
+        <a href="/gsx/test-account/{{ id }}">{% trans "Testaa yhteys" %}</a>
     <br/>
     <label>{% trans 'Oletus' %}:</label>
-<?php print $this->formCheckbox('default', null, array('checked' => $this->account['default'])) ?>
+    <input type="checkbox" name="default" checked="checked">
 </form>

@@ -14,7 +14,7 @@
 <div class="small_block listView" id="fields" data-url="/admin/fields">
   <ul>
 {% for f in fields %}
-		<li data-url="/fields/edit/{{ f.id }}">{{ f.title }}</li>
+		<li data-url="/fields/edit/{{ f.id }}" class="{% cycle 'odd' 'even' %}">{{ f.title }}</li>
 {% endfor %}
 	</ul>
 </div>

@@ -6,9 +6,34 @@ from django.shortcuts import get_object_or_404, render, redirect
 from datetime import datetime
 from django.http import HttpResponse
 
-from servo3.models import Status, Queue, GsxAccount, Field, Template
-from pymongo.objectid import ObjectId
+from servo3.models import Status, Queue, GsxAccount, Field, Template, Config
+from bson.objectid import ObjectId
 
+def settings(req):
+  
+  if len(Config.objects) < 1:
+    config = Config()
+  else:
+    config = Config.objects[0]
+  
+  if len(req.POST) > 0:
+    
+    config.imap_host = req.POST['imap_host']
+    config.imap_user = req.POST['imap_user']
+    config.imap_ssl = 'imap_ssl' in req.POST
+    config.imap_password = req.POST['imap_password']
+    config.smtp_host = req.POST['smtp_host']
+    
+    config.sms_url = req.POST['sms_url']
+    config.sms_user = req.POST['sms_user']
+    config.sms_password = req.POST['sms_password']
+    
+    config.save()
+    
+    return HttpResponse('Asetukset tallennettu')
+  else:
+    return render(req, 'admin/settings.html', config)
+  
 def status(req):
   statuses = Status.objects
   return render(req, 'admin/status.html', statuses)
@@ -23,20 +48,53 @@ def status_save(req):
 
 def queues(req):
   queues = Queue.objects
-  return render(req, 'admin/queues.html', queues)
+  return render(req, 'admin/queues.html', {'queues': queues})
 
-def queue_form(req):
-  return render(req, 'admin/queue_form.html')
+def queue_form(req, id=None):
+  accounts = GsxAccount.objects
+  queue = Queue()
+  if id:
+    queue = Queue.objects(id = ObjectId(id))[0]
+  
+  return render(req, 'admin/queue_form.html', {'queue' : queue, 'accounts' : accounts})
+
+def queue_save(req):
+  q = Queue()
+  
+  if 'id' in req.POST:
+    q = Queue.objects(id = ObjectId(req.POST['id']))[0]
+  
+  q.title = req.POST['title']
+  q.description = req.POST['description']
+  q.gsx_account = GsxAccount.objects(id = ObjectId(req.POST['gsx_account']))[0]
+  q.save()
+  return HttpResponse('Jono tallennettu')
 
 def gsx_accounts(req):
-  return render(req, 'admin/gsx_accounts.html')
+  accounts = GsxAccount.objects
+  return render(req, 'admin/gsx_accounts.html', {'accounts': accounts })
 
 def gsx_form(req):
   act = GsxAccount()
-  return render(req, 'admin/gsx_form.html', act)
+  envs = {'': 'Tuotanto', 'it': 'Kehitys', 'ut': 'Testaus'}
+  return render(req, 'admin/gsx_form.html', {'account': act, 'environments': envs})
 
 def gsx_save(req):
-  pass
+  act = GsxAccount()
+  
+  if 'id' in req.POST:
+    act = GsxAccount.objects(id = req.POST['id'])[0]
+    
+  act.title = req.POST['title']
+  act.sold_to = req.POST['sold_to']
+  act.ship_to = req.POST['ship_to']
+  act.username = req.POST['username']
+  act.password = req.POST['password']
+  act.environment = req.POST['environment']
+  act.is_default = 'default' in req.POST
+  act.save()
+  
+  return HttpResponse('GSX tili tallennettu')
 
 def gsx_remove(req):
   pass

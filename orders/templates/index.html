@@ -29,8 +29,6 @@
 
             $status_int = 0;
             $status = $order['status'];
-            $status_alert = 'undefined';
-            $customer = @$order['customer'];
 
             if(empty($order['status']['title']))
             {
@@ -51,21 +49,6 @@
                 $status_link = '<a href="/orders/index/status/'.$status['_id'].'">'.$status_title.'</a>';
             }
             
-            $status_img = sprintf('<img style="float:right" src="/static/images/status_%s_16.png" alt=""/>',
-                $status_alert);
-            
-            $dev = '';
-            
-            // format devices
-            if(isset($order['devices']))
-            {
-                $device = current($order['devices']);
-                $dev_count = count($order['devices']);
-                $dev_link_text = $device['description'];
-                $dev_link_uri = '/orders/index/spec/'.@$device['spec'];
-                $dev = '<a href="'.$dev_link_uri.'">'.$dev_link_text.'</a>';
-            }
-
             $date_string = '';
 
             // show relative dates
@@ -76,24 +59,18 @@
             if(!$date->isToday() && !$date->isYesterday()) {
                 $param = 'week';
             }
-            
-            $customer_name = '';
-            
-            if( isset( $order['customer']['name'] )) {
-                $customer_name = mb_strimwidth(
-                    $order['customer']['name'], 0, 25, '…'
-                );
-            }
 
 ?>
 
-  {% for order in data %}
+{% for order in data %}
     <tr data-url="/orders/edit/{{ order.id }}" class="{% cycle  'odd' 'even' %}">
         <td><a href="/orders/edit/{{ order.id }}">{{ order.number }}</a></td>
         <td><a href="/orders/index/%s/%s">{{ order.created_at|relative_date }}</a></td>
-        <td><a href="/orders/index/customer/<?php print $customer['_id'] ?>"><?php print $customer_name ?></a></td>
-        <td><?php print $dev ?></td>
-        <td><a href="/orders/index/status/blaa">{{ order.status }}</a> <?php print $status_img ?> </td>
+        <td><a href="/orders/index/customer/{{ order.customer_id }}">{{ order.customer_name }}</a></td>
+        <td><a href="/orders/index/spec/{{ order.device_spec }}">{{ order.device_name }}</a></td>
+        <td><a href="/orders/index/status/blaa">{{ order.status }}</a>
+          <img src="/static/images/status_{{ order.status_img }}_16.png" style="float:right"/>
+        </td>
     </tr>
 {% empty %}
     <tr><td colspan="5" class="empty">{% trans "Ei yhtään tilausta" %}</td></tr>

@@ -2,14 +2,14 @@ import re
 from django.shortcuts import render
 from django.http import HttpResponse
 
-from pymongo.objectid import ObjectId
+from bson.objectid import ObjectId
 from servo3.models import Customer, Field
 
 def index(req):
   customers = Customer.objects
   return render(req, 'customers/index.html', {'customers' : customers})
 
-def create(req, parent=None):
+def create(req, parent=None, order=None):
   fields = Field.objects(type='customer')
   customer = Customer()
   
