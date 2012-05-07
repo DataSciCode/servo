@@ -1,13 +1,13 @@
 # coding=utf-8
 
-import logging
+import logging, hashlib
+from datetime import datetime
 from django.template import RequestContext
 from django.shortcuts import get_object_or_404, render, redirect
-from datetime import datetime
 from django.http import HttpResponse
 
-from servo3.models import Status, Queue, GsxAccount, Field, Template, Config
 from bson.objectid import ObjectId
+from servo3.models import Status, Queue, GsxAccount, Field, Template, Config, User, Location
 
 def settings(req):
   
@@ -36,39 +36,20 @@ def settings(req):
   
 def status(req):
   statuses = Status.objects
-  return render(req, 'admin/status.html', statuses)
+  return render(req, 'admin/status.html', {'statuses': statuses})
 
-def status_form(req):
+def status_form(req, id = None):
   status = Status()
-  return render(req, 'admin/status_form.html', status)
+  if id:
+    status = Status.objects(id = ObjectId(id))[0]
+    
+  queues = Queue.objects
+  factors = {'60': 'Minuuttia', '3600': 'Tuntia', '86400': 'Päivää', '604800': 'Viikkoa'}
+  return render(req, 'admin/status_form.html', {'status': status, 'queues': queues, 'factors': factors})
 
 def status_save(req):
   status = Status(title=req.POST['title'], description=req.POST['description'])
   status.save()
-
-def queues(req):
-  queues = Queue.objects
-  return render(req, 'admin/queues.html', {'queues': queues})
-
-def queue_form(req, id=None):
-  accounts = GsxAccount.objects
-  queue = Queue()
-  if id:
-    queue = Queue.objects(id = ObjectId(id))[0]
-  
-  return render(req, 'admin/queue_form.html', {'queue' : queue, 'accounts' : accounts})
-
-def queue_save(req):
-  q = Queue()
-  
-  if 'id' in req.POST:
-    q = Queue.objects(id = ObjectId(req.POST['id']))[0]
-  
-  q.title = req.POST['title']
-  q.description = req.POST['description']
-  q.gsx_account = GsxAccount.objects(id = ObjectId(req.POST['gsx_account']))[0]
-  q.save()
-  return HttpResponse('Jono tallennettu')
 
 def gsx_accounts(req):
   accounts = GsxAccount.objects
@@ -104,8 +85,10 @@ def fields(req):
 
 def edit_field(req, id=None):
   field = Field()
+  
   if(id):
     field = Field.objects(id=ObjectId(id))[0]
+    
   return render(req, 'admin/field_form.html', field)
 
 def save_field(req):
@@ -151,3 +134,79 @@ def save_template(req):
 def view_template(req, id):
   t = Template.objects(id = ObjectId(id))[0]
   return HttpResponse(t.body)
+  
+def users(req):
+  users = User.objects
+  return render(req, 'admin/users.html', {'users': users})
+  
+def edit_user(req, id=None):
+  user = User()
+  if id:
+    user = User.objects(id = ObjectId(id))[0]
+  locations = Location.objects
+  return render(req, 'admin/user_form.html', {'user': user, 'locations': locations})
+  
+def locations(req):
+  locations = Location.objects
+  return render(req, 'admin/locations.html', {'locations': locations})
+  
+def edit_location(req, id=None):
+  location = Location()
+  if id:
+    location = Location.objects(id  = ObjectId(id))[0]
+  return render(req, 'admin/location_form.html', {'location': location})
+  
+def save_location(req):
+  loc = Location()
+  
+  if 'id' in req.POST:
+    loc =Location.objects(id = ObjectId(id))[0]
+  
+  loc.title = req.POST['title']
+  loc.email = req.POST['email']
+  loc.address = req.POST['address']
+  loc.city = req.POST['city']
+  loc.zip = req.POST['zip']
+  loc.desciption = req.POST['description']
+  loc.save()
+  
+  return HttpResponse('Sijainti tallennettu')
+  
+def save_user(req):
+  user = User()
+  
+  if 'id' in req.POST:
+    user = User.objects(id = ObjectId(req.POST['id']))
+  else:
+    user = User()
+  
+  if req.POST['password']:
+    m = hashlib.sha1()
+    m.update(req.POST['password'])
+    user.password = m.hexdigest()
+  
+  user.username = req.POST['username']
+  user.fullname = req.POST['fullname']
+  user.email = req.POST['email']
+  user.phone = req.POST['phone']
+  user.locale = req.POST['locale']
+  user.role = req.POST['role']
+  user.location = Location.objects(id = ObjectId(req.POST['location']))[0]
+  user.save()
+  
+  return HttpResponse('Käyttäjä tallennettu')
+
+def save_status(req):
+  status = Status()
+  if 'id' in req.POST:
+    status = Status.objects(id = ObjectId(req.POST['id']))[0]
+  status.title = req.POST['title']
+  status.description = req.POST['description']
+  status.limit_green = req.POST['limit_green']
+  status.limit_yellow = req.POST['limit_yellow']
+  status.limit_factor = req.POST['limit_factor']
+  
+  status.save()
+  
+  return HttpResponse('Status tallennettu')
+  

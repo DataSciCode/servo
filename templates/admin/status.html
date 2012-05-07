@@ -1,10 +1,11 @@
 {%extends "default.html" %}
+{% load i18n %}
 
 {%block toolbar %}
 
   <ul class="navigation">
       <li>
-          <a class="popup" href="/admin/status/create">Uusi status</a>
+          <a class="popup" href="/admin/status/create">{% trans "Uusi status" %}</a>
       </li>
   </ul>
 
@@ -17,7 +18,7 @@
 
 {% for status in statuses %}
 
-    <li class="<?php print $this->cycle(array('', 'even'))->next() ?>" data-url="/admin/status/edit/id/<?php print $s['_id'] ?>"><?php print $s['title']?></li>
+    <li class="{% cycle 'odd' 'even' %}" data-url="/status/edit/{{ status.id }}">{{ status.title }}</li>
 
 {% endfor %}
 

@@ -1,0 +1,24 @@
+{% extends "default.html" %}
+{% load i18n %}
+
+{% block toolbar %}
+
+<ul>
+  <li><a href="/admin/location/create" class="popup">{% trans "Uusi sijainti" %}</a></li>
+</ul>
+
+{% endblock toolbar %}
+
+{% block content %}
+
+<div class="small_block listView" id="locations">
+	<ul data-collection="location">
+{% for loc in locations %}
+    <li class="{% cycle 'odd' 'even' %}" data-url="/location/edit/{{ loc.id }}">{{ loc.title }}</li>
+{% endfor %}
+	</ul>
+</div>
+
+<div id="detailView"></div>
+
+{% endblock content %}

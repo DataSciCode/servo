@@ -1,42 +1,22 @@
 {% load i18n %}
 
-<form
-    method="post"
-    rel="statuses"
-    accept-charset="utf-8"
-    action="/admin/status/save">
-  
-    <input type="hidden" name="_id" value="{{ status.id }}"/>
+<form method="post" rel="statuses" accept-charset="utf-8" action="/status/save">
+  {% csrf_token %}
+{% if status.id %}
+  <input type="hidden" name="id" value="{{ status.id }}"/>
+{% endif %}
     <label>{% trans 'Otsikko' %}:</label>
-    <input type="text" id="title" name="title" value="{{ title }}"/>
+    <input type="text" id="title" name="title" value="{{ status.title }}"/>
     <br/>
     <label>{% trans 'Kuvaus' %}:</label>
-    <textarea id="description" name="description">{{ description }}</textarea>
+    <textarea id="description" name="description">{{ status.description }}</textarea>
     <br/>
-    <label>{% trans 'Jonot' %}:</label>
-    <table style="width:75%">
-{% for q in queues %}
-    <tr style="background:none">
-        <td><input type="checkbox"
-<?php print $q['checked'] ?>
-            value="<?php print $q['id'] ?>"
-            name="queues[<?php print $q['id'] ?>][id]"/>
-        </td>
-        <td style="width:200px"><?php print $q['title'] ?></td>
-        <td style="width:30px"><input
-            type="text"
-            maxlength="2"
-            value="<?php print $q['limit']['green'] ?>"
-            name="queues[<?php print $q['id'] ?>][limit][green]" /></td>
-        <td style="width:30px"><input
-            type="text"
-            maxlength="2"
-            value="<?php print $q['limit']['yellow'] ?>"
-            name="queues[<?php print $q['id'] ?>][limit][yellow]" /></td>
-    <td>
-<?php print $this->formSelect("queues[{$q['id']}][alert_factor]", $q['alert_factor'], array('style' => 'width:40px'), $this->factors) ?>
-    </td>
-    </tr>
+    <label>{% trans 'Aikaraja' %}:</label>
+    <input type="text" class="shortest" name="limit_green" value="{{ status.limit_green }}"/>
+    <input type="text" class="shortest" name="limit_yellow" value="{{ status.limit_yellow }}"/>
+    <select name="limit_factor">
+{% for k, v in factors.items %}
+      <option value="{{ k }}">{{ v }}</option>
 {% endfor %}
-    </table>
+    </select>
 </form>

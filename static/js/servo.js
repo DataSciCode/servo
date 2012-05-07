@@ -345,9 +345,9 @@ var SidebarView = Backbone.View.extend(
     el: "div#side_pane"
 ,
     events: {
-        "click .save"		: "submit",
-        "click .follow"		: "follow",
-        "click .head"		: "toggle",
+        "click .save"		  : "submit",
+        "click .follow"	  : "follow",
+        "click .head"		  : "toggle",
         "change select"		: "trigger_event",
     }
 ,
@@ -388,8 +388,7 @@ var SidebarView = Backbone.View.extend(
         $.post(url, $("#miniform").serialize(), function()
         {
             $("#minimessage").val("");
-            $("#messages").load($("#messages")
-                .attr("data-url"));
+            $("#messages").load($("#messages").data("url"));
         });
     }
 ,
@@ -422,11 +421,9 @@ var SidebarView = Backbone.View.extend(
 
         var reload = (type == "set_queue") ? "#set_status" : "#events";
 
-        $(reload).load("/event/trigger/type/"+type+"/id/"+id, {
-            id: id,
-            type: type
-        }, function() {
-            $("#events").load($("#events").attr("data-url"));
+        $(reload).load("/order/"+type+"/id/"+id, {id: id, type: type},
+          function() {
+            $("#events").load($("#events").data("url"));
         });
     }
 ,

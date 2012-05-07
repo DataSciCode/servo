@@ -1,0 +1,23 @@
+{% extends "default.html" %}
+{% load i18n %}
+
+{% block toolbar %}
+
+<ul>
+  <li><a href="/admin/user/create" class="popup">{% trans "Uusi käyttäjä" %}</a></li>
+</ul>
+
+{% endblock toolbar %}
+
+{% block content %}
+
+<div class="small_block listView" id="users" data-url="/admin/users">
+	<ul data-collection="users">
+{% for user in users %}
+  <li data-url="/user/edit/{{ user.id }}">{{ user.fullname }}</li>
+{% endfor %}
+	</ul>
+</div>
+<div id="detailView"></div>
+
+{% endblock %}

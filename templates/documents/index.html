@@ -1,0 +1,23 @@
+{% extends "default.html" %}
+{% load i18n %}
+
+{% block content %}
+
+<div class="tableView" id="attachments" data-url="/admin/files">
+    <table>
+        <thead><tr><th colspan="5">{% trans "Tiedostojen hallinta" %}</th></tr></thead>
+        <tbody>
+{% for file in files %}
+          <tr data-url="/attachment/edit/id/<?php print $f['_id'] ?>" class="{% cycle 'odd' 'even' %}">
+              <td><a href="/attachment/view/id/<?php print $f['_id']; ?>" class="window">{{ file.name }}</a></td>
+              <td>{{ file.description }}</td>
+              <td><?php print round($f['size']/pow(1024, 1)) ?> kt</td>
+              <td>{{ file.uploaded_by }}</td>
+              <td>{{ file.uploaded_at }}</td>
+          </tr>
+{% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock content %}

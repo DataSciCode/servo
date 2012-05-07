@@ -6,7 +6,10 @@ from django.utils.translation import ugettext as _
 # admin.autodiscover()
 
 urlpatterns = patterns('',
-  
+
+   url(r'^user/save$', 'admin.views.save_user'),
+   url(r'^user/edit/(\w+)$', 'admin.views.edit_user'),
+   
     url(r'^customer/index', 'customers.views.index'),
     url(r'^customer/edit/(\w+)$', 'customers.views.edit'),
     
@@ -39,13 +42,19 @@ urlpatterns = patterns('',
     url(r'^message/remove/(\w+)$', 'messages.views.remove'),
     url(r'^message/create/order/(\w+)$', 'messages.views.form'),
     
+    url(r'^admin/files$', 'documents.views.index'),
     url(r'^admin/status/$', 'admin.views.status'),
-    url(r'^admin/queues/$', 'admin.views.queues'),
+    url(r'^status/save$', 'admin.views.save_status'),
+    url(r'^status/edit/(\w+)$', 'admin.views.status_form'),
+    url(r'^admin/queues/$', 'queues.views.index'),
     url(r'^admin/status/create$', 'admin.views.status_form'),
-    url(r'^admin/queue/create$', 'admin.views.queue_form'),
     url(r'^admin/fields/$', 'admin.views.fields'),
     url(r'^admin/fields/edit/$', 'admin.views.edit_field'),
     url(r'^admin/settings$', 'admin.views.settings'),
+    url(r'^admin/users$', 'admin.views.users'),
+    url(r'^admin/user/create$', 'admin.views.edit_user'),
+    url(r'^admin/locations$', 'admin.views.locations'),
+    url(r'^admin/location/create$', 'admin.views.edit_location'),
     
     url(r'^fields/edit/(\w+)$', 'admin.views.edit_field'),
     url(r'^fields/remove/$', 'admin.views.remove_field'),
@@ -62,8 +71,11 @@ urlpatterns = patterns('',
     url(r'^gsx/remove_account$', 'admin.views.gsx_remove'),
     url(r'^gsx/save_account$', 'admin.views.gsx_save'),
     
-    url(r'^queue/save$', 'admin.views.queue_save'),
-    url(r'^queue/edit/(\w+)$', 'admin.views.queue_form'),
+    url(r'^queue/create$', 'queues.views.edit'),
+    url(r'^queue/save$', 'queues.views.save'),
+    url(r'^queue/edit/(\w+)$', 'queues.views.edit'),
+    url(r'^queue/remove$', 'queues.views.remove'),
+    url(r'^queue/remove/(\w+)$', 'queues.views.remove'),
     
     url(r'^products/create/order/(\w+)$', 'products.views.create'),
     
@@ -75,5 +87,7 @@ urlpatterns = patterns('',
     
     url(r'^tag/create/(\w+)$', 'tags.views.create'),
     url(r'^tag/index$', 'tags.views.index'),
+    
+    url(r'^location/save$', 'admin.views.save_location'),
     # url(r'^servo3/', include('servo3.foo.urls')),
 )

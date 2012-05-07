@@ -1,0 +1,52 @@
+{% load i18n %}
+
+<div class="tabView">
+<ul class="tabs"><li><a href="#general">{% trans "Yleistiedot" %}</a></li><li><a href="#permissions">{% trans "Oikeudet" %}</a></li></ul>
+
+<form action="/user/save" method="post" accept-charset="utf-8" rel="users">
+  {% csrf_token %}
+{% if user.id %}
+    <input type="hidden" name="id" value="{{ user.id }}"/>
+{% endif %}
+    <div id="general" class="tab">
+        <label>{% trans "Nimi" %}:</label>
+        <input type="text" name="fullname" value="{{ user.fullname }}"/><br/>
+        <label>{% trans "Sähköposti" %}:</label>
+        <input type="text" name="email" value="{{ user.email }}"/><br/>
+        <label>{% trans "Tunnus" %}:</label>
+        <input type="text" name="username" value="{{ user.username }}"/><br/>
+        <label>{% trans "Puhelin" %}:</label>
+        <input type="text" name="phone" value="{{ user.phone }}"/>
+        <label>{% trans "Salasana" %}:</label>
+        <input type="password" name="password"/><br/>  
+        <label>{% trans "Varmistus" %}:</label>
+        <input type="password" name="password_conf"/><br/>
+        <label>{% trans "Tech ID" %}:</label>
+        <input type="text" name="tech_id" value="{{ user.tech_id }}"/><br/>
+        <label>{% trans "Toimipaikka" %}:</label>
+        <select name="location">
+{% for loc in locations %}
+          <option value="{{ loc.id }}">{{ loc.title }}</option>
+{% endfor %}
+        </select>
+        <br/>
+        <label>{% trans "Kieli" %}:</label>
+        <select name="locale">
+            <option value="fi_FI.UTF-8">{% trans "Suomi" %}</option>
+            <option value="en_GB.UTF-8">{% trans "Englanti" %}</option>
+        </select>
+    </div><!-- //#general -->
+    <div class="tab" id="permissions">
+        <label>{% trans "Rooli" %}:</label>
+        <select name="role">
+          <option value="admin">{% trans "Ylläpitäjä" %}</option>
+          <option value="manager">{% trans "Päällikkö" %}</option>
+          <option value="tech">{% trans "Tekniikko" %}</option>
+          <option value="user">{% trans "Käyttäjä" %}</option>
+        </select>
+        <br/>
+        <label>{% trans "Asiakas" %}:</label>
+        <input type="text" name="customer_id" value="{{ user.customer_id }}"/>
+    </div><!-- //#permissions -->
+</form>
+</div>

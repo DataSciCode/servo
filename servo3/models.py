@@ -1,3 +1,5 @@
+#coding=utf-8
+
 from mongoengine import *
 from datetime import datetime
 from bson.objectid import ObjectId
@@ -26,11 +28,12 @@ class Field(Document):
   format = StringField()
   
 class Location(Document):
-  title = StringField(required=True)
+  title = StringField(required=True, default="Uusi sijainti")
   description = StringField()
   phone = StringField()
   email = EmailField()
   address = StringField()
+  shipto = StringField()
   
 class GsxAccount(Document):
   title = StringField(default="Uusi tili")
@@ -41,10 +44,18 @@ class GsxAccount(Document):
   environment = StringField()
   is_default = BooleanField(default=True)
 
+class Status(Document):
+  title = StringField(default="Uusi status")
+  description = StringField()
+  limit_green = IntField()
+  limit_yellow = IntField()
+  limit_factor = IntField()
+    
 class Queue(Document):
   title = StringField(default = "Uusi jono")
   description = StringField()
   gsx_account = ReferenceField(GsxAccount)
+  statuses = DictField()
   
 class Customer(Document):
   meta = { 'ordering': ['path', '-id'] }
@@ -130,7 +141,7 @@ class Order(Document):
 class User(Document):
   email = StringField(max_length=128, required=True)
   username = StringField(max_length=64, required=True)
-  fullname = StringField(max_length=128, required=True)
+  fullname = StringField(max_length=128, required=True, default='Uusi käyttäjä')
   password = StringField(max_length=64, required=True)
   role = StringField(max_length=64, required=True)
   location = ReferenceField(Location)
@@ -180,11 +191,7 @@ class Message(Document):
     params = urllib.urlencode({'username' : conf.sms_user, 'password' : conf.sms_password, 'text' : self.body, 'to' : self.smsto})
     f = urllib.urlopen("%s?%s" %(conf.sms_url, params))
     print f.read()
-    
-class Status(Document):
-  title = StringField(default="Uusi status")
-  description = StringField()
-
+  
 class Product(Document):
   number = SequenceField()
   code = StringField()
@@ -224,3 +231,10 @@ class Event(Document):
   ref_order = ReferenceField(Order)
   type = StringField()
   
+class Calendar(Document):
+  title = StringField(required=True)
+  user = ReferenceField(User)
+  events = ListField(DictField)
+  
+class Document(Document):
+  pass

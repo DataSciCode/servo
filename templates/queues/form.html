@@ -1,0 +1,72 @@
+{% load i18n %}
+
+<div class="tabView">
+  <form method="post" action="/queue/save" accept-charset="utf-8" rel="queues">
+    {% csrf_token %}
+    <ul class="tabs"><li><a href="#info">{% trans 'Perustiedot' %}</a></li><li><a href="#statuses">{% trans 'Statukset' %}</a></li><li><a href="#templates">{% trans 'Pohjat' %}</a></li></ul>
+{% if queue.id %}
+    <input type="hidden" name="id" value="{{ queue.id }}" />
+{% endif %}
+      <div id="info" class="tab">
+          <label>{% trans 'Nimi' %}:</label>
+          <input type="text" name="title" value="{{ queue.title }}" />
+          <br/>
+          <label>{% trans 'Kuvaus' %}:</label>
+          <textarea name="description">{{ queue.description }}</textarea>
+          <br/>
+          <label>{% trans 'GSX-tili' %}:</label>
+          <select name="gsx_account">
+{% for act in accounts %}
+            <option value="{{ act.id }}">{{ act.title }}</option>
+{% endfor %}
+          </select>
+      </div>
+    
+    <div id="statuses" class="tab">
+      <table>
+{% for status in statuses %}
+          <tr>
+            <td style="width:20px"><input type="checkbox" class="toggle_row" value="{{ status.id }}"/></td>
+            <td>{{ status.title }}</td>
+            <td style="width:30px"><input type="text" value="" name="{{ status.id }}.limit_green" /></td>
+            <td style="width:30px"><input type="text" value="" name="{{ status.id }}.limit_yellow" /></td>
+            <td style="width:40px"><select name="{{ status.id }}.limit_factor"></select></td>
+          </tr>
+{% endfor %}
+      </table>
+    </div><!-- //#statuses -->
+    
+    <div id="templates" class="tab">
+      <ul>
+{% for f in attachments %}
+  <li><a href="/orders/print/id/{{ f.id }}">{{ f.name }}</a></li>
+{% endfor %}
+        </ul>
+{% if queue.id %}
+
+  <label>{% trans "Pohja" %}:</label>
+  <input type="file" name="incoming" id="fileupload"/>
+  <ul id="attachments"></ul>
+
+{% endif %}
+
+    </div>
+    </form>
+</div>
+    
+<script type="text/javascript">
+    $("#fileupload").fileupload({
+        url: "/attachment/create",
+        done: function(e, data) {
+            var file = data.result;
+            $("<li/>").text(file.name).appendTo($("#attachments"));
+            $("<input/>").attr("type", "hidden")
+                .attr("name", "attachments["+file._id+"]")
+                .val(file.name)
+                .insertAfter("#fileupload");
+        }
+    });
+    $('.toggle_row').click(function() {
+      $(this).siblings('input').attr('disabled', 'disabled');
+    });
+</script>

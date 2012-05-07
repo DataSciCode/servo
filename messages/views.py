@@ -15,17 +15,20 @@ def form(req, order_id=None):
   
 def save(req):
   m = Message(created_by = 'filipp')
-  m.subject = req.POST['body']
-  m.body = req.POST['body']
-  m.smsto = req.POST['smsto']
-  m.mailto = req.POST['mailto']
+  m.subject = req.POST.get('body')
+  m.body = req.POST.get('body')
+  m.smsto = req.POST.get('smsto')
+  m.mailto = req.POST.get('mailto')
   
   if 'order' in req.POST:
     order = Order.objects(id=ObjectId(req.POST['order']))[0]
     m.order = order
   
-  m.send_mail()
-  m.send_sms()
+  if(m.mailto):
+    m.send_mail()
+  
+  if(m.smsto):
+    m.send_sms()
   
   m.save()
   

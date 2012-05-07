@@ -1,0 +1,31 @@
+{% load i18n %}
+<form method="post" accept-charset="utf-8" action="/location/save" rel="locations">
+  {% csrf_token %}
+  {% if location.id %}
+  <input type="hidden" name="id" value="{{ location.id }}"/>
+  {% endif %}
+	
+	<label>{% trans "Nimi" %}:</label>
+	<input type="text" name="title" value="{{ location.title }}"/>
+	<br/>
+	<label>{% trans "Sähköposti" %}:</label>
+	<input type="text" name="email" value="{{ location.email }}"/>
+	<br/>
+	<label>{% trans "Puhelin" %}:</label>
+	<input type="text" name="phone" value="{{ location.phone }}"/>
+	<br/>
+	<label>{% trans "Osoite" %}:</label>
+	<input type="text" name="address" value="{{ location.address }}"/>
+	<br/>
+	<label>{% trans "Postinumero" %}:</label>
+	<input type="text" name="zip" value="{{ location.zip }}"/>
+	<br/>
+	<label>{% trans "Paikkakunta" %}:</label>
+	<input type="text" name="city" value="{{ location.city }}"/>
+	<br/>
+	<label>{% trans "Ship-To" %}:</label>
+	<input type="text" name="shipto" value="{{ location.shipto }}"/>
+	<br/>
+	<label>{% trans "Merkinnät" %}:</label>
+	<textarea name="description">{{ location.description }}</textarea>
+</form>

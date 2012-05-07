@@ -1,6 +1,7 @@
 <form action="{{ action }}" method="post" accept-charset="utf-8" id="new_tag_form">
-  <input id="newTag" type="text" class="shortest" name="title"/>
   {% csrf_token %}
+  <input type="hidden" name="type" value="{{ type }}"/>
+  <input id="newTag" type="text" class="shortest" name="title"/>
 </form>
 
 <script type="text/javascript">
@@ -9,12 +10,8 @@
         $("#newTag").autocomplete({source: tags});
     });
 
-    $("#tags").click(function(event) {
-        var v = $("#newTag").val();
+    $("#new_tag_form").submit(function() {
         var url = $("#tags").data("url");
-        $("#tags").load(url, {
-            action: "add", title: v,
-            type: "{{ type }}"
-        });
-    });    
+        return true;
+    }); 
 </script>

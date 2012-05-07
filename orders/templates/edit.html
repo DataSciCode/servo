@@ -1,8 +1,10 @@
 {% extends "default.html" %}
 {% load i18n %}
 {% load extras %}
-{% block toolbar %}
 
+{% block title %}{% trans "Huoltotilaus" %}{% endblock title %}
+
+{% block toolbar %}
 <ul class="navigation">
     <li>
         <a class="popup customer" href="/customer/create/order/{{ order.id }}">{% trans 'Asiakas' %}</a>
@@ -20,12 +22,11 @@
         <a class="popup message" href="/message/create/order/{{ order.id }}">{% trans 'Viesti' %}</a>
     </li>
 </ul>
-
 {% endblock %}
 
 {% block sidebar %}
 
-<div class="block_header"><p style="padding:10px"><a href="/orders/">Servo &gt; </a><a href="/orders/edit/id/{{ order.id }}">{{ order.number }}</a></p></div>
+<div class="block_header"><p style="padding:10px"><a href="/orders/">Servo &gt; </a><a href="/orders/edit/{{ order.id }}">{{ order.number }}</a></p></div>
 <div style="padding:5px" class="droppable">
     <span class="label">{% trans 'Jono' %}</span>
     <select name="set_queue">
@@ -78,7 +79,9 @@
 
           $("#add_tag").click(function(e) {
               e.preventDefault();
-              $("#newTagTarget").load($(this).attr("href"));
+              $("#newTagTarget").load($(this).attr("href"), {
+                action: "/orders/tags/{{ order.id }}"
+              });
           });
 
           $(".droppable").droppable({
@@ -94,10 +97,7 @@
     </div>
     <br/><hr/>
 
-    <div
-        id="customers"
-        class="customerDetails"
-        data-url="/orders/customer/id/{{ order.id }}">
+    <div id="customers" class="customerDetails" data-url="/orders/customer/id/{{ order.id }}">
         <a href="/customer/edit/{{ order.customer.id }}" class="popup"><h3>{{ order.customer.name }}</h3></a>
         
 {% for k, v in order.customer.fullprops.items %}
@@ -109,9 +109,11 @@
     <hr/>
     </div>
 
-    <form id="miniform" method="post" action="/orders/update/id/<?php print $this->order['_id'] ?>">
-        <span class="label">{% trans 'Pikaviesti' %}</span>
-        <textarea name="message" id="minimessage"></textarea>
+    <form id="miniform" method="post" action="/message/save">
+      {% csrf_token %}
+      <input type="hidden" name="order" value="{{ order.id }}"/>
+      <span class="label">{% trans 'Pikaviesti' %}</span>
+      <textarea name="body" id="minimessage"></textarea>
     </form>
     <div class="buttons">
         <a href="javascript:;" class="save button"><span>{% trans 'Tallenna' %}</span></a>

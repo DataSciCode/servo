@@ -1,4 +1,5 @@
 {% load i18n %}
+
 <div class="tabView">
     <ul class="tabs"><li><a href="#info">{% trans 'Perustiedot' %}</a></li><li><a href="#price">{% trans 'Hinnat' %}</a></li><li><a href="#stock">{% trans 'Varasto' %}</a></li><li><a href="#files">{% trans 'Liitteet' %}</a></li><li><a href="#gsx">{% trans 'GSX' %}</a></li></ul>
 
@@ -7,6 +8,7 @@
     rel="products"
     accept-charset="utf-8"
     action="/products/save">
+    {% csrf_token %}
 <?php if($this->isInstance): ?>
     <input name="sku" type="hidden" value="{{ product.number }}"/>
     <input
@@ -14,10 +16,7 @@
         type="hidden"
         value="<?php print $this->product['idx'] ?>"/>
 <?php endif ?>
-    <input
-        name="_id"
-        type="hidden"
-        value="<?php print $this->product['_id'] ?>"/>
+    <input name="id" type="hidden" value="{{ product.id }}"/>
     <div id="info" class="tab">
         <label>{% trans 'Koodi' %}:</label>
         <input
@@ -25,7 +24,7 @@
             name="code"
             type="text"
             class="ucase searchable"
-            value="<?php print $this->escape($this->product['code'] )?>"/>
+            value="{{ product.code }}"/>
         <a class="search" href="javascript:;" data-url="/products/search-drawer"></a>
         <br/>
         <label>{% trans 'Nimike' %}:</label>
@@ -33,19 +32,14 @@
         <br/>
 <?php if($this->isInstance): ?>
         <label>{% trans 'Määrä' %}:</label>
-        <input id="amount" type="text" name="amount[sold]" value="<?php print $this->product['amount']['sold'] ?>"/>
+        <input id="amount" type="text" name="amount_sold" value="{{ product.amount_sold }}"/>
         <br/>
         <label>{% trans 'Sarjanumero' %}:</label>
-        <input
-            id="sn"
-            name="sn"
-            type="text"
-            value="<?php print $this->product['sn'] ?>"/>
+        <input id="sn" name="sn" type="text" value="{{ product.sn }}"/>
         <br/>
 <?php endif ?>
         <label>{% trans 'Kuvaus' %}:</label>
-        <textarea
-            name="description"><?php print $this->escape($this->product['description']) ?></textarea>
+        <textarea name="description">{{ product.description }}</textarea>
 <?php if(!$this->isInstance): ?>
         <br/>
         <div style="margin-left:85px">
@@ -64,75 +58,42 @@
     
     <div id="price" class="tab">
         <label>{% trans 'Ostohinta' %}:</label>
-        <input 
-            type="text"
-            name="price[purchase]"
-            value="<?php print $this->escape($this->product['price']['purchase']) ?>"/>
+        <input type="text" name="price_purchase" value="{{ product.price_purchase }}"/>
         <br/>
         <label>{% trans 'Vaihtohinta' %}:</label>
-        <input
-            type="text"
-            name="price[exchange]"
-            value="<?php print $this->product['price']['exchange'] ?>"/>
+        <input type="text" name="price_exchange" value="{{ product.price_exchage }}"/>
         <br/>
         <label>{% trans 'Kate %' %}:</label>
-        <input 
-            type="text"
-            name="pct_margin"
-            value="<?php print $this->escape($this->product['pct_margin']) ?>"/>
+        <input type="text" name="pct_margin" value="{{ pct_margin }}"/>
         <br/>
         <label>{% trans 'ALV %' %}:</label>
-        <input
-            type="text"
-            name="pct_vat"
-            value="<?php print $this->product['pct_vat'] ?>"/>
+        <input type="text" name="pct_vat" value="{{ product.pct_vat }}"/>
         <br/>
         <label>{% trans 'Perushinta' %}:</label>
-        <input 
-            type="text"
-            name="price[notax]"
-            value="<?php print $this->product['price']['notax'] ?>"/>
+        <input type="text" name="price_notax" value="{{ product.price_notax }}"/>
         <br/>
         <label>{% trans 'Myyntihinta' %}:</label>
-        <input
-            type="text"
-            name="price[sales]"
-            value="<?php print $this->product['price']['sales'] ?>"/>
+        <input type="text" name="price_sales" value="{{ product.price_sales }}"/>
     </div>
     <!-- //#price -->
     <div id="stock" class="tab">
         <label>{% trans 'Valmistaja' %}:</label>
-        <input
-            type="text"
-            name="brand"
-            value="<?php print $this->escape($this->product['brand']) ?>"/>
+        <input type="text" name="brand" value="{{ product.brand }}"/>
         <br/>
         <label>{% trans 'Takuu (kk)' %}:</label>
-        <input
-            type="text"
-            name="warranty_period"
-            value="<?php print $this->product['warranty_period'] ?>"/>
+        <input type="text" name="warranty_period" value="{{ product.warranty_period }}"/>
         <br/>
         <label>{% trans 'Hyllykoodi' %}:</label>
-        <input type="text" name="shelf" value="<?php print $this->product['shelf'] ?>"/>
+        <input type="text" name="shelf" value="{{ product.shelf }}"/>
         <br/>
         <label>{% trans 'Tilattu' %}:</label>
-        <input
-            type="text"
-            name="amount[ordered]"
-            value="<?php print $this->product['amount']['ordered'] ?>"/>
+        <input type="text" name="amount_ordered" value="{{ product.amount_ordered }}"/>
         <br/>
         <label>{% trans 'Varastossa' %}:</label>
-        <input
-            type="text"
-            name="amount[in_stock]"
-            value="<?php print $this->product['amount']['in_stock'] ?>"/>
+        <input type="text" name="amount_stocked" value="{{ product.amount_stocked }}"/>
         <br/>
         <label>{% trans 'Minimiraja' %}:</label>
-        <input
-            type="text"
-            name="amount[minimum]"
-            value="<?php print $this->product['amount']['minimum'] ?>"/>
+        <input type="text" name="amount_minimum" value="{{ product.amount_minimum }}"/>
         <br/>
         <label>{% trans 'Varattu' %}:</label>
 <?php foreach($this->product['amount']['reserved'] as $order => $amount): ?>
@@ -154,7 +115,7 @@
     </div><!-- //#stock -->
     
     <div id="files" class="tab">
-        <label><?php print __( 'Liitteet' ); ?>:</label>
+        <label>{% trans "Liitteet" %}:</label>
         <ul id="attachments">
 <?php foreach( $this->files as $f ): ?>
         <li class="attachment">
@@ -169,15 +130,10 @@
       <input type="file" id="fileupload" name="incoming"/>
     </div><!-- //#files -->
     <div id="gsx" class="tab">
-<?php foreach($this->product['gsxData'] as $k => $v): ?>
-        <label style="width:150px"><?php print __($k) ?>:</label>
-        <input
-           type="text"
-           style="width:50%"
-           readonly="readonly"
-           value="<?php print $v ?>"
-           name="gsxData[<?php print $k ?>]"/>
-<?php endforeach ?>
+{% for k, v in product.gsx_data.items %}
+        <label style="width:150px">{{ k }}:</label>
+        <input type="text" style="width:50%" readonly="readonly" value="{{ v }}" name="gsxData[<?php print $k ?>]"/>
+{% endfor %}
     </div><!-- //#gsx -->
 </form>
 </div>

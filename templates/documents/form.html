@@ -1,0 +1,14 @@
+<form method="post" action="/attachment/save" rel="attachments">
+	<input type="hidden" name="_id" value="<?php print $this->file['_id'] ?>"/>
+	<label><?php print __('Nimi') ?>:</label>
+	<input type="text" name="name" value="<?php print $this->file['name']?>"/>
+	<br/>
+	<label><?php print __('Kuvaus') ?>:</label>
+	<textarea name="description"><?php print $this->file['description'] ?></textarea>
+	<br/>
+	<label><?php print __('Tiedosto') ?>:</label>
+	<input type="file" name="incoming" id="fileupload"/>
+</form>
+<script type="text/javascript">
+	$("#fileupload").fileupload();
+</script>

@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404, render, redirect
 from datetime import datetime
 
 from bson.objectid import ObjectId
-from servo3.models import Order, Message, Template, Event, Queue, Tag
+from servo3.models import Order, Message, Template, Event, Queue, Tag, User
 
 def index(req, param="", value=""):
   return render(req, 'index.html', {'data' : Order.objects })
@@ -38,7 +38,8 @@ def tags(req, id):
 def edit(req, id):
   o = Order.objects(id=ObjectId(id))[0]
   queues = Queue.objects
-  return render(req, 'edit.html', {'order': o, 'queues': queues})
+  users = User.objects
+  return render(req, 'edit.html', {'order': o, 'queues': queues, 'users': users})
 
 def remove(req, id=None):
   """docstring for remove"""
