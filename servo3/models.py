@@ -6,6 +6,13 @@ from bson.objectid import ObjectId
 
 connect('servo')
 
+class Attachment(Document):
+  name = StringField(default = 'Uusi tiedosto')
+  content = FileField()
+  description = StringField()
+  uploaded_at = DateTimeField(default=datetime.now())
+  uploaded_by = StringField(default="filipp")
+  
 class Tag(Document):
   title = StringField(required=True, default='Uusi tagi')
   type = StringField(required=True)
@@ -171,9 +178,7 @@ class Message(Document):
   smsto = StringField()
   order = ReferenceField(Order)
   path = StringField()
-  
-  def attachments(self):
-    pass
+  attachments = ListField(Attachment)
     
   def indent(self):
     return 1
@@ -236,5 +241,4 @@ class Calendar(Document):
   user = ReferenceField(User)
   events = ListField(DictField)
   
-class Document(Document):
-  pass
+  

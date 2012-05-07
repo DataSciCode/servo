@@ -6,7 +6,13 @@ from django.utils.translation import ugettext as _
 # admin.autodiscover()
 
 urlpatterns = patterns('',
-
+  
+  url(r'^$', 'orders.views.index'),
+  url(r'^document/save$', 'documents.views.save'),
+  url(r'^document/view/(\w+)$', 'documents.views.view'),
+  url(r'^document/remove/(\w+)$', 'documents.views.remove'),
+  url(r'^document/remove$', 'documents.views.remove'),
+  url(r'^files/create$', 'documents.views.create'),
    url(r'^user/save$', 'admin.views.save_user'),
    url(r'^user/edit/(\w+)$', 'admin.views.edit_user'),
    
@@ -24,7 +30,6 @@ urlpatterns = patterns('',
     url(r'^customer/move$', 'customers.views.move'),
     url(r'^customer/move/(\w+)$', 'customers.views.move'),
     
-    url(r'^$', 'orders.views.index'),
     url(r'^orders/$', 'orders.views.index'),
     url(r'^orders/index/(\w+)/(\w+)/$', 'orders.views.index'),
     

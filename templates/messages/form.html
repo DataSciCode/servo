@@ -1,13 +1,9 @@
 {% load i18n %}
-<form
-    method="post"
-    rel="messages"
-    accept-charset="utf-8"
-    action="/message/save">
-    
+<form action="/message/save" method="post" rel="messages" accept-charset="utf-8">
     {% csrf_token %}
-    
-    <input name="_id" type="hidden" value="{{ message.id }}"/>
+{% if message.id %}
+    <input name="id" type="hidden" value="{{ message.id }}"/>
+{% endif %}    
     <input name="path" type="hidden" value="{{ message.path }}"/>
     <input type="hidden" name="order" value="{{ message.order_id }}"/>
     
@@ -30,6 +26,7 @@
     <input type="file" id="fileupload" name="incoming"/>
     <ul id="attachments"></ul>
 </form>
+
 <script type="text/javascript">
     $(".chooser").change( function() {
         var ta = "#" + $(this).attr("rel");
@@ -37,13 +34,13 @@
     });
 
     $("#fileupload").fileupload({
-        url: "/attachment/create",
+        url: "/document/save",
         done: function(e, data) {
-            var file = data.result;
+          file = data.result;
             $("<li/>").text(file.name).appendTo($("#attachments"));
             $("<input/>").attr("type", "hidden")
-                .attr("name", "attachments["+file._id+"]")
-                .val(file.name)
+                .attr("name", "attachments")
+                .val(file.id)
                 .insertAfter("#fileupload");
         }
     });

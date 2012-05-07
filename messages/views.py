@@ -2,7 +2,7 @@ from bson.objectid import ObjectId
 from django.shortcuts import render
 from django.http import HttpResponse
 
-from servo3.models import Message, Template, Order
+from servo3.models import Message, Template, Order, Document
 
 def index(req):
   messages = Message.objects
@@ -14,11 +14,16 @@ def form(req, order_id=None):
   return render(req, 'messages/form.html', {'message' : m, 'templates': Template.objects})
   
 def save(req):
+  
   m = Message(created_by = 'filipp')
   m.subject = req.POST.get('body')
   m.body = req.POST.get('body')
   m.smsto = req.POST.get('smsto')
   m.mailto = req.POST.get('mailto')
+  
+  for a in req.POST.getlist('attachments'):
+    doc = Document.objects(id = ObjectId(a)).first()
+    m.attachments.append(doc)
   
   if 'order' in req.POST:
     order = Order.objects(id=ObjectId(req.POST['order']))[0]

@@ -9,7 +9,7 @@ from bson.objectid import ObjectId
 from servo3.models import Order, Message, Template, Event, Queue, Tag, User
 
 def index(req, param="", value=""):
-  return render(req, 'index.html', {'data' : Order.objects })
+  return render(req, 'orders/index.html', {'data' : Order.objects })
   
 def create(req):
   o = Order(created_by = "filipp", created_at = datetime.now())
@@ -36,10 +36,10 @@ def tags(req, id):
     return HttpResponse(json.dumps({order.tags}), content_type='application/json')
   
 def edit(req, id):
-  o = Order.objects(id=ObjectId(id))[0]
+  o = Order.objects(id=ObjectId(id)).first()
   queues = Queue.objects
   users = User.objects
-  return render(req, 'edit.html', {'order': o, 'queues': queues, 'users': users})
+  return render(req, 'orders/edit.html', {'order': o, 'queues': queues, 'users': users})
 
 def remove(req, id=None):
   """docstring for remove"""
@@ -49,7 +49,7 @@ def remove(req, id=None):
     return HttpResponse('Tilaus poistettu')
   else :
     order = Order.objects(id = ObjectId(id))[0]
-    return render(req, 'remove.html', order)
+    return render(req, 'orders/remove.html', order)
     
 def follow(req, id):
   order = Order.objects(id = ObjectId(id))[0]

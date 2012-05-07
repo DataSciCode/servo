@@ -1,12 +1,16 @@
-<form method="post" action="/attachment/save" rel="attachments">
-	<input type="hidden" name="_id" value="<?php print $this->file['_id'] ?>"/>
-	<label><?php print __('Nimi') ?>:</label>
-	<input type="text" name="name" value="<?php print $this->file['name']?>"/>
+{% load i18n %}
+<form method="post" action="/document/save" rel="attachments">
+  {% csrf_token %}
+  {% if id %}
+    <input type="hidden" name="id" value="{{ id }}"/>
+  {% endif %}
+	<label>{% trans "Nimi" %}:</label>
+	<input type="text" name="name" value="{{ name }}"/>
 	<br/>
-	<label><?php print __('Kuvaus') ?>:</label>
-	<textarea name="description"><?php print $this->file['description'] ?></textarea>
+	<label>{% trans "Kuvaus" %}:</label>
+	<textarea name="description">{{ description }}</textarea>
 	<br/>
-	<label><?php print __('Tiedosto') ?>:</label>
+	<label>{% trans "Tiedosto" %}:</label>
 	<input type="file" name="incoming" id="fileupload"/>
 </form>
 <script type="text/javascript">
