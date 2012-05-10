@@ -10,7 +10,6 @@ def index(req):
   return render(req, 'devices/index.html', {'devices' : devices})
   
 def create(req, order = None, customer = None):
-  """docstring for create"""
   device = Device()
   
   if order:
@@ -28,11 +27,10 @@ def remove(req, id = None):
     return render(req, 'devices/remove.html', dev)
   
 def edit(req, id):
-  """docstring for edit"""
   if id in req.session.get('gsx_data'):
     result = req.session['gsx_data'].get(id)
-    dev = Device(sn = result.get('serialNumber'), \
-    description = result.get('productDescription'), gsx_data = result)
+    dev = Device(sn = result.get('serialNumber'),\
+      description = result.get('productDescription'), gsx_data = result)
   else:
     dev = Device.objects(id = ObjectId(id)).first()
   

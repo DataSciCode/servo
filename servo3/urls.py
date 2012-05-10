@@ -34,6 +34,7 @@ urlpatterns = patterns('',
   url(r'^customer/create/(\w+)$', 'customers.views.create'),
   url(r'^customer/create/order/(?P<order>\w+)$', 'customers.views.create'),
     
+  url(r'^customer/search$', 'customers.views.search'),
   url(r'^customer/remove$', 'customers.views.remove'),
   url(r'^customer/remove/(\w+)$', 'customers.views.remove'),
   url(r'^customer/save$', 'customers.views.save'),
@@ -58,7 +59,8 @@ urlpatterns = patterns('',
   url(r'^message/remove$', 'messages.views.remove'),
   url(r'^message/remove/(\w+)$', 'messages.views.remove'),
   url(r'^message/create/order/(\w+)$', 'messages.views.form'),
-    
+  url(r'^message/edit/(\w+)$', 'messages.views.edit'),
+  
   url(r'^admin/files$', 'documents.views.index'),
   url(r'^admin/status/$', 'admin.views.status'),
   url(r'^status/save$', 'admin.views.save_status'),
@@ -111,7 +113,12 @@ urlpatterns = patterns('',
     
   url(r'^tag/create/(\w+)$', 'tags.views.create'),
   url(r'^tag/index$', 'tags.views.index'),
-    
+  url(r'^tag/index/type/(\w+)$', 'tags.views.index'),
+  
   url(r'^location/save$', 'admin.views.save_location'),
+  
+  url(r'^user/login$', 'users.views.login'),
+  url(r'^user/logout$', 'users.views.logout'),
+  url(r'^user/settings$', 'users.views.settings'),
   # url(r'^servo3/', include('servo3.foo.urls')),
 )

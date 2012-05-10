@@ -13,6 +13,10 @@ def form(req, order_id=None):
   m.order_id = order_id
   return render(req, 'messages/form.html', {'message' : m, 'templates': Template.objects})
   
+def edit(req, id = None):
+  m = Message.objects(id = ObjectId(id)).first()
+  return render(req, 'messages/form.html', {'message' : m, 'templates': Template.objects})
+
 def save(req):
   
   m = Message(created_by = 'filipp')

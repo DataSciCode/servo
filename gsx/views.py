@@ -1,10 +1,31 @@
-import logging
+import logging, re
 from suds.client import Client
 from suds.sudsobject import asdict
 from servo3.models import GsxAccount
 logging.basicConfig(level=logging.INFO)
 logging.getLogger('suds.client').setLevel(logging.DEBUG)
 
+def looks_like(query, what = None):
+  result = False
+  
+  if type(query) is not unicode:
+    return False
+  
+  rex = {'partNumber': '^([a-z]{1,2})?\d{3}\-\d{4}$',\
+    'serialNumber': '^[a-z0-9]{11,12}$',\
+    'eeeCode': '^[A-Z0-9]{3,4}$',\
+    'returnOrder': '^7\d{9}$',\
+    'repairNumber': '^\d{12}$',\
+    'dispatchId': '^G\d{9}$',\
+    'alternateDeviceId': '^\d{15}$',\
+    'diagnosticEventNumber': '^\d{23}$'}
+  
+  for k, v in rex.items():
+    if re.search(v, query, re.IGNORECASE):
+      result = k
+  
+  return (result == what) if what else result
+  
 def warranty_status(sn):
   """
   docstring for warranty_status
@@ -28,9 +49,9 @@ def warranty_status(sn):
   req.userSession = session
 
   result = client.service.WarrantyStatus(req)
-  return asdict(result.warrantyDetailInfo)
+  return [asdict(result.warrantyDetailInfo)]
   
-def parts_lookup(number):
+def parts_lookup(query):
   """
   docstring for parts_lookup
   """
@@ -49,12 +70,23 @@ def parts_lookup(number):
   req = client.factory.create('ns0:partsLookupRequestType')
   req.userSession = session
   it = client.factory.create('ns7:partsLookupInfoType')
-  it.partNumber = number
+  
+  if looks_like(query, "partNumber"):
+    it.partNumber = query
+  else:
+    it = query
+  
   req.lookupRequestData = it
   
   result = client.service.PartsLookup(req).parts
-  return [asdict(result)]
   
-def looks_like(what):
-  pass
+  if type(result) is not list:
+    result = [result]
+  
+  results = []
+  
+  for i in result:
+    results.append(asdict(i))
+  
+  return results
   

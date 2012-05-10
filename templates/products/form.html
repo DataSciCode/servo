@@ -9,7 +9,6 @@
     <input name="id" type="hidden" value="{{ product.id }}"/>
 {% endif %}
     <input name="sku" type="hidden" value="{{ product.number }}"/>
-    <input name="idx" type="hidden" value="<?php print $this->product['idx'] ?>"/>
     <div id="info" class="tab">
       <label>{% trans 'Koodi' %}:</label>
       <input id="code" name="code" type="text" class="ucase searchable" value="{{ product.code }}"/>
@@ -136,7 +135,8 @@
             $.post("/tag/save/type/product", {
                 tag: $(this).val()
             });
-            $('<input type="text" name="tags[]" class="autocomplete tag" style="width:76px"/>').insertBefore($("#newTag")).val($(this).val());
+            $('<input type="text" name="tags" class="autocomplete tag" style="width:76px"/>')
+              .insertBefore($("#newTag")).val($(this).val());
             $(this).val("");
         }
     });

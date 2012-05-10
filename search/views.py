@@ -1,11 +1,13 @@
-from servo3.models import Device, Product
+from servo3.models import Device, Product, Customer
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
 @csrf_exempt
 def lookup(req, what):
-  """docstring for lookup"""
+  
+  from gsx.views import parts_lookup, looks_like, warranty_status
+  
   results = []
   action = "edit"
   collection = "device"
@@ -18,11 +20,28 @@ def lookup(req, what):
   
   if what == "product-gsx":
     collection = "products"
-    from gsx.views import parts_lookup
+    param = looks_like(query)
+    req.session['gsx_data'] = {}
     
-    for r in parts_lookup(query):
-      req.session['gsx_data'] = {r.get('partNumber'): r}
-      results.append({'id': r['partNumber'], 'title': r['partNumber'], 'description': r['partDescription']})
+    if param == "partNumber":
+      for r in parts_lookup(query):
+        req.session['gsx_data'] = {r.get('partNumber'): r}
+        results.append({'id': r['partNumber'], 'title': r['partNumber'],\
+          'description': r['partDescription']})
+    
+    if req.session.get('order'):
+      sn = req.session['order']['devices'][0].sn
+      if looks_like(sn, "serialNumber"):
+        query = {"serialNumber": sn, "partDescription": query}
+        
+        for r in parts_lookup(query):
+          pn = r.get('partNumber')
+          req.session['gsx_data'][pn] = r
+          results.append({'id': r['partNumber'],\
+            'title': r['partNumber'],\
+            'description': r['partDescription']})
+    
+    print query
     
   if what == "device-local":
     local = Device.objects(sn = query)
@@ -30,13 +49,17 @@ def lookup(req, what):
       results.append({'id': d.id, 'title': d.sn, 'description': d.description})
     
   if what == "device-gsx":
-    from gsx.views import warranty_status
-    gsx_results = [warranty_status(query)]
+    for r in warranty_status(query):
+      req.session['gsx_data'] = {query: r}
+      results.append({'title': r.get('productDescription'),
+        'description': r.get('configDescription'), 'id': query})
+  
+  if what == "customer":
+    collection = "customer"
+    customers = Customer.objects(name = query)
     
-    for r in gsx_results:
-      req.session['gsx_data'] = {r.get('serialNumber'): r}
-      results.append({'title': r.get('productDescription'), \
-      'description': r.get('configDescription'), 'id': r.get('serialNumber')})
+    for r in customers:
+      results.append({'id': r.id, 'title': r.name})
   
   return render(req, 'search/lookup.html', {'results': results,\
     'action': action, 'collection': collection})

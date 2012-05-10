@@ -15,6 +15,10 @@ def index(req, param = None, value = None):
     status = Status.objects(id = ObjectId(value)).first()
     data = Order.objects(status = status)
   
+  if param == "user":
+    user = User.objects(username = value).first()
+    data = Order.objects(user = user)
+    
   return render(req, 'orders/index.html', {'data' : data})
   
 def create(req):
@@ -104,7 +108,7 @@ def update(req, id):
     event.save()
     
   if 'priority' in req.POST:
-    req.session['order'].priority = priority
+    req.session['order'].priority = req.POST['priority']
     req.session['order'].save()
     
   return HttpResponse()

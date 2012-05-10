@@ -5,13 +5,14 @@ from bson.objectid import ObjectId
 
 def create(req, order_id=None):
   p = Product()
-  return render(req, 'products/form.html', p)
+  return render(req, 'products/form.html', {'product': p})
 
 def index(req):
   data = Product.objects
   return render(req, 'products/index.html', {'data': data})
   
 def edit(req, id):
+  print req.session.get('gsx_data')
   if id in req.session.get('gsx_data'):
     conf = Config.objects.first()
     result = req.session['gsx_data'].get(id)
@@ -45,7 +46,13 @@ def save(req):
   for k, v in req.POST.items():
     product.__setattr__(k, v)
   
+  product.tags = req.POST.getlist('tags')
   product.save()
+  
+  if req.session['order']:
+    req.session['order'].products.append(dict(product))
+    req.session['order'].save()
+    
   return HttpResponse('Tuote tallennettu')
   
 def search(req):

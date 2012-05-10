@@ -179,9 +179,7 @@ def save_user(req):
     user = User()
   
   if req.POST['password']:
-    m = hashlib.sha1()
-    m.update(req.POST['password'])
-    user.password = m.hexdigest()
+    user.password = hashlib.sha1(req.POST['password']).hexdigest()
   
   user.username = req.POST['username']
   user.fullname = req.POST['fullname']

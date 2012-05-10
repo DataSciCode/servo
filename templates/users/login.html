@@ -1,0 +1,15 @@
+{% extends "login.html" %}
+{% load i18n %}
+
+{% block content %}
+
+<form action="/user/login" method="post" accept-charset="utf-8">
+  {% csrf_token %}
+  <label>{% trans "Sähköposti" %}:</label>
+  <input type="text" name="email"/><br/>
+  <label>{% trans "Salasana" %}:</label>
+  <input type="password" name="password"/>
+  <input type="submit" value="{% trans "Kirjaudu" %}"/>
+</form>
+
+{% endblock content %}

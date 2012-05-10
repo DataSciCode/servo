@@ -7,22 +7,53 @@
 {% block toolbar %}
 <ul class="navigation">
     <li>
-        <a class="popup customer" href="/customer/create/order/{{ order.id }}">{% trans 'Asiakas' %}</a>
+        <a href="/customer/create/order/{{ order.id }}" class="popup customer">{% trans 'Asiakas' %}</a>
     </li>
     <li>
-        <a class="popup device" href="/device/create/order/{{ order.id }}">{% trans 'Laite' %}</a>
+        <a href="/device/create/order/{{ order.id }}" class="popup device">{% trans 'Laite' %}</a>
     </li>
     <li>
-        <a class="popup issue" href="/issue/create/order/{{ order.id }}">{% trans 'Tehtävä' %}</a>
+        <a href="/issue/create/order/{{ order.id }}" class="popup issue">{% trans 'Tehtävä' %}</a>
     </li>
     <li>
-        <a class="popup product" href="/products/create/order/{{ order.id }}">{% trans 'Tuote' %}</a>
+        <a href="/products/create/order/{{ order.id }}" class="popup product">{% trans 'Tuote' %}</a>
     </li>
     <li>
-        <a class="popup message" href="/message/create/order/{{ order.id }}">{% trans 'Viesti' %}</a>
+        <a href="/message/create/order/{{ order.id }}" class="popup message">{% trans 'Viesti' %}</a>
     </li>
 </ul>
 {% endblock %}
+
+{% block secondary %}
+
+<li>
+    <a href="javascript:;" class="reply disabled popup"></a>
+    <ul></ul>
+</li>
+
+<li>
+    <a href="javascript:;" class="print"></a>
+    <ul>
+{% for tpl in templates  %}
+      <li><a href="/orders/print/id/{{ order.id }}/template/{{ tpl.id }}" class="window">{{ tpl.name }}</a></li>
+{% endfor %}
+    </ul>
+</li>
+
+<li>
+    <a href="javascript:;" class="gear"></a>
+    <ul>
+        <li><a href="/purchase-order/create/order/{{ order.id }}" class="popup">{% trans "Tilaa tuotteet" %}...</a></li>
+{% if order.devices %}
+        <li><a href="/gsx/create-repair/order/{{ order.id }}" class="popup">{% trans "Luo GSX korjaus" %}...</a></li>
+{% endif %}
+        <li><a href="/invoice/reserve/order/{{ order.id }}" class="popup">{% trans "Varaa tuotteet" %}…</a></li>
+		    <li><a href="/invoice/create/order/{{ order.id }}" class="popup">{% trans "Toimita tilaus" %}...</a></li>
+		    <li><a href="/orders/close/id/{{ order.id }}" class="popup">{% trans "Sulje tilaus" %}...</a></li>
+	</ul>
+</li>
+
+{% endblock secondary %}
 
 {% block sidebar %}
 
@@ -56,8 +87,8 @@
     <span class="label">{% trans 'Prioriteetti' %}</span>
     <select name="priority">
       <option value="">{% trans "Valitse" %}...</option>
-{% for k, v in priorities %}
-      <option value="{{ k }}">{{ v }}</option>
+{% for p in priorities %}
+      <option value="{{ forloop.counter0 }}">{{ p }}</option>
 {% endfor %}
     </select>
     </form>
@@ -98,7 +129,6 @@
       
     </div>
     <br/><hr/>
-
     <div id="customers" class="customerDetails" data-url="/orders/customer/id/{{ order.id }}">
         <a href="/customer/edit/{{ order.customer.id }}" class="popup"><h3>{{ order.customer.name }}</h3></a>
         
@@ -129,7 +159,6 @@
 {% block content %}
 
 <div id="devices" class="tableView" data-url="/orders/devices/{{ order.id }}">
-
 	<table>
 		<thead>
 			<tr>
@@ -140,9 +169,7 @@
 			</tr>
 		</thead>
 		<tbody data-collection="device">
-
 {% for device in order.devices %}
-  
   <tr data-url="/device/edit/{{ device.id }}" class="{% cycle 'odd' 'even' %}">
   	<td><a href="/device/edit/{{ device.id }}" class="popup">{{ device.sn }}</a></td>
   	<td>{{ device.description }}</td>
@@ -150,9 +177,7 @@
   	<td>{{ device.password }}</td>
   	<td><a href="/device/mri/sn/{{ device.sn }}">{% trans "Tuntematon" %}</a></td>
   </tr>
-  
 {% endfor %}
-
 		</tbody>
 	</table>
 
@@ -166,42 +191,32 @@
 {% for issue in order.issues %}
   
 <tr class="{% cycle 'odd' 'even' %}" data-url="/issue/edit/{{ issue.id }}">
-    <td>
-        <span class="user">{{ issue.created_by }}</span>
-        <span class="date">{{ issue.created_at|relative_date }}</span>
-        <p>{{ issue.symptom }}</p>
+  <td>
+      <span class="user">{{ issue.created_by }}</span>
+      <span class="date">{{ issue.created_at|relative_date }}</span>
+      <p>{{ issue.symptom }}</p>
 {% if issue.diagnosis %}
-        <hr/>
-        {{ issue.diagnosis }}
-        <span class="small">{{ issue.diagnosed_by }} @ {{ issue.diagnosed_at|relative_date }}</span>
+      <hr/>
+      {{ issue.diagnosis }}
+      <span class="small">{{ issue.diagnosed_by }} @ {{ issue.diagnosed_at|relative_date }}</span>
 {% endif %}
-      
 {% if issue.solution %}
-
-  <hr/>
-  {{ issue.solution }}
-  <span class="small">{{ issue.solved_by }} @ {{ solved_at|relative_date }}</span>  
-
+      <hr/>
+      {{ issue.solution }}
+      <span class="small">{{ issue.solved_by }} @ {{ solved_at|relative_date }}</span>
 {% endif %}
-      
         </td>
     </tr> 
-  
 {% endfor %}
-
         </tbody>
     </table>
-
 </div><!-- //#issues -->
 
 <div class="tableView" id="messages" data-url="/orders/messages/{{ order.id }}">
-
 	<table>
 		<thead><tr><th>{% trans 'Viestit' %}</th></tr></thead>
 		<tbody>
-
 {% for msg in order.messages %}
-
         <tr data-url="/message/edit/{{ msg.id }}" class="{% cycle 'odd' 'even' %}">
             <td style="padding-left:{{ msg.indent }}em">
                 <span class="user">{{ msg.sender }}</span>
@@ -213,34 +228,27 @@
                 {% endfor %}
             </td>
         </tr>
-        
 {% endfor %}
-
 		</tbody>
 	</table>
-
 </div>
 
 <div id="products" class="tableView" data-url="/orders/products/id/{{ order.id }}">
-
     <table>
         <thead><tr><th colspan="5">{% trans "Tuotteet" %}</th></tr></thead>
         <tbody data-collection="orders">
 {% for product in order.products %}
-      <tr data-url="/products/edit/order/<?php print $this->order['_id'] ?>/idx/<?php print $k ?>"
-          class="{% cycle 'odd' 'even' %}">
-          <td><a href="/products/edit/order/<?php print $this->order['_id'] ?>/idx/<?php print $k ?>" class="popup">{{ product.number }}</a></td>
+      <tr data-url="/products/edit/order/{{ product.id }}" class="{% cycle 'odd' 'even' %}">
+          <td><a href="/products/edit/order/{{ product.id }}" class="popup">{{ product.number }}</a></td>
           <td>{{ product.title }}</td>
           <td>{{ product.price_sales }}</td>
           <td><a href="/purchase-order/view/id/" class="popup">20116</a></td>
-          <td><a href="/orders/report/product/<?php print $k ?>" class="async report"></a></td>
+          <td><a href="/orders/report/product/{{ product.id }}" class="async report"></a></td>
       </tr>  
 {% endfor %}
         </tbody>
     </table>
-</div>
-<!-- //#products -->
-
+</div><!-- //#products -->
 <div id="events" data-url="/orders/events/id/{{ order.id }}">
 <table>
     <thead>

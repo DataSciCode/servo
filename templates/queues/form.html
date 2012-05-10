@@ -43,30 +43,27 @@
 {% endfor %}
         </ul>
 {% if queue.id %}
-
   <label>{% trans "Pohja" %}:</label>
   <input type="file" name="incoming" id="fileupload"/>
   <ul id="attachments"></ul>
-
 {% endif %}
-
     </div>
     </form>
 </div>
     
 <script type="text/javascript">
-    $("#fileupload").fileupload({
-        url: "/attachment/create",
-        done: function(e, data) {
-            var file = data.result;
-            $("<li/>").text(file.name).appendTo($("#attachments"));
-            $("<input/>").attr("type", "hidden")
-                .attr("name", "attachments["+file._id+"]")
-                .val(file.name)
-                .insertAfter("#fileupload");
-        }
-    });
-    $('.toggle_row').click(function() {
-      $(this).siblings('input').attr('disabled', 'disabled');
-    });
+  $("#fileupload").fileupload({
+      url: "/document/save",
+      done: function(e, data) {
+        file = data.result;
+          $("<li/>").text(file.name).appendTo($("#attachments"));
+          $("<input/>").attr("type", "hidden")
+              .attr("name", "attachments")
+              .val(file.id)
+              .insertAfter("#fileupload");
+      }
+  });
+  $('.toggle_row').click(function() {
+    $(this).siblings('input').attr('disabled', 'disabled');
+  });
 </script>

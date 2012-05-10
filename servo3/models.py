@@ -21,21 +21,21 @@ class Device(Document):
   
 class Product(Document):
   number = SequenceField()
-  code = StringField()
+  code = StringField(default = "")
   title = StringField(required=True)
-  brand = StringField()
+  brand = StringField(default = "")
   tags = ListField(StringField(max_length=30))
   
-  price_purchase = DecimalField()
-  price_sales = DecimalField()
-  price_exchange = DecimalField()
+  price_purchase = DecimalField(default = 0)
+  price_sales = DecimalField(default = 0)
+  price_exchange = DecimalField(default = 0)
   
   amount_stocked = IntField(default=0)
   amount_ordered = IntField(default=0)
   amount_reserved = IntField(default=0)
   
   reservations = DictField()
-  is_serialized = BooleanField()
+  is_serialized = StringField(max_length=1, default="Y")
   
 class OrderItem(Product):
   amount_sold = IntField(default=0)
@@ -108,6 +108,7 @@ class Queue(Document):
   description = StringField()
   gsx_account = ReferenceField(GsxAccount)
   statuses = DictField()
+  attachments = ListField()
   
 class Customer(Document):
   meta = { 'ordering': ['path', '-id'] }
@@ -166,11 +167,12 @@ class Order(Document):
   followers = ListField()
   customer = ReferenceField(Customer)
   tags = ListField()
-  products = ListField(OrderItem)
+  products = ListField(DynamicEmbeddedDocument())
   devices = ListField(Device)
   user = ReferenceField(User)
   queue = ReferenceField(Queue)
   status = ReferenceField(Status)
+  
   status_limit_green = IntField()   # timestamp in seconds
   status_limit_yellow = IntField()  # timestamp in seconds
   
@@ -272,7 +274,8 @@ class Message(Document):
   def send_sms(self):
     conf = Config.objects[0]
     import urllib
-    params = urllib.urlencode({'username' : conf.sms_user, 'password' : conf.sms_password, 'text' : self.body, 'to' : self.smsto})
+    params = urllib.urlencode({'username': conf.sms_user, 'password': conf.sms_password,\
+      'text' : self.body, 'to' : self.smsto})
     f = urllib.urlopen("%s?%s" %(conf.sms_url, params))
     print f.read()
 
@@ -308,4 +311,17 @@ class Calendar(Document):
   title = StringField(required=True)
   user = ReferenceField(User)
   events = ListField(DictField)
+  
+class Inventory(Document):
+  """
+  A slot can refer to basically any model in the system.
+  The amount of stocked items is determined by the number of rows
+  where slot points to itself.
+  Product always points to a Product model.
+  The reserved amount of a given item is determined by the number of rows
+  with with the order id as slot
+  """
+  slot = GenericReferenceField()
+  product = ReferenceField(Product)
+  sn = StringField()
   

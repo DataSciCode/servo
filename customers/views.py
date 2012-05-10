@@ -9,6 +9,9 @@ def index(req):
   customers = Customer.objects
   return render(req, 'customers/index.html', {'customers' : customers})
 
+def search(req):
+  return render(req, 'customers/search.html')
+  
 def create(req, parent=None, order=None):
   fields = Field.objects(type='customer')
   customer = Customer()

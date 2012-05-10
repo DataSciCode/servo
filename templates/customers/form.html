@@ -6,20 +6,16 @@
 {% if customer.id %}
     <input name="id" type="hidden" value="{{ customer.id }}"/>
 {% endif %}
-
 {% if order %}
     <input name="order" type="hidden" value="{{ order }}"/>
 {% endif %}
-
 {% if customer.path %}
-    
     <input type="hidden" name="path" value="{{ customer.path }}"/>
-    
 {% endif %}
 
     <label>{% trans 'Nimi' %}:</label>
     <input type="text" name="name" value="{{ customer.name }}">
-    <a href="javascript:;" class="search" data-url="/customer/search-drawer"></a>
+    <a href="javascript:;" class="search" data-url="/customer/search"></a>
 
 {% for key, value in customer.properties.items %}
 

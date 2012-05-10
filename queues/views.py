@@ -15,7 +15,8 @@ def edit(req, id=None):
   if id:
     queue = Queue.objects(id = ObjectId(id))[0]
   
-  return render(req, 'queues/form.html', {'queue' : queue, 'accounts' : accounts, 'statuses': statuses})
+  return render(req, 'queues/form.html', {'queue': queue, 'accounts': accounts,\
+    'statuses': statuses})
 
 def save(req):
   q = Queue()
@@ -26,6 +27,7 @@ def save(req):
   q.title = req.POST['title']
   q.description = req.POST['description']
   q.gsx_account = GsxAccount.objects(id = ObjectId(req.POST['gsx_account']))[0]
+  q.attachments = req.POST.getlist("attachments")
   q.save()
   
   return HttpResponse('Jono tallennettu')
