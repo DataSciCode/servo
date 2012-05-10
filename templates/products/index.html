@@ -1,0 +1,45 @@
+{% extends "default.html" %}
+{% load i18n %}
+
+{% block toolbar %}
+
+<ul>
+  <li><a href="/products/create" class="popup">{% trans "Uusi tuote" %}</a></li>
+</ul>
+
+{% endblock toolbar %}
+
+{% block content %}
+
+<div class="tableView">
+    <table id="products" data-url="/products/index">
+        <thead>
+            <tr>
+                <th><span class="active">#</span></th>
+                <th><span>{% trans "Koodi" %}</span></th>
+                <th><span>{% trans "Nimike" %}</span></th>
+                <th><span>{% trans "Ostohinta" %}</span></th>
+                <th><span>{% trans "Hinta" %}</span></th>
+                <th><span>{% trans "Kpl" %}</span></th>
+                <th><span>{% trans "Tilattu" %}</span></th>
+                <th><span>{% trans "Varattu" %}</span></th>
+            </tr>
+        </thead>
+        <tbody data-collection="stock-item">
+{% for i in data %}
+            <tr data-url="/products/edit/{{ i.id }}" class="{% cycle 'odd' 'even' %}">
+                <td><a href="/products/edit/{{ i.id }}" class="popup">{{ i.number }}</a></td>
+                <td>{{ i.code }}</td>
+                <td>{{ i.title }}</td>
+                <td>{{ i.price_purchase }}</td>
+                <td>{{ i.price_sales }}</td>
+                <td>{{ i.amount_stocked }}</td>
+                <td>{{ i.amount_ordered }}</td>
+                <td>{{ i.amount_reserved }}</td>
+            </tr>
+{% endfor %}
+      </tbody>
+    </table>
+</div>
+
+{% endblock  %}

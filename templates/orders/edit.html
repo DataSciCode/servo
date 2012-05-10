@@ -28,8 +28,9 @@
 
 <div class="block_header"><p style="padding:10px"><a href="/orders/">Servo &gt; </a><a href="/orders/edit/{{ order.id }}">{{ order.number }}</a></p></div>
 <div style="padding:5px" class="droppable">
+  <form action="/orders/update/{{ order.id }}" method="post">
     <span class="label">{% trans 'Jono' %}</span>
-    <select name="set_queue">
+    <select name="queue">
       <option value="">{% trans "Valitse" %}...</option>
 {% for queue in queues %}
       <option value="{{ queue.id }}">{{ queue.title }}</option>
@@ -37,7 +38,7 @@
     </select>
     <br/>
     <span class="label">{% trans 'Status' %}</span>
-    <select name="set_status">
+    <select name="status">
       <option value="">{% trans "Valitse" %}...</option>
 {% for status in statuses %}
       <option value="{{ status.id }}">{{ status.title }}</option>
@@ -45,7 +46,7 @@
     </select>
     <br/>
     <span class="label">{% trans 'Käsittelijä' %}</span>
-    <select name="set_user">
+    <select name="user">
       <option value="">{% trans "Valitse" %}...</option>
 {% for user in users %}
       <option value="{{ user.id }}">{{ user.fullname }}</option>
@@ -53,12 +54,13 @@
     </select>
     <br/>
     <span class="label">{% trans 'Prioriteetti' %}</span>
-    <select name="set_priority">
+    <select name="priority">
       <option value="">{% trans "Valitse" %}...</option>
-{% for prio in priorities %}
-      <option value="{{ queue.id }}">{{ queue.title }}</option>
+{% for k, v in priorities %}
+      <option value="{{ k }}">{{ v }}</option>
 {% endfor %}
     </select>
+    </form>
     <hr/>
     <div id="tags" data-url="/orders/tags/{{ order.id }}" style="border-bottom:none">
 
@@ -141,8 +143,8 @@
 
 {% for device in order.devices %}
   
-  <tr data-url="/device/edit/{{ device.id }}" class="<?php print $this->cycle(array('', 'even'))->next() ?>">
-  	<td><a href="/device/edit/id/<?php print $d['_id'] ?>" class="popup">{{ device.sn }}</a></td>
+  <tr data-url="/device/edit/{{ device.id }}" class="{% cycle 'odd' 'even' %}">
+  	<td><a href="/device/edit/{{ device.id }}" class="popup">{{ device.sn }}</a></td>
   	<td>{{ device.description }}</td>
   	<td>{{ device.username }}</td>
   	<td>{{ device.password }}</td>
@@ -167,7 +169,7 @@
     <td>
         <span class="user">{{ issue.created_by }}</span>
         <span class="date">{{ issue.created_at|relative_date }}</span>
-        {{ issue.symptom }}
+        <p>{{ issue.symptom }}</p>
 {% if issue.diagnosis %}
         <hr/>
         {{ issue.diagnosis }}
@@ -207,7 +209,7 @@
                 {% if msg.mailto %}<span class="email">{{ msg.mailto }}</span>{% endif %}<br/>
                 {{ msg.body }}
                 {% for file in msg.attachments %}
-                  <a class="window attachment" href="/attachment/{{ file.id }}">{{ file.name }}</a>
+                  <a class="window attachment" href="/document/view/{{ file.id }}">{{ file.name }}</a>
                 {% endfor %}
             </td>
         </tr>

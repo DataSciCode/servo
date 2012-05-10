@@ -2,7 +2,7 @@ from bson.objectid import ObjectId
 from django.shortcuts import render
 from django.http import HttpResponse
 
-from servo3.models import Message, Template, Order, Document
+from servo3.models import Message, Template, Order, Attachment
 
 def index(req):
   messages = Message.objects
@@ -22,7 +22,7 @@ def save(req):
   m.mailto = req.POST.get('mailto')
   
   for a in req.POST.getlist('attachments'):
-    doc = Document.objects(id = ObjectId(a)).first()
+    doc = Attachment.objects(id = ObjectId(a)).first()
     m.attachments.append(doc)
   
   if 'order' in req.POST:

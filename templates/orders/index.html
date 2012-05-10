@@ -23,55 +23,16 @@
             </tr>
         </thead>
         <tbody data-collection="orders">
-<?php
-
-        foreach($this->data as $order):
-
-            $status_int = 0;
-            $status = $order['status'];
-
-            if(empty($order['status']['title']))
-            {
-                $status_link = __('Ei statusta');
-            } else {
-            
-                $status_alert = 'green';
-                
-                if($status['limit']['green'] < time()) {
-                    $status_alert = 'yellow';
-                }
-                
-                if ($status['limit']['yellow'] < time()) {
-                    $status_alert = 'red';
-                }
-                
-                $status_title = mb_strimwidth($status['title'], 0, 25, '…');
-                $status_link = '<a href="/orders/index/status/'.$status['_id'].'">'.$status_title.'</a>';
-            }
-            
-            $date_string = '';
-
-            // show relative dates
-            $param = 'date';
-            $date = new Zend_Date($order['created_at']->sec);
-            $date_param = $date->toString('Y-M-d');
-
-            if(!$date->isToday() && !$date->isYesterday()) {
-                $param = 'week';
-            }
-
-?>
-
 {% for order in data %}
-    <tr data-url="/orders/edit/{{ order.id }}" class="{% cycle  'odd' 'even' %}">
-        <td><a href="/orders/edit/{{ order.id }}">{{ order.number }}</a></td>
-        <td><a href="/orders/index/%s/%s">{{ order.created_at|relative_date }}</a></td>
-        <td><a href="/orders/index/customer/{{ order.customer_id }}">{{ order.customer_name }}</a></td>
-        <td><a href="/orders/index/spec/{{ order.device_spec }}">{{ order.device_name }}</a></td>
-        <td><a href="/orders/index/status/blaa">{{ order.status }}</a>
-          <img src="/static/images/status_{{ order.status_img }}_16.png" style="float:right"/>
-        </td>
-    </tr>
+          <tr data-url="/orders/edit/{{ order.id }}" class="{% cycle  'odd' 'even' %}">
+              <td><a href="/orders/edit/{{ order.id }}">{{ order.number }}</a></td>
+              <td><a href="/orders/index/%s/%s">{{ order.created_at|relative_date }}</a></td>
+              <td><a href="/orders/index/customer/{{ order.customer_id }}">{{ order.customer_name }}</a></td>
+              <td><a href="/orders/index/spec/{{ order.device_spec }}">{{ order.device_name }}</a></td>
+              <td><a href="/orders/index/status/{{ order.status_id }}">{{ order.status_name }}</a>
+                <img src="/static/images/status_{{ order.status_img }}_16.png" style="float:right"/>
+              </td>
+          </tr>
 {% empty %}
     <tr><td colspan="5" class="empty">{% trans "Ei yhtään tilausta" %}</td></tr>
 {% endfor %}

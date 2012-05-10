@@ -75,16 +75,17 @@ var PanelView = Backbone.View.extend(
 ,
     lookup: function(event)
     {
+        event.preventDefault();
         var form = event.currentTarget;
         var url = $(form).attr("action");
         var tab = $("#drawer .tab:visible");
+        
         if(tab.length < 1) {
             var tab = "#localResults";
         }
-        console.log(tab);
+        
         this.$(tab).text("Loading…");
-        $(tab).load(url, $(form).serialize());
-        event.preventDefault();
+        $(tab).load(url, {q: $('#searchQuery').val()});
     }
 ,
     loadUrl: function(url)
@@ -348,7 +349,7 @@ var SidebarView = Backbone.View.extend(
         "click .save"		  : "submit",
         "click .follow"	  : "follow",
         "click .head"		  : "toggle",
-        "change select"		: "trigger_event",
+        "change select"		: "update_order",
     }
 ,
     initialize: function()
@@ -414,17 +415,24 @@ var SidebarView = Backbone.View.extend(
         
     }
 ,
-    trigger_event: function(event)
+    update_order: function(event)
     {
-        var id = $(event.currentTarget).val();
-        var type = $(event.currentTarget).attr("name");
-
+      t = $(event.currentTarget);
+      url = t.parent().attr('action');
+      arg = t.attr('name');
+      args = {};
+      args[arg] = t.val();
+      console.log(args);
+      $('#events').load(url, args);
+      console.log(url);
+/*
         var reload = (type == "set_queue") ? "#set_status" : "#events";
 
         $(reload).load("/order/"+type+"/id/"+id, {id: id, type: type},
           function() {
             $("#events").load($("#events").data("url"));
         });
+*/
     }
 ,
     select: function(event)

@@ -14,20 +14,14 @@ def settings(req):
   if len(Config.objects) < 1:
     config = Config()
   else:
-    config = Config.objects[0]
+    config = Config.objects.first()
   
-  if len(req.POST) > 0:
+  if req.method == "POST":
     
-    config.imap_host = req.POST['imap_host']
-    config.imap_user = req.POST['imap_user']
+    for k, v in req.POST.items():
+      config.__setattr__(k, v)
+    
     config.imap_ssl = 'imap_ssl' in req.POST
-    config.imap_password = req.POST['imap_password']
-    config.smtp_host = req.POST['smtp_host']
-    
-    config.sms_url = req.POST['sms_url']
-    config.sms_user = req.POST['sms_user']
-    config.sms_password = req.POST['sms_password']
-    
     config.save()
     
     return HttpResponse('Asetukset tallennettu')
@@ -55,8 +49,12 @@ def gsx_accounts(req):
   accounts = GsxAccount.objects
   return render(req, 'admin/gsx_accounts.html', {'accounts': accounts })
 
-def gsx_form(req):
+def gsx_form(req, id = None):
   act = GsxAccount()
+  
+  if id:
+    act = GsxAccount.objects(id = ObjectId(id)).first()
+    
   envs = {'': 'Tuotanto', 'it': 'Kehitys', 'ut': 'Testaus'}
   return render(req, 'admin/gsx_form.html', {'account': act, 'environments': envs})
 
@@ -64,8 +62,8 @@ def gsx_save(req):
   act = GsxAccount()
   
   if 'id' in req.POST:
-    act = GsxAccount.objects(id = req.POST['id'])[0]
-    
+    act = GsxAccount.objects(id = req.POST['id']).first()
+  
   act.title = req.POST['title']
   act.sold_to = req.POST['sold_to']
   act.ship_to = req.POST['ship_to']

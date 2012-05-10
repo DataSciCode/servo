@@ -1,0 +1,5 @@
+<ul>
+{% for r in results %}
+    <li><a href="/{{ collection }}/{{ action}}/{{ r.id }}" class="popup">{{ r.title }}</a><span>{{ r.description }}</span></li>
+{% endfor %}
+</ul>

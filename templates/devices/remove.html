@@ -1,0 +1,10 @@
+{% load i18n %}
+<form action="/device/remove" method="post" accept-charset="utf-8" rel="devices">
+  {% csrf_token %}
+  <input type="hidden" name="id" value="{{ id }}" />
+  <img src="/static/images/alert_48.png" alt="alert" class="alert" />
+  {% blocktrans %}
+    <h2>Haluatko varmasti poistaa laitteen "{{ sn }}"?</h2>
+  {% endblocktrans %}
+  <p>{% trans "Tätä toimintoa ei voi peruuttaa." %}</p>
+</form>

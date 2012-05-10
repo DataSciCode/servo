@@ -6,18 +6,63 @@ from bson.objectid import ObjectId
 
 connect('servo')
 
+class Device(Document):
+  sn = StringField()
+  description = StringField(required=True)
+  username = StringField()
+  password = StringField()
+  purchased_on = StringField()
+  notes = StringField()
+  
+  @classmethod
+  def to_python(self, blaa):
+    """docstring for to_python"""
+    return blaa
+  
+class Product(Document):
+  number = SequenceField()
+  code = StringField()
+  title = StringField(required=True)
+  brand = StringField()
+  tags = ListField(StringField(max_length=30))
+  
+  price_purchase = DecimalField()
+  price_sales = DecimalField()
+  price_exchange = DecimalField()
+  
+  amount_stocked = IntField(default=0)
+  amount_ordered = IntField(default=0)
+  amount_reserved = IntField(default=0)
+  
+  reservations = DictField()
+  is_serialized = BooleanField()
+  
+class OrderItem(Product):
+  amount_sold = IntField(default=0)
+
 class Attachment(Document):
   name = StringField(default = 'Uusi tiedosto')
   content = FileField()
   description = StringField()
-  uploaded_at = DateTimeField(default=datetime.now())
   uploaded_by = StringField(default="filipp")
+  uploaded_at = DateTimeField(default=datetime.now())
+
+  @classmethod
+  def to_python(self, blaa):
+    """docstring for to_python"""
+    return blaa
   
 class Tag(Document):
   title = StringField(required=True, default='Uusi tagi')
   type = StringField(required=True)
   
 class Config(Document):
+  company_name = StringField()
+  pct_margin = DecimalField() # the default margin percent for new products
+  repair_rate = DecimalField()
+  pct_vat = DecimalField() # default VAT for new products
+  encryption_key = StringField()
+  
   mail_from = EmailField(default = 'servo@example.com')
   imap_host = StringField()
   imap_user = StringField()
@@ -105,6 +150,14 @@ class Customer(Document):
 
     return props
   
+class User(Document):
+  email = StringField(max_length=128, required=True)
+  username = StringField(max_length=64, required=True)
+  fullname = StringField(max_length=128, required=True, default='Uusi käyttäjä')
+  password = StringField(max_length=64, required=True)
+  role = StringField(max_length=64, required=True)
+  location = ReferenceField(Location)
+  
 class Order(Document):
   number = SequenceField()
   priority = IntField()
@@ -113,6 +166,13 @@ class Order(Document):
   followers = ListField()
   customer = ReferenceField(Customer)
   tags = ListField()
+  products = ListField(OrderItem)
+  devices = ListField(Device)
+  user = ReferenceField(User)
+  queue = ReferenceField(Queue)
+  status = ReferenceField(Status)
+  status_limit_green = IntField()   # timestamp in seconds
+  status_limit_yellow = IntField()  # timestamp in seconds
   
   def issues(self):
     return Issue.objects(order = self)
@@ -120,15 +180,33 @@ class Order(Document):
   def messages(self):
     return Message.objects(order = self)
     
-  def status(self):
-    return "Ei statusta"
+  def status_name(self):
+    if self.status:
+      return self.status.title
+    else:
+      return "Ei statusta"
+  
+  def status_id(self):
+    if self.status:
+      return self.status.id
+    else:
+      return None
   
   def status_img(self):
-    return 'undefined'
+    from time import time
+    if not self.status:
+      return 'undefined'
+    else:
+      if time() < self.status_limit_green:
+        return "green"
+      if time() < self.status_limit_yellow:
+        return "yellow"
+      if time() > self.status_limit_yellow:
+        return "red"
   
   def device(self):
     return "Ei laitetta"
-  
+    
   def customer_name(self):
     return 'Filipp Lepalaan'
   
@@ -136,8 +214,17 @@ class Order(Document):
     return 1
   
   def device_name(self):
-    return 'Mac mini (Early 2009)'
+    if not self.devices:
+      return ''
+    else:
+      return self.devices[0]['description']
   
+  def customer_name(self):
+    if self.customer:
+      return self.customer.name
+    else:
+      return ""
+    
   def device_spec(self):
     return 1
   
@@ -145,18 +232,10 @@ class Order(Document):
     """docstring for events"""
     return Event.objects(ref_order = self)
 
-class User(Document):
-  email = StringField(max_length=128, required=True)
-  username = StringField(max_length=64, required=True)
-  fullname = StringField(max_length=128, required=True, default='Uusi käyttäjä')
-  password = StringField(max_length=64, required=True)
-  role = StringField(max_length=64, required=True)
-  location = ReferenceField(Location)
-
 class Issue(Document):
-  symptom = StringField(required=True)
-  diagnosis = StringField()
-  solution = StringField()
+  symptom = StringField(required=True, default="")
+  diagnosis = StringField(default="")
+  solution = StringField(default="")
   
   diagnosed_at = DateTimeField()
   diagnosed_by = ReferenceField(User)
@@ -171,11 +250,11 @@ class Issue(Document):
   
 class Message(Document):
   subject = StringField()
-  body = StringField()
+  body = StringField(default='')
   sender = StringField(default='filipp')
   created_at = DateTimeField(default=datetime.now())
-  mailto = StringField()
-  smsto = StringField()
+  mailto = StringField(default='')
+  smsto = StringField(default='')
   order = ReferenceField(Order)
   path = StringField()
   attachments = ListField(Attachment)
@@ -196,21 +275,6 @@ class Message(Document):
     params = urllib.urlencode({'username' : conf.sms_user, 'password' : conf.sms_password, 'text' : self.body, 'to' : self.smsto})
     f = urllib.urlopen("%s?%s" %(conf.sms_url, params))
     print f.read()
-  
-class Product(Document):
-  number = SequenceField()
-  code = StringField()
-  title = StringField(required=True)
-  brand = StringField()
-  tags = ListField(StringField(max_length=30))
-  
-  price_purchase = DecimalField()
-  price_sales = DecimalField()
-  price_exchange = DecimalField()
-  
-  amount_stocked = IntField(default=0)
-  amount_ordered = IntField(default=0)
-  amount_reserved = IntField(default=0)
 
 class Template(Document):
   title = StringField(required=True)
@@ -225,13 +289,17 @@ class Invoice(Document):
   number = SequenceField()
   created_at = DateTimeField(default=datetime.now())
   paid_at = DateTimeField()
-  items = DictField()
   total = DecimalField()
+  items = ListField(OrderItem)
+  
+class PurchaseOrder(Document):
+  pass
   
 class Event(Document):
+  meta = { 'ordering': ['-id'] }
   description = StringField()
-  created_by = StringField(default='filipp')
-  created_at = DateTimeField(default=datetime.now())
+  created_by = StringField(default = 'filipp')
+  created_at = DateTimeField(default = datetime.now())
   handled_at = DateTimeField()
   ref_order = ReferenceField(Order)
   type = StringField()
@@ -240,5 +308,4 @@ class Calendar(Document):
   title = StringField(required=True)
   user = ReferenceField(User)
   events = ListField(DictField)
-  
   

@@ -1,0 +1,35 @@
+{% extends "default.html" %}
+{% load i18n %}
+
+{% block toolbar %}
+
+<ul>
+  <li><a href="/device/create" class="popup">{% trans "Uusi laite" %}</a></li>
+</ul>
+
+{% endblock toolbar %}
+
+{% block content %}
+
+<div class="tableView">
+    <table class="selectable" id="devices">
+        <tbody data-collection="device">
+          
+{% for device in devices %}
+
+<tr data-url="/device/edit/{{ device.id }}" class="{% cycle 'odd' 'even' %}">
+    <td><a href="/device/edit/{{ device.id }}" class="popup">{{ device.sn }}</a></td>
+    <td>{{ device.description }}</td>
+    <td>{{ device.purchased_on }}</td>
+    <td><a href="/orders/index/device/{{ device.id }}">{% trans "Tilaukset" %}</a></td>
+</tr>
+{% empty %}
+  
+  <tr><td colspan="3" class="empty">{% trans "Ei yhtään laitetta" %}</td></tr>
+  
+{% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock content %}
