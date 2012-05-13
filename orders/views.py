@@ -6,7 +6,8 @@ from django.shortcuts import get_object_or_404, render, redirect
 from datetime import datetime
 
 from bson.objectid import ObjectId
-from servo3.models import Order, Message, Template, Event, Queue, Tag, User, Status, User
+from django.views.decorators.csrf import csrf_exempt
+from servo3.models import *
 
 def index(req, param = None, value = None):
   data = Order.objects
@@ -18,13 +19,17 @@ def index(req, param = None, value = None):
   if param == "user":
     user = User.objects(username = value).first()
     data = Order.objects(user = user)
+  
+  if param == "customer":
+    customer = Customer.objects(id = ObjectId(value)).first()
+    data = Order.objects(customer = customer)
     
   return render(req, 'orders/index.html', {'data' : data})
   
 def create(req):
   o = Order(created_by = "filipp", created_at = datetime.now())
   o.save()
-  # fire the event
+  # fire the creation event
   e = Event(description = 'Tilaus luotu', ref_order = o, type = 'create_order')
   e.save()
   
@@ -72,17 +77,16 @@ def follow(req, id):
     order.save()
   
   return HttpResponse('%d seuraa' % len(order.followers))
-  
-from django.views.decorators.csrf import csrf_exempt
 
 @csrf_exempt
 def update(req, id):
+  order = Order.objects(id = ObjectId(id)).first()
   if 'queue' in req.POST:
     queue = ObjectId(req.POST['queue'])
     queue = Queue.objects(id = queue).first()
-    req.session['order'].queue = queue
-    req.session['order'].save()
-    event = Event(description = queue.title, ref_order = req.session['order'], type = "set_queue")
+    order.queue = queue
+    order.save()
+    event = Event(description = queue.title, ref_order = order, type = "set_queue")
     event.save()
   
   if 'status' in req.POST:
@@ -111,5 +115,5 @@ def update(req, id):
     req.session['order'].priority = req.POST['priority']
     req.session['order'].save()
     
-  return HttpResponse()
+  return HttpResponse("")
   

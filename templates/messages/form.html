@@ -8,9 +8,9 @@
     <input type="hidden" name="order" value="{{ message.order_id }}"/>
     
     <select class="label chooser" rel="body">
-        <option value="0">{% trans 'Viesti' %}…</option>
+      <option value="0">{% trans 'Viesti' %}…</option>
 {% for t in templates %}
-        <option value="{{ t.id }}">{{ t.title }}</option>
+      <option value="{{ t.id }}">{{ t.title }}</option>
 {% endfor %}
    </select>
    
@@ -24,15 +24,19 @@
     <br/>
     <label>{% trans 'Liite' %}:</label>
     <input type="file" id="fileupload" name="incoming"/>
-    <ul id="attachments"></ul>
+    <ul id="attachments">
+{% for a in message.attachments %}
+      <li><a href="/document/">{{ a.name }}</a></li>
+{% endfor %}
+    </ul>
 </form>
 
 <script type="text/javascript">
-    $(".chooser").change( function() {
+    $(".chooser").change(function() {
         var ta = "#" + $(this).attr("rel");
         $(ta).load("/template/view/" + $(this).val());
     });
-
+    
     $("#fileupload").fileupload({
         url: "/document/save",
         done: function(e, data) {

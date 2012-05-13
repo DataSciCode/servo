@@ -51,7 +51,7 @@
           {% block secondary %}{% endblock %}
         </ul><!-- //#secondary -->
 
-        <form action="<?php print $this->searchAction ?>" id="search">
+        <form action="/search/search" id="search">
             <input type="text" id="search_query" name="q"/>
         </form>
     </div><!-- //#toolbar -->
@@ -85,7 +85,7 @@
                         <li><a href="/products/index" class="table">{% trans "Tuotteet" %}</a></li>
                         <li><a href="/purchase-order/incoming" class="down">{% trans "Saapuvat" %}</a></li>
                         <li><a href="/products/outgoing" class="up">{% trans "Lähtevät" %}</a></li>
-                        <li><a href="/purchase-order/index" class="table">{% trans "Ostotilaukset" %}</a></li>
+                        <li><a href="/store/po/index" class="table">{% trans "Ostotilaukset" %}</a></li>
                         <li><a href="/invoice/index" class="table">{% trans "Myyntilaskut" %}</a></li>
                     </ul>
                 </li>

@@ -30,16 +30,19 @@ def lookup(req, what):
           'description': r['partDescription']})
     
     if req.session.get('order'):
-      sn = req.session['order']['devices'][0].sn
-      if looks_like(sn, "serialNumber"):
-        query = {"serialNumber": sn, "partDescription": query}
-        
-        for r in parts_lookup(query):
-          pn = r.get('partNumber')
-          req.session['gsx_data'][pn] = r
-          results.append({'id': r['partNumber'],\
-            'title': r['partNumber'],\
-            'description': r['partDescription']})
+      try:
+        sn = req.session['order']['devices'][0].sn
+        if looks_like(sn, "serialNumber"):
+          query = {"serialNumber": sn, "partDescription": query}
+
+          for r in parts_lookup(query):
+            pn = r.get('partNumber')
+            req.session['gsx_data'][pn] = r
+            results.append({'id': r['partNumber'],\
+              'title': r['partNumber'],\
+              'description': r['partDescription']})
+      except Exception, e:
+        pass
     
     print query
     

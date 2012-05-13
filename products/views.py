@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from servo3.models import Product, Config
+from servo3.models import *
 from bson.objectid import ObjectId
 
 def create(req, order_id=None):
@@ -12,7 +12,7 @@ def index(req):
   return render(req, 'products/index.html', {'data': data})
   
 def edit(req, id):
-  print req.session.get('gsx_data')
+  
   if id in req.session.get('gsx_data'):
     conf = Config.objects.first()
     result = req.session['gsx_data'].get(id)
@@ -25,12 +25,13 @@ def edit(req, id):
       price_sales = result.get('stockPrice'))
   else:
     product = Product.objects(id = ObjectId(id)).first()
-    
+  
   return render(req, 'products/form.html', {'product': product})
   
 def remove(req, id = None):
   if 'id' in req.POST:
-    product = Product.objects(id = ObjectId(req.POST['id']))
+    product = Product.objects.with_id(ObjectId(req.POST['id']));
+    Inventory.objects(product = product).delete()
     product.delete()
     return HttpResponse('Tuote poistettu')
   else:
@@ -47,12 +48,26 @@ def save(req):
     product.__setattr__(k, v)
   
   product.tags = req.POST.getlist('tags')
+  
+  for a in req.POST.getlist("attachments"):
+    doc = Attachment.objects(id = ObjectId(a)).first()
+    #product.attachments = [doc]
+  
   product.save()
   
+  amount_stocked = int(req.POST['amount_stocked'])
+  Inventory.objects(slot = product).delete()
+  
+  for _ in xrange(amount_stocked):
+    i = Inventory(slot = product, product = product)
+    i.save()
+  
+  """
   if req.session['order']:
-    req.session['order'].products.append(dict(product))
+    oi = OrderItem(product)
+    req.session['order'].products.append(oi)
     req.session['order'].save()
-    
+  """
   return HttpResponse('Tuote tallennettu')
   
 def search(req):

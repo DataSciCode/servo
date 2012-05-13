@@ -160,6 +160,7 @@ var PanelView = Backbone.View.extend(
                 }
                 
                 var badField = document.getElementById(json.badfield);
+                
                 $('<div class="error"></div>')
                     .html('<span>'+json.message+'</span>')
                     .insertAfter(badField)
@@ -168,19 +169,18 @@ var PanelView = Backbone.View.extend(
 ,
             success: function(data, status, json) {
                 console.log(data);
-/*                var j = JSON.parse(json.responseText);
-                
+                /*
                 if(j.redirect) {
                     window.location.replace(j.redirect);
                     return false;
                 }
-*/
+                */
                 $("#pager_msg").text(json.responseText);
                 $("#pager").slideDown();
                 window.panelView.hidePanel();
                 
                 // reload only the relevant portion of the page
-                $(reload).load($(reload).attr("data-url"),
+                $(reload).load($(reload).data("url"),
                     function() {
                         window.tableView.render();
                 });

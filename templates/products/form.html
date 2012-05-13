@@ -63,7 +63,7 @@
       <input type="text" name="shelf" value="{{ product.shelf }}"/>
       <br/>
       <label>{% trans 'Tilattu' %}:</label>
-      <input type="text" name="amount_ordered" value="{{ product.amount_ordered }}"/>
+      <input type="text" value="{{ product.amount_ordered }}" readonly="readonly"/>
       <br/>
       <label>{% trans 'Varastossa' %}:</label>
       <input type="text" name="amount_stocked" value="{{ product.amount_stocked }}"/>
@@ -104,7 +104,7 @@
     <div id="gsx" class="tab">
 {% for k, v in product.gsx_data.items %}
         <label style="width:150px">{{ k }}:</label>
-        <input type="text" style="width:50%" readonly="readonly" value="{{ v }}" name="gsxData[<?php print $k ?>]"/>
+        <input type="text" style="width:50%" readonly="readonly" value="{{ v }}" name="gsx_data.{{ k }}"/>
 {% endfor %}
     </div><!-- //#gsx -->
   </form>
@@ -113,28 +113,23 @@
 <script type="text/javascript">
     $("#fileupload").fileupload(
     {
-        url: "/attachment/create",
+        url: "/document/save",
         done: function(e, data) {
             var file = data.result;
-            $("<li/>").text(file.name)
-                .appendTo($("#attachments"));
+            $("<li/>").text(file.name).appendTo($("#attachments"));
             $("<input/>").attr("type", "hidden")
-                .attr("name", "attachments["+file._id+"]")
-                .val(file.name)
+                .attr("name", "attachments")
+                .val(file.id)
                 .insertAfter("#fileupload");
         }
     });
     
-    $(".autocomplete").autocomplete({
-        source: "/tag/index/type/product"
-    });
+    $(".autocomplete").autocomplete({source: "/tag/index/product"});
     
     $(".autocomplete").keydown(function(e)
     {
         if(e.keyCode == 13) {
-            $.post("/tag/save/type/product", {
-                tag: $(this).val()
-            });
+            $.post("/tag/save/product", { tag: $(this).val() });
             $('<input type="text" name="tags" class="autocomplete tag" style="width:76px"/>')
               .insertBefore($("#newTag")).val($(this).val());
             $(this).val("");

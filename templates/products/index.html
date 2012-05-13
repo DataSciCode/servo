@@ -1,6 +1,8 @@
 {% extends "default.html" %}
 {% load i18n %}
 
+{% block title %}Tuotteet{% endblock title %}
+
 {% block toolbar %}
 
 <ul>
@@ -9,12 +11,19 @@
 
 {% endblock toolbar %}
 
+{% block secondary %}
+  <li><a href="/search/stock" class="search popup">&nbsp;</a></li>
+  <li><a href="/store/order_products/" class="purchase popup buy_or_sell">&nbsp;</a></li>
+  <li><a href="/store/sell_products/" class="sell popup buy_or_sell">&nbsp;</a></li>
+{% endblock secondary %}
+
 {% block content %}
 
 <div class="tableView">
     <table id="products" data-url="/products/index">
         <thead>
             <tr>
+                <th style="width:20px"></th>
                 <th><span class="active">#</span></th>
                 <th><span>{% trans "Koodi" %}</span></th>
                 <th><span>{% trans "Nimike" %}</span></th>
@@ -28,18 +37,27 @@
         <tbody data-collection="stock-item">
 {% for i in data %}
             <tr data-url="/products/edit/{{ i.id }}" class="{% cycle 'odd' 'even' %}">
-                <td><a href="/products/edit/{{ i.id }}" class="popup">{{ i.number }}</a></td>
-                <td>{{ i.code }}</td>
-                <td>{{ i.title }}</td>
-                <td>{{ i.price_purchase }}</td>
-                <td>{{ i.price_sales }}</td>
-                <td>{{ i.amount_stocked }}</td>
-                <td>{{ i.amount_ordered }}</td>
-                <td>{{ i.amount_reserved }}</td>
+              <td><input type="checkbox" class="selected_product" value="{{ i.number }}"/></td>
+              <td><a href="/products/edit/{{ i.id }}" class="popup">{{ i.number }}</a></td>
+              <td>{{ i.code }}</td>
+              <td>{{ i.title }}</td>
+              <td>{{ i.price_purchase }}</td>
+              <td>{{ i.price_sales }}</td>
+              <td>{{ i.amount_stocked }}</td>
+              <td>{{ i.amount_ordered }}</td>
+              <td>{{ i.amount_reserved }}</td>
             </tr>
 {% endfor %}
       </tbody>
     </table>
 </div>
+
+<script type="text/javascript" charset="utf-8">
+  $(".selected_product").click(function() {
+    url = $(".buy_or_sell").attr("href");
+    url = url+$(this).val()+";";
+    $(".buy_or_sell").attr("href", url);
+  });
+</script>
 
 {% endblock  %}

@@ -20,22 +20,47 @@ class Device(Document):
     return blaa
   
 class Product(Document):
+  meta = { 'ordering': ['-id'] }
   number = SequenceField()
+  
+  warranty_period = IntField()
+  
   code = StringField(default = "")
-  title = StringField(required=True)
+  shelf = StringField(default = "")
   brand = StringField(default = "")
-  tags = ListField(StringField(max_length=30))
   
-  price_purchase = DecimalField(default = 0)
+  pct_vat = DecimalField()
+  pct_margin = DecimalField()
   price_sales = DecimalField(default = 0)
+  price_purchase = DecimalField(default = 0)
   price_exchange = DecimalField(default = 0)
+  price_notax = DecimalField(default = 0)
   
-  amount_stocked = IntField(default=0)
-  amount_ordered = IntField(default=0)
-  amount_reserved = IntField(default=0)
+  tags = ListField(StringField(max_length = 30))
+  title = StringField(required=True, default = "Uusi tuote")
   
-  reservations = DictField()
+  amount_minimum = IntField(default = 0)
   is_serialized = StringField(max_length=1, default="Y")
+  
+  attachments = ListField(Document)
+  
+  def amount_stocked(self):
+    try:
+      return Inventory.objects(slot = self).count()
+    except Exception, e:
+      return 0
+      
+  def amount_ordered(self):
+    try:
+      return Inventory.objects(product = self).count()
+    except Exception, e:
+      return 0
+    
+  def amount_reserved(self):
+    try:
+      return Inventory.objects(product = self).count()
+    except Exception, e:
+      return 0
   
 class OrderItem(Product):
   amount_sold = IntField(default=0)
@@ -53,8 +78,8 @@ class Attachment(Document):
     return blaa
   
 class Tag(Document):
-  title = StringField(required=True, default='Uusi tagi')
-  type = StringField(required=True)
+  title = StringField(required = True, default = 'Uusi tagi')
+  type = StringField(required = True)
   
 class Config(Document):
   company_name = StringField()
@@ -159,6 +184,15 @@ class User(Document):
   role = StringField(max_length=64, required=True)
   location = ReferenceField(Location)
   
+class OrderItem(EmbeddedDocument):
+  product = ReferenceField(Product)
+  code = StringField()
+  number = IntField()
+  sn = StringField()
+  title = StringField()
+  description = StringField()
+  price = DecimalField()
+  
 class Order(Document):
   number = SequenceField()
   priority = IntField()
@@ -167,7 +201,7 @@ class Order(Document):
   followers = ListField()
   customer = ReferenceField(Customer)
   tags = ListField()
-  products = ListField(DynamicEmbeddedDocument())
+  products = ListField(OrderItem)
   devices = ListField(Device)
   user = ReferenceField(User)
   queue = ReferenceField(Queue)
@@ -258,9 +292,10 @@ class Message(Document):
   mailto = StringField(default='')
   smsto = StringField(default='')
   order = ReferenceField(Order)
-  path = StringField()
   attachments = ListField(Attachment)
-    
+  
+  path = StringField() #threading!
+  
   def indent(self):
     return 1
     
@@ -296,12 +331,40 @@ class Invoice(Document):
   items = ListField(OrderItem)
   
 class PurchaseOrder(Document):
-  pass
+  number = SequenceField()
+  reference = StringField()
+  confirmation = StringField()
+  dispatch_id = StringField()
+  sales_order = StringField()
+  
+  date_created = StringField()
+  date_ordered = StringField()
+  date_arrived = StringField
+
+  supplier = StringField()
+  days_delivered = StringField()
+  carrier = StringField()
+  tracking_id = StringField()
+  products = ListField(DictField())
+  
+  def sum(self):
+    total = 0
+    for p in self.products:
+      total += float(p['price'] * p['amount'])
+    
+    return total
+  
+  def amount(self):
+    amount = 0
+    for p in self.products:
+      amount += p['amount']
+    
+    return amount
   
 class Event(Document):
   meta = { 'ordering': ['-id'] }
   description = StringField()
-  created_by = StringField(default = 'filipp')
+  created_by = StringField(default = "filipp")
   created_at = DateTimeField(default = datetime.now())
   handled_at = DateTimeField()
   ref_order = ReferenceField(Order)

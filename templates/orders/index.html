@@ -27,7 +27,7 @@
           <tr data-url="/orders/edit/{{ order.id }}" class="{% cycle  'odd' 'even' %}">
               <td><a href="/orders/edit/{{ order.id }}">{{ order.number }}</a></td>
               <td><a href="/orders/index/%s/%s">{{ order.created_at|relative_date }}</a></td>
-              <td><a href="/orders/index/customer/{{ order.customer_id }}">{{ order.customer_name }}</a></td>
+              <td><a href="/orders/index/customer/{{ order.customer.id }}">{{ order.customer_name }}</a></td>
               <td><a href="/orders/index/spec/{{ order.device_spec }}">{{ order.device_name }}</a></td>
               <td><a href="/orders/index/status/{{ order.status_id }}">{{ order.status_name }}</a>
                 <img src="/static/images/status_{{ order.status_img }}_16.png" style="float:right"/>

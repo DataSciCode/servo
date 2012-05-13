@@ -60,6 +60,7 @@ urlpatterns = patterns('',
   url(r'^message/remove/(\w+)$', 'messages.views.remove'),
   url(r'^message/create/order/(\w+)$', 'messages.views.form'),
   url(r'^message/edit/(\w+)$', 'messages.views.edit'),
+  url(r'^message/reply/(\w+)$', 'messages.views.reply'),
   
   url(r'^admin/files$', 'documents.views.index'),
   url(r'^admin/status/$', 'admin.views.status'),
@@ -112,13 +113,17 @@ urlpatterns = patterns('',
   url(r'^issue/remove/(\w+)$', 'issues.views.remove'),
     
   url(r'^tag/create/(\w+)$', 'tags.views.create'),
-  url(r'^tag/index$', 'tags.views.index'),
-  url(r'^tag/index/type/(\w+)$', 'tags.views.index'),
+  url(r'^tag/save/(\w+)$', 'tags.views.save'),
+  url(r'^tag/index/(\w+)$', 'tags.views.index'),
   
   url(r'^location/save$', 'admin.views.save_location'),
   
   url(r'^user/login$', 'users.views.login'),
   url(r'^user/logout$', 'users.views.logout'),
   url(r'^user/settings$', 'users.views.settings'),
+  
+  url(r'^store/order_products/([\d;]+)$', 'store.views.order_products'),
+  url(r'^store/save_po$', 'store.views.save_po'),
+  url(r'^store/po/index$', 'store.views.index_po'),
   # url(r'^servo3/', include('servo3.foo.urls')),
 )

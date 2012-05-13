@@ -120,7 +120,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'orders', 'admin', 'products',
     'customers', 'messages', 'issues', 'tags',
-    'queues', 'documents', 'devices', 
+    'queues', 'documents', 'devices', 'store',
     # Uncomment the next line to enable the admin:
     # 'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:

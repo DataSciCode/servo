@@ -1,0 +1,37 @@
+{% extends "default.html" %}
+{% load i18n %}
+
+{% block content %}
+
+<div class="tableView">
+<table data-url="/purchase-order/index" id="purchase-orders">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>{% trans "Luotu" %}</th>
+            <th>{% trans "Tilattu" %}</th>
+            <th>{% trans "Saapunut" %}</th>
+            <th>{% trans "Viite" %}</th>
+            <th>{% trans "Toimittaja" %}</th>
+            <th>{% trans "Tuotteita" %}</th>
+            <th>{% trans "Summa" %}</th>
+        </tr>
+    </thead>
+    <tbody>
+{% for po in orders %}
+  <tr data-url="/store/edit_po/{{ po.id }}" class="{% cycle 'odd' 'even' %}">
+      <td><a href="/store/edit_po/{{ po.id }}" class="popup">{{ po.number }}</a></td>
+      <td>{{ po.date_created }}</td>
+      <td>{{ po.date_ordered }}</td>
+      <td>{{ po.date_arrived }}</td>
+      <td>{{ po.reference }}</td>
+      <td>{{ po.supplier }}</td>
+      <td>{{ po.amount }}</td>
+      <td>{{ po.sum }}</td>
+  </tr>
+{% endfor %}
+    </tbody>
+</table>
+</div>
+
+{% endblock content %}
