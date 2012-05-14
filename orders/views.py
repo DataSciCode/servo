@@ -117,3 +117,19 @@ def update(req, id):
     
   return HttpResponse("")
   
+def create_gsx_repair(req, order_id):
+  order = Order.objects(id = ObjectId(order_id)).first()
+  customer = {}
+  templates = Template.objects.all()
+  
+  if order.customer:
+    for p in order.customer.properties:
+      pass
+  
+  parts = []
+  for p in order.products:
+    parts.append({"number": p.product.number,
+      "title": p.product.title, "code": p.product.code})
+  
+  return render(req, "orders/gsx_repair_form.html", {"templates": templates, "parts": parts})
+  

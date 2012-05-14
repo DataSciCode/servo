@@ -31,40 +31,46 @@ class Product(Document):
   
   pct_vat = DecimalField()
   pct_margin = DecimalField()
+  price_notax = DecimalField(default = 0)
   price_sales = DecimalField(default = 0)
   price_purchase = DecimalField(default = 0)
   price_exchange = DecimalField(default = 0)
-  price_notax = DecimalField(default = 0)
   
   tags = ListField(StringField(max_length = 30))
   title = StringField(required=True, default = "Uusi tuote")
   
   amount_minimum = IntField(default = 0)
-  is_serialized = StringField(max_length=1, default="Y")
+  is_serialized = StringField(max_length = 1, default = "Y")
   
   attachments = ListField(Document)
   
-  def amount_stocked(self):
+  # Get or set the stocked amount of this product
+  def amount_stocked(self, amount = 0):
+    if amount:
+      amount = int(amount)
+      Inventory.objects(slot = self).delete()
+      for _ in xrange(amount):
+        i = Inventory(slot = self, product = self)
+        i.save()
     try:
       return Inventory.objects(slot = self).count()
     except Exception, e:
       return 0
-      
+  
+  # Get or set the ordered amount of this product
   def amount_ordered(self):
     try:
-      return Inventory.objects(product = self).count()
-    except Exception, e:
-      return 0
-    
-  def amount_reserved(self):
-    try:
-      return Inventory.objects(product = self).count()
+      return Inventory.objects(product = self, kind = "po").count()
     except Exception, e:
       return 0
   
-class OrderItem(Product):
-  amount_sold = IntField(default=0)
-
+  # Get or set the reserved amount of this product
+  def amount_reserved(self):
+    try:
+      return Inventory.objects(product = self, kind = "order").count()
+    except Exception, e:
+      return 0
+      
 class Attachment(Document):
   name = StringField(default = 'Uusi tiedosto')
   content = FileField()
@@ -186,12 +192,19 @@ class User(Document):
   
 class OrderItem(EmbeddedDocument):
   product = ReferenceField(Product)
-  code = StringField()
-  number = IntField()
   sn = StringField()
-  title = StringField()
-  description = StringField()
+  amount = IntField(required = True)
   price = DecimalField()
+  
+  @classmethod
+  def to_python(self, blaa):
+    """docstring for to_python"""
+    return blaa
+    
+class GsxRepair(EmbeddedDocument):
+  customer_data = DictField()
+  symptom = StringField()
+  diagnosis = StringField()
   
 class Order(Document):
   number = SequenceField()
@@ -201,7 +214,7 @@ class Order(Document):
   followers = ListField()
   customer = ReferenceField(Customer)
   tags = ListField()
-  products = ListField(OrderItem)
+  products = ListField(EmbeddedDocumentField(OrderItem))
   devices = ListField(Device)
   user = ReferenceField(User)
   queue = ReferenceField(Queue)
@@ -209,6 +222,9 @@ class Order(Document):
   
   status_limit_green = IntField()   # timestamp in seconds
   status_limit_yellow = IntField()  # timestamp in seconds
+  
+  def can_gsx(self):
+    return True
   
   def issues(self):
     return Issue.objects(order = self)
@@ -387,4 +403,5 @@ class Inventory(Document):
   slot = GenericReferenceField()
   product = ReferenceField(Product)
   sn = StringField()
+  kind = StringField() # one of po, order, product, invoice
   

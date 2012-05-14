@@ -1,9 +1,39 @@
+{% extends "default.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Saapuvat tuotteet" %}{% endblock title %}
+
+{% block secondary %}
+  <li><a href="/search/stock" class="search popup">&nbsp;</a></li>
+{% endblock secondary %}
+
+{% block content %}
 <div class="tableView">
   <table>
+    <thead>
+      <tr>
+        <th style="width:20px"></th>
+        <th>{% trans "Koodi" %}</th>
+        <th>{% trans "Nimike" %}</th>
+        <th>{% trans "Tilaus" %}</th>
+        <th>{% trans "Tilaaja" %}</th>
+        <th>{% trans "Vahvistus" %}</th>
+        <th>{% trans "Sarjanumero" %}</th>
+      </tr>
+    </thead>
     <tbody>
-{% for product in products %}
-  <tr></tr>
+{% for i in inventory %}
+      <tr>
+        <td><input type="checkbox" name="selected" value="{{ i.product.id }}"/></td>
+        <td>{{ i.product.code }}</td>
+        <td>{{ i.product.title }}</td>
+        <td>{{ i.PurchaseOrder.reference }}</td>
+        <td>{{ i.PurchaseOrder.user_created }}</td>
+        <td>{{ i.PurchaseOrder.reference }}</td>
+        <td>{{ i.sn }}</td>
+      </tr>
 {% endfor %}
     </tbody>
   </table>
 </div>
+{% endblock content %}

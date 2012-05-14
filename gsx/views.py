@@ -90,3 +90,22 @@ def parts_lookup(query):
   
   return results
   
+def repair_lookup(query):
+  act = GsxAccount.objects.first()
+  client = Client("https://gsxwsit.apple.com/wsdl/amAsp/gsx-amAsp.wsdl")
+  
+  req = client.factory.create('ns3:AuthenticateRequest')
+  req.serviceAccountNo = act.sold_to
+  req.userId = act.username
+  req.password = act.password
+  req.languageCode = "en"
+  req.userTimeZone = "CEST"
+  
+  session = client.service.Authenticate(req)
+  req = client.factory.create('ns0:partsLookupRequestType')
+  req.userSession = session
+  it = client.factory.create('ns7:partsLookupInfoType')
+  
+def submit_repair(req):
+  pass
+  

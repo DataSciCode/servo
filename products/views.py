@@ -1,18 +1,19 @@
-from django.shortcuts import render
-from django.http import HttpResponse
 from servo3.models import *
 from bson.objectid import ObjectId
+
+from django.shortcuts import render
+from django.http import HttpResponse
 
 def create(req, order_id=None):
   p = Product()
   return render(req, 'products/form.html', {'product': p})
 
 def index(req):
-  data = Product.objects
+  req.session['order'] = None
+  data = Product.objects.all()
   return render(req, 'products/index.html', {'data': data})
   
 def edit(req, id):
-  
   if id in req.session.get('gsx_data'):
     conf = Config.objects.first()
     result = req.session['gsx_data'].get(id)
@@ -26,7 +27,11 @@ def edit(req, id):
   else:
     product = Product.objects(id = ObjectId(id)).first()
   
-  return render(req, 'products/form.html', {'product': product})
+  if req.session.get("order"):
+    product.sn = "asd"
+    product.amount_sold = 1
+  
+  return render(req, 'products/form.html', {"product": product})
   
 def remove(req, id = None):
   if 'id' in req.POST:
@@ -44,32 +49,51 @@ def save(req):
   if 'id' in req.POST:
     product = Product.objects(id = ObjectId(req.POST['id'])).first()
   
-  for k, v in req.POST.items():
-    product.__setattr__(k, v)
-  
+  product.code = req.POST.get("code")
+  product.title = req.POST.get("title")
+  product.description = req.POST.get("description")
+  product.pct_margin = float(req.POST.get("pct_margin", 0))
+  product.pct_vat = req.POST.get("pct_vat", 0)
   product.tags = req.POST.getlist('tags')
+  
+  product.price_exchange = req.POST.get("price_exchange", 0)
+  product.price_notax = float(req.POST.get("price_notax", 0))
+  product.price_sales = float(req.POST.get("price_sales", 0))
+  product.price_purchase = float(req.POST.get("price_purchase", 0))
+  
+  product.save()
+  
+  if req.POST.get("amount_stocked"):
+    product.amount_stocked(req.POST.get("amount_stocked"))
   
   for a in req.POST.getlist("attachments"):
     doc = Attachment.objects(id = ObjectId(a)).first()
     #product.attachments = [doc]
   
-  product.save()
-  
-  amount_stocked = int(req.POST['amount_stocked'])
-  Inventory.objects(slot = product).delete()
-  
-  for _ in xrange(amount_stocked):
-    i = Inventory(slot = product, product = product)
-    i.save()
-  
-  """
   if req.session['order']:
-    oi = OrderItem(product)
-    req.session['order'].products.append(oi)
+    amount = int(req.POST.get("amount_sold"))
+    oi = OrderItem(product = product, sn = req.POST.get("sn"),\
+      price = req.POST.get("price_sales"), amount = amount)
+    req.session['order'].products = [oi]
     req.session['order'].save()
-  """
+    
   return HttpResponse('Tuote tallennettu')
   
 def search(req):
   return render(req, 'products/search.html')
+  
+def reserve(req, order_id = None):
+  if req.method == "POST":
+    order = Order.objects(id = ObjectId(req.POST['id'])).first()
+    Inventory.objects(slot = order).delete()
+    
+    for p in order.products:
+      i = Inventory(slot = order, product = p.product, sn = p.sn, kind = "order")
+      i.save()
+    
+    Event(description = "Tilauksen tuotteet varattu", ref_order = order, type = "products_reserved").save()
+    return HttpResponse("Tuotteet varattu")
+  else:
+    order = Order.objects(id = ObjectId(order_id)).first()
+    return render(req, "products/reserve.html", order)
   

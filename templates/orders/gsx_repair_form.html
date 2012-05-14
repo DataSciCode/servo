@@ -1,0 +1,124 @@
+{% load i18n %}
+<div class="tabView">
+    <ul class="tabs">
+	   <li><a href="#general">{% trans "Yleiset" %}</a></li><li><a href="#parts">{% trans "Varaosat" %}</a></li><li><a href="#customer">{% trans "Asiakas" %}</a></li>
+    </ul>
+<form
+    method="post"
+    rel="accounts"
+    accept-charset="utf-8"
+    action="/gsx/save-repair">
+    
+    <input type="hidden" name="serialNumber" value="{{ device.sn }}"/>
+    <input type="hidden" name="ws_account" value="{{ ws_account }}"/>
+    <input
+        type="hidden"
+        name="customerAddress[addressLine1]"
+        value="{{ customer.adressLine1 }}"/>
+    <input
+        type="hidden"
+        name="customerAddress[regionCode]"
+        value="004"/>
+    <input
+        type="hidden"
+        name="customerAddress[state]"
+        value="ZZ"/>
+    <input
+        type="hidden"
+        name="customerAddress[street]"
+        value="{{ customer.adressLine1 }}"/>
+    <input type="hidden" name="customerAddress[companyName]" value=""/>
+    <input type="hidden" name="customerAddress[country]" value="{{ customer.country }}"/>
+    <input
+        type="hidden"
+        name="customerAddress[zipCode]"
+        value="{{ customer.zip }}"/>
+    <input type="hidden" name="city" value="{{ customer.city }}"/>
+    <input type="hidden" name="order_id" value="{{ order.number }}"/>
+    
+    <div class="tab" id="general">
+      <select class="label chooser" rel="symptom">
+        <option value="0">{% trans "Vikakuvaus" %}…</option>
+{% for tpl in templates %}
+          <option value="{{ tpl.id }}">{{ tpl.title }}</option>
+{% endfor %}
+       </select>
+        <textarea id="symptom" name="symptom">{{ symptom }}</textarea>
+        <br/>
+        <select class="label chooser" rel="diagnosis">
+          <option value="0">{% trans "Vikakuvaus" %}…</option>
+{% for tpl in templates %}
+            <option value="{{ tpl.id }}">{{ tpl.title }}</option>
+{% endfor %}
+         </select>
+        <textarea id="diagnosis" name="diagnosis"></textarea>
+        <br/>
+        <label>{% trans "Luotu" %}:</label>
+        <input
+            type="text"
+            class="datepicker short"
+            name="unitReceivedDate"
+            value="{{ unitReceivedDate }}"/>
+        <input type="text" class="short" name="unitReceivedTime" value="{{ unitReceivedTime }}"/>
+        <br/>
+        <label>{% trans "Liite" %}:</label>
+        <input type="file" name="incoming"/>
+        <br/>
+        <label></label>
+        <input type="hidden" name="requestReview" value="N"/>
+        <input type="checkbox" name="requestReview" value="Y"/>
+        <span>request review</span>
+        <br/>
+    </div><!-- //#general -->
+    
+    <div class="tab" id="parts">
+{% for part in parts %}
+        <input type="hidden" name="items[sku][]" value="{{ part.number }}"/>
+        <input type="hidden" name="items[title][]" value="{{ part.title }}"/>
+        <input
+            type="text"
+            class="short"
+            readonly="readonly"
+            name="items[partNumber][]"
+            value="{{ part.code }}"/>
+        <select name="items[comptiaCode][]">
+            <option value="">{% trans "Valitse" %}...</option>
+<?php foreach($v['symptomCodes'] as $k => $v): ?>
+            <option value="<?php print $k ?>"><?php printf('%s-%s', $k, $v) ?></option>
+<?php endforeach ?>
+        </select>
+        <select name="items[comptiaModifier][]">
+            <option value="">{% trans "Valitse" %}...</option>
+<?php foreach($this->symptomModifiers as $k => $v): ?>
+            <option value="<?php print $k ?>"><?php printf('%s-%s', $k, $v) ?></option>
+<?php endforeach ?>
+        </select>
+        <select name="items[abused][]" style="width:60px">
+            <option value="N">{% trans "Takuu" %}</option>
+            <option value="Y">{% trans "Vahinko" %}</option>
+        </select>
+        <br/>
+{% endfor %}
+    </div><!-- //#parts -->
+    <div class="tab" id="customer">
+      <label>{% trans "Etunimi" %}:</label>
+      <input type="text" name="firstName" value="{{ customer.firstName }}"/>
+      <br/>
+      <label>{% trans "Sukunimi" %}:</label>
+      <input type="text" name="lastName" value="{{ customer.lastName }}"/>
+      <br/>
+      <label>{% trans "Sähköposti" %}:</label>
+      <input type="text" name="emailAddress" value="{{ customer.emailAddress }}"/>
+      <br/>
+      <label>{% trans "Puhelin" %}:</label>
+      <input type="text" name="primaryPhone" value="{{ customer.primaryPhone }}"/>
+    </div><!-- //#customer -->
+</form>
+</div>
+<script type="text/javascript">
+  $(".datepicker").datepicker({format: ""});
+  $(".chooser").change( function() {
+      var ta = "#" + $(this).attr("rel");
+      $(ta).load("/template/view/" + $(this).val());
+  });
+</script>

@@ -1,15 +1,14 @@
 {% load i18n %}
-
 <div class="tabView">
     <ul class="tabs">
        <li><a href="#items">{% trans "Tuotteet" %}</a></li><li><a href="#dispatch">{% trans "Tilaus" %}</a></li><li><a href="#delivery">{% trans "Toimitus" %}</a></li>
     </ul>
 
 <form method="post" rel="purchase-orders" accept-charset="utf-8" action="/store/save_po">
-    {% csrf_token %}
-    {% if order.id %}
-    <input type="hidden" name="id" value="{{ order.id }}"/>
-    {% endif %}
+  {% csrf_token %}
+{% if order.id %}
+  <input type="hidden" name="id" value="{{ order.id }}"/>
+{% endif %}
 
     <div id="items" class="tab">
         <table>
@@ -30,9 +29,6 @@
                 <td><input type="text" class="price" name="price" value="{{ item.price_purchase }}"/></td>
               </tr>
 {% endfor %}
-                <tr>
-                  <td colspan="5" style="text-align:right">{% trans "Yhteensä" %}: {{ order.total }}</td>
-                </tr>
             </tbody>
         </table>
     </div>
@@ -74,5 +70,4 @@
 </div>
 <script type="text/javascript">
     $('.datepicker').datepicker({dateFormat: "d.m.yy"});
-
 </script>

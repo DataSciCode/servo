@@ -45,9 +45,9 @@
     <ul>
         <li><a href="/purchase-order/create/order/{{ order.id }}" class="popup">{% trans "Tilaa tuotteet" %}...</a></li>
 {% if order.devices %}
-        <li><a href="/gsx/create-repair/order/{{ order.id }}" class="popup">{% trans "Luo GSX korjaus" %}...</a></li>
+        <li><a href="/orders/gsx_repair/{{ order.id }}" class="popup">{% trans "Luo GSX korjaus" %}...</a></li>
 {% endif %}
-        <li><a href="/invoice/reserve/order/{{ order.id }}" class="popup">{% trans "Varaa tuotteet" %}…</a></li>
+        <li><a href="/products/reserve/{{ order.id }}" class="popup">{% trans "Varaa tuotteet" %}…</a></li>
 		    <li><a href="/invoice/create/order/{{ order.id }}" class="popup">{% trans "Toimita tilaus" %}...</a></li>
 		    <li><a href="/orders/close/id/{{ order.id }}" class="popup">{% trans "Sulje tilaus" %}...</a></li>
 	</ul>
@@ -219,36 +219,37 @@
 {% for msg in order.messages %}
         <tr data-url="/message/edit/{{ msg.id }}" class="{% cycle 'odd' 'even' %}">
             <td style="padding-left:{{ msg.indent }}em">
-                <span class="user">{{ msg.sender }}</span>
-                <span class="date">{{ msg.created_at|relative_date }}</span>        
-                {% if msg.mailto %}<span class="email">{{ msg.mailto }}</span>{% endif %}<br/>
-                {{ msg.body }}
-                {% for file in msg.attachments %}
-                  <a class="window attachment" href="/document/view/{{ file.id }}">{{ file.name }}</a>
-                {% endfor %}
-            </td>
+              <span class="user">{{ msg.sender }}</span>
+              <span class="date">{{ msg.created_at|relative_date }}</span>        
+              {% if msg.mailto %}<span class="email">{{ msg.mailto }}</span>{% endif %}<br/>
+              {{ msg.body }}
+              {% for file in msg.attachments %}
+                <a class="window attachment" href="/document/view/{{ file.id }}">{{ file.name }}</a>
+              {% endfor %}
+          </td>
         </tr>
 {% endfor %}
 		</tbody>
 	</table>
-</div>
+</div><!-- //#messages -->
 
 <div id="products" class="tableView" data-url="/orders/products/id/{{ order.id }}">
-    <table>
-        <thead><tr><th colspan="5">{% trans "Tuotteet" %}</th></tr></thead>
-        <tbody data-collection="orders">
-{% for product in order.products %}
+  <table>
+    <thead><tr><th colspan="5">{% trans "Tuotteet" %}</th></tr></thead>
+    <tbody>
+{% for item in order.products %}
       <tr data-url="/products/edit/order/{{ product.id }}" class="{% cycle 'odd' 'even' %}">
-          <td><a href="/products/edit/order/{{ product.id }}" class="popup">{{ product.number }}</a></td>
-          <td>{{ product.title }}</td>
-          <td>{{ product.price_sales }}</td>
-          <td><a href="/purchase-order/view/id/" class="popup">20116</a></td>
-          <td><a href="/orders/report/product/{{ product.id }}" class="async report"></a></td>
+        <td><a href="/products/edit/order/{{ product.id }}" class="popup">{{ item.product.code }}</a></td>
+        <td>{{ item.product.title }}</td>
+        <td>{{ item.price }}</td>
+        <td><a href="/purchase-order/view/id/" class="popup">20116</a></td>
+        <td><a href="/orders/report/product/{{ product.id }}" class="async report"></a></td>
       </tr>  
 {% endfor %}
-        </tbody>
-    </table>
+    </tbody>
+  </table>
 </div><!-- //#products -->
+
 <div id="events" data-url="/orders/events/id/{{ order.id }}">
 <table>
     <thead>

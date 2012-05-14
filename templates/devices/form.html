@@ -1,38 +1,36 @@
 {% load i18n %}
 <div class="tabView">
-    <ul class="tabs">
-        <li><a href="#info">{% trans "Perustiedot" %}</a></li><li><a href="#gsx">{% trans "GSX" %}</a></li>
-    </ul>
+  <ul class="tabs">
+    <li><a href="#info">{% trans "Perustiedot" %}</a></li><li><a href="#gsx">{% trans "GSX" %}</a></li>
+  </ul>
 
 <form method="post" action="/device/save" accept-charset="utf-8" rel="devices">
   {% csrf_token %}
-{% if id %}
-    <input type="hidden" name="id" value="{{ id }}"/>
-{% endif %}
-    <div id="info" class="tab">
-        <label>{% trans "Sarjanumero" %}:</label>
-        <input name="sn" type="text" value="{{ sn }}" class="ucase searchable"/>
-        <a class="search" href="javascript:;" data-url="/device/search"></a>
-        <br/>
-        <label>{% trans "Malli" %}:</label>
-        <input type="text" id="description" name="description" value="{{ description }}"/>
-        <br/>
-        <label class="mid">{% trans "Käyttäjä" %}:</label>
-        <input type="text" id="username" name="username" value="{{ username }}"/>
-        <br/>
-        <label>{% trans "Salasana" %}:</label>
-        <input type="text" id="password" name="password" value="{{ password }}"/>
-        <br/>
-        <label>{% trans "Ostettu" %}:</label>
-        <input type="text" id="purchased_on" name="purchased_on" value="{{ purchased_on }}" />
-        <br/>
-        <label>{% trans "Loppuu" %}:</label>
-        <input type="text" value="{{ warranty_ends }}" />
-        <br/>
-        <label>{% trans "Lisätiedot" %}:</label>
-        <textarea id="notes" name="notes">{{ notes }}</textarea>
-    </div>
-    <div id="gsx" class="tab">
+  {% if id %}<input type="hidden" name="id" value="{{ id }}"/>{% endif %}
+  <div id="info" class="tab">
+    <label>{% trans "Sarjanumero" %}:</label>
+    <input name="sn" type="text" value="{{ sn }}" class="ucase searchable"/>
+    <a class="search" href="javascript:;" data-url="/device/search"></a>
+    <br/>
+    <label>{% trans "Malli" %}:</label>
+    <input type="text" id="description" name="description" value="{{ description }}"/>
+    <br/>
+    <label class="mid">{% trans "Käyttäjä" %}:</label>
+    <input type="text" id="username" name="username" value="{{ username }}"/>
+    <br/>
+    <label>{% trans "Salasana" %}:</label>
+    <input type="text" id="password" name="password" value="{{ password }}"/>
+    <br/>
+    <label>{% trans "Ostettu" %}:</label>
+    <input type="text" id="purchased_on" name="purchased_on" value="{{ purchased_on }}" />
+    <br/>
+    <label>{% trans "Loppuu" %}:</label>
+    <input type="text" value="{{ warranty_ends }}" />
+    <br/>
+    <label>{% trans "Lisätiedot" %}:</label>
+    <textarea id="notes" name="notes">{{ notes }}</textarea>
+  </div>
+  <div id="gsx" class="tab">
     
 {% for k, v in gsx_data.items %}
       <label style="width:150px">{{ k }}:</label>

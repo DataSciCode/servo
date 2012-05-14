@@ -17,12 +17,14 @@
       <label>{% trans 'Nimike' %}:</label>
       <input id="title" type="text" name="title" value="{{ product.title }}"/>
       <br/>
-      <label>{% trans 'Määrä' %}:</label>
-      <input id="amount" type="text" name="amount_sold" value="{{ product.amount_sold }}"/>
+{% if product.amount_sold %}
+      <label>{% trans "Määrä" %}:</label>
+      <input type="text" name="amount_sold" value="{{ product.amount_sold }}"/>
       <br/>
-      <label>{% trans 'Sarjanumero' %}:</label>
-      <input id="sn" name="sn" type="text" value="{{ product.sn }}"/>
+      <label>{% trans "Sarjanumero" %}:</label>
+      <input type="text" name="sn" value="{{ product.sn }}"/>
       <br/>
+{% endif %}
       <label>{% trans 'Kuvaus' %}:</label>
       <textarea name="description">{{ product.description }}</textarea>
       <br/>

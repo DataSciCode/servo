@@ -16,7 +16,9 @@ def lookup(req, what):
   
   if what == "product-local":
     collection = "products"
-    results = Product.objects
+    products = Product.objects(code__startswith = query)
+    for r in products:
+      results.append({'id': r.id, 'title': r.code, 'description': r.title})
   
   if what == "product-gsx":
     collection = "products"

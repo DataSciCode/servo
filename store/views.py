@@ -23,7 +23,7 @@ def save_po(req):
     po.products.append({"code": v, "title": titles[k], "amount": amt, "price": price})
     
     for i in xrange(amt):
-      i = Inventory(slot = po, product = product)
+      i = Inventory(slot = po, product = product, kind = "po")
       i.save()
   
   po.save()
@@ -49,9 +49,9 @@ def index_po(req):
   return render(req, 'store/index_po.html', {"orders": data})
   
 def index_incoming(req, shipment = None, date = None):
-  products = 
+  inventory = Inventory.objects(kind = "po").all()
+  return render(req, "store/index_incoming.html", {"inventory": inventory})
   
 def index_outgoing(req, shipment = None, date = None):
   pass
-  
   
