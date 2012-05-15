@@ -4,11 +4,10 @@
   <ul class="tabs"><li><a href="#info">{% trans 'Perustiedot' %}</a></li><li><a href="#price">{% trans 'Hinnat' %}</a></li><li><a href="#stock">{% trans 'Varasto' %}</a></li><li><a href="#files">{% trans 'Liitteet' %}</a></li><li><a href="#gsx">{% trans 'GSX' %}</a></li></ul>
 
 <form method="post" rel="products" accept-charset="utf-8" action="/products/save">
-    {% csrf_token %}
+  {% csrf_token %}
 {% if product.id %}
     <input name="id" type="hidden" value="{{ product.id }}"/>
 {% endif %}
-    <input name="sku" type="hidden" value="{{ product.number }}"/>
     <div id="info" class="tab">
       <label>{% trans 'Koodi' %}:</label>
       <input id="code" name="code" type="text" class="ucase searchable" value="{{ product.code }}"/>
@@ -32,8 +31,8 @@
 {% for t in  product.tags %}
   <input type="text" name="tags" style="width:80px" class="autocomplete tag" value="{{ t }}"/>
 {% endfor %}
-            <input type="text" id="newTag" class="autocomplete" style="width:80px"/>
-        </div>
+          <input type="text" id="newTag" class="autocomplete" style="width:80px"/>
+      </div>
     </div><!-- //#info -->
     <div id="price" class="tab">
       <label>{% trans 'Ostohinta' %}:</label>
@@ -74,18 +73,14 @@
       <input type="text" name="amount_minimum" value="{{ product.amount_minimum }}"/>
       <br/>
       <label>{% trans 'Varattu' %}:</label>
-{% for k, v in product.reservations %}  
-        <input type="text" readonly="readonly" value="{{ k }}" class="short"/>:
-        <input type="text" readonly="readonly" value="{{ v }}" class="short" name=""/>
-        <br/>
-{% endfor %}
-        <br/>
-        <label></label>
-        <select name="is_serialized">
-          <option value="">{% trans "Sarjanumeroseuranta" %}</option>
-          <option value="Y">{% trans "Käytössä" %}</option>
-          <option value="N">{% trans "Ei käytössä" %}</option>
-        </select>
+      <input type="text" readonly="readonly" value="{{ product.amount_reserved }}"/>
+      <br/>
+      <label></label>
+      <select name="is_serialized">
+        <option value="">{% trans "Sarjanumeroseuranta" %}</option>
+        <option value="Y">{% trans "Käytössä" %}</option>
+        <option value="N">{% trans "Ei käytössä" %}</option>
+      </select>
     </div><!-- //#stock -->
     
     <div id="files" class="tab">
@@ -106,24 +101,23 @@
     <div id="gsx" class="tab">
 {% for k, v in product.gsx_data.items %}
         <label style="width:150px">{{ k }}:</label>
-        <input type="text" style="width:50%" readonly="readonly" value="{{ v }}" name="gsx_data.{{ k }}"/>
+        <input type="text" style="width:50%" readonly="readonly" value="{{ v }}"/>
 {% endfor %}
     </div><!-- //#gsx -->
   </form>
 </div>
 
 <script type="text/javascript">
-    $("#fileupload").fileupload(
-    {
-        url: "/document/save",
-        done: function(e, data) {
-            var file = data.result;
-            $("<li/>").text(file.name).appendTo($("#attachments"));
-            $("<input/>").attr("type", "hidden")
-                .attr("name", "attachments")
-                .val(file.id)
-                .insertAfter("#fileupload");
-        }
+    $("#fileupload").fileupload({
+      url: "/document/save",
+      done: function(e, data) {
+          var file = data.result;
+          $("<li/>").text(file.name).appendTo($("#attachments"));
+          $("<input/>").attr("type", "hidden")
+              .attr("name", "attachments")
+              .val(file.id)
+              .insertAfter("#fileupload");
+      }
     });
     
     $(".autocomplete").autocomplete({source: "/tag/index/product"});

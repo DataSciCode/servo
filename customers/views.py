@@ -52,10 +52,9 @@ def save(req):
     if not re.search(str(c.id), c.path):
       c.path += ',' + str(c.id) # adding a contact for an existing customer
   
-  if 'order' in req.POST:
-    order = Order.objects(id = ObjectId(req.POST['order']))[0]
-    order.customer = c
-    order.save()
+  if req.session.get('order'):
+    req.session['order'].customer = c
+    req.session['order'].save()
   
   c.save()
   

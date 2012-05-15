@@ -1,6 +1,6 @@
 # coding=utf-8
 
-import re
+import re, json
 from django import template
 from django.utils import safestring
 import datetime
@@ -37,4 +37,14 @@ def clickable(value):
     result = '<a href="/message/create/smsto/%s">%s</a>' % (value, value)
   
   return safestring.mark_safe(result)
+  
+@register.filter
+def gsx_date(value):
+  formats = json.load(open("/Users/filipp/Projects/servo3/gsx/langs.json"))
+  return value.strftime(formats['en_XXX']['df'])
+  
+@register.filter
+def gsx_time(value):
+  formats = json.load(open("/Users/filipp/Projects/servo3/gsx/langs.json"))
+  return value.strftime(formats['en_XXX']['tf'])
   

@@ -23,6 +23,7 @@ class Product(Document):
   meta = { 'ordering': ['-id'] }
   number = SequenceField()
   
+  gsx_data = DictField()
   warranty_period = IntField()
   
   code = StringField(default = "")
@@ -223,6 +224,8 @@ class Order(Document):
   status_limit_green = IntField()   # timestamp in seconds
   status_limit_yellow = IntField()  # timestamp in seconds
   
+  gsx_repair = DictField()
+  
   def can_gsx(self):
     return True
   
@@ -366,7 +369,7 @@ class PurchaseOrder(Document):
   def sum(self):
     total = 0
     for p in self.products:
-      total += float(p['price'] * p['amount'])
+      total += float(p.get('price')*p.get('amount'))
     
     return total
   

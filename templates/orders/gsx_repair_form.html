@@ -1,101 +1,93 @@
 {% load i18n %}
+{% load extras %}
+
 <div class="tabView">
-    <ul class="tabs">
-	   <li><a href="#general">{% trans "Yleiset" %}</a></li><li><a href="#parts">{% trans "Varaosat" %}</a></li><li><a href="#customer">{% trans "Asiakas" %}</a></li>
-    </ul>
-<form
-    method="post"
-    rel="accounts"
-    accept-charset="utf-8"
-    action="/gsx/save-repair">
+  <ul class="tabs">
+   <li><a href="#general">{% trans "Yleiset" %}</a></li><li><a href="#parts">{% trans "Varaosat" %}</a></li><li><a href="#customer">{% trans "Asiakas" %}</a></li>
+  </ul>
+<form method="post" accept-charset="utf-8" action="/orders/submit_gsx_repair">
+  {% csrf_token %}
+  <input type="hidden" name="order_number" value="{{ order.number }}"/>
+  <input type="hidden" name="ws_account" value="{{ ws_account }}"/>
+  
+  <input type="hidden" name="customerAddress.state" value="ZZ"/>
+  <input type="hidden" name="customerAddress.companyName" value=""/>
+  <input type="hidden" name="customerAddress.regionCode" value="004"/>
+  <input type="hidden" name="customerAddress.city" value="{{ customer.city }}"/>
+  <input type="hidden" name="customerAddress.zipCode" value="{{ customer.zip }}"/>
+  <input type="hidden" name="customerAddress.country" value="{{ customer.country }}"/>
+  <input type="hidden" name="customerAddress.street" value="{{ customer.adressLine1 }}"/>
+  <input type="hidden" name="customerAddress.addressLine1" value="{{ customer.adressLine1 }}"/>
     
-    <input type="hidden" name="serialNumber" value="{{ device.sn }}"/>
-    <input type="hidden" name="ws_account" value="{{ ws_account }}"/>
-    <input
-        type="hidden"
-        name="customerAddress[addressLine1]"
-        value="{{ customer.adressLine1 }}"/>
-    <input
-        type="hidden"
-        name="customerAddress[regionCode]"
-        value="004"/>
-    <input
-        type="hidden"
-        name="customerAddress[state]"
-        value="ZZ"/>
-    <input
-        type="hidden"
-        name="customerAddress[street]"
-        value="{{ customer.adressLine1 }}"/>
-    <input type="hidden" name="customerAddress[companyName]" value=""/>
-    <input type="hidden" name="customerAddress[country]" value="{{ customer.country }}"/>
-    <input
-        type="hidden"
-        name="customerAddress[zipCode]"
-        value="{{ customer.zip }}"/>
-    <input type="hidden" name="city" value="{{ customer.city }}"/>
-    <input type="hidden" name="order_id" value="{{ order.number }}"/>
-    
-    <div class="tab" id="general">
-      <select class="label chooser" rel="symptom">
-        <option value="0">{% trans "Vikakuvaus" %}…</option>
-{% for tpl in templates %}
-          <option value="{{ tpl.id }}">{{ tpl.title }}</option>
+  <div class="tab" id="general">
+    <label>{% trans "Laite" %}:</label>
+    <select name="sn" style="width:70%">
+{% for dev in order.devices %}
+      <option value="{{ dev.sn }}">{{ dev.sn }} - {{ dev.description }}</option>
 {% endfor %}
-       </select>
-        <textarea id="symptom" name="symptom">{{ symptom }}</textarea>
-        <br/>
-        <select class="label chooser" rel="diagnosis">
-          <option value="0">{% trans "Vikakuvaus" %}…</option>
+    </select>
+    <br/>
+    <select class="label chooser" rel="symptom">
+      <option value="0">{% trans "Vikakuvaus" %}…</option>
 {% for tpl in templates %}
-            <option value="{{ tpl.id }}">{{ tpl.title }}</option>
+      <option value="{{ tpl.id }}">{{ tpl.title }}</option>
 {% endfor %}
-         </select>
-        <textarea id="diagnosis" name="diagnosis"></textarea>
-        <br/>
-        <label>{% trans "Luotu" %}:</label>
-        <input
-            type="text"
-            class="datepicker short"
-            name="unitReceivedDate"
-            value="{{ unitReceivedDate }}"/>
-        <input type="text" class="short" name="unitReceivedTime" value="{{ unitReceivedTime }}"/>
-        <br/>
-        <label>{% trans "Liite" %}:</label>
-        <input type="file" name="incoming"/>
-        <br/>
-        <label></label>
-        <input type="hidden" name="requestReview" value="N"/>
-        <input type="checkbox" name="requestReview" value="Y"/>
-        <span>request review</span>
-        <br/>
-    </div><!-- //#general -->
+    </select>
+    <textarea id="symptom" name="symptom">{{ symptom }}</textarea>
+    <br/>
+    <select class="label chooser" rel="diagnosis">
+      <option value="0">{% trans "Diagnoosi" %}…</option>
+{% for tpl in templates %}
+      <option value="{{ tpl.id }}">{{ tpl.title }}</option>
+{% endfor %}
+     </select>
+    <textarea id="diagnosis" name="diagnosis"></textarea>
+    <br/>
+    <label>{% trans "Luotu" %}:</label>
+    <input
+      type="text"
+      name="unitReceivedDate"
+      class="datepicker short"
+      value="{{ order.created_at|gsx_date }}"/>
+    <input
+      type="text"
+      class="short"
+      name="unitReceivedTime"
+      value="{{ order.created_at|gsx_time }}"/>
+    <br/>
+    <label>{% trans "Liite" %}:</label>
+    <input type="file" name="incoming"/>
+    <br/>
+    <label></label>
+    <input type="hidden" name="requestReview" value="N"/>
+    <input type="checkbox" name="requestReview" value="Y"/>
+    <span>{% trans "request review" %}</span>
+    <br/>
+  </div><!-- //#general -->
     
     <div class="tab" id="parts">
 {% for part in parts %}
-        <input type="hidden" name="items[sku][]" value="{{ part.number }}"/>
-        <input type="hidden" name="items[title][]" value="{{ part.title }}"/>
         <input
             type="text"
             class="short"
             readonly="readonly"
-            name="items[partNumber][]"
-            value="{{ part.code }}"/>
-        <select name="items[comptiaCode][]">
-            <option value="">{% trans "Valitse" %}...</option>
-<?php foreach($v['symptomCodes'] as $k => $v): ?>
-            <option value="<?php print $k ?>"><?php printf('%s-%s', $k, $v) ?></option>
-<?php endforeach ?>
+            value="{{ part.code }}"
+            name="items.{{ forloop.counter0 }}.partNumber"/>
+        <select name="items.{{ forloop.counter0 }}.comptiaCode">
+          <option value="">{% trans "Valitse" %}...</option>
+          {% for k, v in part.symptoms.items %}
+          <option value="{{ k }}">{{ k }} - {{ v }}</option>
+          {% endfor %}
         </select>
-        <select name="items[comptiaModifier][]">
-            <option value="">{% trans "Valitse" %}...</option>
-<?php foreach($this->symptomModifiers as $k => $v): ?>
-            <option value="<?php print $k ?>"><?php printf('%s-%s', $k, $v) ?></option>
-<?php endforeach ?>
+        <select name="items.{{ forloop.counter0 }}.comptiaModifier">
+          <option value="">{% trans "Valitse" %}...</option>
+          {% for k, v in modifiers.items %}
+          <option value="{{ k }}">{{ k }} - {{ v }}</option>
+          {% endfor %}
         </select>
-        <select name="items[abused][]" style="width:60px">
-            <option value="N">{% trans "Takuu" %}</option>
-            <option value="Y">{% trans "Vahinko" %}</option>
+        <select name="items.{{ forloop.counter0 }}.abused" style="width:60px">
+          <option value="N">{% trans "Takuu" %}</option>
+          <option value="Y">{% trans "Vahinko" %}</option>
         </select>
         <br/>
 {% endfor %}

@@ -61,7 +61,7 @@ def lookup(req, what):
   
   if what == "customer":
     collection = "customer"
-    customers = Customer.objects(name = query)
+    customers = Customer.objects(name__istartswith = query)
     
     for r in customers:
       results.append({'id': r.id, 'title': r.name})

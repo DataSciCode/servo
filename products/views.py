@@ -51,15 +51,18 @@ def save(req):
   
   product.code = req.POST.get("code")
   product.title = req.POST.get("title")
-  product.description = req.POST.get("description")
-  product.pct_margin = float(req.POST.get("pct_margin", 0))
-  product.pct_vat = req.POST.get("pct_vat", 0)
   product.tags = req.POST.getlist('tags')
+  product.description = req.POST.get("description")
+  product.pct_vat = float(req.POST.get("pct_vat", 0))
+  product.pct_margin = float(req.POST.get("pct_margin", 0))
   
-  product.price_exchange = req.POST.get("price_exchange", 0)
   product.price_notax = float(req.POST.get("price_notax", 0))
   product.price_sales = float(req.POST.get("price_sales", 0))
+  product.price_exchange = float(req.POST.get("price_exchange", 0))
   product.price_purchase = float(req.POST.get("price_purchase", 0))
+  
+  if product.code in req.session.get('gsx_data'):
+    product.gsx_data = req.session['gsx_data'].get(product.code)
   
   product.save()
   
@@ -77,7 +80,7 @@ def save(req):
     req.session['order'].products = [oi]
     req.session['order'].save()
     
-  return HttpResponse('Tuote tallennettu')
+  return HttpResponse("Tuote tallennettu")
   
 def search(req):
   return render(req, 'products/search.html')

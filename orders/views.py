@@ -1,8 +1,10 @@
 # coding=utf-8
-import logging, json
+import logging, json, re
 from django.template import RequestContext
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render, redirect
+from django.utils.datastructures import DotExpandedDict
+
 from datetime import datetime
 
 from bson.objectid import ObjectId
@@ -11,7 +13,6 @@ from servo3.models import *
 
 def index(req, param = None, value = None):
   data = Order.objects
-  
   if param == "status":
     status = Status.objects(id = ObjectId(value)).first()
     data = Order.objects(status = status)
@@ -118,18 +119,74 @@ def update(req, id):
   return HttpResponse("")
   
 def create_gsx_repair(req, order_id):
+  
   order = Order.objects(id = ObjectId(order_id)).first()
   customer = {}
   templates = Template.objects.all()
+  comptia = json.load(open("/Users/filipp/Projects/servo3/gsx/symptoms.json"))
   
   if order.customer:
-    for p in order.customer.properties:
-      pass
+    for k, v in order.customer.properties.items():
+      if re.search('@', v):
+        customer['emailAddress'] = v
+      if re.search('\d+', v):
+        customer['primaryPhone'] = v
+  
+  (customer['firstName'], customer['lastName']) = order.customer.name.split(" ")
   
   parts = []
-  for p in order.products:
-    parts.append({"number": p.product.number,
-      "title": p.product.title, "code": p.product.code})
   
-  return render(req, "orders/gsx_repair_form.html", {"templates": templates, "parts": parts})
+  for p in order.products:
+    # find the corresponding compnent code from coptia
+    comp = p.product.gsx_data['componentCode']
+    symptoms = comptia['symptoms'][comp]
+    parts.append({"number": p.product.number,
+      "title": p.product.title, "code": p.product.code, "symptoms": symptoms})
+  
+  return render(req, "orders/gsx_repair_form.html", {"templates": templates,\
+    "parts": parts, "modifiers": comptia['modifiers'],\
+    "customer": customer, "order": order})
+    
+def submit_gsx_repair(req):
+  data = DotExpandedDict(req.POST)
+  parts = []
+  
+  # create Purchase Order
+  po = PurchaseOrder(supplier = "Apple", reference = data.get("order_number"))
+  po.save()
+  
+  for k, v in data.get("items").items():
+    # add to "ordered" inventory
+    p = Product.objects(code = v['partNumber']).first()
+    Inventory(kind = "po", product = p, slot = po).save()
+    parts.append(v)
+    
+  po.products = parts
+  po.carrier = "UPS"
+  print parts
+  po.save()
+  
+  repair = {
+    "billTo": "677592",
+    "shipTo": "677592",
+    "diagnosedByTechId": "FIN0825L",
+    "diagnosis": data.get("diagnosis"),
+    "notes": data.get("diagnosis"),
+    "poNumber": "FL" + data.get("order_number"),
+    "referenceNumber": po.number,
+    "requestReviewByApple": data.get("request_review"),
+    "serialNumber": data.get("sn"),
+    "symptom": data.get("symptom"),
+    "unitReceivedDate": data.get("unitReceivedDate"),
+    "unitReceivedTime": data.get("unitReceivedTime")
+  }
+  
+  customer = data.get("customerAddress")
+  
+  print parts
+  
+  from gsx.views import submit_repair
+  submit_repair(repair, customer, parts)
+  
+  return HttpResponse("GSX korjaus luotu")
   

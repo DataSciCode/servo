@@ -53,6 +53,7 @@ urlpatterns = patterns('',
   url(r'^orders/tags/(\w+)$', 'orders.views.tags'),
   url(r'^orders/update/(\w+)$', 'orders.views.update'),
   url(r'^orders/gsx_repair/(\w+)$', 'orders.views.create_gsx_repair'),
+  url(r'^orders/submit_gsx_repair$', 'orders.views.submit_gsx_repair'),
   
   url(r'^message/$', 'messages.views.index'),
   url(r'^message/save$', 'messages.views.save'),

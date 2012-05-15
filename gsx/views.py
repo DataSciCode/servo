@@ -105,7 +105,80 @@ def repair_lookup(query):
   req = client.factory.create('ns0:partsLookupRequestType')
   req.userSession = session
   it = client.factory.create('ns7:partsLookupInfoType')
+
+"""
+(carryInRequestType){
+   userSession = 
+      (authenticateResponseType){
+         userSessionId = "K2Blf1t8P2wO3hDQMdxf4o0"
+         operationId = "Mevnmq30QBYJ9V87vkHou"
+      }
+   repairData = 
+      (amAspCreateCarryInRepairDataType){
+         billTo = None
+         diagnosedByTechId = None
+         diagnosis = None
+         notes = None
+         poNumber = None
+         popFaxed = None
+         referenceNumber = None
+         requestReviewByApple = None
+         serialNumber = None
+         shipTo = None
+         symptom = None
+         unitReceivedDate = None
+         fileName = None
+         fileData = None
+         isNonReplenished = None
+         unitReceivedTime = None
+         checkIfOutOfWarrantyCoverage = None
+         overrideDiagnosticCodeCheck = None
+         markCompleteFlag = None
+         replacementSerialNumber = None
+         orderLines[] = <empty>
+         customerAddress = 
+            (amAspAddressType){
+               addressLine1 = None
+               addressLine2 = None
+               addressLine3 = None
+               addressLine4 = None
+               country = None
+               zipCode = None
+               regionCode = None
+               city = None
+               state = None
+               street = None
+               firstName = None
+               lastName = None
+               middleInitial = None
+               companyName = None
+               primaryPhone = None
+               secondaryPhone = None
+               sendSMSOnPrimaryPhone = None
+               primarySMSProvider = None
+               sendSMSOnSecondaryPhone = None
+               secondarySMSProvider = None
+               emailAddress = None
+            }
+      }
+ }
+"""
+def submit_repair(repair_data, customer_info, parts):
+  act = GsxAccount.objects.first()
+  client = Client("https://gsxwsit.apple.com/wsdl/amAsp/gsx-amAsp.wsdl")
   
-def submit_repair(req):
-  pass
+  req = client.factory.create('ns3:AuthenticateRequest')
+  req.serviceAccountNo = act.sold_to
+  req.userId = act.username
+  req.password = act.password
+  req.languageCode = "en"
+  req.userTimeZone = "CEST"
+  
+  session = client.service.Authenticate(req)
+  req = client.factory.create('ns2:carryInRequestType')
+  req.userSession = session
+  req.repairData.customerAddress = customer_info
+  req.repairData.orderLines = parts
+  r = client.service.CreateCarryInRepair(req)
+  print r
   
