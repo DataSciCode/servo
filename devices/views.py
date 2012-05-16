@@ -1,6 +1,7 @@
 from servo3.models import Device, Order
 from django.shortcuts import render
 from django.http import HttpResponse
+from django.utils.datastructures import DotExpandedDict
 
 from bson.objectid import ObjectId
 
@@ -29,6 +30,7 @@ def remove(req, id = None):
 def edit(req, id):
   if id in req.session.get('gsx_data'):
     result = req.session['gsx_data'].get(id)
+    print result
     dev = Device(sn = result.get('serialNumber'),\
       description = result.get('productDescription'), gsx_data = result)
   else:
@@ -42,12 +44,10 @@ def save(req):
   if 'id' in req.POST:
     dev = Device.objects(id = ObjectId(req.POST['id'])).first()
   
-  dev.sn = req.POST.get('sn')
-  dev.notes = req.POST.get('notes')
-  dev.username = req.POST.get('username')
-  dev.password = req.POST.get('password')
-  dev.description = req.POST.get('description')
-  dev.purchased_on = req.POST.get('purchased_on')
+  data = DotExpandedDict(req.POST)
+  
+  for k, v in data.items():
+    dev.__setattr__(k, v)
   
   dev.save()
   

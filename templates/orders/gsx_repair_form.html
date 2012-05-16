@@ -7,21 +7,14 @@
   </ul>
 <form method="post" accept-charset="utf-8" action="/orders/submit_gsx_repair">
   {% csrf_token %}
-  <input type="hidden" name="order_number" value="{{ order.number }}"/>
   <input type="hidden" name="ws_account" value="{{ ws_account }}"/>
-  
+  <input type="hidden" name="order_number" value="{{ order.number }}"/>
   <input type="hidden" name="customerAddress.state" value="ZZ"/>
-  <input type="hidden" name="customerAddress.companyName" value=""/>
   <input type="hidden" name="customerAddress.regionCode" value="004"/>
-  <input type="hidden" name="customerAddress.city" value="{{ customer.city }}"/>
-  <input type="hidden" name="customerAddress.zipCode" value="{{ customer.zip }}"/>
-  <input type="hidden" name="customerAddress.country" value="{{ customer.country }}"/>
-  <input type="hidden" name="customerAddress.street" value="{{ customer.adressLine1 }}"/>
-  <input type="hidden" name="customerAddress.addressLine1" value="{{ customer.adressLine1 }}"/>
-    
+  <input type="hidden" name="customerAddress.country" value="FIN"/>
   <div class="tab" id="general">
     <label>{% trans "Laite" %}:</label>
-    <select name="sn" style="width:70%">
+    <select name="sn" style="width:365px">
 {% for dev in order.devices %}
       <option value="{{ dev.sn }}">{{ dev.sn }} - {{ dev.description }}</option>
 {% endfor %}
@@ -94,16 +87,25 @@
     </div><!-- //#parts -->
     <div class="tab" id="customer">
       <label>{% trans "Etunimi" %}:</label>
-      <input type="text" name="firstName" value="{{ customer.firstName }}"/>
+      <input type="text" name="customerAddress.firstName" value="{{ customer.firstName }}"/>
       <br/>
       <label>{% trans "Sukunimi" %}:</label>
-      <input type="text" name="lastName" value="{{ customer.lastName }}"/>
+      <input type="text" name="customerAddress.lastName" value="{{ customer.lastName }}"/>
       <br/>
       <label>{% trans "Sähköposti" %}:</label>
-      <input type="text" name="emailAddress" value="{{ customer.emailAddress }}"/>
+      <input type="text" name="customerAddress.emailAddress" value="{{ customer.emailAddress }}"/>
       <br/>
       <label>{% trans "Puhelin" %}:</label>
-      <input type="text" name="primaryPhone" value="{{ customer.primaryPhone }}"/>
+      <input type="text" name="customerAddress.primaryPhone" value="{{ customer.primaryPhone }}"/>
+      <br/>
+      <label>{% trans "Katuosoite" %}:</label>
+      <input type="text" name="customerAddress.addressLine1" value="{{ customer.adressLine1 }}"/>
+      <br/>
+      <label>{% trans "Postinumero" %}:</label>
+      <input type="text" name="customerAddress.zipCode" value="{{ customer.zip }}"/>
+      <br/>
+      <label>{% trans "Toimipaikka" %}:</label>
+      <input type="text" name="customerAddress.city" value="{{ customer.city }}"/>
     </div><!-- //#customer -->
 </form>
 </div>

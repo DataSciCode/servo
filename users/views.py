@@ -21,7 +21,7 @@ def login(req):
   return render(req, "users/login.html")
   
 def settings(req):
-  if req.method is "POST":
+  if req.method == "POST":
     req.session['user'].phone = req.POST['phone']
     loc = Location.objects(id = req.POST['location']).first()
     req.session['user'].location = loc

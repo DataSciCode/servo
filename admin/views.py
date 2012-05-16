@@ -150,22 +150,21 @@ def locations(req):
   
 def edit_location(req, id=None):
   location = Location()
+  
   if id:
-    location = Location.objects(id  = ObjectId(id))[0]
+    location = Location.objects(id  = ObjectId(id)).first()
+  
   return render(req, 'admin/location_form.html', {'location': location})
   
 def save_location(req):
   loc = Location()
   
   if 'id' in req.POST:
-    loc =Location.objects(id = ObjectId(id))[0]
+    loc = Location.objects(id = ObjectId(req.POST['id'])).first()
   
-  loc.title = req.POST['title']
-  loc.email = req.POST['email']
-  loc.address = req.POST['address']
-  loc.city = req.POST['city']
-  loc.zip = req.POST['zip']
-  loc.desciption = req.POST['description']
+  for k, v in req.POST.items():
+    loc.__setattr__(k, v)
+  
   loc.save()
   
   return HttpResponse('Sijainti tallennettu')

@@ -75,10 +75,10 @@ def save(req):
   
   if req.session['order']:
     amount = int(req.POST.get("amount_sold"))
-    oi = OrderItem(product = product, sn = req.POST.get("sn"),\
+    oi = OrderItem(product = product, sn = req.POST.get("sn"),
       price = req.POST.get("price_sales"), amount = amount)
-    req.session['order'].products = [oi]
-    req.session['order'].save()
+    order = Order.objects(id = req.session['order'].id).update_one(push__products = oi)
+    req.session['order'] = order
     
   return HttpResponse("Tuote tallennettu")
   
@@ -94,7 +94,8 @@ def reserve(req, order_id = None):
       i = Inventory(slot = order, product = p.product, sn = p.sn, kind = "order")
       i.save()
     
-    Event(description = "Tilauksen tuotteet varattu", ref_order = order, type = "products_reserved").save()
+    Event(description = "Tilauksen tuotteet varattu", ref_order = order,
+      type = "products_reserved").save()
     return HttpResponse("Tuotteet varattu")
   else:
     order = Order.objects(id = ObjectId(order_id)).first()

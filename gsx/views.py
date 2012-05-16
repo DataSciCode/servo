@@ -174,11 +174,23 @@ def submit_repair(repair_data, customer_info, parts):
   req.languageCode = "en"
   req.userTimeZone = "CEST"
   
+  repair_dt = client.factory.create("ns2:amAspCreateCarryInRepairDataType")
+  for k, v in repair_data.items():
+    repair_dt.__setattr__(k, v)
+  
+  customer_dt = client.factory.create("ns2:amAspAddressType")
+  for k, v in customer_info.items():
+    customer_dt.__setattr__(k, v)
+  
+  repair_dt.customerAddress = customer_dt
+  repair_dt.orderLines = parts
+  
   session = client.service.Authenticate(req)
   req = client.factory.create('ns2:carryInRequestType')
   req.userSession = session
-  req.repairData.customerAddress = customer_info
-  req.repairData.orderLines = parts
-  r = client.service.CreateCarryInRepair(req)
-  print r
+  req.repairData = repair_dt
+  
+  result = client.service.CreateCarryInRepair(req)
+  print result
+  return asdict(result)
   

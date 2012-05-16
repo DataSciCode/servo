@@ -31,13 +31,11 @@
     <textarea id="notes" name="notes">{{ notes }}</textarea>
   </div>
   <div id="gsx" class="tab">
-    
 {% for k, v in gsx_data.items %}
-      <label style="width:150px">{{ k }}:</label>
-      <input type="text" readonly="readonly" style="width:50%" name="gsxdata.{{ k }}" value="{{ v }}"/>
-      <br/>
+    <label style="width:150px">{{ k }}:</label>
+    <input type="text" readonly="readonly" style="width:50%" name="gsx_data.{{ k }}" value="{{ v }}"/>
+    <br/>
 {% endfor %}
-    </div>
-    
+    </div>    
 </form>
 </div>

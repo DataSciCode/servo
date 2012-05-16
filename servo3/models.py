@@ -13,6 +13,8 @@ class Device(Document):
   password = StringField()
   purchased_on = StringField()
   notes = StringField()
+
+  gsx_data = DictField()
   
   @classmethod
   def to_python(self, blaa):
@@ -112,12 +114,14 @@ class Field(Document):
   format = StringField()
   
 class Location(Document):
-  title = StringField(required=True, default="Uusi sijainti")
+  title = StringField(required = True, default = "Uusi sijainti")
   description = StringField()
   phone = StringField()
   email = EmailField()
   address = StringField()
   shipto = StringField()
+  zip = StringField()
+  city = StringField()
   
 class GsxAccount(Document):
   title = StringField(default="Uusi tili")
@@ -224,7 +228,7 @@ class Order(Document):
   status_limit_green = IntField()   # timestamp in seconds
   status_limit_yellow = IntField()  # timestamp in seconds
   
-  gsx_repair = DictField()
+  gsx_repairs = ListField(DictField())
   
   def can_gsx(self):
     return True
@@ -304,6 +308,8 @@ class Issue(Document):
   order = ReferenceField(Order)
   
 class Message(Document):
+  meta = { 'ordering': ['-id'] }
+  
   subject = StringField()
   body = StringField(default='')
   sender = StringField(default='filipp')
@@ -356,13 +362,13 @@ class PurchaseOrder(Document):
   dispatch_id = StringField()
   sales_order = StringField()
   
-  date_created = StringField()
+  date_created = DateTimeField(default = datetime.now())
   date_ordered = StringField()
   date_arrived = StringField
-
+  
+  carrier = StringField()
   supplier = StringField()
   days_delivered = StringField()
-  carrier = StringField()
   tracking_id = StringField()
   products = ListField(DictField())
   
@@ -376,7 +382,7 @@ class PurchaseOrder(Document):
   def amount(self):
     amount = 0
     for p in self.products:
-      amount += p['amount']
+      amount += p.get('amount')
     
     return amount
   

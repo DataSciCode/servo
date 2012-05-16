@@ -1,4 +1,4 @@
-{% extends "default.html" %}
+{% extends request.is_ajax|yesno:"empty.html,default.html" %}
 {% load i18n %}
 
 {% block title %}Tuotteet{% endblock title %}
@@ -24,29 +24,29 @@
         <thead>
             <tr>
                 <th style="width:20px"></th>
-                <th><span class="active">#</span></th>
-                <th><span>{% trans "Koodi" %}</span></th>
-                <th><span>{% trans "Nimike" %}</span></th>
-                <th><span>{% trans "Ostohinta" %}</span></th>
-                <th><span>{% trans "Hinta" %}</span></th>
-                <th><span>{% trans "Varastossa" %}</span></th>
-                <th><span>{% trans "Tilattu" %}</span></th>
-                <th><span>{% trans "Varattu" %}</span></th>
+                <th>#</th>
+                <th>{% trans "Koodi" %}</th>
+                <th>{% trans "Nimike" %}</th>
+                <th>{% trans "Ostohinta" %}</th>
+                <th>{% trans "Hinta" %}</th>
+                <th>{% trans "Varastossa" %}</th>
+                <th>{% trans "Tilattu" %}</th>
+                <th>{% trans "Varattu" %}</th>
             </tr>
         </thead>
         <tbody>
 {% for i in data %}
-            <tr data-url="/products/edit/{{ i.id }}" class="{% cycle 'odd' 'even' %}">
-              <td><input type="checkbox" class="selected_product" value="{{ i.number }}"/></td>
-              <td><a href="/products/edit/{{ i.id }}" class="popup">{{ i.number }}</a></td>
-              <td>{{ i.code }}</td>
-              <td>{{ i.title }}</td>
-              <td>{{ i.price_purchase }}</td>
-              <td>{{ i.price_sales }}</td>
-              <td>{{ i.amount_stocked }}</td>
-              <td>{{ i.amount_ordered }}</td>
-              <td>{{ i.amount_reserved }}</td>
-            </tr>
+          <tr data-url="/products/edit/{{ i.id }}" class="{% cycle 'odd' 'even' %}">
+            <td><input type="checkbox" class="selected_product" value="{{ i.number }}"/></td>
+            <td><a href="/products/edit/{{ i.id }}" class="popup">{{ i.number }}</a></td>
+            <td>{{ i.code }}</td>
+            <td>{{ i.title }}</td>
+            <td>{{ i.price_purchase }}</td>
+            <td>{{ i.price_sales }}</td>
+            <td>{{ i.amount_stocked }}</td>
+            <td>{{ i.amount_ordered }}</td>
+            <td>{{ i.amount_reserved }}</td>
+          </tr>
 {% endfor %}
       </tbody>
     </table>

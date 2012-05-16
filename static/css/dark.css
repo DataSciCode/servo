@@ -330,7 +330,7 @@ br {
     clear: both;
 }
 
-#page th, .block_header, #pager, .breadcrumbs {
+#page th, .block_header, .breadcrumbs {
     height: 36px;
     text-align: left;
     vertical-align: middle;
@@ -456,6 +456,7 @@ input[type="text"], input[type="password"], textarea {
     border: none;
     width: 75%;
     margin: 3px;
+    padding: 6px;
     font-size: 10pt;
     border-radius: 4px;
     background-color: #222;
@@ -466,11 +467,7 @@ input[type="text"], input[type="password"], textarea {
     box-shadow: inset 0 0 4px #000000;
 }
 
-input[type="text"], input[type="password"] {
-    padding: 6px;
-}
 textarea {
-    padding: 3px;
     resize: vertical;
     height: 100px;
 }
@@ -517,14 +514,9 @@ img.avatar {
     height: 40px;
 }
 
-#pager {
-    border-bottom: none;
-    display: none;
-}
-
-#pager_icon {
-    padding: 5px;
-    float: left;
+#pager_spinner {
+    float:left;
+    display:none;
 }
 
 #pager_msg {
@@ -687,8 +679,8 @@ a.todo {
 }
 
 div.tab a.search {
-    top: 43px !important;
-    right: 45px !important;
+    top: 41px !important;
+    right: 51px !important;
 }
 
 #popup a.search.active {

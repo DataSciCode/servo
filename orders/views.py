@@ -1,18 +1,21 @@
 # coding=utf-8
 import logging, json, re
-from django.template import RequestContext
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, render, redirect
-from django.utils.datastructures import DotExpandedDict
-
 from datetime import datetime
+from django.http import HttpResponse
+from django.template import RequestContext
+from django.shortcuts import render, render_to_response, redirect
+from django.utils.datastructures import DotExpandedDict
 
 from bson.objectid import ObjectId
 from django.views.decorators.csrf import csrf_exempt
 from servo3.models import *
 
 def index(req, param = None, value = None):
-  data = Order.objects
+
+  data = Order.objects.all()
+
+  print req
+
   if param == "status":
     status = Status.objects(id = ObjectId(value)).first()
     data = Order.objects(status = status)
@@ -25,9 +28,10 @@ def index(req, param = None, value = None):
     customer = Customer.objects(id = ObjectId(value)).first()
     data = Order.objects(customer = customer)
     
-  return render(req, 'orders/index.html', {'data' : data})
+  return render(req, 'orders/index.html', {"data" : data})
   
 def create(req):
+
   o = Order(created_by = "filipp", created_at = datetime.now())
   o.save()
   # fire the creation event
@@ -37,6 +41,7 @@ def create(req):
   return redirect('/orders/edit/' + str(o.id))
   
 def tags(req, id):
+
   if 'title' in req.POST:
     order = Order.objects(id = ObjectId(id))[0]
     title = req.POST['title']
@@ -116,7 +121,7 @@ def update(req, id):
     req.session['order'].priority = req.POST['priority']
     req.session['order'].save()
     
-  return HttpResponse("")
+  return render(req, "orders/events.html", {"order": order})
   
 def create_gsx_repair(req, order_id):
   
@@ -129,16 +134,39 @@ def create_gsx_repair(req, order_id):
     for k, v in order.customer.properties.items():
       if re.search('@', v):
         customer['emailAddress'] = v
-      if re.search('\d+', v):
+      if re.search('^\d{5}$', v):
+        customer['zip'] = v
+      if re.search('^\d{6,}$', v):
         customer['primaryPhone'] = v
+      if re.search('^\w+\s\d+', v):
+        customer['adressLine1'] = v
+      if re.search('^[A-Za-z]+$', v):
+        customer['city'] = v
   
-  (customer['firstName'], customer['lastName']) = order.customer.name.split(" ")
+  (customer['firstName'], customer['lastName']) = order.customer.name.split(" ", 1)
+  
+  if not "primaryPhone" in customer:
+    customer['primaryPhone'] = req.session['user'].location.phone
+  
+  if not "city" in customer:
+    customer['city'] = req.session['user'].location.city
+  
+  if not "addressLine1" in customer:
+    customer['adressLine1'] = req.session['user'].location.address
+  
+  if not "zip" in customer:
+    customer['zip'] = req.session['user'].location.zip
   
   parts = []
   
   for p in order.products:
     # find the corresponding compnent code from coptia
-    comp = p.product.gsx_data['componentCode']
+    try:
+      comp = p.product.gsx_data['componentCode']
+    except Exception, e:
+      # skip products with no GSX data
+      continue
+
     symptoms = comptia['symptoms'][comp]
     parts.append({"number": p.product.number,
       "title": p.product.title, "code": p.product.code, "symptoms": symptoms})
@@ -148,31 +176,34 @@ def create_gsx_repair(req, order_id):
     "customer": customer, "order": order})
     
 def submit_gsx_repair(req):
+  from gsx.views import submit_repair
   data = DotExpandedDict(req.POST)
   parts = []
   
+  order_number = data.get("order_number");
+  order = Order.objects(number = int(order_number)).first()
+
   # create Purchase Order
-  po = PurchaseOrder(supplier = "Apple", reference = data.get("order_number"))
+  po = PurchaseOrder(supplier = "Apple", reference = order_number)
   po.save()
   
   for k, v in data.get("items").items():
     # add to "ordered" inventory
     p = Product.objects(code = v['partNumber']).first()
     Inventory(kind = "po", product = p, slot = po).save()
+    Inventory(kind = "order", product = p, slot = order).save()
     parts.append(v)
     
   po.products = parts
   po.carrier = "UPS"
-  print parts
   po.save()
   
   repair = {
     "billTo": "677592",
     "shipTo": "677592",
-    "diagnosedByTechId": "FIN0825L",
     "diagnosis": data.get("diagnosis"),
     "notes": data.get("diagnosis"),
-    "poNumber": "FL" + data.get("order_number"),
+    "poNumber": "FL" + order_number,
     "referenceNumber": po.number,
     "requestReviewByApple": data.get("request_review"),
     "serialNumber": data.get("sn"),
@@ -182,11 +213,40 @@ def submit_gsx_repair(req):
   }
   
   customer = data.get("customerAddress")
+
+  try:
+    gsx_repair = submit_repair(repair, customer, parts)
+  except Exception, e:
+    return HttpResponse(e)
+
+  po.confirmation = gsx_repair['confirmationNumber']
+  po.save()
   
-  print parts
-  
-  from gsx.views import submit_repair
-  submit_repair(repair, customer, parts)
+  order = Order.objects(number = int(order_number)).first()
+  order.gsx_repairs.append(gsx_repair)
   
   return HttpResponse("GSX korjaus luotu")
   
+def messages(req, order_id):
+  order = Order.objects(id = ObjectId(order_id)).first()
+  return render(req, "orders/messages.html", {"order": order})
+  
+def issues(req, order_id):
+  order = Order.objects(id = ObjectId(order_id)).first()
+  return render(req, "orders/issues.html", {"order": order})
+  
+def devices(req, order_id):
+  order = Order.objects(id = ObjectId(order_id)).first()
+  return render(req, "orders/devices.html", {"order": order})
+  
+def events(req, order_id):
+  order = Order.objects(id = ObjectId(order_id)).first()
+  return render(req, "orders/events.html", {"order": order})
+  
+def customer(req, order_id):
+  order = Order.objects(id = ObjectId(order_id)).first()
+  return render(req, "orders/customer.html", {"order": order})
+
+def products(req, order_id):
+  order = Order.objects(id = ObjectId(order_id)).first()
+  return render(req, "orders/products.html", {"order": order})

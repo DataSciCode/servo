@@ -139,6 +139,7 @@ var PanelView = Backbone.View.extend(
 
         var form = $("#popup form");
         var reload = "#" + $(form).attr("rel");
+        $("#pager_spinner").show()
 
         $.ajax(
         {
@@ -148,6 +149,7 @@ var PanelView = Backbone.View.extend(
 
             complete: function(data, json) {
                 console.log(data, json);
+                $("#pager_spinner").hide()
             },
 
             error: function(data) {
@@ -169,15 +171,9 @@ var PanelView = Backbone.View.extend(
 ,
             success: function(data, status, json) {
                 console.log(data);
-                /*
-                if(j.redirect) {
-                    window.location.replace(j.redirect);
-                    return false;
-                }
-                */
                 $("#pager_msg").text(json.responseText);
-                $("#pager").slideDown();
-                window.panelView.hidePanel();
+                
+                //indow.panelView.hidePanel();
                 
                 // reload only the relevant portion of the page
                 $(reload).load($(reload).data("url"),
@@ -424,7 +420,6 @@ var SidebarView = Backbone.View.extend(
       args[arg] = t.val();
       console.log(args);
       $('#events').load(url, args);
-      console.log(url);
 /*
         var reload = (type == "set_queue") ? "#set_status" : "#events";
 

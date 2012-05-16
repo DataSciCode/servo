@@ -10,7 +10,7 @@
     "en_HK": {"df": "MM/DD/YY", "tf": "HH:MM A"},
     "en_SG": {"df": "DD-MM-YY", "tf": "HH:MM A"},
     "en_TH": {"df": "DD-MM-YY", "tf": "HH:MM A"},
-    "en_XXX": {"df": "%D", "tf": "%r"},
+    "en_XXX": {"df": "%D", "tf": "%I:%M %p"},
     "fr_FR": {"df": "DD/MM/YY", "tf": "HH:MM"},
     "fr_LU": {"df": "DD/MM/YY", "tf": "HH:MM"},
     "fr_CH": {"df": "DD.MM.YY", "tf": "HH:MM"},
