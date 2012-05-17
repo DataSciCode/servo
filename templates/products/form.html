@@ -20,9 +20,11 @@
       <label>{% trans "Määrä" %}:</label>
       <input type="text" name="amount_sold" value="{{ product.amount_sold }}"/>
       <br/>
+    {% if product.is_serialized %}
       <label>{% trans "Sarjanumero" %}:</label>
       <input type="text" name="sn" value="{{ product.sn }}"/>
       <br/>
+    {% endif %}
 {% endif %}
       <label>{% trans 'Kuvaus' %}:</label>
       <textarea name="description">{{ product.description }}</textarea>
@@ -31,8 +33,8 @@
 {% for t in  product.tags %}
   <input type="text" name="tags" style="width:80px" class="autocomplete tag" value="{{ t }}"/>
 {% endfor %}
-          <input type="text" id="newTag" class="autocomplete" style="width:80px"/>
-      </div>
+      <input type="text" id="newTag" class="autocomplete" style="width:80px"/>
+    </div>
     </div><!-- //#info -->
     <div id="price" class="tab">
       <label>{% trans 'Ostohinta' %}:</label>
@@ -75,12 +77,8 @@
       <label>{% trans 'Varattu' %}:</label>
       <input type="text" readonly="readonly" value="{{ product.amount_reserved }}"/>
       <br/>
-      <label></label>
-      <select name="is_serialized">
-        <option value="">{% trans "Sarjanumeroseuranta" %}</option>
-        <option value="Y">{% trans "Käytössä" %}</option>
-        <option value="N">{% trans "Ei käytössä" %}</option>
-      </select>
+      <label><input type="checkbox" name="is_serialized"></label>
+      {% trans "Sarjanumeroseuranta" %}
     </div><!-- //#stock -->
     
     <div id="files" class="tab">

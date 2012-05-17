@@ -2,6 +2,7 @@ import logging, re
 from suds.client import Client
 from suds.sudsobject import asdict
 from servo3.models import GsxAccount
+
 logging.basicConfig(level=logging.INFO)
 logging.getLogger('suds.client').setLevel(logging.DEBUG)
 
@@ -166,7 +167,7 @@ def repair_lookup(query):
 def submit_repair(repair_data, customer_info, parts):
   act = GsxAccount.objects.first()
   client = Client("https://gsxwsit.apple.com/wsdl/amAsp/gsx-amAsp.wsdl")
-  
+
   req = client.factory.create('ns3:AuthenticateRequest')
   req.serviceAccountNo = act.sold_to
   req.userId = act.username
@@ -186,11 +187,47 @@ def submit_repair(repair_data, customer_info, parts):
   repair_dt.orderLines = parts
   
   session = client.service.Authenticate(req)
-  req = client.factory.create('ns2:carryInRequestType')
+  req = client.factory.create("ns2:carryInRequestType")
   req.userSession = session
   req.repairData = repair_dt
+
+  try:
+    result = client.service.CreateCarryInRepair(req)
+  except Exception, e:
+    print e
   
-  result = client.service.CreateCarryInRepair(req)
   print result
   return asdict(result)
   
+  """
+  (deleteRepairRequestType){
+   userSession = 
+      (gsxUserSessionType){
+         userSessionId = None
+      }
+   confirmationNumber = None
+ }
+ """
+  def delete_repair(confirmation):
+    delete_dt = client.factory.create("ns1:deleteRepairRequestType")
+    delete_dt.confirmationNumber = "G131019350"
+    delete_dt.userSession = session
+
+    result = client.service.DeleteRepair(delete_dt)
+
+  """
+  (markRepairCompleteRequestType){
+     userSession = 
+        (gsxUserSessionType){
+           userSessionId = None
+        }
+     repairConfirmationNumbers[] = <empty>
+   }
+  """
+  def complete_repair(confirmations):
+    dt = client.factory.create("ns1:markRepairCompleteRequestType")
+
+    dt.userSession = session
+    dt.repairConfirmationNumbers = ["G131019350"]
+
+    result = client.service.MarkRepairComplete(dt)

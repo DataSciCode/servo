@@ -39,14 +39,12 @@
     <div id="templates" class="tab">
       <ul>
 {% for f in attachments %}
-  <li><a href="/orders/print/id/{{ f.id }}">{{ f.name }}</a></li>
+        <li><a href="/orders/print/id/{{ f.id }}">{{ f.name }}</a></li>
 {% endfor %}
-        </ul>
-{% if queue.id %}
+      </ul>
   <label>{% trans "Pohja" %}:</label>
   <input type="file" name="incoming" id="fileupload"/>
   <ul id="attachments"></ul>
-{% endif %}
     </div>
     </form>
 </div>

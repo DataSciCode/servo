@@ -1,4 +1,4 @@
-{%extends "default.html" %}
+{% extends request.is_ajax|yesno:"empty.html,default.html" %}
 {% load i18n %}
 
 {%block toolbar %}
@@ -14,14 +14,10 @@
 {% block content %}
 
 <div class="small_block listView" id="statuses" data-url="/admin/status">
-  <ul data-collection="status">
-
+  <ul>
 {% for status in statuses %}
-
     <li class="{% cycle 'odd' 'even' %}" data-url="/status/edit/{{ status.id }}">{{ status.title }}</li>
-
 {% endfor %}
-
   </ul>
 </div>
 <div id="detailView"></div>

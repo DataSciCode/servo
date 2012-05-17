@@ -7,8 +7,12 @@ from bson.objectid import ObjectId
 connect('servo')
 
 class Device(Document):
+
+  meta = {"ordering": ['-id']}
+
   sn = StringField()
   description = StringField(required=True)
+
   username = StringField()
   password = StringField()
   purchased_on = StringField()
@@ -16,12 +20,9 @@ class Device(Document):
 
   gsx_data = DictField()
   
-  @classmethod
-  def to_python(self, blaa):
-    """docstring for to_python"""
-    return blaa
   
 class Product(Document):
+
   meta = { 'ordering': ['-id'] }
   number = SequenceField()
   
@@ -43,7 +44,7 @@ class Product(Document):
   title = StringField(required=True, default = "Uusi tuote")
   
   amount_minimum = IntField(default = 0)
-  is_serialized = StringField(max_length = 1, default = "Y")
+  is_serialized = BooleanField(default = False)
   
   attachments = ListField(Document)
   
@@ -75,6 +76,7 @@ class Product(Document):
       return 0
       
 class Attachment(Document):
+
   name = StringField(default = 'Uusi tiedosto')
   content = FileField()
   description = StringField()
@@ -91,6 +93,7 @@ class Tag(Document):
   type = StringField(required = True)
   
 class Config(Document):
+  
   company_name = StringField()
   pct_margin = DecimalField() # the default margin percent for new products
   repair_rate = DecimalField()
@@ -109,11 +112,13 @@ class Config(Document):
   sms_password = StringField()
   
 class Field(Document):
+
   title = StringField(required=True)
   type = StringField(required=True)
   format = StringField()
   
 class Location(Document):
+
   title = StringField(required = True, default = "Uusi sijainti")
   description = StringField()
   phone = StringField()
@@ -124,7 +129,8 @@ class Location(Document):
   city = StringField()
   
 class GsxAccount(Document):
-  title = StringField(default="Uusi tili")
+
+  title = StringField(default = "Uusi tili")
   sold_to = StringField()
   ship_to = StringField()
   username = StringField()
@@ -133,20 +139,25 @@ class GsxAccount(Document):
   is_default = BooleanField(default=True)
 
 class Status(Document):
-  title = StringField(default="Uusi status")
+
+  title = StringField(default = "Uusi status")
   description = StringField()
   limit_green = IntField()
   limit_yellow = IntField()
   limit_factor = IntField()
     
 class Queue(Document):
+
   title = StringField(default = "Uusi jono")
   description = StringField()
   gsx_account = ReferenceField(GsxAccount)
+  
   statuses = DictField()
-  attachments = ListField()
+
+  attachments = ListField(ReferenceField(Attachment))
   
 class Customer(Document):
+
   meta = { 'ordering': ['path', '-id'] }
   number = SequenceField()
   name = StringField(required=True, default="Uusi asiakas")
@@ -188,6 +199,7 @@ class Customer(Document):
     return props
   
 class User(Document):
+
   email = StringField(max_length=128, required=True)
   username = StringField(max_length=64, required=True)
   fullname = StringField(max_length=128, required=True, default='Uusi käyttäjä')
@@ -196,6 +208,7 @@ class User(Document):
   location = ReferenceField(Location)
   
 class OrderItem(EmbeddedDocument):
+
   product = ReferenceField(Product)
   sn = StringField()
   amount = IntField(required = True)
@@ -207,24 +220,32 @@ class OrderItem(EmbeddedDocument):
     return blaa
     
 class GsxRepair(EmbeddedDocument):
+
   customer_data = DictField()
   symptom = StringField()
   diagnosis = StringField()
   
 class Order(Document):
+
   number = SequenceField()
-  priority = IntField()
+  priority = IntField(default = 1)
+
   created_at = DateTimeField(default=datetime.now())
   closed_at = DateTimeField()
   followers = ListField()
+  tags = ListField(StringField())
   customer = ReferenceField(Customer)
-  tags = ListField()
+
   products = ListField(EmbeddedDocumentField(OrderItem))
-  devices = ListField(Device)
+
+  devices = ListField(ReferenceField(Device))
+
   user = ReferenceField(User)
   queue = ReferenceField(Queue)
   status = ReferenceField(Status)
-  
+
+  state = StringField(default = "unassigned") # unassigned, open or closed
+
   status_limit_green = IntField()   # timestamp in seconds
   status_limit_yellow = IntField()  # timestamp in seconds
   
@@ -292,6 +313,7 @@ class Order(Document):
     return Event.objects(ref_order = self)
 
 class Issue(Document):
+
   symptom = StringField(required=True, default="")
   diagnosis = StringField(default="")
   solution = StringField(default="")
@@ -308,18 +330,25 @@ class Issue(Document):
   order = ReferenceField(Order)
   
 class Message(Document):
+
   meta = { 'ordering': ['-id'] }
   
   subject = StringField()
   body = StringField(default='')
-  sender = StringField(default='filipp')
-  created_at = DateTimeField(default=datetime.now())
+  
+  sender = StringField(default = 'filipp')
+  recipient = StringField(default = 'filipp')
   mailto = StringField(default='')
   smsto = StringField(default='')
+
+  created_at = DateTimeField(default=datetime.now())
+  
   order = ReferenceField(Order)
-  attachments = ListField(Attachment)
+
+  attachments = ListField(ReferenceField(Attachment))
   
   path = StringField() #threading!
+  flags = ListField()
   
   def indent(self):
     return 1
@@ -340,15 +369,18 @@ class Message(Document):
     print f.read()
 
 class Template(Document):
+
   title = StringField(required=True)
   body = StringField(required=True)
   
 class Calendar(Document):
+
   title = StringField(required=True)
   username = StringField()
   events = DictField()
 
 class Invoice(Document):
+
   number = SequenceField()
   created_at = DateTimeField(default=datetime.now())
   paid_at = DateTimeField()
@@ -356,6 +388,7 @@ class Invoice(Document):
   items = ListField(OrderItem)
   
 class PurchaseOrder(Document):
+
   number = SequenceField()
   reference = StringField()
   confirmation = StringField()
@@ -387,6 +420,7 @@ class PurchaseOrder(Document):
     return amount
   
 class Event(Document):
+
   meta = { 'ordering': ['-id'] }
   description = StringField()
   created_by = StringField(default = "filipp")
@@ -396,6 +430,7 @@ class Event(Document):
   type = StringField()
   
 class Calendar(Document):
+  
   title = StringField(required=True)
   user = ReferenceField(User)
   events = ListField(DictField)

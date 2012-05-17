@@ -16,7 +16,7 @@ def lookup(req, what):
   
   if what == "product-local":
     collection = "products"
-    products = Product.objects(code__startswith = query)
+    products = Product.objects(code__istartswith = query)
     for r in products:
       results.append({'id': r.id, 'title': r.code, 'description': r.title})
   
@@ -49,7 +49,7 @@ def lookup(req, what):
     print query
     
   if what == "device-local":
-    local = Device.objects(sn = query)
+    local = Device.objects(sn__istartswith = query)
     for d in local:
       results.append({'id': d.id, 'title': d.sn, 'description': d.description})
     

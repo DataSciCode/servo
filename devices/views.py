@@ -6,11 +6,13 @@ from django.utils.datastructures import DotExpandedDict
 from bson.objectid import ObjectId
 
 def index(req):
+
   """docstring for index"""
   devices = Device.objects
   return render(req, 'devices/index.html', {'devices' : devices})
   
 def create(req, order = None, customer = None):
+
   device = Device()
   
   if order:
@@ -19,6 +21,7 @@ def create(req, order = None, customer = None):
   return render(req, 'devices/form.html', device)
   
 def remove(req, id = None):
+
   if 'id' in req.POST:
     dev = Device.objects(id = ObjectId(req.POST['id']))
     dev.delete()
@@ -28,9 +31,9 @@ def remove(req, id = None):
     return render(req, 'devices/remove.html', dev)
   
 def edit(req, id):
+
   if id in req.session.get('gsx_data'):
     result = req.session['gsx_data'].get(id)
-    print result
     dev = Device(sn = result.get('serialNumber'),\
       description = result.get('productDescription'), gsx_data = result)
   else:
@@ -39,10 +42,12 @@ def edit(req, id):
   return render(req, 'devices/form.html', dev)
   
 def save(req):
+
   dev = Device()
   
   if 'id' in req.POST:
-    dev = Device.objects(id = ObjectId(req.POST['id'])).first()
+    # search by SN to avoid duplicates
+    dev = Device.objects(sn = req.POST['sn']).first()
   
   data = DotExpandedDict(req.POST)
   
@@ -50,11 +55,13 @@ def save(req):
     dev.__setattr__(k, v)
   
   dev.save()
-  
+
   if req.session['order']:
-    req.session['order'].devices.append(dev)
-    req.session['order'].save()
-  
+    order = Order.objects(id = req.session['order'].id).first()
+    order.devices.append(dev)
+    order.save()
+    req.session['order'] = order
+
   return HttpResponse('Laite tallennettu')
   
 def search(req):

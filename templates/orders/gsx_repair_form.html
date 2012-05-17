@@ -16,7 +16,7 @@
     <label>{% trans "Laite" %}:</label>
     <select name="sn" style="width:365px">
 {% for dev in order.devices %}
-      <option value="{{ dev.sn }}">{{ dev.sn }} - {{ dev.description }}</option>
+      <option value="{{ dev.sn }}">{{ dev.description }} - {{ dev.sn }}</option>
 {% endfor %}
     </select>
     <br/>

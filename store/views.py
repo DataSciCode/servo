@@ -1,9 +1,25 @@
-from servo3.models import Product, PurchaseOrder, Invoice, Inventory
+from servo3.models import Product, PurchaseOrder, Invoice, Inventory, Order
 from bson.objectid import ObjectId
 from django.shortcuts import render
 from django.http import HttpResponse
+from django.utils.datastructures import DotExpandedDict
+
+def dispatch(req, order_id = None, products = None):
+
+  products = []
+
+  if req.method == "POST":
+    data = DotExpandedDict(req.POST)
+    print data
+    invoice = Invoice(data)
+  if order_id:
+    order = Order.objects.with_id(ObjectId(order_id))
+    products = order.products
+
+  return render(req, "store/dispatch.html", {"products": products})
 
 def save_po(req):
+
   po = PurchaseOrder()
   
   for k, v in req.POST.items():

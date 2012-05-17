@@ -1,4 +1,4 @@
-{% extends "default.html" %}
+{% extends request.is_ajax|yesno:"empty.html,default.html" %}
 {% load i18n %}
 
 {% block toolbar %}
@@ -11,9 +11,9 @@
 
 {% block content %}
 <div class="small_block listView" id="accounts" data-url="/gsx/accounts">
-	<ul data-collection="gsx">
+	<ul>
 {% for act in accounts %}
-		<li data-url="/gsx/edit/{{ act.id }}">{{ act.title }}</li>
+		<li data-url="/gsx/edit/{{ act.id }}" class="{% cycle "odd" "even" %}">{{ act.title }}</li>
 {% endfor %}
 	</ul>
 </div>

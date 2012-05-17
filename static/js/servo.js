@@ -130,6 +130,7 @@ var PanelView = Backbone.View.extend(
     {
         if(this.$el.is(":visible")) {
             this.$el.hide("slide", { direction: "up" }, 200 );
+            $("#pager_msg").text("");
         }
     }
 ,
@@ -139,7 +140,6 @@ var PanelView = Backbone.View.extend(
 
         var form = $("#popup form");
         var reload = "#" + $(form).attr("rel");
-        $("#pager_spinner").show()
 
         $.ajax(
         {
@@ -190,10 +190,24 @@ var AppView = Backbone.View.extend(
     el: "#page"
 ,
     events: {
-        "keydown"			    : "closePanel",
-        "click a.popup"		    : "runPanel",
-        "click a.window"	    : "openWindow",
-        "click #pager a.button" : "hidePager"
+        "keydown"			          : "closePanel",
+        "click a.popup"         : "runPanel",
+        "click a.window"        : "openWindow",
+        "click #pager a.button" : "hidePager",
+        "ajaxStart"             : "ajaxStart",
+        "ajaxStart"             : "ajaxStart",
+        "ajaxStop"              : "ajaxStop",
+    }
+,
+    ajaxStop: function()
+    {
+      $("#pager_spinner").hide();
+    }
+,
+    ajaxStart: function()
+    {
+      // global handler for Ajax request starts
+      $("#pager_spinner").show();
     }
 ,
     hidePager: function()

@@ -1,0 +1,50 @@
+{% load i18n %}
+
+<form method="post" action="/store/dispatch" method="post" accept-charset="utf8">
+
+  {% csrf_token %}
+  {% if  order.id %}
+  <input type="hidden" name="order" value="{{ order.id }}"/>  
+  {% endif %}
+{% for p in products %}
+    <input
+        type="text"
+        style="width:300px;"
+        value="{{ p.product.title }}"
+        name="products.{{ forloop.counter0 }}.title"/>
+    <input
+        type="text"
+        maxlength="2"
+        style="width:30px"
+        value="{{ p.amount }}"
+        name="products.{{ forloop.counter0 }}.amount"/>
+    <input
+        type="text"
+        maxlength="4"
+        style="width:40px"
+        value="{{ p.price }}"
+        name="products.{{ forloop.counter0 }}.price"/>
+{% if p.product.is_serialized %}
+    <br/>
+    <input
+        type="text"
+        style="width:300px"
+        value="{{ p.sn }}"
+        name="products.{{ forloop.counter0 }}.sn"/>
+{% endif %}
+    <br/>
+{% endfor %}
+    <hr/>
+    <label>{% trans "Maksutapa" %}:</label>
+    <select name="payment_method">
+      <option>{% trans "Ei veloitusta" %}</option>
+      <option>{% trans "Maksukortti" %}</option>
+      <option>{% trans "Verkkomaksu" %}</option>
+      <option>{% trans "Postiennakko" %}</option>
+      <option>{% trans "Käteinen" %}</option>
+      <option>{% trans "Lasku" %}</option>
+    </select>
+    <br/>
+    <label>{% trans "Maksettu" %}:</label>
+    <input type="checkbox" name="paid" checked="checked" value="Y"/>
+</form>

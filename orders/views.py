@@ -54,22 +54,26 @@ def tags(req, id):
       tag = Tag(title = title, type = 'order')
       tag.save()
     
-    return HttpResponse(json.dumps({order.tags}), content_type='application/json')
+    return HttpResponse(json.dumps({order.tags}), content_type = "application/json")
   
 def edit(req, id):
+
   o = Order.objects(id=ObjectId(id)).first()
+
   req.session['order'] = o
   queues = Queue.objects
   users = User.objects
   statuses = Status.objects
   priorities = ['Matala', 'Normaali', 'Korkea']
+
   return render(req, 'orders/edit.html', {'order': o, 'queues': queues,\
     'users': users, 'statuses': statuses, 'priorities': priorities})
 
-def remove(req, id=None):
-  """docstring for remove"""
+def remove(req, id = None):
+
   if 'id' in req.POST:
-    order = Order.objects(id = ObjectId(req.POST['id']))
+    order = Order.objects(id = ObjectId(req.POST['id'])).first()
+    Inventory.objects(slot = order).delete()
     order.delete()
     return HttpResponse('Tilaus poistettu')
   else :
@@ -77,7 +81,9 @@ def remove(req, id=None):
     return render(req, 'orders/remove.html', order)
     
 def follow(req, id):
-  order = Order.objects(id = ObjectId(id))[0]
+
+  order = Order.objects.with_id(ObjectId(id))
+
   if 'filipp' not in order.followers:
     order.followers.append('filipp')
     order.save()
@@ -86,7 +92,9 @@ def follow(req, id):
 
 @csrf_exempt
 def update(req, id):
+
   order = Order.objects(id = ObjectId(id)).first()
+
   if 'queue' in req.POST:
     queue = ObjectId(req.POST['queue'])
     queue = Queue.objects(id = queue).first()
@@ -157,6 +165,12 @@ def create_gsx_repair(req, order_id):
   if not "zip" in customer:
     customer['zip'] = req.session['user'].location.zip
   
+  if not "primaryPhone" in customer:
+    customer['primaryPhone'] = req.session['user'].location.phone
+
+  if not "emailAddress" in customer:
+      customer['emailAddress'] = req.session['user'].location.email
+
   parts = []
   
   for p in order.products:
@@ -176,6 +190,7 @@ def create_gsx_repair(req, order_id):
     "customer": customer, "order": order})
     
 def submit_gsx_repair(req):
+
   from gsx.views import submit_repair
   data = DotExpandedDict(req.POST)
   parts = []

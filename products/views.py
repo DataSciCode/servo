@@ -14,6 +14,7 @@ def index(req):
   return render(req, 'products/index.html', {'data': data})
   
 def edit(req, id):
+
   if id in req.session.get('gsx_data'):
     conf = Config.objects.first()
     result = req.session['gsx_data'].get(id)
@@ -34,6 +35,7 @@ def edit(req, id):
   return render(req, 'products/form.html', {"product": product})
   
 def remove(req, id = None):
+
   if 'id' in req.POST:
     product = Product.objects.with_id(ObjectId(req.POST['id']));
     Inventory.objects(product = product).delete()
@@ -44,6 +46,7 @@ def remove(req, id = None):
     return render(req, 'products/remove.html', product)
   
 def save(req):
+
   product = Product()
   
   if 'id' in req.POST:
@@ -56,6 +59,10 @@ def save(req):
   product.pct_vat = float(req.POST.get("pct_vat", 0))
   product.pct_margin = float(req.POST.get("pct_margin", 0))
   
+  product.is_serialized = "is_serialized" in req.POST
+  
+  product.warranty_period = req.POST.get("warranty_period")
+
   product.price_notax = float(req.POST.get("price_notax", 0))
   product.price_sales = float(req.POST.get("price_sales", 0))
   product.price_exchange = float(req.POST.get("price_exchange", 0))
@@ -71,7 +78,7 @@ def save(req):
   
   for a in req.POST.getlist("attachments"):
     doc = Attachment.objects(id = ObjectId(a)).first()
-    #product.attachments = [doc]
+    product.attachments.append(doc)
   
   if req.session['order']:
     amount = int(req.POST.get("amount_sold"))

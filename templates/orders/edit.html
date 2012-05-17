@@ -19,7 +19,7 @@
     <a href="/products/create/order/{{ order.id }}" class="popup product">{% trans 'Tuote' %}</a>
   </li>
   <li>
-    <a href="/message/create/order/{{ order.id }}" class="popup message">{% trans 'Viesti' %}</a>
+    <a href="/message/create" class="popup message">{% trans 'Viesti' %}</a>
   </li>
 </ul>
 {% endblock %}
@@ -27,29 +27,31 @@
 {% block secondary %}
 
 <li>
-    <a href="javascript:;" class="reply disabled popup"></a>
-    <ul></ul>
+  <a href="javascript:;" class="reply disabled popup"></a>
+  <ul></ul>
 </li>
 
 <li>
   <a href="javascript:;" class="print"></a>
   <ul>
-{% for tpl in templates  %}
-    <li><a href="/orders/print/id/{{ order.id }}/template/{{ tpl.id }}" class="window">{{ tpl.name }}</a></li>
+{% for tpl in order.queue.templates  %}
+    <li><a href="/orders/print/{{ order.id }}/template/{{ tpl.id }}" class="window">{{ tpl.name }}</a></li>
 {% endfor %}
     </ul>
 </li>
 
 <li>
-    <a href="javascript:;" class="gear"></a>
-    <ul>
-      <li><a href="/purchase-order/create/order/{{ order.id }}" class="popup">{% trans "Tilaa tuotteet" %}...</a></li>
+  <a href="javascript:;" class="gear"></a>
+  <ul>
 {% if order.devices %}
-      <li><a href="/orders/gsx_repair/{{ order.id }}" class="popup">{% trans "Luo GSX korjaus" %}...</a></li>
+    <li><a href="/orders/gsx_repair/{{ order.id }}" class="popup">{% trans "Luo GSX korjaus" %}...</a></li>
 {% endif %}
-      <li><a href="/products/reserve/{{ order.id }}" class="popup">{% trans "Varaa tuotteet" %}…</a></li>
-		  <li><a href="/invoice/create/order/{{ order.id }}" class="popup">{% trans "Toimita tilaus" %}...</a></li>
-		    <li><a href="/orders/close/id/{{ order.id }}" class="popup">{% trans "Sulje tilaus" %}...</a></li>
+    {% if order.products %}
+    <li><a href="/purchase-order/create/order/{{ order.id }}" class="popup">{% trans "Tilaa tuotteet" %}...</a></li>  
+    <li><a href="/products/reserve/{{ order.id }}" class="popup">{% trans "Varaa tuotteet" %}…</a></li>
+	  <li><a href="/store/dispatch/order/{{ order.id }}" class="popup">{% trans "Toimita tilaus" %}...</a></li>
+{% endif %}
+	  <li><a href="/orders/close/id/{{ order.id }}" class="popup">{% trans "Sulje tilaus" %}...</a></li>
 	</ul>
 </li>
 
@@ -57,7 +59,9 @@
 
 {% block sidebar %}
 
-<div class="block_header"><p style="padding:10px"><a href="/orders/">Servo &gt; </a><a href="/orders/edit/{{ order.id }}">{{ order.number }}</a></p></div>
+<div class="block_header">
+  <p style="padding:10px"><a href="/orders/">Servo &gt; </a><a href="/orders/edit/{{ order.id }}">{{ order.number }}</a></p>
+</div>
 <div style="padding:5px" class="droppable">
   <form action="/orders/update/{{ order.id }}" method="post">
     <span class="label">{% trans 'Jono' %}</span>

@@ -5,28 +5,41 @@ from django.http import HttpResponse
 from servo3.models import Message, Template, Order, Attachment
 
 def index(req):
-  messages = Message.objects
+
+  messages = Message.objects.all()
   return render(req, 'messages/index.html', {'messages' : messages })
-  
-def form(req, order_id = None):
+
+def form(req, replyto = None, smsto = None, mailto = None):
+
   m = Message()
-  m.order_id = order_id
-  return render(req, 'messages/form.html', {'message' : m,\
-    'templates': Template.objects})
   
+  if smsto:
+    m.smsto = smsto
+
+  if mailto:
+    m.mailto = mailto
+
+  templates = Template.objects.all()
+  return render(req, "messages/form.html", {"message": m, "templates": templates})
+
 def edit(req, id = None):
+
   m = Message.objects(id = ObjectId(id)).first()
   return render(req, 'messages/form.html', {'message' : m,\
     'templates': Template.objects})
   
 def reply(req, id):
+
   parent = Message.objects(id = ObjectId(id)).first()
+
   m = Message(path = parent.path)
   return render(req, 'messages/form.html', {'message' : m,\
     'templates': Template.objects})
   
 def save(req):
-  m = Message(sender="filipp")
+
+  m = Message(sender = req.session.get("user").username)
+
   m.body = req.POST.get("body")
   m.smsto = req.POST.get("smsto")
   m.subject = req.POST.get("body")
@@ -36,9 +49,8 @@ def save(req):
     doc = Attachment.objects(id = ObjectId(a)).first()
     m.attachments.append(doc)
   
-  if 'order' in req.POST:
-    order = Order.objects(id=ObjectId(req.POST['order'])).first()
-    m.order = order
+  if "order" in req.session:
+    m.order = req.session['order']
   
   if(m.mailto):
     m.send_mail()
@@ -50,7 +62,8 @@ def save(req):
   
   return HttpResponse('Viesti tallennettu')
 
-def remove(req, id=None):
+def remove(req, id = None):
+
   if 'id' in req.POST:
     msg = Message.objects(id = ObjectId(req.POST['id']))
     msg.delete()
@@ -60,6 +73,7 @@ def remove(req, id=None):
     return render(req, 'messages/remove.html', msg)
     
 def view(req, id):
+
   m = Message.objects(id = ObjectId(id))[0]
   return render(req, 'messages/view.html', m)
   
