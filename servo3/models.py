@@ -82,13 +82,11 @@ class Attachment(Document):
   description = StringField()
   uploaded_by = StringField(default="filipp")
   uploaded_at = DateTimeField(default=datetime.now())
-
-  @classmethod
-  def to_python(self, blaa):
-    """docstring for to_python"""
-    return blaa
+  
+  tags = ListField(StringField())
   
 class Tag(Document):
+
   title = StringField(required = True, default = 'Uusi tagi')
   type = StringField(required = True)
   
@@ -251,6 +249,13 @@ class Order(Document):
   
   gsx_repairs = ListField(DictField())
   
+  def total(self):
+    total = 0
+    for p in self.products:
+      total += p.amount*p.price
+
+    return total
+
   def can_gsx(self):
     return True
   
@@ -363,15 +368,16 @@ class Message(Document):
   def send_sms(self):
     conf = Config.objects[0]
     import urllib
-    params = urllib.urlencode({'username': conf.sms_user, 'password': conf.sms_password,\
-      'text' : self.body, 'to' : self.smsto})
+    params = urllib.urlencode({"username": conf.sms_user,
+      "password": conf.sms_password,
+      "text" : self.body, "to" : self.smsto})
     f = urllib.urlopen("%s?%s" %(conf.sms_url, params))
     print f.read()
 
 class Template(Document):
 
-  title = StringField(required=True)
-  body = StringField(required=True)
+  title = StringField(required = True)
+  body = StringField(required = True)
   
 class Calendar(Document):
 
@@ -381,12 +387,21 @@ class Calendar(Document):
 
 class Invoice(Document):
 
+  meta = {"ordering": ["-id"]}
+
   number = SequenceField()
-  created_at = DateTimeField(default=datetime.now())
+  created_at = DateTimeField(default = datetime.now())
+  is_paid = BooleanField()
   paid_at = DateTimeField()
-  total = DecimalField()
-  items = ListField(OrderItem)
+  payment_method = StringField()
+  customer = DictField()
   
+  products = DictField()
+
+  total_tax = DecimalField()
+  total_margin = DecimalField()
+  total_payable = DecimalField()
+
 class PurchaseOrder(Document):
 
   number = SequenceField()

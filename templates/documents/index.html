@@ -1,4 +1,4 @@
-{% extends "default.html" %}
+{% extends request.is_ajax|yesno:"empty.html,default.html" %}
 {% load i18n %}
 
 {% block toolbar %}
@@ -12,20 +12,20 @@
 {% block content %}
 
 <div class="tableView" id="attachments" data-url="/admin/files">
-    <table>
-        <thead><tr><th colspan="5">{% trans "Tiedostot" %}</th></tr></thead>
-        <tbody>
+  <table>
+    <thead><tr><th colspan="5">{% trans "Tiedostot" %}</th></tr></thead>
+    <tbody>
 {% for file in files %}
-          <tr data-url="/document/edit/{{ file.id }}" class="{% cycle 'odd' 'even' %}">
-              <td><a href="/document/view/{{ file.id }}" class="window">{{ file.name }}</a></td>
-              <td>{{ file.description }}</td>
-              <td>{{ file.size }}</td>
-              <td>{{ file.uploaded_by }}</td>
-              <td>{{ file.uploaded_at }}</td>
-          </tr>
+      <tr data-url="/document/edit/{{ file.id }}" class="{% cycle 'odd' 'even' %}">
+        <td><a href="/document/view/{{ file.id }}" class="window">{{ file.name }}</a></td>
+        <td>{{ file.description }}</td>
+        <td>{{ file.size }}</td>
+        <td>{{ file.uploaded_by }}</td>
+        <td>{{ file.uploaded_at }}</td>
+      </tr>
 {% endfor %}
-        </tbody>
-    </table>
+    </tbody>
+  </table>
 </div>
 
 {% endblock content %}

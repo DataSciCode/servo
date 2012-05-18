@@ -9,7 +9,13 @@
 {% for p in products %}
     <input
         type="text"
-        style="width:300px;"
+        style="width:60px;"
+        readonly="readonly"
+        value="{{ p.product.number }}"
+        name="products.{{ forloop.counter0 }}.number"/>
+    <input
+        type="text"
+        style="width:330px;"
         value="{{ p.product.title }}"
         name="products.{{ forloop.counter0 }}.title"/>
     <input
@@ -28,21 +34,25 @@
     <br/>
     <input
         type="text"
-        style="width:300px"
         value="{{ p.sn }}"
+        style="width:300px"
         name="products.{{ forloop.counter0 }}.sn"/>
 {% endif %}
     <br/>
 {% endfor %}
-    <hr/>
+    <div style="float:right">
+      {% trans "Yhteensä" %}:
+      <input type="text" name="total" value="{{ total }}" class="shortest"/>
+    </div>
+    <br/><hr/>
     <label>{% trans "Maksutapa" %}:</label>
     <select name="payment_method">
       <option>{% trans "Ei veloitusta" %}</option>
-      <option>{% trans "Maksukortti" %}</option>
-      <option>{% trans "Verkkomaksu" %}</option>
-      <option>{% trans "Postiennakko" %}</option>
       <option>{% trans "Käteinen" %}</option>
       <option>{% trans "Lasku" %}</option>
+      <option>{% trans "Maksukortti" %}</option>
+      <option>{% trans "Postiennakko" %}</option>
+      <option>{% trans "Verkkomaksu" %}</option>
     </select>
     <br/>
     <label>{% trans "Maksettu" %}:</label>

@@ -14,8 +14,6 @@ def index(req, param = None, value = None):
 
   data = Order.objects.all()
 
-  print req
-
   if param == "status":
     status = Status.objects(id = ObjectId(value)).first()
     data = Order.objects(status = status)

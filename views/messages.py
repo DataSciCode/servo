@@ -6,7 +6,7 @@ from servo3.models import Message, Template, Order, Attachment
 
 def index(req):
 
-  messages = Message.objects.all()
+  messages = Message.objects(recipient = req.session['user'].username).all()
   return render(req, 'messages/index.html', {'messages' : messages })
 
 def form(req, replyto = None, smsto = None, mailto = None):

@@ -1,22 +1,52 @@
-from servo3.models import Product, PurchaseOrder, Invoice, Inventory, Order
+from servo3.models import *
 from bson.objectid import ObjectId
 from django.shortcuts import render
 from django.http import HttpResponse
+from datetime import datetime
 from django.utils.datastructures import DotExpandedDict
 
-def dispatch(req, order_id = None, products = None):
+def invoices(req):
+
+  data = Invoice.objects.all()
+  return render(req, "store/invoices.html", {"invoices": data})
+
+def dispatch(req, order_id = None, numbers = None):
 
   products = []
 
   if req.method == "POST":
     data = DotExpandedDict(req.POST)
-    print data
-    invoice = Invoice(data)
+    #print data
+    invoice = Invoice(payment_method = data['payment_method'],
+      total_payable = float(data['total']))
+
+    if "paid" in data:
+      invoice.paid_at = datetime.now()
+
+    if "customer" in data:
+      customer = Customer.objects.with_id(ObjectId(data['customer']))
+      invoice.customer = customer.asdict()
+
+    invoice.products = data.get("products")
+
+    invoice.save()
+    return HttpResponse("")
+
+  total = 0
+
   if order_id:
     order = Order.objects.with_id(ObjectId(order_id))
+    total = order.total
     products = order.products
 
-  return render(req, "store/dispatch.html", {"products": products})
+  if numbers:
+    for p in numbers.rstrip(";").split(";"): # http://store/blaa/45;234;123;
+      product = Product.objects(number = int(p)).first()
+      total += product.price_sales
+      oi = OrderItem(product = product, price = product.price_sales, amount = 1)
+      products.append(oi)
+
+  return render(req, "store/dispatch.html", {"products": products, "total": total})
 
 def save_po(req):
 
@@ -27,8 +57,8 @@ def save_po(req):
   
   codes = req.POST.getlist("code")
   titles = req.POST.getlist("title")
-  amounts = req.POST.getlist("amount")
   prices = req.POST.getlist("price")
+  amounts = req.POST.getlist("amount")
   
   po.save()
   
@@ -43,13 +73,14 @@ def save_po(req):
       i.save()
   
   po.save()
+
   return HttpResponse('Ostotilaus tallennettu')
   
 def edit_po(req, id):
-  """docstring for edit_po"""
   pass
 
 def order_products(req, ids):
+
   products = []
   
   for i in ids.strip(";").split(";"):

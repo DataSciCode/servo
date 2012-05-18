@@ -12,41 +12,59 @@
 {% endblock toolbar %}
 
 {% block secondary %}
-  <li><a href="/search/stock" class="search popup">&nbsp;</a></li>
-  <li><a href="/store/order_products/" class="purchase popup buy_or_sell">&nbsp;</a></li>
-  <li><a href="/store/sell_products/" class="sell popup buy_or_sell">&nbsp;</a></li>
+
+  <li><a href="javascript:;" class="search popup">&nbsp;</a>
+    <ul>
+      <li>
+        <table>
+{% for tag in tags %}
+          <tr>
+            <td style="width:25px">
+              <input type="checkbox" class="filterProducts" value="{{ tag.title }}"/>
+            </td>
+            <td style="width:80px">{{ tag.title }}</td>
+          </tr>
+{% endfor %}
+        </table>
+      </li>
+    </ul>
+  </li>
+
+  <li><a href="/store/order_products/" class="purchase popup buy">&nbsp;</a></li>
+  <li><a href="/store/sell_products/" class="sell popup sell">&nbsp;</a></li>
+
 {% endblock secondary %}
 
 {% block content %}
 
 <div class="tableView">
-    <table id="products" data-url="/products/index">
-        <thead>
-            <tr>
-                <th style="width:20px"></th>
-                <th>#</th>
-                <th>{% trans "Koodi" %}</th>
-                <th>{% trans "Nimike" %}</th>
-                <th>{% trans "Ostohinta" %}</th>
-                <th>{% trans "Hinta" %}</th>
-                <th>{% trans "Varastossa" %}</th>
-                <th>{% trans "Tilattu" %}</th>
-                <th>{% trans "Varattu" %}</th>
-            </tr>
-        </thead>
-        <tbody>
+  <table id="products" data-url="/products/index">
+    <thead>
+        <tr>
+          <th style="width:20px"></th>
+          <th>#</th>
+          <th>{% trans "Koodi" %}</th>
+          <th>{% trans "Nimike" %}</th>
+          <th>{% trans "Ostohinta" %}</th>
+          <th>{% trans "Hinta" %}</th>
+          <th>{% trans "Varastossa" %}</th>
+          <th>{% trans "Tilattu" %}</th>
+          <th>{% trans "Varattu" %}</th>
+        </tr>
+    </thead>
+      <tbody>
 {% for i in data %}
-          <tr data-url="/products/edit/{{ i.id }}" class="{% cycle 'odd' 'even' %}">
-            <td><input type="checkbox" class="selected_product" value="{{ i.number }}"/></td>
-            <td><a href="/products/edit/{{ i.id }}" class="popup">{{ i.number }}</a></td>
-            <td>{{ i.code }}</td>
-            <td>{{ i.title }}</td>
-            <td>{{ i.price_purchase }}</td>
-            <td>{{ i.price_sales }}</td>
-            <td>{{ i.amount_stocked }}</td>
-            <td>{{ i.amount_ordered }}</td>
-            <td>{{ i.amount_reserved }}</td>
-          </tr>
+        <tr data-url="/products/edit/{{ i.id }}" class="{% cycle 'odd' 'even' %}">
+          <td><input type="checkbox" class="selected_product" value="{{ i.number }}"/></td>
+          <td><a href="/products/edit/{{ i.id }}" class="popup">{{ i.number }}</a></td>
+          <td>{{ i.code }}</td>
+          <td>{{ i.title }}</td>
+          <td>{{ i.price_purchase }}</td>
+          <td>{{ i.price_sales }}</td>
+          <td>{{ i.amount_stocked }}</td>
+          <td>{{ i.amount_ordered }}</td>
+          <td>{{ i.amount_reserved }}</td>
+        </tr>
 {% endfor %}
       </tbody>
     </table>
@@ -54,9 +72,23 @@
 
 <script type="text/javascript" charset="utf-8">
   $(".selected_product").click(function() {
-    url = $(".buy_or_sell").attr("href");
+    url = $(".buy").attr("href");
     url = url+$(this).val()+";";
-    $(".buy_or_sell").attr("href", url);
+    $(".buy").attr("href", url);
+  });
+
+  $(".selected_product").click(function() {
+    url = $(".sell").attr("href");
+    url = url + $(this).val()+";";
+    $(".sell").attr("href", url);
+  });
+
+  $("#search_query").keydown(function(e) {
+    var rex = new RegExp($(this).val(), 'i');
+    $('#products tbody tr').hide();
+    $('#products tbody tr').filter(function() {
+        return rex.test($(this).text());
+    }).show();
   });
 </script>
 

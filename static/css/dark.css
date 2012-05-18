@@ -925,6 +925,9 @@ span.date {
 #toolbar a.purchase:before {
     content: url(/static/images/product-add_32.png);
 }
+#toolbar a.sell:before {
+    content: url(/static/images/cart_32.png);
+}
 #toolbar a.search:before {
     content: url(/static/images/search_32.png);
 }

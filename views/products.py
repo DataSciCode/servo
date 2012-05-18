@@ -9,9 +9,12 @@ def create(req, order_id=None):
   return render(req, 'products/form.html', {'product': p})
 
 def index(req):
+
   req.session['order'] = None
   data = Product.objects.all()
-  return render(req, 'products/index.html', {'data': data})
+  tags = Tag.objects(type = "product").all()
+
+  return render(req, 'products/index.html', {"data": data, "tags": tags})
   
 def edit(req, id):
 
@@ -52,7 +55,7 @@ def save(req):
   if 'id' in req.POST:
     product = Product.objects(id = ObjectId(req.POST['id'])).first()
   
-  product.code = req.POST.get("code")
+  product.code = req.POST.get("code").upper()
   product.title = req.POST.get("title")
   product.tags = req.POST.getlist('tags')
   product.description = req.POST.get("description")
@@ -93,6 +96,7 @@ def search(req):
   return render(req, 'products/search.html')
   
 def reserve(req, order_id = None):
+  
   if req.method == "POST":
     order = Order.objects(id = ObjectId(req.POST['id'])).first()
     Inventory.objects(slot = order).delete()
