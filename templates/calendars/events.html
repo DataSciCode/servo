@@ -1,0 +1,17 @@
+{% load i18n %}
+<table id="events" data-url="/calendar/events/{{ calendar.id }}">
+	<thead>
+		<tr><th><a class="popup" href="/calendar/{{ calendar.id }}/create_event"><img src="/static/images/fugue/calendar-insert.png"/></a></th></tr>
+	</thead>
+	<tbody>
+{% for event in events %}
+		<tr class="{% cycle "odd" "even" %}">
+			<td><a href="/calendar/{{ event.id }}/edit_event" class="popup">{{ event.started_at }}</a></td>
+			<td><?php print new Zend_Date($e['finished_at']->sec) ?></td>
+			<td>{{ event.description }}</td>
+			<td><?php printf('%d h', $e['hours']) ?></td>
+		</tr>
+{% endfor %}
+</tbody>
+</table>
+<p>{% blocktrans %}Yhteensä: {{ calendar.hours }} h{% endblocktrans %}</p>

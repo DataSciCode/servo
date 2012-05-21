@@ -1,0 +1,10 @@
+{% load i18n %}
+
+<form method="post" action="/calendars/save" rel="calendars">
+	{% csrf_token %}
+	{% if calendar.id %}
+	<input type="hidden" name="id" value="{{ calendar.id }}"/>
+	{% endif %}
+	<label>{% trans "Nimi" %}:</label>
+	<input type="text" name="title" value="{{ calendar.title }}"/>
+</form>

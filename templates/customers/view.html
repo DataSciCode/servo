@@ -1,26 +1,29 @@
 {%load i18n %}
 
 <table>
+  <thead>
     <tr>
-        <td class="label">{% trans 'Asiakasnumero' %}:</td>
-        <td>{{ customer.number }}</td>
+      <th colspan="4">
+        <a href="/orders/index/customer/{{ customer.id }}" title="{% trans 'Tilaukset' %}"><img src="/static/images/fugue/document--arrow.png"/></a>
+        <a href="/customer/move/{{ customer.id }}" class="popup" title="{% trans 'Siirrä' %}"><img src="/static/images/fugue/address-book--arrow.png"/></a>
+        <a href="/customer/create/{{ customer.id }}" class="popup" title="{% trans 'Lisää kontakti' %}"><img src="/static/images/fugue/address-book--plus.png"/></a>
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="label">{% trans 'Asiakasnumero' %}:</td>
+      <td>{{ customer.number }}</td>
     </tr>
     <tr>
-        <td class="label">{% trans 'Nimi' %}:</td>
-        <td>{{ customer.fullname }}</td>
+      <td class="label">{% trans 'Nimi' %}:</td>
+      <td>{{ customer.fullname }}</td>
     </tr>
-
 {% for key, value in customer.fullprops.items %}
-
     <tr>
-        <td class="label">{{ key }}:</td>
-        <td>{{ value }}</td>
+      <td class="label">{{ key }}:</td>
+      <td>{{ value }}</td>
     </tr>
-
 {% endfor %}
-
+  </tbody>
 </table>
-
-<a href="/orders/index/customer/{{ customer.id }}">{% trans 'Tilaukset' %}</a>
-<a href="/customer/move/{{ customer.id }}" class="popup">{% trans 'Siirrä' %}</a>
-<a href="/customer/create/{{ customer.id }}" class="popup">{% trans 'Lisää kontakti' %}</a>

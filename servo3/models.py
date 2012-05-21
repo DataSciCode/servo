@@ -11,7 +11,7 @@ class Device(Document):
   meta = {"ordering": ['-id']}
 
   sn = StringField()
-  description = StringField(required=True)
+  description = StringField(required = True)
 
   username = StringField()
   password = StringField()
@@ -82,7 +82,7 @@ class Attachment(Document):
   description = StringField()
   uploaded_by = StringField(default="filipp")
   uploaded_at = DateTimeField(default=datetime.now())
-  
+
   tags = ListField(StringField())
   
 class Tag(Document):
@@ -343,10 +343,10 @@ class Message(Document):
   
   sender = StringField(default = 'filipp')
   recipient = StringField(default = 'filipp')
-  mailto = StringField(default='')
-  smsto = StringField(default='')
+  mailto = StringField(default = '')
+  smsto = StringField(default = '')
 
-  created_at = DateTimeField(default=datetime.now())
+  created_at = DateTimeField(default = datetime.now())
   
   order = ReferenceField(Order)
 
@@ -359,7 +359,7 @@ class Message(Document):
     return 1
     
   def send_mail(self):
-    conf = Config.objects[0]
+    conf = Config.objects.first()
     import smtplib
     server = smtplib.SMTP(conf.smtp_host)
     server.sendmail(conf.mail_from, self.mailto, self.body)
@@ -379,11 +379,18 @@ class Template(Document):
   title = StringField(required = True)
   body = StringField(required = True)
   
+class CalendarEvent(EmbeddedDocument):
+
+  notes = StringField()
+  started_at = DateTimeField(default = datetime.now())
+  finished_at = DateTimeField()
+  remind_at = DateTimeField()
+
 class Calendar(Document):
 
-  title = StringField(required=True)
-  username = StringField()
-  events = DictField()
+  title = StringField(required = True, default = "Uusi kalenteri")
+  user = ReferenceField(User)
+  events = ListField(EmbeddedDocumentField(CalendarEvent))
 
 class Invoice(Document):
 
@@ -394,8 +401,8 @@ class Invoice(Document):
   is_paid = BooleanField()
   paid_at = DateTimeField()
   payment_method = StringField()
+
   customer = DictField()
-  
   products = DictField()
 
   total_tax = DecimalField()
@@ -443,12 +450,6 @@ class Event(Document):
   handled_at = DateTimeField()
   ref_order = ReferenceField(Order)
   type = StringField()
-  
-class Calendar(Document):
-  
-  title = StringField(required=True)
-  user = ReferenceField(User)
-  events = ListField(DictField)
   
 class Inventory(Document):
   """

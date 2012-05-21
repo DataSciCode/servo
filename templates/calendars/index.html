@@ -1,0 +1,23 @@
+{% extends request.is_ajax|yesno:"empty.html,default.html" %}
+
+{% load i18n %}
+
+{% block toolbar %}
+	<ul>
+		<li><a href="/calendar/create" class="popup">{% trans "Uusi kalenteri" %}</a></li>
+	</ul>
+{% endblock toolbar %}
+
+{% block content %}
+
+<div class="small_block listView" id="calendars" data-url="/calendars">
+	<ul>
+{% for cal in calendars %}
+		<li data-url="/calendar/events/{{ cal.id }}" class="{% cycle "odd" "even" %}">{{ cal.title }}</li>
+{% endfor %}
+	</ul>
+</div>
+
+<div id="detailView"></div>
+
+{% endblock content %}
