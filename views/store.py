@@ -3,34 +3,38 @@ from bson.objectid import ObjectId
 from django.shortcuts import render
 from django.http import HttpResponse
 from datetime import datetime
+
 from django.utils.datastructures import DotExpandedDict
 
 def invoices(req):
-
   data = Invoice.objects.all()
   return render(req, "store/invoices.html", {"invoices": data})
 
 def dispatch(req, order_id = None, numbers = None):
-
   products = []
 
   if req.method == "POST":
     data = DotExpandedDict(req.POST)
     #print data
-    invoice = Invoice(payment_method = data['payment_method'],
-      total_payable = float(data['total']))
+    invoice = Invoice(payment_method=data['payment_method'],
+      total_payable=float(data['total']))
 
     if "paid" in data:
       invoice.paid_at = datetime.now()
+
+    products = data.get("products")
+    print type(products)
 
     if "customer" in data:
       customer = Customer.objects.with_id(ObjectId(data['customer']))
       invoice.customer = customer.asdict()
 
-    invoice.products = data.get("products")
-
+    for k in products:
+      invoice.products.append(products[k])
+    
     invoice.save()
-    return HttpResponse("")
+
+    return HttpResponse("Tuotteet toimitettu")
 
   total = 0
 
@@ -80,7 +84,6 @@ def edit_po(req, id):
   pass
 
 def order_products(req, ids):
-
   products = []
   
   for i in ids.strip(";").split(";"):

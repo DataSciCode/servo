@@ -7,14 +7,14 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.http import HttpResponse
 
 from bson.objectid import ObjectId
-from servo3.models import Status, Queue, GsxAccount, Field, Template, Config, User, Location
+from servo3.models import *
 
 def settings(req):
   
-  if len(Config.objects) < 1:
-    config = Config()
+  if len(Configuration.objects) < 1:
+    config = Configuration()
   else:
-    config = Config.objects.first()
+    config = Configuration.objects.first()
   
   if req.method == "POST":
     

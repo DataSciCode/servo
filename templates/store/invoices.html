@@ -1,8 +1,12 @@
 {% extends request.is_ajax|yesno:"empty.html,default.html" %}
 
+{% block secondary %}
+    <li><a href="/document/4fbdd0470008934de8000004/print/invoice/4fbdcf9c0008934de8000000" class="print window"></a></li>
+{% endblock secondary %}
+
 {% load i18n %}
 {% block content %}
-<div class="tableView" data-url="/stores/invoices" id="invoices">
+<div class="tableView" data-url="/store/invoices" id="invoices">
   <table class="sortable">
     <thead>
       <tr>

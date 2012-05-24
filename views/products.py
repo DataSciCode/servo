@@ -17,7 +17,7 @@ def index(req):
   
 def edit(req, id):
   if id in req.session.get('gsx_data'):
-    conf = Config.objects.first()
+    conf = Configuration.objects.first()
     result = req.session['gsx_data'].get(id)
     product = Product(code = result.get('partNumber'),
       title = result.get('partDescription'),

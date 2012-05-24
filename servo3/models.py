@@ -89,13 +89,14 @@ class Product(Document):
       return 0
       
 class Attachment(Document):
-  meta = {"ordering": ["path", "-id"]}
+  meta = {"ordering": ["-updated_at"]}
   name = StringField(default="Uusi tiedosto")
   content = FileField()
   content_type = StringField()
   description = StringField()
   uploaded_by = StringField(default="filipp")
   uploaded_at = DateTimeField(default=datetime.now())
+  updated_at = DateTimeField(default=datetime.now())
 
   tags = ListField(StringField())
   
@@ -103,7 +104,7 @@ class Tag(Document):
   title = StringField(required = True, default = 'Uusi tagi')
   type = StringField(required = True)
   
-class Config(Document):
+class Configuration(Document):
   company_name = StringField()
   pct_margin = DecimalField() # the default margin percent for new products
   repair_rate = DecimalField()
@@ -403,7 +404,7 @@ class Invoice(Document):
   payment_method = StringField()
 
   customer = DictField()
-  products = DictField()
+  products = ListField(DictField())
 
   total_tax = DecimalField()
   total_margin = DecimalField()

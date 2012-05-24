@@ -1,10 +1,9 @@
 {% load i18n %}
 
 <form method="post" action="/store/dispatch" method="post" accept-charset="utf8">
-
   {% csrf_token %}
   {% if  order.id %}
-  <input type="hidden" name="order" value="{{ order.id }}"/>  
+    <input type="hidden" name="order" value="{{ order.id }}"/>  
   {% endif %}
 {% for p in products %}
     <input

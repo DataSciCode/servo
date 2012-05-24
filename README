@@ -1,0 +1,5 @@
+Requirements:
+- Django
+- mongoengine
+- pybarcode
+- pystache

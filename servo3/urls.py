@@ -9,9 +9,13 @@ urlpatterns = patterns('',
   
   url(r'^$', 'views.orders.index'),
   url(r'^document/save$', 'views.documents.save'),
+  url(r'^document/edit/(\w+)$', 'views.documents.edit'),
   url(r'^document/view/(\w+)$', 'views.documents.view'),
   url(r'^document/remove/(\w+)$', 'views.documents.remove'),
   url(r'^document/remove$', 'views.documents.remove'),
+  url(r'^document/(\w+)/print/([a-z]+)/(\w+)$', 'views.documents.output'),
+  url(r'^document/barcode/(\w+)$', 'views.documents.barcode'),
+
   url(r'^files/create$', 'views.documents.create'),
   url(r'^user/save$', 'views.admin.save_user'),
   url(r'^user/edit/(\w+)$', 'views.admin.edit_user'),
