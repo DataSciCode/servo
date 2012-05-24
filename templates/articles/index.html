@@ -1,0 +1,25 @@
+{% extends request.is_ajax|yesno:"empty.html,default.html" %}
+{% load i18n %}
+{% load extras %}
+
+{% block toolbar %}
+	<ul>
+		<li><a href="/article/create" class="popup">{% trans "Uusi artikkeli" %}</a></li>
+	</ul>
+{% endblock toolbar %}
+
+{% block content %}
+
+<div class="listView small_block" id="articles" data-url="/calendar/index">
+	<ul>
+{% for article in data %}
+		<li class="{% cycle "odd" "even" %}"><a href="/article/view/{{ article.id }}">{{ article.title }}</a></li>
+{% endfor %}
+	</ul>
+</div>
+
+<script type="text/javascript">
+	$("#create-button").attr("href", "/article/create").addClass("popup");
+</script>
+
+{% endblock content %}
