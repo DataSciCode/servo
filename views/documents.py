@@ -1,4 +1,4 @@
-import json
+import json, mimetypes
 from django.http import HttpResponse
 from django.shortcuts import render
 from bson.objectid import ObjectId
@@ -6,36 +6,39 @@ from bson.objectid import ObjectId
 from servo3.models import Attachment
 
 def index(req):
-
   files = Attachment.objects
-  return render(req, "documents/index.html", {'files': files})
-  
+  return render(req, "documents/index.html", {"files": files})
   
 def create(req):
   doc = Attachment()
-  return render(req, "documents/form.html", {'file': doc})
+  return render(req, "documents/form.html", {"file": doc})
   
 def save(req):
-
+  mimetypes.init()
   doc = Attachment()
   f = req.FILES['incoming']
-  doc.name = req.POST.get('name', f.name)
+
   doc.content = f.read()
-  
+  doc.name = req.POST.get("name", f.name)
+  type, encoding = mimetypes.guess_type(f.name)
+  doc.content.content_type = type
+  doc.content_type = type
+
   if "tags" in req.POST:
     doc.tags = req.POST.getlist("tags")
 
   doc.save()
   
-  return HttpResponse(json.dumps({'name': doc.name, 'id': str(doc.id)}),
-    content_type = "application/json")
+  return HttpResponse(json.dumps({"name": doc.name, "id": str(doc.id)}),
+    content_type="application/json")
   
 def view(req, id):
   doc = Attachment.objects(id = ObjectId(id)).first()
-  return HttpResponse(doc.content.read(), content_type = "application/pdf")
+  data = doc.content.read()
+  return HttpResponse(data, content_type=doc.content_type)
   
 def remove(req, id = None):
-  if 'id' in req.POST:
+  if "id" in req.POST:
     doc = Attachment.objects(id = ObjectId(req.POST['id'])).first()
     doc.content.delete()
     doc.delete()

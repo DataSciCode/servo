@@ -19,7 +19,7 @@
       <tr data-url="/document/edit/{{ file.id }}" class="{% cycle 'odd' 'even' %}">
         <td><a href="/document/view/{{ file.id }}" class="window">{{ file.name }}</a></td>
         <td>{{ file.description }}</td>
-        <td>{{ file.size }}</td>
+        <td>{{ file.content.size }}</td>
         <td>{{ file.uploaded_by }}</td>
         <td>{{ file.uploaded_at }}</td>
       </tr>

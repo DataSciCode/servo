@@ -365,7 +365,7 @@ td.long {
     text-align: center;
 }
 
-.tableView tr, .listView li {
+#main_content tr, .listView li {
     background-color: #292929;
 }
 
@@ -479,9 +479,7 @@ label, select.label {
     margin: 6px;
     text-align: right;
 }
-label.top {
-    margin-top: 1px;
-}
+
 a.plus, a.minus {
     width: 24px;
     height: 23px;

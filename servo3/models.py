@@ -6,8 +6,21 @@ from bson.objectid import ObjectId
 
 connect('servo')
 
-class Device(Document):
+class Spec(Document):
+  title = StringField(required=True)
+  properties = DictField()
+  path = StringField()
 
+class Article(Document):
+  title = StringField(required=True, default = "Uusi artikkeli")
+  content = StringField(required=True)
+
+  created_by = StringField()
+  updated_at = DateTimeField()
+  created_at = DateTimeField(default = datetime.now())
+  tags = ListField(StringField())
+
+class Device(Document):
   meta = {"ordering": ['-id']}
 
   sn = StringField()
@@ -19,10 +32,10 @@ class Device(Document):
   notes = StringField()
 
   gsx_data = DictField()
+  spec = ReferenceField(Spec)
   
   
 class Product(Document):
-
   meta = { 'ordering': ['-id'] }
   number = SequenceField()
   
@@ -76,9 +89,10 @@ class Product(Document):
       return 0
       
 class Attachment(Document):
-
-  name = StringField(default = 'Uusi tiedosto')
+  meta = {"ordering": ["path", "-id"]}
+  name = StringField(default="Uusi tiedosto")
   content = FileField()
+  content_type = StringField()
   description = StringField()
   uploaded_by = StringField(default="filipp")
   uploaded_at = DateTimeField(default=datetime.now())
@@ -86,12 +100,10 @@ class Attachment(Document):
   tags = ListField(StringField())
   
 class Tag(Document):
-
   title = StringField(required = True, default = 'Uusi tagi')
   type = StringField(required = True)
   
 class Config(Document):
-  
   company_name = StringField()
   pct_margin = DecimalField() # the default margin percent for new products
   repair_rate = DecimalField()
@@ -110,13 +122,11 @@ class Config(Document):
   sms_password = StringField()
   
 class Field(Document):
-
   title = StringField(required=True)
   type = StringField(required=True)
   format = StringField()
   
 class Location(Document):
-
   title = StringField(required = True, default = "Uusi sijainti")
   description = StringField()
   phone = StringField()
@@ -127,7 +137,6 @@ class Location(Document):
   city = StringField()
   
 class GsxAccount(Document):
-
   title = StringField(default = "Uusi tili")
   sold_to = StringField()
   ship_to = StringField()
@@ -145,17 +154,13 @@ class Status(Document):
   limit_factor = IntField()
     
 class Queue(Document):
-
   title = StringField(default = "Uusi jono")
   description = StringField()
   gsx_account = ReferenceField(GsxAccount)
-  
   statuses = DictField()
-
   attachments = ListField(ReferenceField(Attachment))
   
 class Customer(Document):
-
   meta = { 'ordering': ['path', '-id'] }
   number = SequenceField()
   name = StringField(required=True, default="Uusi asiakas")
@@ -197,7 +202,6 @@ class Customer(Document):
     return props
   
 class User(Document):
-
   email = StringField(max_length=128, required=True)
   username = StringField(max_length=64, required=True)
   fullname = StringField(max_length=128, required=True, default='Uusi käyttäjä')
@@ -206,25 +210,17 @@ class User(Document):
   location = ReferenceField(Location)
   
 class OrderItem(EmbeddedDocument):
-
   product = ReferenceField(Product)
   sn = StringField()
   amount = IntField(required = True)
   price = DecimalField()
-  
-  @classmethod
-  def to_python(self, blaa):
-    """docstring for to_python"""
-    return blaa
     
 class GsxRepair(EmbeddedDocument):
-
   customer_data = DictField()
   symptom = StringField()
   diagnosis = StringField()
   
 class Order(Document):
-
   number = SequenceField()
   priority = IntField(default = 1)
 
@@ -311,10 +307,10 @@ class Order(Document):
       return ""
     
   def device_spec(self):
-    return 1
+    if len(self.devices):
+      return self.devices[0].spec.id
   
   def events(self):
-    """docstring for events"""
     return Event.objects(ref_order = self)
 
 class Issue(Document):
@@ -330,21 +326,20 @@ class Issue(Document):
   solved_by = ReferenceField(User)
   
   created_at = DateTimeField(default=datetime.now())
-  created_by = StringField(default='filipp')
+  created_by = StringField(default="filipp")
   
   order = ReferenceField(Order)
   
 class Message(Document):
-
-  meta = { 'ordering': ['-id'] }
+  meta = {"ordering": ["-id"]}
   
   subject = StringField()
-  body = StringField(default='')
+  body = StringField(default="")
   
-  sender = StringField(default = 'filipp')
-  recipient = StringField(default = 'filipp')
-  mailto = StringField(default = '')
-  smsto = StringField(default = '')
+  smsto = StringField(default="")
+  mailto = StringField(default="")
+  sender = StringField(default="filipp")
+  recipient = StringField(default="filipp")
 
   created_at = DateTimeField(default = datetime.now())
   
@@ -357,12 +352,19 @@ class Message(Document):
   
   def indent(self):
     return 1
-    
+  
   def send_mail(self):
-    conf = Config.objects.first()
     import smtplib
+    conf = Config.objects.first()
+    subject = "Huoltotilaus SRV#%d" %(self.order.number)
+    message = "\r\n".join(("From: %s" % conf.mail_from,
+      "To: %s" % self.mailto,
+      "Subject: %s" % subject,
+      "",
+      self.body))
+    
     server = smtplib.SMTP(conf.smtp_host)
-    server.sendmail(conf.mail_from, self.mailto, self.body)
+    server.sendmail(conf.mail_from, self.mailto, message)
     server.quit()
     
   def send_sms(self):
@@ -375,25 +377,23 @@ class Message(Document):
     print f.read()
 
 class Template(Document):
-
   title = StringField(required = True)
   body = StringField(required = True)
   
 class CalendarEvent(EmbeddedDocument):
-
-  notes = StringField()
   started_at = DateTimeField(default = datetime.now())
   finished_at = DateTimeField()
   remind_at = DateTimeField()
+  description = StringField(default = "")
+  hours = IntField(default = 8)
 
 class Calendar(Document):
-
   title = StringField(required = True, default = "Uusi kalenteri")
   user = ReferenceField(User)
+  hours = IntField(default = 0)
   events = ListField(EmbeddedDocumentField(CalendarEvent))
 
 class Invoice(Document):
-
   meta = {"ordering": ["-id"]}
 
   number = SequenceField()
@@ -410,7 +410,6 @@ class Invoice(Document):
   total_payable = DecimalField()
 
 class PurchaseOrder(Document):
-
   number = SequenceField()
   reference = StringField()
   confirmation = StringField()
@@ -442,7 +441,6 @@ class PurchaseOrder(Document):
     return amount
   
 class Event(Document):
-
   meta = { 'ordering': ['-id'] }
   description = StringField()
   created_by = StringField(default = "filipp")
@@ -464,4 +462,3 @@ class Inventory(Document):
   product = ReferenceField(Product)
   sn = StringField()
   kind = StringField() # one of po, order, product, invoice
-  

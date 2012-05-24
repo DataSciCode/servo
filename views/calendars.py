@@ -1,9 +1,13 @@
-from servo3.models import Calendar, CalendarEvent
 from django.shortcuts import render
 from django.http import HttpResponse
 
 from bson import ObjectId
-from datetime import datetime
+from datetime import datetime, timedelta
+
+from servo3.models import Calendar, CalendarEvent
+
+def edit(req, id):
+	pass
 
 def index(req):
   calendars = Calendar.objects(user = req.session.get("user"))
@@ -26,29 +30,35 @@ def save(req):
 	return HttpResponse("Kalenteri tallennettu")
 
 def save_event(req):
+	id = req.POST.get("id")
+	calendar = Calendar.objects(id = ObjectId(req.POST.get("calendar"))).first()
 
-	if data.get("id"):
-		event = CalendarEvent.objects(id = ObjectId(data.get("id")))
+	if id:
+		event = CalendarEvent.objects(id = ObjectId(id))
 	else:
-		calendar = Calendar.objects(id = ObjectId(data.get("calendar")))
 		event = CalendarEvent(calendar = calendar)
 
-	cal = Calendar.objects(id = ObjectId(req.POST['id'])).first()
-	event.calendar = cal
+	event.description = req.POST.get("description")
 	started = req.POST.getlist("started_at")
 	finished = req.POST.getlist("finished_at")
-	event.started_at = datetime.strptime(" ")
-	event.finished_at = ""
-	event.save()
+
+	fmt = "%d.%m.%y %H:%M" # @fixme - date format should be locale-specific
+	event.started_at = datetime.strptime(" ".join(started), fmt)
+	event.finished_at = datetime.strptime(" ".join(finished), fmt)
+	delta = event.finished_at - event.started_at
+	event.hours = int(delta.seconds/3600)
+
+	calendar.hours += event.hours
+	calendar.events.append(event)
+	calendar.save()
 
 	return HttpResponse("Tapahtuma tallennettu")
 
 def event(req, calendar_id):
 	calendar = Calendar.objects(id = ObjectId(calendar_id)).first()
-	event = CalendarEvent()
-	return render(req, "calendars/event_form.html", {
-		"calendar": calendar, "event": event
-	})
+	event = CalendarEvent(calendar = calendar)
+	event.finished_at = event.started_at + timedelta(hours = event.hours)
+	return render(req, "calendars/event_form.html", {"event": event})
 
 def remove(req, id = None):
 	if req.method == "POST":

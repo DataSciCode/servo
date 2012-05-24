@@ -11,9 +11,7 @@ from django.views.decorators.csrf import csrf_exempt
 from servo3.models import *
 
 def index(req, param = None, value = None):
-
   data = Order.objects.all()
-
   if param == "status":
     status = Status.objects(id = ObjectId(value)).first()
     data = Order.objects(status = status)
@@ -29,17 +27,15 @@ def index(req, param = None, value = None):
   return render(req, 'orders/index.html', {"data" : data})
   
 def create(req):
-
   o = Order(created_by = "filipp", created_at = datetime.now())
   o.save()
   # fire the creation event
-  e = Event(description = 'Tilaus luotu', ref_order = o, type = 'create_order')
+  e = Event(description = "Tilaus luotu", ref_order = o, type = "create_order")
   e.save()
   
-  return redirect('/orders/edit/' + str(o.id))
+  return redirect("/orders/edit/" + str(o.id))
   
 def tags(req, id):
-
   if 'title' in req.POST:
     order = Order.objects(id = ObjectId(id))[0]
     title = req.POST['title']
@@ -55,7 +51,6 @@ def tags(req, id):
     return HttpResponse(json.dumps({order.tags}), content_type = "application/json")
   
 def edit(req, id):
-
   o = Order.objects(id=ObjectId(id)).first()
 
   req.session['order'] = o
@@ -64,11 +59,15 @@ def edit(req, id):
   statuses = Status.objects
   priorities = ['Matala', 'Normaali', 'Korkea']
 
-  return render(req, 'orders/edit.html', {'order': o, 'queues': queues,\
-    'users': users, 'statuses': statuses, 'priorities': priorities})
+  return render(req, 'orders/edit.html', {
+    "order": o,
+    "queues": queues,
+    "users": users,
+    "statuses": statuses,
+    "priorities": priorities
+    })
 
 def remove(req, id = None):
-
   if 'id' in req.POST:
     order = Order.objects(id = ObjectId(req.POST['id'])).first()
     Inventory.objects(slot = order).delete()
@@ -79,7 +78,6 @@ def remove(req, id = None):
     return render(req, 'orders/remove.html', order)
     
 def follow(req, id):
-
   order = Order.objects.with_id(ObjectId(id))
 
   if 'filipp' not in order.followers:
@@ -90,18 +88,15 @@ def follow(req, id):
 
 @csrf_exempt
 def update(req, id):
-
   order = Order.objects(id = ObjectId(id)).first()
 
-  if 'queue' in req.POST:
-    queue = ObjectId(req.POST['queue'])
-    queue = Queue.objects(id = queue).first()
-    order.queue = queue
-    order.save()
-    event = Event(description = queue.title, ref_order = order, type = "set_queue")
-    event.save()
+  if "queue" in req.POST:
+    id = ObjectId(req.POST['queue'])
+    queue = Queue.objects(id = id).first()
+    order.update(set__queue = queue)
+    event = Event(description=queue.title, ref_order=order, type="set_queue").save()
   
-  if 'status' in req.POST:
+  if "status" in req.POST:
     from time import time
     status = ObjectId(req.POST['status'])
     status = Status.objects(id = status).first()
@@ -130,7 +125,6 @@ def update(req, id):
   return render(req, "orders/events.html", {"order": order})
   
 def create_gsx_repair(req, order_id):
-  
   order = Order.objects(id = ObjectId(order_id)).first()
   customer = {}
   templates = Template.objects.all()
@@ -183,12 +177,15 @@ def create_gsx_repair(req, order_id):
     parts.append({"number": p.product.number,
       "title": p.product.title, "code": p.product.code, "symptoms": symptoms})
   
-  return render(req, "orders/gsx_repair_form.html", {"templates": templates,\
-    "parts": parts, "modifiers": comptia['modifiers'],\
-    "customer": customer, "order": order})
+  return render(req, "orders/gsx_repair_form.html", {
+    "templates": templates,
+    "parts": parts,
+    "modifiers": comptia['modifiers'],
+    "customer": customer,
+    "order": order
+    })
     
 def submit_gsx_repair(req):
-
   from gsx.views import submit_repair
   data = DotExpandedDict(req.POST)
   parts = []

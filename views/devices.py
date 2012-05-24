@@ -1,4 +1,4 @@
-from servo3.models import Device, Order
+from servo3.models import Device, Order, Spec
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.utils.datastructures import DotExpandedDict
@@ -42,18 +42,22 @@ def edit(req, id):
   return render(req, 'devices/form.html', dev)
   
 def save(req):
-
-  dev = Device()
   
-  if 'id' in req.POST:
+  if "id" in req.POST:
     # search by SN to avoid duplicates
     dev = Device.objects(sn = req.POST['sn']).first()
-  
+  else:
+    dev = Device()
+
   data = DotExpandedDict(req.POST)
   
   for k, v in data.items():
     dev.__setattr__(k, v)
   
+  # make sure we have this spec
+  spec = Spec.objects().create(title = dev.description)
+  dev.spec = spec
+
   dev.save()
 
   if req.session['order']:

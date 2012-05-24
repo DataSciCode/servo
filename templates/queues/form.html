@@ -23,28 +23,36 @@
       </div>
     
     <div id="statuses" class="tab">
-      <table>
+        <table>
 {% for status in statuses %}
-          <tr>
-            <td style="width:20px"><input type="checkbox" class="toggle_row" value="{{ status.id }}"/></td>
+            <tr>
+            <td style="width:20px">
+                <input type="checkbox" class="toggle_row" value="{{ status.id }}"/>
+            </td>
             <td>{{ status.title }}</td>
-            <td style="width:30px"><input type="text" value="" name="{{ status.id }}.limit_green" /></td>
-            <td style="width:30px"><input type="text" value="" name="{{ status.id }}.limit_yellow" /></td>
-            <td style="width:40px"><select name="{{ status.id }}.limit_factor"></select></td>
+            <td style="width:30px">
+                <input type="text" value="" name="{{ status.id }}.limit_green" />
+            </td>
+            <td style="width:30px">
+                <input type="text" value="" name="{{ status.id }}.limit_yellow" />
+            </td>
+            <td style="width:40px">
+                <select name="{{ status.id }}.limit_factor"></select>
+            </td>
           </tr>
 {% endfor %}
       </table>
     </div><!-- //#statuses -->
     
     <div id="templates" class="tab">
-      <ul>
-{% for f in attachments %}
-        <li><a href="/orders/print/id/{{ f.id }}">{{ f.name }}</a></li>
+        <ul id="attachments">
+{% for f in queue.attachments %}
+            <li><a href="/documents/view/{{ f.id }}">{{ f.name }}</a></li>
 {% endfor %}
-      </ul>
-  <label>{% trans "Pohja" %}:</label>
-  <input type="file" name="incoming" id="fileupload"/>
-  <ul id="attachments"></ul>
+        </ul>
+    <label>{% trans "Pohja" %}:</label>
+    <input type="file" name="incoming" id="fileupload"/>
+
     </div>
     </form>
 </div>

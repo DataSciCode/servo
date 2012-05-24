@@ -1,8 +1,10 @@
 {% load i18n %}
 <form action="/calendar/save_event" method="post" rel="events">
 	{% csrf_token %}
-	<input type="hidden" name="id" value="{{ event.id }}"/>
-	<input type="hidden" name="calendar" value="{{ event.calendar }}"/>
+	{% if event.id %}
+	<input type="hidden" name="id" value="{{ event.id }}"/>	
+	{% endif %}
+	<input type="hidden" name="calendar" value="{{ event.calendar.id }}"/>
 	<label>{% trans "Alku" %}:</label>
 	<input
 	   type="text"

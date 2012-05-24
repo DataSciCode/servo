@@ -6,27 +6,27 @@ from django.http import HttpResponse
 
 def create(req, order_id=None):
   p = Product()
-  return render(req, 'products/form.html', {'product': p})
+  return render(req, "products/form.html", {"product": p})
 
 def index(req):
-
   req.session['order'] = None
   data = Product.objects.all()
   tags = Tag.objects(type = "product").all()
 
-  return render(req, 'products/index.html', {"data": data, "tags": tags})
+  return render(req, "products/index.html", {"data": data, "tags": tags})
   
 def edit(req, id):
-
   if id in req.session.get('gsx_data'):
     conf = Config.objects.first()
     result = req.session['gsx_data'].get(id)
-    product = Product(code = result.get('partNumber'),\
-      title = result.get('partDescription'), gsx_data = result,\
-      price_purchase = result.get('stockPrice'),\
-      price_exchange = result.get('exchangePrice'),\
-      pct_margin = conf.pct_margin, pct_vat = conf.pct_vat,\
-      price_notax = result.get('stockPrice'),\
+    product = Product(code = result.get('partNumber'),
+      title = result.get('partDescription'),
+      gsx_data = result,
+      price_purchase = result.get('stockPrice'),
+      price_exchange = result.get('exchangePrice'),
+      pct_margin = conf.pct_margin,
+      pct_vat = conf.pct_vat,
+      price_notax = result.get('stockPrice'),
       price_sales = result.get('stockPrice'))
   else:
     product = Product.objects(id = ObjectId(id)).first()
@@ -35,24 +35,28 @@ def edit(req, id):
     product.sn = "asd"
     product.amount_sold = 1
   
-  return render(req, 'products/form.html', {"product": product})
+  return render(req, "products/form.html", {"product": product})
   
-def remove(req, id = None):
+def remove(req, id = None, idx = None):
+  if idx:
+    idx = int(idx)
+    order_id = req.session.get("order").id
+    Order.objects(id=order_id).update_one(pop__products=idx)
+    return HttpResponse("Tuote poistettu tilauksesta")
 
   if 'id' in req.POST:
     product = Product.objects.with_id(ObjectId(req.POST['id']));
     Inventory.objects(product = product).delete()
     product.delete()
-    return HttpResponse('Tuote poistettu')
+    return HttpResponse("Tuote poistettu")
   else:
     product = Product.objects(id = ObjectId(id)).first()
-    return render(req, 'products/remove.html', product)
+    return render(req, "products/remove.html", product)
   
 def save(req):
-
   product = Product()
   
-  if 'id' in req.POST:
+  if "id" in req.POST:
     product = Product.objects(id = ObjectId(req.POST['id'])).first()
   
   product.code = req.POST.get("code").upper()
@@ -87,22 +91,21 @@ def save(req):
     amount = int(req.POST.get("amount_sold"))
     oi = OrderItem(product = product, sn = req.POST.get("sn"),
       price = req.POST.get("price_sales"), amount = amount)
-    order = Order.objects(id = req.session['order'].id).update_one(push__products = oi)
+    order = Order.objects(id=req.session['order'].id).update_one(push__products=oi)
     req.session['order'] = order
     
   return HttpResponse("Tuote tallennettu")
   
 def search(req):
-  return render(req, 'products/search.html')
+  return render(req, "products/search.html")
   
 def reserve(req, order_id = None):
-  
   if req.method == "POST":
-    order = Order.objects(id = ObjectId(req.POST['id'])).first()
-    Inventory.objects(slot = order).delete()
+    order = Order.objects(id=ObjectId(req.POST['id'])).first()
+    Inventory.objects(slot=order).delete()
     
     for p in order.products:
-      i = Inventory(slot = order, product = p.product, sn = p.sn, kind = "order")
+      i = Inventory(slot=order, product=p.product, sn=p.sn, kind="order")
       i.save()
     
     Event(description = "Tilauksen tuotteet varattu", ref_order = order,

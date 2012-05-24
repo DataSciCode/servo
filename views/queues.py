@@ -5,24 +5,24 @@ from bson.objectid import ObjectId
 from servo3.models import *
 
 def index(req):
-
   queues = Queue.objects
-  return render(req, 'queues/index.html', {'queues': queues})
+  return render(req, "queues/index.html", {"queues": queues})
 
 def edit(req, id=None):
-
   accounts = GsxAccount.objects
   queue = Queue()
   statuses = Status.objects
+
   if id:
     queue = Queue.objects(id = ObjectId(id))[0]
   
-  return render(req, 'queues/form.html', {'queue': queue,
-    'accounts': accounts,
-    'statuses': statuses})
+  return render(req, "queues/form.html", {
+    "queue": queue,
+    "accounts": accounts,
+    "statuses": statuses
+    })
 
 def save(req):
-
   q = Queue()
   
   if 'id' in req.POST:
@@ -40,7 +40,6 @@ def save(req):
   return HttpResponse("Jono tallennettu")
   
 def remove(req, id=None):
-
   if 'id' in req.POST:
     queue = Queue.objects(id = ObjectId(req.POST['id']))
     queue.delete()

@@ -5,53 +5,44 @@
 {% block title %}{% trans "Huoltotilaus #" %}{{ order.number }}{% endblock title %}
 
 {% block toolbar %}
+
 <ul class="navigation">
-  <li>
-    <a href="/customer/create/order/{{ order.id }}" class="popup customer">{% trans 'Asiakas' %}</a>
-  </li>
-  <li>
-    <a href="/device/create/order/{{ order.id }}" class="popup device">{% trans 'Laite' %}</a>
-  </li>
-  <li>
-    <a href="/issue/create/order/{{ order.id }}" class="popup issue">{% trans 'Tehtävä' %}</a>
-  </li>
-  <li>
-    <a href="/products/create/order/{{ order.id }}" class="popup product">{% trans 'Tuote' %}</a>
-  </li>
-  <li>
-    <a href="/message/create" class="popup message">{% trans 'Viesti' %}</a>
-  </li>
+    <li><a href="/customer/create/order/{{ order.id }}" class="popup customer">{% trans "Asiakas" %}</a></li>
+    <li><a href="/device/create/order/{{ order.id }}" class="popup device">{% trans "Laite" %}</a></li>
+    <li><a href="/issue/create/order/{{ order.id }}" class="popup issue">{% trans "Tehtävä" %}</a></li>
+    <li><a href="/products/create/order/{{ order.id }}" class="popup product">{% trans "Tuote" %}</a></li>
+    <li><a href="/message/create" class="popup message">{% trans "Viesti" %}</a></li>
 </ul>
+
 {% endblock %}
 
 {% block secondary %}
 
-<li>
-  <a href="javascript:;" class="reply disabled popup"></a>
-  <ul></ul>
+<li><a href="javascript:;" class="reply disabled popup"></a>
+    <ul></ul>
 </li>
 
 <li>
-  <a href="javascript:;" class="print"></a>
-  <ul>
-{% for tpl in order.queue.templates  %}
-    <li><a href="/orders/print/{{ order.id }}/template/{{ tpl.id }}" class="window">{{ tpl.name }}</a></li>
+    <a href="javascript:;" class="print"></a>
+    <ul>
+{% for tpl in order.queue.attachments  %}
+        <li><a href="/orders/print/{{ order.id }}/template/{{ tpl.id }}" class="window">{{ tpl.name }}</a></li>
 {% endfor %}
     </ul>
 </li>
 
 <li>
-  <a href="javascript:;" class="gear"></a>
-  <ul>
+    <a href="javascript:;" class="gear"></a>
+    <ul>
 {% if order.devices %}
-    <li><a href="/orders/gsx_repair/{{ order.id }}" class="popup">{% trans "Luo GSX korjaus" %}...</a></li>
+        <li><a href="/orders/gsx_repair/{{ order.id }}" class="popup">{% trans "Luo GSX korjaus" %}...</a></li>
 {% endif %}
-    {% if order.products %}
-    <li><a href="/purchase-order/create/order/{{ order.id }}" class="popup">{% trans "Tilaa tuotteet" %}...</a></li>  
-    <li><a href="/products/reserve/{{ order.id }}" class="popup">{% trans "Varaa tuotteet" %}…</a></li>
-	  <li><a href="/store/dispatch/order/{{ order.id }}" class="popup">{% trans "Toimita tilaus" %}...</a></li>
+{% if order.products %}
+        <li><a href="/purchase-order/create/order/{{ order.id }}" class="popup">{% trans "Tilaa tuotteet" %}...</a></li>
+        <li><a href="/products/reserve/{{ order.id }}" class="popup">{% trans "Varaa tuotteet" %}…</a></li>
+        <li><a href="/store/dispatch/order/{{ order.id }}" class="popup">{% trans "Toimita tilaus" %}...</a></li>
 {% endif %}
-	  <li><a href="/orders/close/id/{{ order.id }}" class="popup">{% trans "Sulje tilaus" %}...</a></li>
+        <li><a href="/orders/close/id/{{ order.id }}" class="popup">{% trans "Sulje tilaus" %}...</a></li>
 	</ul>
 </li>
 
@@ -60,11 +51,13 @@
 {% block sidebar %}
 
 <div class="block_header">
-  <p style="padding:10px"><a href="/orders/">Servo &gt; </a><a href="/orders/edit/{{ order.id }}">{{ order.number }}</a></p>
+    <p style="padding:10px">
+        <a href="/orders/">Servo &gt; </a><a href="/orders/edit/{{ order.id }}">{{ order.number }}</a>
+    </p>
 </div>
 <div style="padding:5px" class="droppable">
   <form action="/orders/update/{{ order.id }}" method="post">
-    <span class="label">{% trans 'Jono' %}</span>
+    <span class="label">{% trans "Jono" %}</span>
     <select name="queue">
       <option value="">{% trans "Valitse" %}...</option>
 {% for queue in queues %}
@@ -72,7 +65,7 @@
 {% endfor %}
     </select>
     <br/>
-    <span class="label">{% trans 'Status' %}</span>
+    <span class="label">{% trans "Status" %}</span>
     <select name="status">
       <option value="">{% trans "Valitse" %}...</option>
 {% for status in statuses %}
@@ -80,7 +73,7 @@
 {% endfor %}
     </select>
     <br/>
-    <span class="label">{% trans 'Käsittelijä' %}</span>
+    <span class="label">{% trans "Käsittelijä" %}</span>
     <select name="user">
       <option value="">{% trans "Valitse" %}...</option>
 {% for user in users %}
@@ -88,7 +81,7 @@
 {% endfor %}
     </select>
     <br/>
-    <span class="label">{% trans 'Prioriteetti' %}</span>
+    <span class="label">{% trans "Prioriteetti" %}</span>
     <select name="priority">
       <option value="">{% trans "Valitse" %}...</option>
 {% for p in priorities %}
@@ -98,20 +91,15 @@
     </form>
     <hr/>
     <div id="tags" data-url="/orders/tags/{{ order.id }}" style="border-bottom:none">
-      <ul>
+        <ul>
 {% for tag in order.tags %}
-  <li class="draggable"><a href="/orders/index/tag/{{ tag }}">{{ tag }}</a></li>
+            <li class="draggable"><a href="/orders/index/tag/{{ tag }}">{{ tag }}</a></li>
 {% endfor %}
-      </ul>
+        </ul>
       
       <div id="newTagTarget"><a class="tag" id="add_tag" href="/tag/create/order">{% trans "Lisää" %}</a></div>
-
       <script type="text/javascript">
-          $(".draggable").draggable({
-              revert: "invalid",
-              zIndex: 1000,
-              opacity: 0.5
-          });
+          $(".draggable").draggable({revert: "invalid", zIndex: 1000, opacity: 0.5});
 
           $("#add_tag").click(function(e) {
               e.preventDefault();
@@ -140,11 +128,11 @@
     <form id="miniform" method="post" action="/message/save">
       {% csrf_token %}
       <input type="hidden" name="order" value="{{ order.id }}"/>
-      <span class="label">{% trans 'Pikaviesti' %}</span>
+      <span class="label">{% trans "Pikaviesti" %}</span>
       <textarea name="body" id="minimessage"></textarea>
     </form>
     <div class="buttons">
-        <a href="javascript:;" class="save button"><span>{% trans 'Tallenna' %}</span></a>
+        <a href="javascript:;" class="save button"><span>{% trans "Tallenna" %}</span></a>
         <a href="/orders/follow/{{ order.id }}" class="follow button"><span>{% trans "Seuraa" %}</span></a>
     </div>
 </div>

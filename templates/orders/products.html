@@ -3,8 +3,8 @@
   <thead><tr><th colspan="5">{% trans "Tuotteet" %}</th></tr></thead>
   <tbody>
 {% for item in order.products %}
-    <tr data-url="/products/edit/order/{{ product.id }}" class="{% cycle 'odd' 'even' %}">
-      <td><a href="/products/edit/order/{{ product.id }}" class="popup">{{ item.product.code }}</a></td>
+    <tr data-url="/products/edit/order/{{ forloop.counter0 }}" class="{% cycle 'odd' 'even' %}">
+      <td><a href="/products/edit/order/{{ forloop.counter0 }}" class="popup">{{ item.product.code }}</a></td>
       <td>{{ item.product.title }}</td>
       <td>{{ item.price }}</td>
       <td><a href="/purchase-order/view/id/" class="popup">20116</a></td>

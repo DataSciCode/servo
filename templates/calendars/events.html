@@ -1,17 +1,22 @@
 {% load i18n %}
 <table id="events" data-url="/calendar/events/{{ calendar.id }}">
 	<thead>
-		<tr><th><a class="popup" href="/calendar/{{ calendar.id }}/create_event"><img src="/static/images/fugue/calendar-insert.png"/></a></th></tr>
+		<tr><th colspan="4"><a class="popup" href="/calendar/{{ calendar.id }}/create_event"><img src="/static/images/fugue/calendar-insert.png"/></a><a class="window" href="/calendar/{{ calendar.id }}/print"><img src="/static/images/fugue/printer.png"/></a></th></tr>
 	</thead>
 	<tbody>
-{% for event in events %}
+{% for event in calendar.events %}
 		<tr class="{% cycle "odd" "even" %}">
-			<td><a href="/calendar/{{ event.id }}/edit_event" class="popup">{{ event.started_at }}</a></td>
-			<td><?php print new Zend_Date($e['finished_at']->sec) ?></td>
+			<td><a href="/calendar/{{ calendar.id }}/event/{{ forloop.counter0 }}" class="popup">{{ event.started_at }}</a></td>
+			<td>{{ event.finished_at }}</td>
 			<td>{{ event.description }}</td>
-			<td><?php printf('%d h', $e['hours']) ?></td>
+			<td>{{ event.hours }}</td>
 		</tr>
 {% endfor %}
-</tbody>
+		<tr>
+			<td></td>
+			<td></td>
+			<td>{% trans "Yhteensä" %}:</td>
+			<td>{{ calendar.hours }}h</td>
+		</tr>
+	</tbody>
 </table>
-<p>{% blocktrans %}Yhteensä: {{ calendar.hours }} h{% endblocktrans %}</p>
