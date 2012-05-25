@@ -330,9 +330,20 @@ br {
     clear: both;
 }
 
-#page th, .block_header, .breadcrumbs {
-    height: 36px;
+th {
     text-align: left;
+}
+
+#popup .content td {
+    padding: 3px;
+}
+
+#popup table input {
+    width: 90%;
+}
+
+#main_content th, .block_header, .breadcrumbs {
+    height: 36px;
     vertical-align: middle;
     background-color: #ccc;
     border-top: 1px solid #222;
@@ -341,7 +352,7 @@ br {
         from(rgb(72, 72, 72)), to(rgb(60, 60, 60)));
 }
 
-#page th, .block_header a {
+#main_content th, .block_header a {
     font-size: 9pt;
     color: #000;
     font-weight: bold;
@@ -356,9 +367,11 @@ br {
     vertical-align: middle;
 
 }
+
 td.long {
     min-width: 300px;
 }
+
 #page td.empty {
     color: #888;
     font-weight: bold;

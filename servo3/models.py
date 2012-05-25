@@ -61,6 +61,9 @@ class Product(Document):
   
   attachments = ListField(Document)
   
+  def tax(self):
+    return self.price_sales - self.price_notax
+  
   # Get or set the stocked amount of this product
   def amount_stocked(self, amount = 0):
     if amount:

@@ -23,7 +23,6 @@ def dispatch(req, order_id = None, numbers = None):
       invoice.paid_at = datetime.now()
 
     products = data.get("products")
-    print type(products)
 
     if "customer" in data:
       customer = Customer.objects.with_id(ObjectId(data['customer']))
@@ -44,13 +43,23 @@ def dispatch(req, order_id = None, numbers = None):
     products = order.products
 
   if numbers:
+    totals = {}
+    totals['amount'] = 0
+    totals['notax'] = 0
+    totals['tax'] = 0
+    totals['sum'] = 0
+
     for p in numbers.rstrip(";").split(";"): # http://store/blaa/45;234;123;
       product = Product.objects(number = int(p)).first()
-      total += product.price_sales
+      totals['amount'] += 1
+      totals['notax'] += product.price_notax
+      totals['tax'] += product.tax()
+      totals['sum'] += product.price_sales
+      
       oi = OrderItem(product = product, price = product.price_sales, amount = 1)
       products.append(oi)
 
-  return render(req, "store/dispatch.html", {"products": products, "total": total})
+  return render(req, "store/dispatch.html", {"products": products, "totals": totals})
 
 def save_po(req):
 
