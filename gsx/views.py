@@ -1,3 +1,5 @@
+"""https://gsxwsut.apple.com/apidocs/it/html/WSReference.html?user=asp
+"""
 import logging, re
 from suds.client import Client
 from suds.sudsobject import asdict
@@ -5,6 +7,35 @@ from servo3.models import GsxAccount
 
 logging.basicConfig(level=logging.INFO)
 logging.getLogger('suds.client').setLevel(logging.DEBUG)
+
+class Gsx(object):
+    """A connection to GSX"""
+    def __init__(self, sold_to, user_id, password, language_code = "en", time_zone = "CEST"):
+        client = Client("https://gsxwsit.apple.com/wsdl/emeaAsp/gsx-emeaAsp.wsdl")
+        auth = client.factory.create("ns3:AuthenticateRequest")
+
+        auth.userId = user_id
+        auth.password = password
+        auth.userTimeZone = time_zone
+        auth.serviceAccountNo = sold_to
+        auth.languageCode = language_code
+        self.auth = auth
+        self.client = client
+
+        self.session = client.service.Authenticate(auth)
+
+    def fetch_ios_activation_details(self, serial_number, imei_code = None):
+        pass
+
+    def warranty_status(self, sn):
+      req = self.client.factory.create('ns3:warrantyStatusRequestType')
+      ud = self.client.factory.create('ns7:unitDetailType')
+      ud.serialNumber = sn
+      req.unitDetail = ud
+      req.userSession = self.session
+
+      result = self.client.service.WarrantyStatus(req)
+      return [asdict(result.warrantyDetailInfo)]
 
 def looks_like(query, what = None):
   result = False
@@ -26,31 +57,6 @@ def looks_like(query, what = None):
       result = k
   
   return (result == what) if what else result
-  
-def warranty_status(sn):
-  """
-  docstring for warranty_status
-  """
-  act = GsxAccount.objects.first()
-  client = Client("https://gsxwsit.apple.com/wsdl/amAsp/gsx-amAsp.wsdl")
-  
-  req = client.factory.create('ns3:AuthenticateRequest')
-  req.serviceAccountNo = act.sold_to
-  req.userId = act.username
-  req.password = act.password
-  req.languageCode = "en"
-  req.userTimeZone = "CEST"
-  
-  session = client.service.Authenticate(req)
-  
-  req = client.factory.create('ns3:warrantyStatusRequestType')
-  ud = client.factory.create('ns7:unitDetailType')
-  ud.serialNumber = sn
-  req.unitDetail = ud
-  req.userSession = session
-
-  result = client.service.WarrantyStatus(req)
-  return [asdict(result.warrantyDetailInfo)]
   
 def parts_lookup(query):
   """
