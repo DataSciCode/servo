@@ -5,46 +5,45 @@ from django.views.decorators.csrf import csrf_exempt
 
 @csrf_exempt
 def lookup(req, what):
+    from gsx.views import parts_lookup, looks_like, warranty_status
   
-  from gsx.views import parts_lookup, looks_like, warranty_status
+    results = []
+    action = "edit"
+    collection = "device"
   
-  results = []
-  action = "edit"
-  collection = "device"
+    query = req.POST.get('q')
   
-  query = req.POST.get('q')
+    if what == "product-local":
+        collection = "products"
+        products = Product.objects(code__istartswith = query)
+        for r in products:
+            results.append({'id': r.id, 'title': r.code, 'description': r.title})
   
-  if what == "product-local":
-    collection = "products"
-    products = Product.objects(code__istartswith = query)
-    for r in products:
-      results.append({'id': r.id, 'title': r.code, 'description': r.title})
-  
-  if what == "product-gsx":
-    collection = "products"
-    param = looks_like(query)
-    req.session['gsx_data'] = {}
+    if what == "product-gsx":
+        collection = "products"
+        param = looks_like(query)
+        req.session['gsx_data'] = {}
     
     if param == "partNumber":
-      for r in parts_lookup(query):
-        req.session['gsx_data'] = {r.get('partNumber'): r}
-        results.append({'id': r['partNumber'], 'title': r['partNumber'],\
-          'description': r['partDescription']})
+        for r in parts_lookup(query):
+            req.session['gsx_data'] = {r.get('partNumber'): r}
+            results.append({'id': r['partNumber'], 'title': r['partNumber'],\
+                'description': r['partDescription']})
     
     if req.session.get('order'):
-      try:
-        sn = req.session['order']['devices'][0].sn
-        if looks_like(sn, "serialNumber"):
-          query = {"serialNumber": sn, "partDescription": query}
+        try:
+            sn = req.session['order']['devices'][0].sn
+            if looks_like(sn, "serialNumber"):
+                query = {"serialNumber": sn, "partDescription": query}
 
-          for r in parts_lookup(query):
-            pn = r.get('partNumber')
-            req.session['gsx_data'][pn] = r
-            results.append({'id': r['partNumber'],\
-              'title': r['partNumber'],\
-              'description': r['partDescription']})
-      except Exception, e:
-        pass
+            for r in parts_lookup(query):
+                pn = r.get('partNumber')
+                req.session['gsx_data'][pn] = r
+                results.append({'id': r['partNumber'],\
+                    'title': r['partNumber'],\
+                    'description': r['partDescription']})
+        except Exception, e:
+            pass
     
     print query
     
