@@ -10,7 +10,7 @@ var TabView = Backbone.View.extend(
     el: "div.tabView"
 ,
     events: {
-        "click .tabs li a"         : "clicked"
+        "click .tabs li a"      : "clicked"
     }
 ,
     clicked: function(event)
@@ -356,9 +356,10 @@ var SidebarView = Backbone.View.extend(
     el: "div#side_pane"
 ,
     events: {
-        "click .save"		  : "submit",
-        "click .follow"	  : "follow",
-        "click .head"		  : "toggle",
+        "click .save"		: "submit",
+        "click .follow"	    : "follow",
+        "click .head"		: "toggle",
+        "click ul li ul li"          : "select",
         "change select"		: "update_order",
     }
 ,
@@ -450,21 +451,12 @@ var SidebarView = Backbone.View.extend(
         var li = event.currentTarget;
         this.$("ul li").removeClass("current");
 
-        var a = $(li).children("a");
-        var url = a.attr("href");
-        url = url.replace(/^\//, "");
-        window.collection = url.slice(0, url.indexOf("/"));
-        console.log(url, collection);
-        $("#secondary").html("");
-//        window.app.navigate( url , true );
+        var url = $(li).children("a").attr("href");
+        console.log(url);
+        window.app.navigate(url , true);
 
-        $("#edit-button").addClass("disabled");
-        $("#delete-button").addClass("disabled");
-
-        $("head > title").text(a.text());
-
+        //$("head > title").text(a.text());
         $(li).addClass("current");
-
     }
 });
 
@@ -581,7 +573,7 @@ var ListView = Backbone.View.extend(
 		$("#edit-button").addClass("popup");
 		
 		$('#detailView').load(url);
-//		window.app.navigate(url, true);
+		window.app.navigate(url, true);
 	}
 	
 });
@@ -603,15 +595,27 @@ var ServoApp = Backbone.Router.extend(
         window.listView = new ListView();
     }
 ,
-    goto: function(url)
+    defaultRoute: function(url)
     {
         console.log("goto", url);
-        parts = url.split(/\//);
-//        contentView.load(url);
+        contentView.load(url);
         contentView.delegateEvents();
 	}
 ,
+    indexRoute: function(url)
+    {
+        console.log("load indexView:", url);
+    }
+,
+    detailRoute: function(url)
+    {
+        console.log("load detailview:", url);
+    }
+,
     routes: {
-        "*url"			: "goto",
+        "calendar/events/*"     : "detailRoute",
+        "orders/*url"           : "indexRoute",
+        "message/"              : "indexRoute",
+        //
     }
 });

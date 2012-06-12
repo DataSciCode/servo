@@ -47,24 +47,23 @@ def lookup(req, what):
     
     print query
     
-  if what == "device-local":
-    local = Device.objects(sn__istartswith = query)
-    for d in local:
-      results.append({'id': d.id, 'title': d.sn, 'description': d.description})
+    if what == "device-local":
+        local = Device.objects(sn__istartswith = query)
+        for d in local:
+            results.append({'id': d.id, 'title': d.sn, 'description': d.description})
     
-  if what == "device-gsx":
-    for r in warranty_status(query):
-      req.session['gsx_data'] = {query: r}
-      results.append({'title': r.get('productDescription'),
-        'description': r.get('configDescription'), 'id': query})
+    if what == "device-gsx":
+        for r in warranty_status(query):
+            req.session['gsx_data'] = {query: r}
+            results.append({'title': r.get('productDescription'),
+                'description': r.get('configDescription'), 'id': query})
   
-  if what == "customer":
-    collection = "customer"
-    customers = Customer.objects(name__istartswith = query)
+    if what == "customer":
+        collection = "customer"
+        customers = Customer.objects(name__istartswith = query)
     
     for r in customers:
-      results.append({'id': r.id, 'title': r.name})
+        results.append({'id': r.id, 'title': r.name})
   
-  return render(req, 'search/lookup.html', {'results': results,\
-    'action': action, 'collection': collection})
-  
+    return render(req, 'search/lookup.html', {'results': results,\
+        'action': action, 'collection': collection})
