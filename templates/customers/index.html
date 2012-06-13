@@ -1,4 +1,5 @@
-{% extends "default.html" %}
+{% extends request.is_ajax|yesno:"empty.html,default.html" %}
+
 {% load i18n %}
 
 {% block toolbar %}

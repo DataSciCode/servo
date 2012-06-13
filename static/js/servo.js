@@ -243,6 +243,13 @@ var AppView = Backbone.View.extend(
 ,
     initialize: function()
     {
+        // initialize subviews
+        window.contentView = new ContentView();
+        window.toolbarView = new ToolbarView();
+        
+        window.tableView = new TableView();
+        window.listView = new ListView();
+
         window.panelView = new PanelView();
         window.sidebarView = new SidebarView();
 
@@ -359,8 +366,8 @@ var SidebarView = Backbone.View.extend(
         "click .save"		: "submit",
         "click .follow"	    : "follow",
         "click .head"		: "toggle",
-        "click ul li ul li"          : "select",
         "change select"		: "update_order",
+        "click ul li ul li" : "select",
     }
 ,
     initialize: function()
@@ -450,13 +457,14 @@ var SidebarView = Backbone.View.extend(
         event.preventDefault();
         var li = event.currentTarget;
         this.$("ul li").removeClass("current");
+        $(li).addClass("current");
 
         var url = $(li).children("a").attr("href");
         console.log(url);
         window.app.navigate(url , true);
 
         //$("head > title").text(a.text());
-        $(li).addClass("current");
+        
     }
 });
 
@@ -555,24 +563,18 @@ var ListView = Backbone.View.extend(
 	select: function(event)
 	{
 		var e = event.currentTarget;
-		this.$("li").removeClass("current");
+		//this.$("li").removeClass("current");
+        $(e).siblings().removeClass("current");
 		$(e).addClass("current");
         
-    var url = $(e).data("url");
-    
-    $("#delete-button").attr("href",
-        url.replace(/^\/(\w+)\/\w+/, '/$1/remove')
-    );
-          
-		$("#delete-button").removeClass("disabled");
-		
-    $("#edit-button").attr("href",
-        url.replace(/^\/(\w+)\/\w+/, '/$1/edit')
-    );
+        var url = $(e).data("url");
         
+        $("#delete-button").attr("href", url.replace(/^\/(\w+)\/\w+/, '/$1/remove'));
+		$("#delete-button").removeClass("disabled");
+        $("#edit-button").attr("href", url.replace(/^\/(\w+)\/\w+/, '/$1/edit'));
 		$("#edit-button").addClass("popup");
 		
-		$('#detailView').load(url);
+		$("#detailView").load(url);
 		window.app.navigate(url, true);
 	}
 	
@@ -588,34 +590,23 @@ var ServoApp = Backbone.Router.extend(
     initialize: function()
     {
         window.appView = new AppView();
-        window.contentView = new ContentView();
-        window.toolbarView = new ToolbarView();
-        
-        window.tableView = new TableView();
-        window.listView = new ListView();
     }
 ,
     defaultRoute: function(url)
     {
-        console.log("goto", url);
+        console.log("defaultRoute", url);
         contentView.load(url);
         contentView.delegateEvents();
 	}
 ,
-    indexRoute: function(url)
-    {
-        console.log("load indexView:", url);
-    }
-,
     detailRoute: function(url)
     {
         console.log("load detailview:", url);
+        return false;
     }
 ,
     routes: {
-        "calendar/events/*"     : "detailRoute",
-        "orders/*url"           : "indexRoute",
-        "message/"              : "indexRoute",
-        //
+        "calendar/events/:id"     : "detailRoute",
+        "*url"                  : "defaultRoute",
     }
 });

@@ -70,4 +70,6 @@ def remove(req, id = None):
 
 def events(req, id):
 	cal = Calendar.objects(id = ObjectId(id)).first()
-	return render(req, "calendars/events.html", {"calendar": cal})
+	calendars = Calendar.objects(user = req.session.get("user"))
+	return render(req, "calendars/events.html", {"calendar": cal,
+		"calendars": calendars})

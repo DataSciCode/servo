@@ -1,4 +1,7 @@
 {% load i18n %}
+
+{% block detail_view %}
+
 <table id="events" data-url="/calendar/events/{{ calendar.id }}">
 	<thead>
 		<tr><th colspan="4"><a class="popup" href="/calendar/{{ calendar.id }}/create_event"><img src="/static/images/fugue/calendar-insert.png"/></a><a class="window" href="/calendar/{{ calendar.id }}/print"><img src="/static/images/fugue/printer.png"/></a></th></tr>
@@ -20,3 +23,5 @@
 		</tr>
 	</tbody>
 </table>
+	
+{% endblock detail_view %}

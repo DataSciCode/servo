@@ -347,7 +347,6 @@ th {
     vertical-align: middle;
     background-color: #ccc;
     border-top: 1px solid #222;
-    border-bottom: 1px solid #222;
     background-image: -webkit-gradient(linear, left top, left bottom,
         from(rgb(72, 72, 72)), to(rgb(60, 60, 60)));
 }

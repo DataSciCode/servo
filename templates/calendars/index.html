@@ -11,9 +11,12 @@
 {% block content %}
 
 <div class="small_block listView" id="calendars" data-url="/calendars">
+	<div class="block_header">&nbsp;</div>
 	<ul>
 {% for cal in calendars %}
-		<li data-url="/calendar/events/{{ cal.id }}" class="{% cycle "odd" "even" %}">{{ cal.title }}</li>
+		<li data-url="/calendar/events/{{ cal.id }}" class="{% cycle "odd" "even" %}">
+			{{ cal.title }}
+		</li>
 {% endfor %}
 	</ul>
 </div>
