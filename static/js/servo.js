@@ -606,7 +606,9 @@ var ServoApp = Backbone.Router.extend(
     }
 ,
     routes: {
-        "calendar/events/:id"     : "detailRoute",
+        "calendar/events/:id"   : "detailRoute",
+        "customer/view/:id"     : "detailRoute",
+        "message/view/:id"      : "detailRoute",
         "*url"                  : "defaultRoute",
     }
 });

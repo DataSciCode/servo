@@ -168,6 +168,29 @@ a.tag:active::after {
     text-shadow: 0px 1px 0px rgba(0, 0, 0, 0.8);
 }
 
+/* Let's get this party started */
+::-webkit-scrollbar {
+    width: 12px;
+}
+ 
+/* Track */
+::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3); 
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+}
+ 
+/* Handle */
+::-webkit-scrollbar-thumb {
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+    background: rgba(22,22,22, 0.8);
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5); 
+}
+::-webkit-scrollbar-thumb:window-inactive {
+    background: rgba(22,22,22, 0.4);
+}
+
 #side_pane ul li {
     vertical-align: middle;
     line-height: 2em;
@@ -347,6 +370,7 @@ th {
     vertical-align: middle;
     background-color: #ccc;
     border-top: 1px solid #222;
+    border-bottom: 1px solid #222;
     background-image: -webkit-gradient(linear, left top, left bottom,
         from(rgb(72, 72, 72)), to(rgb(60, 60, 60)));
 }
@@ -364,7 +388,6 @@ th {
     padding: 8px;
     line-height: 1.9em;
     vertical-align: middle;
-
 }
 
 td.long {
@@ -865,6 +888,22 @@ span.date {
 #toolbar a {
     display: block;
 }
+#toolbar ul > li:hover {
+    background: #222;
+    box-shadow: 6px 0px 10px -7px #000, -6px 0px 10px -7px #000;
+}
+
+#toolbar ul ul li:hover {
+    background: #aaa;
+}
+#toolbar ul ul li:hover a {
+    color: #000;
+}
+
+#toolbar ul > li:hover ul {
+    display: block;
+}
+
 #toolbar ul ul {
     min-width: 200px;
     display: none;
@@ -873,14 +912,7 @@ span.date {
 /*  -webkit-box-shadow: 1px 1px 5px #000;*/
     box-shadow: 1px 1px 5px #000, 1px 1px 5px #000;
 }
-#toolbar ul > li:hover {
-    background: #222;
-    box-shadow: 6px 0px 10px -7px #000, -6px 0px 10px -7px #000;
-}
 
-#toolbar ul > li:hover ul {
-    display: block;
-}
 #toolbar ul#secondary {
     border-left: 1px solid #222;
     margin-left: 220px;
@@ -964,6 +996,7 @@ li.submenu:hover ul {
        linear, left bottom, left top,
        from(rgb(32,88,133)), to(rgb(70,137,219)));
 }
+
 .icon {
     vertical-align: middle;
 }

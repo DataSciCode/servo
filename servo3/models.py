@@ -40,7 +40,7 @@ class Product(Document):
   number = SequenceField()
   
   gsx_data = DictField()
-  warranty_period = IntField()
+  warranty_period = IntField(default = 0)
   
   code = StringField(default = "")
   shelf = StringField(default = "")
@@ -312,73 +312,75 @@ class Order(Document):
     
   def device_spec(self):
     if len(self.devices):
-      return self.devices[0].spec.id
+      try:
+        return self.devices[0].spec.id
+      except AttributeError, e:
+        pass
   
   def events(self):
     return Event.objects(ref_order = self)
 
 class Issue(Document):
-
-  symptom = StringField(required=True, default="")
-  diagnosis = StringField(default="")
-  solution = StringField(default="")
-  
-  diagnosed_at = DateTimeField()
-  diagnosed_by = ReferenceField(User)
-  
-  solved_at = DateTimeField()
-  solved_by = ReferenceField(User)
-  
-  created_at = DateTimeField(default=datetime.now())
-  created_by = StringField(default="filipp")
-  
-  order = ReferenceField(Order)
+    symptom = StringField(required=True, default="")
+    diagnosis = StringField(default="")
+    solution = StringField(default="")
+      
+    diagnosed_at = DateTimeField()
+    diagnosed_by = ReferenceField(User)
+      
+    solved_at = DateTimeField()
+    solved_by = ReferenceField(User)
+      
+    created_at = DateTimeField(default=datetime.now())
+    created_by = StringField(default="filipp")
+      
+    order = ReferenceField(Order)
   
 class Message(Document):
-  meta = {"ordering": ["-id"]}
-  
-  subject = StringField()
-  body = StringField(default="")
-  
-  smsto = StringField(default="")
-  mailto = StringField(default="")
-  sender = StringField(default="filipp")
-  recipient = StringField(default="filipp")
+    meta = {"ordering": ["-id"]}
 
-  created_at = DateTimeField(default = datetime.now())
-  
-  order = ReferenceField(Order)
+    subject = StringField()
+    body = StringField(default="")
 
-  attachments = ListField(ReferenceField(Attachment))
+    smsto = StringField(default="")
+    mailto = StringField(default="")
+    sender = StringField(default="filipp")
+    recipient = StringField(default="filipp")
+
+    created_at = DateTimeField(default = datetime.now())
+
+    order = ReferenceField(Order)
+
+    attachments = ListField(ReferenceField(Attachment))
+
+    path = StringField() #threading!
+    flags = ListField()
   
-  path = StringField() #threading!
-  flags = ListField()
+    def indent(self):
+        return 1
   
-  def indent(self):
-    return 1
-  
-  def send_mail(self):
-    import smtplib
-    conf = Config.objects.first()
-    subject = "Huoltotilaus SRV#%d" %(self.order.number)
-    message = "\r\n".join(("From: %s" % conf.mail_from,
-      "To: %s" % self.mailto,
-      "Subject: %s" % subject,
-      "",
-      self.body))
+    def send_mail(self):
+        import smtplib
+        conf = Config.objects.first()
+        subject = "Huoltotilaus SRV#%d" %(self.order.number)
+        message = "\r\n".join(("From: %s" % conf.mail_from,
+          "To: %s" % self.mailto,
+          "Subject: %s" % subject,
+          "",
+          self.body))
+
+        server = smtplib.SMTP(conf.smtp_host)
+        server.sendmail(conf.mail_from, self.mailto, message)
+        server.quit()
     
-    server = smtplib.SMTP(conf.smtp_host)
-    server.sendmail(conf.mail_from, self.mailto, message)
-    server.quit()
-    
-  def send_sms(self):
-    conf = Config.objects[0]
-    import urllib
-    params = urllib.urlencode({"username": conf.sms_user,
-      "password": conf.sms_password,
-      "text" : self.body, "to" : self.smsto})
-    f = urllib.urlopen("%s?%s" %(conf.sms_url, params))
-    print f.read()
+    def send_sms(self):
+        conf = Config.objects[0]
+        import urllib
+        params = urllib.urlencode({"username": conf.sms_user,
+          "password": conf.sms_password,
+          "text" : self.body, "to" : self.smsto})
+        f = urllib.urlopen("%s?%s" %(conf.sms_url, params))
+        print f.read()
 
 class Template(Document):
   title = StringField(required = True)
