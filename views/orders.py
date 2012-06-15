@@ -6,85 +6,87 @@ from django.template import RequestContext
 from django.shortcuts import render, render_to_response, redirect
 from django.utils.datastructures import DotExpandedDict
 
-from bson.objectid import ObjectId
 from django.views.decorators.csrf import csrf_exempt
-from servo3.models import *
+from servo.models import *
 
 def index(req, param = None, value = None):
-  data = Order.objects.all()
-  if param == "status":
-    status = Status.objects(id = ObjectId(value)).first()
-    data = Order.objects(status = status)
-  
-  if param == "user":
-    user = User.objects(username = value).first()
-    data = Order.objects(user = user)
-  
-  if param == "customer":
-    customer = Customer.objects(id = ObjectId(value)).first()
-    data = Order.objects(customer = customer)
-    
-  return render(req, 'orders/index.html', {"data" : data})
-  
+    data = Order.objects.all()
+
+    if param == "status":
+        status = Status.objects.get(id = value)
+        data = status.order_set.all()
+
+    if param == "user":
+        user = User.objects.get(username = value)
+        data = user.order_set.all()
+
+    if param == "customer":
+        customer = Customer.objects(id = ObjectId(value)).first()
+        data = customer.order_set.all()
+
+    return render(req, 'orders/index.html', {'data' : data})
+
 def create(req):
-  o = Order(created_by = "filipp", created_at = datetime.now())
-  o.save()
-  # fire the creation event
-  e = Event(description = "Tilaus luotu", ref_order = o, type = "create_order")
-  e.save()
-  
-  return redirect("/orders/edit/" + str(o.id))
-  
+    user = User.objects.get(username = "filipp")
+    o = Order(created_by = user, created_at = datetime.now())
+    o.save()
+    # fire the creation event
+    e = Event(description = "Tilaus luotu", ref_order = o, type = "create_order")
+    e.save()
+
+    return redirect("/orders/edit/%d" % o.id)
+
 def tags(req, id):
-  if 'title' in req.POST:
-    order = Order.objects(id = ObjectId(id))[0]
-    title = req.POST['title']
+    if 'title' in req.POST:
+        order = Order.objects(id = ObjectId(id))[0]
+        title = req.POST['title']
     
     if title not in order.tags:
-      order.tags.append(title)
-      order.save()
+        order.tags.append(title)
+        order.save()
     
     if len(Tag.objects(title = title, type = 'order')) < 1:
-      tag = Tag(title = title, type = 'order')
-      tag.save()
+        tag = Tag(title = title, type = 'order')
+        tag.save()
     
     return HttpResponse(json.dumps({order.tags}), content_type = "application/json")
   
 def edit(req, id):
-  o = Order.objects(id=ObjectId(id)).first()
+    o = Order.objects.get(id = id)
 
-  req.session['order'] = o
-  queues = Queue.objects
-  users = User.objects
-  statuses = Status.objects
-  priorities = ['Matala', 'Normaali', 'Korkea']
+    req.session['order'] = o
+    
+    users = User.objects.all()
+    queues = Queue.objects.all()
+    statuses = Status.objects.all()
+    priorities = ['Matala', 'Normaali', 'Korkea']
 
-  return render(req, 'orders/edit.html', {
-    "order": o,
-    "queues": queues,
-    "users": users,
-    "statuses": statuses,
-    "priorities": priorities
-    })
+    return render(req, 'orders/edit.html', {
+        "order": o,
+        "queues": queues,
+        "users": users,
+        "statuses": statuses,
+        "priorities": priorities
+        })
 
 def remove(req, id = None):
-  if 'id' in req.POST:
-    order = Order.objects(id = ObjectId(req.POST['id'])).first()
-    Inventory.objects(slot = order).delete()
-    order.delete()
-    return HttpResponse('Tilaus poistettu')
-  else :
-    order = Order.objects(id = ObjectId(id))[0]
-    return render(req, 'orders/remove.html', order)
-    
-def follow(req, id):
-  order = Order.objects.with_id(ObjectId(id))
+    if 'id' in req.POST:
+        order = Order.objects(id = ObjectId(req.POST['id'])).first()
+        Inventory.objects(slot = order).delete()
+        order.delete()
+        return HttpResponse('Tilaus poistettu')
+    else :
+        order = Order.objects(id = ObjectId(id))[0]
+        return render(req, 'orders/remove.html', order)
 
-  if 'filipp' not in order.followers:
-    order.followers.append('filipp')
-    order.save()
+def follow(req, id):
+    order = Order.objects.with_id(ObjectId(id))
+
+    if 'filipp' not in order.followers:
+        order.followers.append('filipp')
+        order.save()
   
-  return HttpResponse('%d seuraa' % len(order.followers))
+    return HttpResponse('%d seuraa' % len(order.followers))
 
 @csrf_exempt
 def update(req, id):
@@ -186,7 +188,6 @@ def create_gsx_repair(req, order_id):
     })
     
 def submit_gsx_repair(req):
-  from gsx.views import submit_repair
   data = DotExpandedDict(req.POST)
   parts = []
   
@@ -238,25 +239,25 @@ def submit_gsx_repair(req):
   return HttpResponse("GSX korjaus luotu")
   
 def messages(req, order_id):
-  order = Order.objects(id = ObjectId(order_id)).first()
-  return render(req, "orders/messages.html", {"order": order})
+    order = Order.objects(id = ObjectId(order_id)).first()
+    return render(req, "orders/messages.html", {"order": order})
   
 def issues(req, order_id):
-  order = Order.objects(id = ObjectId(order_id)).first()
-  return render(req, "orders/issues.html", {"order": order})
+    order = Order.objects(id = ObjectId(order_id)).first()
+    return render(req, "orders/issues.html", {"order": order})
   
 def devices(req, order_id):
-  order = Order.objects(id = ObjectId(order_id)).first()
-  return render(req, "orders/devices.html", {"order": order})
+    order = Order.objects(id = ObjectId(order_id)).first()
+    return render(req, "orders/devices.html", {"order": order})
   
 def events(req, order_id):
-  order = Order.objects(id = ObjectId(order_id)).first()
-  return render(req, "orders/events.html", {"order": order})
+    order = Order.objects(id = ObjectId(order_id)).first()
+    return render(req, "orders/events.html", {"order": order})
   
 def customer(req, order_id):
-  order = Order.objects(id = ObjectId(order_id)).first()
-  return render(req, "orders/customer.html", {"order": order})
+    order = Order.objects(id = ObjectId(order_id)).first()
+    return render(req, "orders/customer.html", {"order": order})
 
 def products(req, order_id):
-  order = Order.objects(id = ObjectId(order_id)).first()
-  return render(req, "orders/products.html", {"order": order})
+    order = Order.objects(id = ObjectId(order_id)).first()
+    return render(req, "orders/products.html", {"order": order})

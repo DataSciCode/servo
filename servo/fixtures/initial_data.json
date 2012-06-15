@@ -1,0 +1,18 @@
+[
+    {
+        "model": "servo.location",
+        "pk": 1,
+        "fields": {
+            "title": "Huolto"
+        }
+    },
+    {
+        "model": "servo.user",
+        "pk": 1,
+        "fields": {
+            "username": "filipp",
+            "fullname": "Filipp Lepalaan",
+            "location": 1
+        }
+    }
+]

@@ -137,6 +137,7 @@ def users(req):
     return render(req, 'admin/users.html', {'users': users})
   
 def edit_user(req, id=None):
+    print "lalalala"
     user = User()
     locations = Location.objects.all()
 
@@ -144,7 +145,7 @@ def edit_user(req, id=None):
         user = User.objects.get(id = id)
     
     return render(req, 'admin/user_form.html', {'user': user, 'locations': locations})
-  
+
 def locations(req):
     locations = Location.objects.all()
     return render(req, 'admin/locations.html', {'locations': locations})
