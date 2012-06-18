@@ -5,7 +5,7 @@
 <div class="small_block listView" id="templates" data-url="/admin/templates/">
 	<ul>
 {% for t in templates %}
-		<li class="{% cycle "odd" "even" %}" data-url="/templates/edit/{{ t.id }}">{{ t.title }}</li>
+		<li class="{% cycle "odd" "even" %}" data-url="/templates/edit/{{ t.id }}">{{ t.subject }}</li>
 {% endfor %}
 	</ul>
 </div>

@@ -367,7 +367,7 @@ var SidebarView = Backbone.View.extend(
         "click .follow"	    : "follow",
         "click .head"		: "toggle",
         "change select"		: "update_order",
-        "click ul li ul li" : "select",
+        //"click ul li ul li" : "select",
     }
 ,
     initialize: function()
@@ -582,7 +582,7 @@ var ListView = Backbone.View.extend(
 
 var DetailView = Backbone.View.extend(
 {
-	el: "div.detailView"
+    el: "div.detailView"
 });
 
 var ServoApp = Backbone.Router.extend(

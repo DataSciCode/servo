@@ -12,14 +12,14 @@ def logout(req):
 def login(req):
     if "email" in req.POST:
         pw = hashlib.sha1(req.POST['password']).hexdigest()
-        user = User.objects(email = req.POST['email'], password = pw).first()
+        user = User.objects.get(email = req.POST['email'], password = pw)
     
-    if user:
-        req.session['user'] = user
-        return redirect("/orders/index/user/%s" %(user.username))
+        if user:
+            req.session['user'] = user
+            return redirect("/orders/index/user/%s" %(user.username))
       
     return render(req, "users/login.html")
-  
+
 def settings(req):
     if req.method == "POST":
         req.session['user'].phone = req.POST['phone']

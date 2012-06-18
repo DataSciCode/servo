@@ -17,13 +17,13 @@
     <input type="text" name="name" value="{{ customer.name }}">
     <a href="javascript:;" class="search" data-url="/customer/search"></a>
 
-{% for key, value in customer.properties.items %}
+{% for p in customer.properties %}
 
     <div class="property">
         <select name="keys">
-          <option>{{ key }}</option>
+            <option>{{ p.key }}</option>
 		</select>
-		<input type="text" name="values" value="{{ value }}"/>
+		<input type="text" name="values" value="{{ p.value }}"/>
 	</div>
 
 {% endfor %}

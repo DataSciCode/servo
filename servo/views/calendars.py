@@ -2,16 +2,15 @@ from django.shortcuts import render
 from django.http import HttpResponse
 
 from datetime import datetime, timedelta
-
 from servo.models import Calendar, CalendarEvent
 
 def edit(req, id):
 	pass
 
 def index(req):
-  calendars = Calendar.objects(user = req.session.get("user"))
-  return render(req, "calendars/index.html", {"calendars": calendars})
-  
+	calendars = Calendar.objects.filter(user = req.session.get("user"))
+	return render(req, "calendars/index.html", {"calendars": calendars})
+ 
 def create(req):
 	calendar = Calendar()
 	return render(req, "calendars/form.html", {"calendar": calendar})

@@ -4,13 +4,13 @@
 {% if issue.id %}
     <input type="hidden" name="id" value="{{ issue.id }}"/>
 {% else %}
-  <input type="hidden" name="order" value="{{ issue.order }}"/>
+  <input type="hidden" name="order" value="{{ issue.order.id }}"/>
 {% endif %}
   
   <select class="label chooser" rel="symptom">
     <option value="0">{% trans "Ongelma" %}…</option>
 {% for tpl in templates %}
-  <option value="{{ tpl.id }}">{{ tpl.title }}</option>
+  <option value="{{ tpl.id }}">{{ tpl.subject }}</option>
 {% endfor %}
    </select>
    
@@ -19,7 +19,7 @@
     <select class="label chooser" rel="diagnosis">
       <option value="0">{% trans "Diagnoosi" %}…</option>
 {% for tpl in templates %}
-      <option value="{{ tpl.id }}">{{ tpl.title }}</option>
+      <option value="{{ tpl.id }}">{{ tpl.subject }}</option>
 {% endfor %}
    </select>
 
@@ -28,7 +28,7 @@
     <select class="label chooser" rel="solution">
         <option value="0">{% trans "Ratkaisu" %}…</option>
 {% for tpl in templates %}
-          <option value="{{ tpl.id }}">{{ tpl.title }}</option>
+          <option value="{{ tpl.id }}">{{ tpl.subject }}</option>
 {% endfor %}
    </select>
 	<textarea id="solution" name="solution">{{ issue.solution }}</textarea>

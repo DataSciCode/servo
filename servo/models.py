@@ -2,13 +2,50 @@
 from django.db import models
 from datetime import datetime
 
+class Configuration(models.Model):
+    company_name = models.CharField(max_length=255)
+    # the default margin percent for new products
+    pct_margin = models.DecimalField(decimal_places=2, max_digits=4)
+    repair_rate = models.DecimalField(decimal_places=2, max_digits=4)
+    # default VAT for new products
+    pct_vat = models.DecimalField(decimal_places=2, max_digits=4)
+    encryption_key = models.CharField(max_length=64)
+
+    mail_from = models.EmailField(default = 'servo@example.com')
+    imap_host = models.CharField(max_length=255)
+    imap_user = models.CharField(max_length=32)
+    imap_password = models.CharField(max_length=32)
+    imap_ssl = models.BooleanField(default=True)
+    smtp_host = models.CharField(max_length=32)
+
+    sms_url = models.CharField(max_length=255)
+    sms_user = models.CharField(max_length=32)
+    sms_password = models.CharField(max_length=32)
+
+class Property(models.Model):
+    title = models.CharField(max_length=255)
+    type = models.CharField(max_length=32)
+    format = models.CharField(max_length=32)
+
 class Customer(models.Model):
-    name = models.CharField(default="Uusi asiakas", max_length=255)
-    """path is a comma-separated list of Customer ids with the last one always being the
-    current customer
+    name = models.CharField(default = 'Uusi asiakas', max_length=255)
+    """path is a comma-separated list of Customer ids 
+    with the last one always being the current customer
     """
-    path = models.TextField()
-    #properties = DictField()
+    path = models.CharField(max_length=255)
+
+    def property(self, key):
+        result = None
+        """return the value of a specific property"""
+        ci = ContactInfo.objects.filter(customer = self)
+        for i in ci:
+            if i.key == key:
+                result = key.value
+
+        return result
+
+    def properties(self):
+        return ContactInfo.objects.filter(customer = self)
 
     def get_indent(self):
         """docstring for get_indent"""
@@ -20,7 +57,7 @@ class Customer(models.Model):
         title = []
 
         for c in self.path.split(','):
-            customer = Customer.objects(id = ObjectId(c))[0]
+            customer = Customer.objects.get(pk = c)
             title.append(customer.name)
 
         title.reverse()
@@ -32,14 +69,19 @@ class Customer(models.Model):
         """
         props = {}
         for c in self.path.split(','):
-            parent = Customer.objects(id = ObjectId(c))[0]
-            for key, value in parent.properties.items():
-                props[key] = value
-
+            parent = Customer.objects.get(pk = c)
+            for r in parent.properties():
+                props[r.key] = r.value
+                
         return props
 
     def __unicode__(self):
         return self.name
+
+class ContactInfo(models.Model):
+    customer = models.ForeignKey(Customer, null=True)
+    key = models.CharField(max_length=255)
+    value = models.CharField(max_length=255)
 
 class Location(models.Model):
     title = models.CharField(default = "Uusi sijainti", max_length=255)
@@ -50,17 +92,6 @@ class Location(models.Model):
     shipto = models.CharField(max_length=32)
     zip = models.CharField(max_length=8)
     city = models.CharField(max_length=16)
-
-class Attachment(models.Model):
-    name = models.CharField(default="Uusi tiedosto", max_length=255)
-    content = models.FileField(upload_to="attachments")
-    content_type = models.CharField(max_length=64)
-    description = models.TextField()
-    uploaded_by = models.CharField(default="filipp", max_length=32)
-    uploaded_at = models.DateTimeField(default=datetime.now())
-    updated_at = models.DateTimeField(default=datetime.now())
-
-    tags = models.TextField()
 
 class Spec(models.Model):
     title = models.CharField(max_length=255)
@@ -85,7 +116,7 @@ class Device(models.Model):
     notes = models.TextField()
 
     #gsx_data = DictField()
-    spec = models.ForeignKey('Spec')
+    spec = models.ForeignKey(Spec)
 
 class Product(models.Model):
     #gsx_data = DictField()
@@ -107,8 +138,6 @@ class Product(models.Model):
 
     amount_minimum = models.IntegerField(default = 0)
     is_serialized = models.BooleanField(default = False)
-
-    attachments = models.ForeignKey('Attachment')
   
     def tax(self):
         return self.price_sales - self.price_notax
@@ -143,30 +172,7 @@ class Product(models.Model):
 class Tag(models.Model):
     title = models.CharField(default = 'Uusi tagi', max_length=255)
     type = models.CharField(max_length=32)
-  
-class Configuration(models.Model):
-    company_name = models.CharField(max_length=255)
-    pct_margin = models.DecimalField(decimal_places=2, max_digits=4) # the default margin percent for new products
-    repair_rate = models.DecimalField(decimal_places=2, max_digits=4)
-    pct_vat = models.DecimalField(decimal_places=2, max_digits=4) # default VAT for new products
-    encryption_key = models.CharField(max_length=64)
 
-    mail_from = models.EmailField(default = 'servo@example.com')
-    imap_host = models.CharField(max_length=255)
-    imap_user = models.CharField(max_length=32)
-    imap_password = models.CharField(max_length=32)
-    imap_ssl = models.BooleanField(default=True)
-    smtp_host = models.CharField(max_length=32)
-
-    sms_url = models.CharField(max_length=255)
-    sms_user = models.CharField(max_length=32)
-    sms_password = models.CharField(max_length=32)
-  
-class Field(models.Model):
-    title = models.CharField(max_length=255)
-    type = models.CharField(max_length=32)
-    format = models.CharField(max_length=32)
-  
 class User(models.Model):
     email = models.EmailField()
     username = models.CharField(max_length=64)
@@ -185,10 +191,6 @@ class GsxRepair(models.Model):
     #customer_data = DictField()
     symptom = models.TextField()
     diagnosis = models.TextField()
-
-class Template(models.Model):
-    title = models.CharField(max_length=64)
-    body = models.TextField()
   
 class CalendarEvent(models.Model):
     started_at = models.DateTimeField(default = datetime.now())
@@ -215,9 +217,9 @@ class Invoice(models.Model):
     paid_at = models.DateTimeField()
     payment_method = models.CharField(max_length=128)
 
-    customer = models.ForeignKey('Customer')
+    customer = models.ForeignKey(Customer)
     customer_info = models.TextField()
-    products = models.ForeignKey('InvoiceItem')
+    products = models.ForeignKey(InvoiceItem)
 
     total_tax = models.DecimalField(max_digits=4, decimal_places=2)
     total_margin = models.DecimalField(max_digits=4, decimal_places=2)
@@ -233,11 +235,11 @@ class PurchaseOrder(models.Model):
     date_ordered = models.DateTimeField()
     date_arrived = models.DateTimeField()
 
+    products = models.ForeignKey(PoItem)
     carrier = models.CharField(max_length=32)
     supplier = models.CharField(max_length=32)
     tracking_id = models.CharField(max_length=128)
     days_delivered = models.IntegerField()
-    products = models.ForeignKey('PoItem')
 
     def sum(self):
         total = 0
@@ -275,25 +277,27 @@ class GsxAccount(models.Model):
     environment = models.CharField(max_length=3)
     is_default = models.BooleanField(default=True)
 
-class Property(models.Model):
-	key = models.CharField(max_length=32)
-	value = models.TextField()
+class QueueStatus(models.Model):
+    FACTORS = (
+        ('60', 'Minuuttia'),\
+        ('3600', 'Tuntia'),\
+        ('86400', 'Päivää'),\
+        ('604800', 'Viikkoa')
+    )
 
-class Status(models.Model):
-    FACTORS = (('60', 'Minuuttia'), ('3600', 'Tuntia'), ('86400', 'Päivää'), ('604800', 'Viikkoa'))
-    
-    title = models.CharField(default = 'Uusi status', max_length=255)
-    description = models.TextField()
     limit_green = models.IntegerField()
     limit_yellow = models.IntegerField()
     limit_factor = models.IntegerField()
+
+class Status(models.Model):
+    title = models.CharField(default = 'Uusi status', max_length=255)
+    description = models.TextField()
     
 class Queue(models.Model):
     title = models.CharField(default = "Uusi jono", max_length=255)
-    description = models.TextField()
-    gsx_account = models.ForeignKey(GsxAccount)
+    description = models.TextField(null=True)
+    gsx_account = models.ForeignKey(GsxAccount, null=True)
     statuses = models.ManyToManyField(Status)
-    attachments = models.ForeignKey(Attachment)
 
 class Order(models.Model):
     priority = models.IntegerField(default = 1)
@@ -307,12 +311,13 @@ class Order(models.Model):
     devices = models.ForeignKey(Device, null=True)
     user = models.ForeignKey(User, null=True)
     
-    created_by = models.ForeignKey(User, related_name="created_by")
+    created_by = models.ForeignKey(User, related_name = "created_by")
 
     queue = models.ForeignKey(Queue, null=True)
     status = models.ForeignKey(Status, null=True)
 
-    state = models.CharField(default = "unassigned", max_length=16) # unassigned, open or closed
+    STATES = ('unassigned', 'open', 'closed')
+    state = models.CharField(default = "unassigned", max_length=16)
 
     status_limit_green = models.IntegerField(null=True)   # timestamp in seconds
     status_limit_yellow = models.IntegerField(null=True)  # timestamp in seconds
@@ -320,7 +325,13 @@ class Order(models.Model):
     #gsx_repairs = models.TextField(DictField())
 
     def issues(self):
-        pass
+        return Issue.objects.filter(order = self)
+
+    def messages(self):
+        return Message.objects.filter(order = self)
+
+    def events(self):
+        return Event.objects.filter(order = self)
 
     def total(self):
         total = 0
@@ -383,54 +394,45 @@ class Order(models.Model):
                 return self.devices[0].spec.id
             except AttributeError, e:
                 pass
-  
-    def events(self):
-        return Event.objects(ref_order = self)
 
 class Event(models.Model):
     description = models.CharField(max_length=255)
     created_by = models.CharField(default = "filipp", max_length=32)
     created_at = models.DateTimeField(default = datetime.now())
     handled_at = models.DateTimeField(null=True)
-    ref_order = models.ForeignKey(Order)
+    order = models.ForeignKey(Order)
     type = models.CharField(max_length=32)
 
 class Issue(models.Model):
-    symptom = models.TextField(default="")
-    diagnosis = models.TextField(default="")
-    solution = models.TextField(default="")
-    
-    diagnosed_at = models.DateTimeField()
-    diagnosed_by = models.ForeignKey(User, related_name="diagnosed_by")
-    
-    solved_at = models.DateTimeField()
-    solved_by = models.ForeignKey(User, related_name="solved_by")
+    symptom = models.TextField(default='')
+    diagnosis = models.TextField(default='')
+    solution = models.TextField(default='')
     
     created_at = models.DateTimeField(default=datetime.now())
-    created_by = models.CharField(default="filipp", max_length=32)
+    created_by = models.CharField(default = "filipp", max_length=32)
     order = models.ForeignKey(Order)
 
 class Message(models.Model):
     subject = models.CharField(max_length=255)
     body = models.TextField(default="")
 
-    smsto = models.CharField(default="", max_length=32)
-    mailto = models.EmailField()
+    smsto = models.CharField(default="", max_length=32, null=True)
+    mailto = models.EmailField(default="", null=True)
     sender = models.CharField(max_length=64)
     recipient = models.CharField(max_length=64)
     created_at = models.DateTimeField(default = datetime.now())
-    order = models.ForeignKey(Order)
-    attachments = models.ForeignKey(Attachment)
+    order = models.ForeignKey(Order, null=True)
 
-    path = models.TextField() #threading!
-    flags = models.TextField()
-  
+    path = models.CharField(max_length=255) #threading!
+    flags = models.CharField(max_length=255, null=True)
+    is_template = models.BooleanField(default = False)
+    
     def indent(self):
         return 1
   
     def send_mail(self):
         import smtplib
-        conf = Config.objects.first()
+        conf = Configuration.objects.get()
         subject = "Huoltotilaus SRV#%d" %(self.order.number)
         message = "\r\n".join(("From: %s" % conf.mail_from,
           "To: %s" % self.mailto,
@@ -443,10 +445,28 @@ class Message(models.Model):
         server.quit()
     
     def send_sms(self):
-        conf = Config.objects[0]
+        conf = Configuration.objects[0]
         import urllib
         params = urllib.urlencode({"username": conf.sms_user,
           "password": conf.sms_password,
           "text" : self.body, "to" : self.smsto})
-        f = urllib.urlopen("%s?%s" %(conf.sms_url, params))
+
+        f = urllib.urlopen('%s?%s' %(conf.sms_url, params))
         print f.read()
+
+class Attachment(models.Model):
+    name = models.CharField(default="Uusi tiedosto", max_length=255)
+    content = models.FileField(upload_to="attachments")
+    content_type = models.CharField(max_length=64)
+    description = models.TextField(null=True)
+    uploaded_by = models.CharField(default="filipp", max_length=32)
+    uploaded_at = models.DateTimeField(default=datetime.now())
+    updated_at = models.DateTimeField(default=datetime.now())
+
+    tags = models.TextField()
+
+    queue = models.ForeignKey(Queue, null=True)
+    device = models.ForeignKey(Device, null=True)
+    product = models.ForeignKey(Product, null=True)
+    message = models.ForeignKey(Message, null=True)
+    customer = models.ForeignKey(Customer, null=True)

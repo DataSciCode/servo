@@ -11,7 +11,7 @@ def lookup(req, what):
     collection = "device"
   
     # @todo Use the order's queue's GSX account, then revert to default
-    act = GsxAccount.objects(is_default = True).first()
+    act = GsxAccount.objects.get(is_default = True)
     gsx = Gsx(act.sold_to, act.username, act.password)
 
     query = req.POST.get('q')
@@ -50,7 +50,7 @@ def lookup(req, what):
                 pass
     
     if what == "device-local":
-        local = Device.objects(sn__istartswith = query)
+        local = Device.objects.filter(sn__istartswith = query)
         for d in local:
             results.append({'id': d.id, 'title': d.sn, 'description': d.description})
     
@@ -63,7 +63,7 @@ def lookup(req, what):
   
     if what == "customer":
         collection = "customer"
-        customers = Customer.objects(name__istartswith = query)
+        customers = Customer.objects.filter(name__istartswith = query)
     
         for r in customers:
             results.append({'id': r.id, 'title': r.name})

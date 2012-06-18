@@ -1,8 +1,8 @@
 {% load i18n %}
 <form action="/orders/remove" method="post" accept-charset="utf-8" rel="orders">
   {% csrf_token %}
-  <input type="hidden" name="id" value="{{ id }}" />
+  <input type="hidden" name="id" value="{{ order.id }}" />
   <img src="/static/images/alert_48.png" alt="alert" class="alert"/>
-  <h2>{% blocktrans %} Haluatko poistaa tilauksen {{ number }}? {% endblocktrans %}</h2>
+  <h2>{% blocktrans %} Haluatko poistaa tilauksen {{ order.id }}? {% endblocktrans %}</h2>
   <p>{% trans 'Tämä poistaa myös tilaukseen lisätyt tehtävät ja tapahtumat. Toimintoa ei voi peruuttaa.' %}</p>
 </form>

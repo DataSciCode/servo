@@ -27,7 +27,7 @@ def settings(req):
         return render(req, 'admin/settings.html', config)
 
 def status(req):
-    statuses = Status.objects
+    statuses = Status.objects.all()
     return render(req, 'admin/status.html', {'statuses': statuses})
 
 def status_form(req, id = None):
@@ -44,23 +44,23 @@ def status_save(req):
     status.save()
 
 def gsx_accounts(req):
-    accounts = GsxAccount.objects
-    return render(req, 'admin/gsx_accounts.html', {'accounts': accounts })
+    accounts = GsxAccount.objects.all()
+    return render(req, 'admin/gsx_accounts.html', {'accounts': accounts})
 
 def gsx_form(req, id = None):
-  act = GsxAccount()
+    act = GsxAccount()
   
-  if id:
-    act = GsxAccount.objects(id = ObjectId(id)).first()
+    if id:
+        act = GsxAccount.objects.get(pk = id)
     
-  envs = {'': 'Tuotanto', 'it': 'Kehitys', 'ut': 'Testaus'}
-  return render(req, 'admin/gsx_form.html', {'account': act, 'environments': envs})
+    envs = {'': 'Tuotanto', 'it': 'Kehitys', 'ut': 'Testaus'}
+    return render(req, 'admin/gsx_form.html', {'account': act, 'environments': envs})
 
 def gsx_save(req):
     act = GsxAccount()
 
     if 'id' in req.POST:
-        act = GsxAccount.objects(id = req.POST['id']).first()
+        act = GsxAccount.objects.get(pk = req.POST['id'])
 
     act.title = req.POST['title']
     act.sold_to = req.POST['sold_to']
@@ -77,22 +77,22 @@ def gsx_remove(req):
     pass
 
 def fields(req):
-    fields = Field.objects.all()
+    fields = Property.objects.all()
     return render(req, 'admin/fields.html', {'fields' : fields})
 
-def edit_field(req, id=None):
-    field = Field()
+def edit_field(req, id = None):
+    field = Property()
 
-    if(id):
-        field = Field.objects.get(id=id)
+    if id:
+        field = Property.objects.get(pk = id)
     
     return render(req, 'admin/field_form.html', {'field': field})
 
 def save_field(req):
-    if(req.POST['id']):
-        field = Field(id=ObjectId(req.POST['id']))
+    if 'id' in req.POST:
+        field = Property.objects.get(id = req.POST['id'])
     else:
-        field = Field()
+        field = Property()
 
     field.title = req.POST['title']
     field.type = req.POST['type']
@@ -112,37 +112,38 @@ def remove_field(req, id=None):
     return render(req, 'admin/field_remove.html', field)
 
 def templates(req):
-    return render(req, 'admin/templates.html', {'templates': Template.objects})
+    templates = Message.objects.filter(is_template = True)
+    return render(req, 'admin/templates.html', {'templates': templates})
 
 def create_template(req):
     return render(req, 'admin/template_form.html')
 
 def save_template(req):
-    template = Template()
+    template = Message(is_template = True)
 
     if 'id' in req.POST:
-        template = Template.objects(id = ObjectId(req.POST['id']))[0]
+        template = Message.objects.get(pk = req.POST['id'])
 
-    template.title = req.POST['title']
+    template.subject = req.POST['title']
     template.body = req.POST['body']
     template.save()
 
     return HttpResponse('Pohja tallennettu')
 
 def view_template(req, id):
-    t = Template.objects(id = ObjectId(id))[0]
+    t = Message.objects.get(pk = id)
     return HttpResponse(t.body)
   
 def users(req):
     users = User.objects.all()
     return render(req, 'admin/users.html', {'users': users})
   
-def edit_user(req, id=None):
+def edit_user(req, id = None):
     user = User()
     locations = Location.objects.all()
 
     if id:
-        user = User.objects.get(id = id)
+        user = User.objects.get(pk = id)
     
     return render(req, 'admin/user_form.html', {'user': user, 'locations': locations})
   
@@ -152,10 +153,10 @@ def locations(req):
 
 def edit_location(req, id=None):
     location = Location()
-  
+    
     if id:
         location = Location.objects(id  = ObjectId(id)).first()
-  
+    
     return render(req, 'admin/location_form.html', {'location': location})
 
 def save_location(req):

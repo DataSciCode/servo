@@ -3,15 +3,15 @@ from django.shortcuts import render
 from django.http import HttpResponse
 
 def create(req, order_id=None):
-  p = Product()
-  return render(req, "products/form.html", {"product": p})
+    p = Product()
+    return render(req, "products/form.html", {"product": p})
 
 def index(req):
-  req.session['order'] = None
-  data = Product.objects.all()
-  tags = Tag.objects(type = "product").all()
+    req.session['order'] = None
+    data = Product.objects.all()
+    tags = Tag.objects.filter(type = "product")
 
-  return render(req, "products/index.html", {"data": data, "tags": tags})
+    return render(req, "products/index.html", {"data": data, "tags": tags})
   
 def edit(req, id):
   if id in req.session.get('gsx_data'):
@@ -95,21 +95,20 @@ def save(req):
   return HttpResponse("Tuote tallennettu")
   
 def search(req):
-  return render(req, "products/search.html")
+    return render(req, "products/search.html")
   
 def reserve(req, order_id = None):
-  if req.method == "POST":
-    order = Order.objects(id=ObjectId(req.POST['id'])).first()
-    Inventory.objects(slot=order).delete()
+    if req.method == "POST":
+        order = Order.objects(id=ObjectId(req.POST['id'])).first()
+        Inventory.objects(slot=order).delete()
     
-    for p in order.products:
-      i = Inventory(slot=order, product=p.product, sn=p.sn, kind="order")
-      i.save()
+        for p in order.products:
+            i = Inventory(slot=order, product=p.product, sn=p.sn, kind="order")
+            i.save()
     
-    Event(description = "Tilauksen tuotteet varattu", ref_order = order,
-      type = "products_reserved").save()
-    return HttpResponse("Tuotteet varattu")
-  else:
-    order = Order.objects(id = ObjectId(order_id)).first()
-    return render(req, "products/reserve.html", order)
-  
+        Event(description = "Tilauksen tuotteet varattu", ref_order = order,
+            type = "products_reserved").save()
+        return HttpResponse("Tuotteet varattu")
+    else:
+        order = Order.objects(id = ObjectId(order_id)).first()
+        return render(req, "products/reserve.html", order)

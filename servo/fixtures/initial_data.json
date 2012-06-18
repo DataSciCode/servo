@@ -1,7 +1,21 @@
 [
     {
-        "model": "servo.field"
-    }
+        "model": "servo.queue",
+        "pk": 1,
+        "fields": {
+            "title": "Apple laitteet",
+            "description": ""
+        }
+    },
+    {
+        "model": "servo.property",
+        "pk": 1,
+        "fields": {
+            "title": "Puhelin",
+            "type": "customer",
+            "format": ""
+        }
+    },
     {
         "model": "servo.location",
         "pk": 1,
@@ -13,9 +27,11 @@
         "model": "servo.user",
         "pk": 1,
         "fields": {
+            "location": 1,
             "username": "filipp",
             "fullname": "Filipp Lepalaan",
-            "location": 1
+            "email": "filipp@mcare.fi",
+            "password": "7110eda4d09e062aa5e4a390b0a572ac0d2c0220"
         }
     }
 ]
