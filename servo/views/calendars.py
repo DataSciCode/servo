@@ -1,10 +1,9 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 
-from bson import ObjectId
 from datetime import datetime, timedelta
 
-from servo3.models import Calendar, CalendarEvent
+from servo.models import Calendar, CalendarEvent
 
 def edit(req, id):
 	pass

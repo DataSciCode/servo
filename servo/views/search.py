@@ -1,4 +1,4 @@
-from servo3.models import Device, Product, Customer, GsxAccount
+from servo.models import Device, Product, Customer, GsxAccount
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt

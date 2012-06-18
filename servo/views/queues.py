@@ -1,8 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-
-from bson.objectid import ObjectId
-from servo3.models import *
+from servo.models import *
 
 def index(req):
   queues = Queue.objects

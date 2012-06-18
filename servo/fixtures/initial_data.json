@@ -1,5 +1,8 @@
 [
     {
+        "model": "servo.field"
+    }
+    {
         "model": "servo.location",
         "pk": 1,
         "fields": {

@@ -5,7 +5,7 @@ from django.utils.translation import ugettext as _
 # from django.contrib import admin
 # admin.autodiscover()
 
-urlpatterns = patterns('',
+urlpatterns = patterns('servo',
   
   url(r'^$', 'views.orders.index'),
   url(r'^document/save$', 'views.documents.save'),
@@ -83,8 +83,8 @@ urlpatterns = patterns('',
   url(r'^admin/fields/$', 'views.admin.fields'),
   url(r'^admin/fields/edit/$', 'views.admin.edit_field'),
   url(r'^admin/settings$', 'views.admin.settings'),
-  url(r'^admin/users$', 'servo.views.admin.users'),
-  url(r'^admin/user/create$', 'servo.views.admin.edit_user'),
+  url(r'^admin/users$', 'views.admin.users'),
+  url(r'^admin/user/create$', 'views.admin.edit_user'),
   url(r'^admin/locations$', 'views.admin.locations'),
   url(r'^admin/location/create$', 'views.admin.edit_location'),
   url(r'^location/edit/(\w+)$', 'views.admin.edit_location'),

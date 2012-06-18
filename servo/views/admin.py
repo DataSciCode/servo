@@ -6,7 +6,6 @@ from django.template import RequestContext
 from django.shortcuts import get_object_or_404, render, redirect
 from django.http import HttpResponse
 
-from bson.objectid import ObjectId
 from servo.models import *
 
 def settings(req):
@@ -32,13 +31,13 @@ def status(req):
     return render(req, 'admin/status.html', {'statuses': statuses})
 
 def status_form(req, id = None):
-  status = Status()
-  if id:
-    status = Status.objects(id = ObjectId(id))[0]
+    status = Status()
+    if id:
+        status = Status.objects(id = ObjectId(id))[0]
+
+    queues = Queue.objects
     
-  queues = Queue.objects
-  factors = {'60': 'Minuuttia', '3600': 'Tuntia', '86400': 'Päivää', '604800': 'Viikkoa'}
-  return render(req, 'admin/status_form.html', {'status': status, 'queues': queues, 'factors': factors})
+    return render(req, 'admin/status_form.html', {'status': status, 'queues': queues})
 
 def status_save(req):
     status = Status(title=req.POST['title'], description=req.POST['description'])
@@ -78,14 +77,16 @@ def gsx_remove(req):
     pass
 
 def fields(req):
-    return render(req, 'admin/fields.html', {'fields' : Field.objects})
+    fields = Field.objects.all()
+    return render(req, 'admin/fields.html', {'fields' : fields})
 
 def edit_field(req, id=None):
     field = Field()
+
     if(id):
-        field = Field.objects(id=ObjectId(id))[0]
+        field = Field.objects.get(id=id)
     
-    return render(req, 'admin/field_form.html', field)
+    return render(req, 'admin/field_form.html', {'field': field})
 
 def save_field(req):
     if(req.POST['id']):
@@ -137,7 +138,6 @@ def users(req):
     return render(req, 'admin/users.html', {'users': users})
   
 def edit_user(req, id=None):
-    print "lalalala"
     user = User()
     locations = Location.objects.all()
 
@@ -145,7 +145,7 @@ def edit_user(req, id=None):
         user = User.objects.get(id = id)
     
     return render(req, 'admin/user_form.html', {'user': user, 'locations': locations})
-
+  
 def locations(req):
     locations = Location.objects.all()
     return render(req, 'admin/locations.html', {'locations': locations})

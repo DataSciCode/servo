@@ -1,5 +1,5 @@
 import hashlib
-from servo3.models import User, Location
+from servo.models import User, Location
 from django.shortcuts import redirect, render
 from django.http import HttpResponse
 

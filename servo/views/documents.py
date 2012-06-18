@@ -4,9 +4,7 @@ import json, mimetypes
 
 from django.http import HttpResponse
 from django.shortcuts import render
-from bson.objectid import ObjectId
-
-from servo3.models import Attachment, Invoice, Configuration
+from servo.models import Attachment, Invoice, Configuration
 
 def barcode(req, text):
   import barcode

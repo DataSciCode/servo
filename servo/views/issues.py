@@ -1,10 +1,9 @@
 # coding=utf-8
 
-from bson.objectid import ObjectId
 from django.shortcuts import render
 from django.http import HttpResponse
 
-from servo3.models import Issue, Template, Order
+from servo.models import Issue, Template, Order
 
 def index(req):
   pass

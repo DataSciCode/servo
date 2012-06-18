@@ -1,12 +1,12 @@
 {% load i18n %}
 <form method="post" action="/admin/fields/save/" accept-charset="utf-8" rel="fields">
   {% csrf_token %}
-	<input type="hidden" name="id" value="{{ id }}"/>
+	<input type="hidden" name="id" value="{{ field.id }}"/>
 	<label>{% trans 'Otsikko' %}:</label>
-	<input type="text" id="title" name="title" value="{{ title }}"/>
+	<input type="text" id="title" name="title" value="{{ field.title }}"/>
 	<br/>
 	<label>{% trans 'Muoto' %}:</label>
- 	<input type="text" id="format" name="format" value="{{ format }}"/>
+ 	<input type="text" id="format" name="format" value="{{ field.format }}"/>
  	<br/>
  	<label>{% trans 'Tyyppi' %}:</label>
  	<select name="type">

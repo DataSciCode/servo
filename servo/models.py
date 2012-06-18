@@ -1,8 +1,6 @@
 #coding=utf-8
-
 from django.db import models
 from datetime import datetime
-from servo3.models import Attachment, Customer, Product, Device, User
 
 class Customer(models.Model):
     name = models.CharField(default="Uusi asiakas", max_length=255)
@@ -282,11 +280,13 @@ class Property(models.Model):
 	value = models.TextField()
 
 class Status(models.Model):
-	title = models.CharField(default = "Uusi status", max_length=255)
-	description = models.TextField()
-	limit_green = models.IntegerField()
-	limit_yellow = models.IntegerField()
-	limit_factor = models.IntegerField()
+    FACTORS = (('60', 'Minuuttia'), ('3600', 'Tuntia'), ('86400', 'Päivää'), ('604800', 'Viikkoa'))
+    
+    title = models.CharField(default = 'Uusi status', max_length=255)
+    description = models.TextField()
+    limit_green = models.IntegerField()
+    limit_yellow = models.IntegerField()
+    limit_factor = models.IntegerField()
     
 class Queue(models.Model):
     title = models.CharField(default = "Uusi jono", max_length=255)
@@ -318,8 +318,9 @@ class Order(models.Model):
     status_limit_yellow = models.IntegerField(null=True)  # timestamp in seconds
     
     #gsx_repairs = models.TextField(DictField())
-    
-    issues = models.ForeignKey(Issue)
+
+    def issues(self):
+        pass
 
     def total(self):
         total = 0
@@ -407,6 +408,7 @@ class Issue(models.Model):
     
     created_at = models.DateTimeField(default=datetime.now())
     created_by = models.CharField(default="filipp", max_length=32)
+    order = models.ForeignKey(Order)
 
 class Message(models.Model):
     subject = models.CharField(max_length=255)

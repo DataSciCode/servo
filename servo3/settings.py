@@ -117,8 +117,7 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.sessions',
-    'views', 'gsxlib', 'servo'
+    'servo'
     # Uncomment the next line to enable the admin:
     # 'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
@@ -154,7 +153,7 @@ LOGGING = {
     }
 }
 
-SESSION_ENGINE = 'mongoengine.django.sessions'
+SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.request",

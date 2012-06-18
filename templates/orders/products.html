@@ -2,7 +2,7 @@
 <table>
   <thead><tr><th colspan="5">{% trans "Tuotteet" %}</th></tr></thead>
   <tbody>
-{% for item in order.products %}
+{% for item in order.products_set %}
     <tr data-url="/products/edit/order/{{ forloop.counter0 }}" class="{% cycle 'odd' 'even' %}">
       <td><a href="/products/edit/order/{{ forloop.counter0 }}" class="popup">{{ item.product.code }}</a></td>
       <td>{{ item.product.title }}</td>

@@ -1,33 +1,32 @@
 import re
 from django.shortcuts import render
 from django.http import HttpResponse
-
-from bson.objectid import ObjectId
-from servo3.models import Customer, Field, Order
+from servo.models import Customer, Field, Order
 
 def index(req):
-  customers = Customer.objects
-  return render(req, 'customers/index.html', {'customers' : customers})
+    customers = Customer.objects.all()
+    return render(req, 'customers/index.html', {'customers' : customers})
 
 def search(req):
-  return render(req, 'customers/search.html')
+    return render(req, 'customers/search.html')
   
 def create(req, parent=None, order=None):
-  fields = Field.objects(type='customer')
-  customer = Customer()
+    fields = Field.objects.filter(type='customer')
+    customer = Customer()
   
-  if parent:
-    parent = Customer.objects(id=ObjectId(parent))[0]
-    customer.path = parent.path
+    if parent:
+        parent = Customer.objects(id=ObjectId(parent))[0]
+        customer.path = parent.path
   
-  return render(req, 'customers/form.html', {'fields' : fields, 'customer': customer, 'order' : order})
+    return render(req, 'customers/form.html', {'fields' : fields,
+        'customer': customer, 'order' : order})
   
 def edit(req, id):
-  fields = Field.objects(type='customer')
-  if id:
-    customer = Customer.objects(id=ObjectId(id))[0]
-  
-  return render(req, 'customers/form.html', {'fields' : fields, 'customer': customer})
+    fields = Field.objects(type='customer')
+    if id:
+        customer = Customer.objects(id=ObjectId(id))[0]
+
+    return render(req, 'customers/form.html', {'fields' : fields, 'customer': customer})
 
 def save(req):
   """

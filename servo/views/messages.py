@@ -1,8 +1,6 @@
-from bson.objectid import ObjectId
 from django.shortcuts import render
 from django.http import HttpResponse
-
-from servo3.models import Message, Template, Order, Attachment
+from servo.models import Message, Template, Order, Attachment
 
 def index(req):
   messages = Message.objects(recipient = req.session['user'].username).all()

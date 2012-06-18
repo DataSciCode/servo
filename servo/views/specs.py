@@ -1,4 +1,4 @@
-from servo3.models import Spec
+from servo.models import Spec
 
 def index(req):
 	pass

@@ -1,9 +1,7 @@
-from servo3.models import Device, Order, Spec
+from servo.models import Device, Order, Spec
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.utils.datastructures import DotExpandedDict
-
-from bson.objectid import ObjectId
 
 def index(req):
 
