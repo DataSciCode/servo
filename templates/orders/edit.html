@@ -92,8 +92,8 @@
     <hr/>
     <div id="tags" data-url="/orders/tags/{{ order.id }}" style="border-bottom:none">
         <ul>
-{% for tag in order.tags %}
-            <li class="draggable"><a href="/orders/index/tag/{{ tag }}">{{ tag }}</a></li>
+{% for tag in order.tags.all %}
+            <li class="draggable"><a href="/orders/index/tag/{{ tag.id }}">{{ tag.title }}</a></li>
 {% endfor %}
         </ul>
       

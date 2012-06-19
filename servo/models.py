@@ -2,6 +2,10 @@
 from django.db import models
 from datetime import datetime
 
+class Tag(models.Model):
+    title = models.CharField(default = 'Uusi tagi', max_length=255)
+    type = models.CharField(max_length=32)
+
 class Configuration(models.Model):
     company_name = models.CharField(max_length=255)
     # the default margin percent for new products
@@ -72,19 +76,19 @@ class Customer(models.Model):
             parent = Customer.objects.get(pk = c)
             for r in parent.properties():
                 props[r.key] = r.value
-                
+
         return props
 
     def __unicode__(self):
         return self.name
 
 class ContactInfo(models.Model):
-    customer = models.ForeignKey(Customer, null=True)
+    customer = models.ForeignKey(Customer)
     key = models.CharField(max_length=255)
     value = models.CharField(max_length=255)
 
 class Location(models.Model):
-    title = models.CharField(default = "Uusi sijainti", max_length=255)
+    title = models.CharField(default = 'Uusi sijainti', max_length=255)
     description = models.TextField()
     phone = models.CharField(max_length=32)
     email = models.EmailField()
@@ -94,9 +98,13 @@ class Location(models.Model):
     city = models.CharField(max_length=16)
 
 class Spec(models.Model):
-    title = models.CharField(max_length=255)
-    #properties = DictField()
+    title = models.CharField(max_length=255, unique=True)
     path = models.TextField()
+
+class SpecInfo(models.Model):
+    spec = models.ForeignKey(Spec)
+    key = models.CharField(max_length=255)
+    value = models.CharField(max_length=255)
 
 class Article(models.Model):
     title = models.CharField(default = "Uusi artikkeli", max_length=255)
@@ -115,17 +123,17 @@ class Device(models.Model):
     purchased_on = models.DateField()
     notes = models.TextField()
 
-    #gsx_data = DictField()
-    spec = models.ForeignKey(Spec)
+    gsx_data = models.TextField()
+    spec = models.ForeignKey(Spec, null=True)
 
 class Product(models.Model):
     #gsx_data = DictField()
-    title = models.CharField(default = "Uusi tuote", max_length=255)
+    title = models.CharField(default = 'Uusi tuote', max_length=255)
     warranty_period = models.IntegerField(default = 0)
 
-    code = models.CharField(default = "", max_length=32)
-    shelf = models.CharField(default = "", max_length=8)
-    brand = models.CharField(default = "", max_length=32)
+    code = models.CharField(default = '', max_length=32)
+    shelf = models.CharField(default = '', max_length=8)
+    brand = models.CharField(default = '', max_length=32)
 
     pct_vat = models.DecimalField(decimal_places=2, max_digits=4)
     pct_margin = models.DecimalField(decimal_places=2, max_digits=4)
@@ -134,44 +142,42 @@ class Product(models.Model):
     price_purchase = models.DecimalField(default = 0, decimal_places=2, max_digits=6)
     price_exchange = models.DecimalField(default = 0, decimal_places=2, max_digits=6)
 
-    tags = models.TextField(models.CharField(max_length = 30))
-
     amount_minimum = models.IntegerField(default = 0)
     is_serialized = models.BooleanField(default = False)
-  
+    
+    tags = models.ManyToManyField(Tag)
+
     def tax(self):
         return self.price_sales - self.price_notax
 
-    # Get or set the stocked amount of this product
     def amount_stocked(self, amount = 0):
+        """Get or set the stocked amount of this product
+        """
         if amount:
             amount = int(amount)
-            Inventory.objects(slot = self).delete()
+            Inventory.objects.filter(slot = self.id).delete()
             for _ in xrange(amount):
-                i = Inventory(slot = self, product = self)
-                i.save()
-            try:
-                return Inventory.objects(slot = self).count()
-            except Exception, e:
-                return 0
+                i = Inventory.objects.create(slot = self.id, product = self)
+        try:
+            return Inventory.objects.filter(slot = self.id).count()
+        except Exception, e:
+            return 0
 
-    # Get or set the ordered amount of this product
     def amount_ordered(self):
+        """Get or set the ordered amount of this product
+        """
         try:
-            return Inventory.objects(product = self, kind = "po").count()
+            return Inventory.objects.filter(product = self.id, kind = "po").count()
         except Exception, e:
             return 0
 
-    # Get or set the reserved amount of this product
     def amount_reserved(self):
+        """Get or set the reserved amount of this product
+        """
         try:
-            return Inventory.objects(product = self, kind = "order").count()
+            return Inventory.objects.filter(product = self.id, kind = "order").count()
         except Exception, e:
             return 0
-  
-class Tag(models.Model):
-    title = models.CharField(default = 'Uusi tagi', max_length=255)
-    type = models.CharField(max_length=32)
 
 class User(models.Model):
     email = models.EmailField()
@@ -180,7 +186,7 @@ class User(models.Model):
     password = models.CharField(max_length=64)
     role = models.CharField(max_length=64)
     location = models.ForeignKey(Location)
-  
+
 class OrderItem(models.Model):
     product = models.ForeignKey(Product)
     sn = models.CharField(max_length=32)
@@ -191,19 +197,21 @@ class GsxRepair(models.Model):
     #customer_data = DictField()
     symptom = models.TextField()
     diagnosis = models.TextField()
-  
-class CalendarEvent(models.Model):
-    started_at = models.DateTimeField(default = datetime.now())
-    finished_at = models.DateTimeField()
-    remind_at = models.DateTimeField()
-    description = models.CharField(default = "", max_length=255)
-    hours = models.IntegerField(default = 8)
 
 class Calendar(models.Model):
     title = models.CharField(default = 'Uusi kalenteri', max_length=128)
-    user = models.ForeignKey('User')
+    user = models.ForeignKey(User)
     hours = models.IntegerField(default = 0)
-    events = models.ForeignKey('CalendarEvent')
+
+    def events(self):
+        return CalendarEvent.objects.filter(calendar = self)
+
+class CalendarEvent(models.Model):
+    started_at = models.DateTimeField(default = datetime.now())
+    finished_at = models.DateTimeField(null=True)
+    description = models.CharField(default = '', max_length = 255)
+    hours = models.IntegerField(default = 8)
+    calendar = models.ForeignKey(Calendar)
 
 class InvoiceItem(Product):
     pass
@@ -263,13 +271,13 @@ class Inventory(models.Model):
     The reserved amount of a given item is determined by the number of rows
     with with the order id as slot
     """
-    #slot = GenericReferenceField()
-    product = models.ForeignKey('Product')
+    slot = models.IntegerField()
+    product = models.ForeignKey(Product)
     sn = models.CharField(max_length=32)
     kind = models.CharField(max_length=32) # one of po, order, product, invoice
 
 class GsxAccount(models.Model):
-    title = models.CharField(default = "Uusi tili", max_length=128)
+    title = models.CharField(default = 'Uusi tili', max_length=128)
     sold_to = models.CharField(max_length=32)
     ship_to = models.CharField(max_length=32)
     username = models.CharField(max_length=64)
@@ -277,7 +285,7 @@ class GsxAccount(models.Model):
     environment = models.CharField(max_length=3)
     is_default = models.BooleanField(default=True)
 
-class QueueStatus(models.Model):
+class Status(models.Model):
     FACTORS = (
         ('60', 'Minuuttia'),\
         ('3600', 'Tuntia'),\
@@ -285,39 +293,47 @@ class QueueStatus(models.Model):
         ('604800', 'Viikkoa')
     )
 
+    title = models.CharField(default = 'Uusi status', max_length=255)
+
+    description = models.TextField()
     limit_green = models.IntegerField()
     limit_yellow = models.IntegerField()
     limit_factor = models.IntegerField()
 
-class Status(models.Model):
-    title = models.CharField(default = 'Uusi status', max_length=255)
-    description = models.TextField()
-    
 class Queue(models.Model):
-    title = models.CharField(default = "Uusi jono", max_length=255)
+    title = models.CharField(default = 'Uusi jono', max_length=255)
     description = models.TextField(null=True)
     gsx_account = models.ForeignKey(GsxAccount, null=True)
-    statuses = models.ManyToManyField(Status)
+    statuses = models.ManyToManyField(Status, through = 'QueueStatus')
+
+class QueueStatus(models.Model):
+    limit_green = models.IntegerField()
+    limit_yellow = models.IntegerField()
+    limit_factor = models.IntegerField()
+    queue = models.ForeignKey(Queue)
+    status = models.ForeignKey(Status)
 
 class Order(models.Model):
     priority = models.IntegerField(default = 1)
     created_at = models.DateTimeField(default=datetime.now())
+    created_by = models.ForeignKey(User, related_name = 'created_by')
+
     closed_at = models.DateTimeField(null = True)
-    followers = models.TextField()
-    tags = models.TextField()
+    followed_by = models.ManyToManyField(User, related_name = 'followed_by')
+
+    user = models.ForeignKey(User, null=True)
+
+    tags = models.ManyToManyField(Tag)
 
     customer = models.ForeignKey(Customer, null=True)
     products = models.ManyToManyField(Product)
-    devices = models.ForeignKey(Device, null=True)
-    user = models.ForeignKey(User, null=True)
-    
-    created_by = models.ForeignKey(User, related_name = "created_by")
+    devices = models.ManyToManyField(Device)
 
     queue = models.ForeignKey(Queue, null=True)
     status = models.ForeignKey(Status, null=True)
 
     STATES = ('unassigned', 'open', 'closed')
-    state = models.CharField(default = "unassigned", max_length=16)
+    state = models.CharField(default = STATES[0], max_length=16)
 
     status_limit_green = models.IntegerField(null=True)   # timestamp in seconds
     status_limit_yellow = models.IntegerField(null=True)  # timestamp in seconds
@@ -366,9 +382,6 @@ class Order(models.Model):
                 return "yellow"
             if time() > self.status_limit_yellow:
                 return "red"
-
-    def device(self):
-        return "Ei laitetta"
     
     def customer_name(self):
         return 'Filipp Lepalaan'
@@ -377,11 +390,12 @@ class Order(models.Model):
         return 1
   
     def device_name(self):
-        if not self.devices:
-            return ''
-        else:
-            return self.devices[0]['description']
-  
+        result = ''
+        if self.devices.count():
+            result = self.devices.all()[0].description
+
+        return result
+    
     def customer_name(self):
         if self.customer:
             return self.customer.name
@@ -389,18 +403,16 @@ class Order(models.Model):
             return ""
     
     def device_spec(self):
-        if len(self.devices):
-            try:
-                return self.devices[0].spec.id
-            except AttributeError, e:
-                pass
+        if self.devices.count():
+            return self.devices.all()[0].spec.id
 
 class Event(models.Model):
     description = models.CharField(max_length=255)
-    created_by = models.CharField(default = "filipp", max_length=32)
+    created_by = models.CharField(default = 'filipp', max_length=32)
     created_at = models.DateTimeField(default = datetime.now())
     handled_at = models.DateTimeField(null=True)
     order = models.ForeignKey(Order)
+    user = models.ForeignKey(User)
     type = models.CharField(max_length=32)
 
 class Issue(models.Model):
@@ -409,17 +421,25 @@ class Issue(models.Model):
     solution = models.TextField(default='')
     
     created_at = models.DateTimeField(default=datetime.now())
-    created_by = models.CharField(default = "filipp", max_length=32)
+    created_by = models.CharField(default='filipp', max_length=32)
     order = models.ForeignKey(Order)
 
 class Message(models.Model):
-    subject = models.CharField(max_length=255)
-    body = models.TextField(default="")
+    class Meta:
+        ordering = ["id"]
 
-    smsto = models.CharField(default="", max_length=32, null=True)
-    mailto = models.EmailField(default="", null=True)
-    sender = models.CharField(max_length=64)
-    recipient = models.CharField(max_length=64)
+    subject = models.CharField(max_length=255)
+    body = models.TextField(default = '')
+
+    smsfrom = models.CharField(default='', max_length=32, null=True)
+    mailfrom = models.EmailField(default='', null=True)
+
+    smsto = models.CharField(default='', max_length=32, null=True)
+    mailto = models.EmailField(default='', null=True)
+    
+    sender = models.ForeignKey(User, related_name='sender')
+    recipient = models.ForeignKey(User, null=True, related_name='recipient')
+    
     created_at = models.DateTimeField(default = datetime.now())
     order = models.ForeignKey(Order, null=True)
 
@@ -427,13 +447,21 @@ class Message(models.Model):
     flags = models.CharField(max_length=255, null=True)
     is_template = models.BooleanField(default = False)
     
+    def save(self, *args, **kwargs):
+        super(Message, self).save(*args, **kwargs)
+
+        if str(self.id) not in self.path.split(','):
+            self.path += ',' + str(self.id) # adding a reply to a message
+
+        super(Message, self).save(*args, **kwargs)
+
     def indent(self):
-        return 1
+        return self.path.count(',')+1
   
     def send_mail(self):
         import smtplib
         conf = Configuration.objects.get()
-        subject = "Huoltotilaus SRV#%d" %(self.order.number)
+        subject = 'Huoltotilaus SRV#%d' %(self.order.number)
         message = "\r\n".join(("From: %s" % conf.mail_from,
           "To: %s" % self.mailto,
           "Subject: %s" % subject,
@@ -455,8 +483,8 @@ class Message(models.Model):
         print f.read()
 
 class Attachment(models.Model):
-    name = models.CharField(default="Uusi tiedosto", max_length=255)
-    content = models.FileField(upload_to="attachments")
+    name = models.CharField(default = 'Uusi tiedosto', max_length=255)
+    content = models.FileField(upload_to = 'attachments')
     content_type = models.CharField(max_length=64)
     description = models.TextField(null=True)
     uploaded_by = models.CharField(default="filipp", max_length=32)

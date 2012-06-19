@@ -4,6 +4,7 @@ from django.http import HttpResponse
 from servo.models import Customer, Property, Order, ContactInfo
 
 def index(req):
+    req.session['order'] = None
     customers = Customer.objects.all()
     return render(req, 'customers/index.html', {'customers': customers})
 
@@ -23,7 +24,7 @@ def create(req, parent = None, order = None):
 
 def edit(req, id):
     fields = Property.objects.filter(type = 'customer')
-    
+
     if id:
         customer = Customer.objects.get(pk = id)
 
@@ -80,7 +81,7 @@ def move(req, id=None):
     @todo: recursively fix paths of child contacts
     """
     if 'id' in req.POST:
-        new_parent = Customer.objects(number = int(req.POST['number']))[0]
+        new_parent = Customer.objects.get(pk = req.POST['target'])
         customer = Customer.objects.get(pk = req.POST['id'])
         customer.path = new_parent.path + ',' + str(customer.id)
         customer.save()
@@ -90,4 +91,4 @@ def move(req, id=None):
     if id:
         customer = Customer.objects.get(pk = id)
 
-    return render(req, 'customers/move.html', customer)
+    return render(req, 'customers/move.html', {'customer': customer})

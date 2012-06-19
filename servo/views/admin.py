@@ -32,12 +32,15 @@ def status(req):
 
 def status_form(req, id = None):
     status = Status()
-    if id:
-        status = Status.objects(id = ObjectId(id))[0]
 
-    queues = Queue.objects
-    
-    return render(req, 'admin/status_form.html', {'status': status, 'queues': queues})
+    if id:
+        status = Status.objects.get(pk = id)
+
+    queues = Queue.objects.all()
+
+    return render(req, 'admin/status_form.html', {
+        'status': status, 'queues': queues
+        })
 
 def status_save(req):
     status = Status(title=req.POST['title'], description=req.POST['description'])
@@ -155,7 +158,7 @@ def edit_location(req, id=None):
     location = Location()
     
     if id:
-        location = Location.objects(id  = ObjectId(id)).first()
+        location = Location.objects.get(pk  = id)
     
     return render(req, 'admin/location_form.html', {'location': location})
 
@@ -196,14 +199,16 @@ def save_user(req):
 
 def save_status(req):
     status = Status()
-    if 'id' in req.POST:
-        status = Status.objects(id = ObjectId(req.POST['id']))[0]
-        status.title = req.POST['title']
-        status.description = req.POST['description']
-        status.limit_green = req.POST['limit_green']
-        status.limit_yellow = req.POST['limit_yellow']
-        status.limit_factor = req.POST['limit_factor']
 
-        status.save()
+    if 'id' in req.POST:
+        status = Status.objects.get(pk = req.POST['id'])
+
+    status.title = req.POST['title']
+    status.description = req.POST['description']
+    status.limit_green = req.POST['limit_green']
+    status.limit_yellow = req.POST['limit_yellow']
+    status.limit_factor = req.POST['limit_factor']
+
+    status.save()
 
     return HttpResponse('Status tallennettu')

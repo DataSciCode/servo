@@ -137,7 +137,6 @@ var PanelView = Backbone.View.extend(
     submit: function(event)
     {
         event.preventDefault();
-
         var form = $("#popup form");
         var reload = "#" + $(form).attr("rel");
 
@@ -190,7 +189,7 @@ var AppView = Backbone.View.extend(
     el: "#page"
 ,
     events: {
-        "keydown"			          : "closePanel",
+        "keydown"			    : "closePanel",
         "click a.popup"         : "runPanel",
         "click a.window"        : "openWindow",
         "click #pager a.button" : "hidePager",

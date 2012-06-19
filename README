@@ -1,5 +1,5 @@
 Requirements:
 - Django
-- mongoengine
+- PostgreSQL
 - pybarcode
 - pystache

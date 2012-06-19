@@ -7,59 +7,59 @@ from datetime import datetime
 from django.utils.datastructures import DotExpandedDict
 
 def invoices(req):
-  data = Invoice.objects.all()
-  return render(req, "store/invoices.html", {"invoices": data})
+    data = Invoice.objects.all()
+    return render(req, "store/invoices.html", {"invoices": data})
 
 def dispatch(req, order_id = None, numbers = None):
-  products = []
+    products = []
 
-  if req.method == "POST":
-    data = DotExpandedDict(req.POST)
-    #print data
-    invoice = Invoice(payment_method=data['payment_method'],
-      total_payable=float(data['total']))
+    if req.method == "POST":
+        data = DotExpandedDict(req.POST)
+        #print data
+        invoice = Invoice(payment_method=data['payment_method'],
+            total_payable=float(data['total']))
 
-    if "paid" in data:
-      invoice.paid_at = datetime.now()
+        if "paid" in data:
+            invoice.paid_at = datetime.now()
 
-    products = data.get("products")
+            products = data.get("products")
 
-    if "customer" in data:
-      customer = Customer.objects.with_id(ObjectId(data['customer']))
-      invoice.customer = customer.asdict()
+            if "customer" in data:
+                customer = Customer.objects.with_id(ObjectId(data['customer']))
+                invoice.customer = customer.asdict()
 
-    for k in products:
-      invoice.products.append(products[k])
+            for k in products:
+                invoice.products.append(products[k])
     
-    invoice.save()
+            invoice.save()
 
-    return HttpResponse("Tuotteet toimitettu")
+        return HttpResponse("Tuotteet toimitettu")
 
-  total = 0
+    total = 0
 
-  if order_id:
-    order = Order.objects.with_id(ObjectId(order_id))
-    total = order.total
-    products = order.products
+    if order_id:
+        order = Order.objects.with_id(ObjectId(order_id))
+        total = order.total
+        products = order.products
 
-  if numbers:
-    totals = {}
-    totals['amount'] = 0
-    totals['notax'] = 0
-    totals['tax'] = 0
-    totals['sum'] = 0
+    if numbers:
+        totals = {}
+        totals['amount'] = 0
+        totals['notax'] = 0
+        totals['tax'] = 0
+        totals['sum'] = 0
 
     for p in numbers.rstrip(";").split(";"): # http://store/blaa/45;234;123;
-      product = Product.objects(number = int(p)).first()
-      totals['amount'] += 1
-      totals['notax'] += product.price_notax
-      totals['tax'] += product.tax()
-      totals['sum'] += product.price_sales
+        product = Product.objects(number = int(p)).first()
+        totals['amount'] += 1
+        totals['notax'] += product.price_notax
+        totals['tax'] += product.tax()
+        totals['sum'] += product.price_sales
       
-      oi = OrderItem(product = product, price = product.price_sales, amount = 1)
-      products.append(oi)
+        oi = OrderItem(product = product, price = product.price_sales, amount = 1)
+        products.append(oi)
 
-  return render(req, "store/dispatch.html", {"products": products, "totals": totals})
+    return render(req, "store/dispatch.html", {"products": products, "totals": totals})
 
 def save_po(req):
 
@@ -108,8 +108,8 @@ def index_po(req):
   return render(req, 'store/index_po.html', {"orders": data})
   
 def index_incoming(req, shipment = None, date = None):
-  inventory = Inventory.objects(kind = "po").all()
-  return render(req, "store/index_incoming.html", {"inventory": inventory})
+    inventory = Inventory.objects.filter(kind = "po")
+    return render(req, "store/index_incoming.html", {"inventory": inventory})
   
 def index_outgoing(req, shipment = None, date = None):
   pass

@@ -10,7 +10,7 @@
 		</tr>
 	</thead>
 	<tbody>
-{% for device in order.devices %}
+{% for device in order.devices.all %}
     	<tr data-url="/device/edit/{{ device.id }}" class="{% cycle 'odd' 'even' %}">
 	    	<td><a href="/device/edit/{{ device.id }}" class="popup">{{ device.sn }}</a></td>
 	    	<td>{{ device.description }}</td>

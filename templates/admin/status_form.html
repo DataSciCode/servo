@@ -1,10 +1,10 @@
 {% load i18n %}
 
 <form method="post" rel="statuses" accept-charset="utf-8" action="/status/save">
-  {% csrf_token %}
-{% if status.id %}
-  <input type="hidden" name="id" value="{{ status.id }}"/>
-{% endif %}
+    {% csrf_token %}
+    {% if status.id %}
+    <input type="hidden" name="id" value="{{ status.id }}"/>
+    {% endif %}
     <label>{% trans 'Otsikko' %}:</label>
     <input type="text" id="title" name="title" value="{{ status.title }}"/>
     <br/>
@@ -15,8 +15,8 @@
     <input type="text" class="shortest" name="limit_green" value="{{ status.limit_green }}"/>
     <input type="text" class="shortest" name="limit_yellow" value="{{ status.limit_yellow }}"/>
     <select name="limit_factor">
-{% for k, v in factors.items %}
-      <option value="{{ k }}">{{ v }}</option>
+{% for k, v in status.FACTORS %}
+        <option value="{{ k }}">{{ v }}</option>
 {% endfor %}
     </select>
 </form>

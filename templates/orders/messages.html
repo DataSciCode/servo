@@ -6,7 +6,7 @@
 {% for msg in order.messages %}
         <tr data-url="/message/edit/{{ msg.id }}" class="{% cycle 'odd' 'even' %}">
             <td style="padding-left:{{ msg.indent }}em">
-                <span class="user">{{ msg.sender }}</span>
+                <span class="user">{{ msg.sender.username }}</span>
                 <span class="date">{{ msg.created_at|relative_date }}</span>
 {% if msg.mailto %}<span class="email">{{ msg.mailto }}</span>{% endif %}<br/>
         {{ msg.body }}

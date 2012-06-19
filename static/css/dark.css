@@ -703,12 +703,11 @@ a.todo {
     top: 14px;
     right: 46px;
     width: 30px;
-    height: 26px;
+    height: 27px;
     display: block;
     position: absolute;
     cursor: default;
-    border-left: 1px solid #111;
-    background: url(/static/images/dark/searchable-right.png) no-repeat right;
+    background: url(/static/images/search.png) no-repeat right;
 }
 
 div.tab a.search {

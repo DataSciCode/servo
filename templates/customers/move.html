@@ -1,7 +1,7 @@
 {% load i18n %}
 <form action="/customer/move" method="post" accept-charset="utf-8" rel="customers">
-  {% csrf_token %}
-  <input type="hidden" name="id" value="{{ id }}"/>
-  <label>{% trans "Numero" %}:</label>
-  <input type="text" name="number"/>
+	{% csrf_token %}
+	<input type="hidden" name="id" value="{{ customer.id }}"/>
+	<label>{% trans "Numero" %}:</label>
+	<input type="text" name="target"/>
 </form>

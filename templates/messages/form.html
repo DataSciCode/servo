@@ -7,9 +7,9 @@
     <input name="path" type="hidden" value="{{ message.path }}"/>
     
     <select class="label chooser" rel="body">
-      <option value="0">{% trans 'Viesti' %}…</option>
+        <option value="0">{% trans 'Viesti' %}…</option>
 {% for t in templates %}
-      <option value="{{ t.id }}">{{ t.subject }}</option>
+        <option value="{{ t.id }}">{{ t.subject }}</option>
 {% endfor %}
    </select>
    

@@ -28,11 +28,11 @@ def save(req):
 	return HttpResponse("Kalenteri tallennettu")
 
 def save_event(req):
-	id = req.POST.get("id")
-	calendar = Calendar.objects(id = ObjectId(req.POST.get("calendar"))).first()
+	id = req.POST.get('id')
+	calendar = Calendar.objects.get(pk = req.POST.get("calendar"))
 
 	if id:
-		event = CalendarEvent.objects(id = ObjectId(id))
+		event = CalendarEvent.objects(pk = id)
 	else:
 		event = CalendarEvent(calendar = calendar)
 
@@ -45,15 +45,15 @@ def save_event(req):
 	event.finished_at = datetime.strptime(" ".join(finished), fmt)
 	delta = event.finished_at - event.started_at
 	event.hours = int(delta.seconds/3600)
+	event.save()
 
 	calendar.hours += event.hours
-	calendar.events.append(event)
 	calendar.save()
 
 	return HttpResponse("Tapahtuma tallennettu")
 
 def event(req, calendar_id):
-	calendar = Calendar.objects(id = ObjectId(calendar_id)).first()
+	calendar = Calendar.objects.get(pk = calendar_id)
 	event = CalendarEvent(calendar = calendar)
 	event.finished_at = event.started_at + timedelta(hours = event.hours)
 	return render(req, "calendars/event_form.html", {"event": event})
@@ -67,7 +67,8 @@ def remove(req, id = None):
 		return render(req, "calendars/remove.html", calendar)
 
 def events(req, id):
-	cal = Calendar.objects(id = ObjectId(id)).first()
-	calendars = Calendar.objects(user = req.session.get("user"))
-	return render(req, "calendars/events.html", {"calendar": cal,
-		"calendars": calendars})
+	cal = Calendar.objects.get(pk = id)
+	calendars = Calendar.objects.filter(user = req.session.get('user'))
+	return render(req, "calendars/events.html", {
+		'calendar': cal, 'calendars': calendars
+	})

@@ -9,7 +9,6 @@ def index(req):
   
 def create(req, order = None, customer = None):
     device = Device()
-  
     if order:
         req.session['order'] = Order.objects.get(id = order)
   
@@ -17,45 +16,46 @@ def create(req, order = None, customer = None):
   
 def remove(req, id = None):
     if 'id' in req.POST:
-        dev = Device.objects(id = ObjectId(req.POST['id']))
+        dev = Device.objects.get(pk = req.POST['id'])
         dev.delete()
         return HttpResponse('Laite poistettu')
     else:
-        dev = Device.objects(id = ObjectId(id)).first()
-        return render(req, 'devices/remove.html', dev)
+        dev = Device.objects.get(pk = id)
+        return render(req, 'devices/remove.html', {'device': dev})
 
 def edit(req, id):
+    import json
     if id in req.session.get('gsx_data'):
         result = req.session['gsx_data'].get(id)
         dev = Device(sn = result.get('serialNumber'),\
-            description = result.get('productDescription'), gsx_data = result)
+            description = result.get('productDescription'),
+            gsx_data = json.dumps(result))
     else:
-        dev = Device.objects(id = ObjectId(id)).first()
-  
-    return render(req, 'devices/form.html', dev)
+        dev = Device.objects.get(pk = id)
+    
+    return render(req, 'devices/form.html', {'device': dev})
 
 def save(req):
     if "id" in req.POST:
         # search by SN to avoid duplicates
-        dev = Device.objects(sn = req.POST['sn']).first()
+        dev = Device.objects.get(sn = req.POST['sn'])
     else:
         dev = Device()
 
     data = DotExpandedDict(req.POST)
-  
+    
     for k, v in data.items():
         dev.__setattr__(k, v)
-  
+    
     # make sure we have this spec
-    spec = Spec.objects().create(title = dev.description)
+    spec = Spec.objects.create(title = dev.description)
     dev.spec = spec
 
     dev.save()
 
     if req.session['order']:
-        order = Order.objects(id = req.session['order'].id).first()
-        order.devices.append(dev)
-        order.save()
+        order = Order.objects.get(pk = req.session['order'].id)
+        order.devices.add(dev)
         req.session['order'] = order
 
     return HttpResponse('Laite tallennettu')

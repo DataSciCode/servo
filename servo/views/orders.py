@@ -30,18 +30,17 @@ def index(req, param = None, value = None):
     return render(req, 'orders/index.html', {'data' : data})
 
 def create(req):
-    user = User.objects.get(username = 'filipp')
-    o = Order(created_by = user, created_at = datetime.now())
-    o.save()
-    # fire the creation event
-    e = Event(description = 'Tilaus luotu', order = o, type = 'create_order')
-    e.save()
+    user = req.session.get('user')
+    o = Order.objects.create(created_by=user, created_at=datetime.now())
+    desc = 'Tilaus %d luotu' % o.id
+    Event.objects.create(description=desc, order=o,
+        type='create_order', user=user)
 
     return redirect("/orders/edit/%d" % o.id)
 
 def tags(req, id):
     if 'title' in req.POST:
-        order = Order.objects(id = ObjectId(id))[0]
+        order = Order.objects.get(pk = id)
         title = req.POST['title']
     
     if title not in order.tags:
@@ -49,8 +48,7 @@ def tags(req, id):
         order.save()
     
     if len(Tag.objects(title = title, type = 'order')) < 1:
-        tag = Tag(title = title, type = 'order')
-        tag.save()
+        tag = Tag.objects.create(title = title, type = 'order')
     
     return HttpResponse(json.dumps({order.tags}), content_type = 'application/json')
   
@@ -79,33 +77,29 @@ def remove(req, id = None):
         order.delete()
         return HttpResponse('Tilaus poistettu')
     else :
-        order = Order.objects.get(id = id)
+        order = Order.objects.get(pk = id)
         return render(req, 'orders/remove.html', {'order': order})
 
 def follow(req, id):
-    order = Order.objects.with_id(ObjectId(id))
-
-    if 'filipp' not in order.followers:
-        order.followers.append('filipp')
-        order.save()
-  
-    return HttpResponse('%d seuraa' % len(order.followers))
+    order = Order.objects.get(pk = id)
+    order.followed_by.add(req.session.get('user'))
+    return HttpResponse('%d seuraa' % order.followed_by.count())
 
 @csrf_exempt
 def update(req, id):
-    order = Order.objects.get(id = id)
+    order = Order.objects.get(pk = id)
 
-    if "queue" in req.POST:
-        queue = Queue.objects.get(id = req.POST['queue'])
+    if 'queue' in req.POST:
+        queue = Queue.objects.get(pk = req.POST['queue'])
         order.queue = queue
         order.save()
         event = Event.objects.create(description = queue.title,
             order = order, type = 'set_queue')
     
-    if "status" in req.POST:
+    if 'status' in req.POST:
         from time import time
-        status = ObjectId(req.POST['status'])
-        status = Status.objects(id = status).first()
+        status_id = req.POST.get('status')
+        status = Status.objects.get(pk = status_id)
         # calculate when this status will timeout
         green = (status.limit_green*status.limit_factor)+time()
         yellow = (status.limit_yellow*status.limit_factor)+time()
@@ -113,10 +107,10 @@ def update(req, id):
         req.session['order'].status_limit_yellow = yellow
         req.session['order'].status = status
         req.session['order'].save()
-        event = Event(description = status.title,
+
+        event = Event.objects.create(description = status.title,
             order = req.session['order'],
             type = 'set_status')
-        event.save()
     
     if 'user' in req.POST:
         user = req.POST['user']

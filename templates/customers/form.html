@@ -44,6 +44,6 @@
         $(".property:last").clone().insertAfter($(".property:last"));
         $(".property:last option:selected").next()
             .attr("selected", "selected");
-        $(".property:last input").val("");
+        $(".property:last input").val("").focus();
     });
 </script>

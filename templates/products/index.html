@@ -55,8 +55,8 @@
       <tbody>
 {% for i in data %}
         <tr data-url="/products/edit/{{ i.id }}" class="{% cycle 'odd' 'even' %}">
-          <td><input type="checkbox" class="selected_product" value="{{ i.number }}"/></td>
-          <td><a href="/products/edit/{{ i.id }}" class="popup">{{ i.number }}</a></td>
+          <td><input type="checkbox" class="selected_product" value="{{ i.id }}"/></td>
+          <td><a href="/products/edit/{{ i.id }}" class="popup">{{ i.id }}</a></td>
           <td>{{ i.code }}</td>
           <td>{{ i.title }}</td>
           <td>{{ i.price_purchase }}</td>
