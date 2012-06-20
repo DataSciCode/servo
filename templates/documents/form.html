@@ -11,9 +11,13 @@
 	<textarea name="description">{{ file.description }}</textarea>
 	<br/>
 	<label>{% trans "Tagit" %}:</label>
-{% for t in  file.tags %}
+  {% with tags as file.tags.all %}
+      {% if tags %}
+        {% for t in  tags %}
   <input type="text" name="tags" style="width:80px" class="autocomplete tag" value="{{ t }}"/>
 {% endfor %}
+      {% endif %}
+  {% endwith %}
 	<input type="text" id="newTag" class="autocomplete" style="width:80px"/>
 	<br/>
 	<label>{% trans "Tiedosto" %}:</label>

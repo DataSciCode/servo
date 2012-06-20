@@ -11,7 +11,7 @@
 {% for t in templates %}
         <option value="{{ t.id }}">{{ t.subject }}</option>
 {% endfor %}
-   </select>
+    </select>
    
     <textarea id="body" name="body">{{ message.body }}</textarea>
     <br/>
@@ -24,8 +24,8 @@
     <label>{% trans 'Liite' %}:</label>
     <input type="file" id="fileupload" name="incoming"/>
     <ul id="attachments">
-{% for a in message.attachments %}
-      <li><a href="/document/">{{ a.name }}</a></li>
+{% for a in message.attachments.all %}
+        <li><a href="/document/">{{ a.name }}</a></li>
 {% endfor %}
     </ul>
 </form>

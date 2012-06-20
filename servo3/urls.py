@@ -49,6 +49,7 @@ urlpatterns = patterns('servo',
   
   url(r'^orders/edit/(\w+)$', 'views.orders.edit'),
   url(r'^orders/remove/(\w+)$', 'views.orders.remove'),
+  url(r'^orders/statuses$', 'views.orders.statuses'),
   url(r'^orders/remove$', 'views.orders.remove'),
   url(r'^orders/create$', 'views.orders.create'),
   url(r'^orders/follow/(\w+)$', 'views.orders.follow'),

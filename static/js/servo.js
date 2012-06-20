@@ -434,21 +434,16 @@ var SidebarView = Backbone.View.extend(
 ,
     update_order: function(event)
     {
-      t = $(event.currentTarget);
-      url = t.parent().attr('action');
-      arg = t.attr('name');
-      args = {};
-      args[arg] = t.val();
-      console.log(args);
-      $('#events').load(url, args);
-/*
-        var reload = (type == "set_queue") ? "#set_status" : "#events";
-
-        $(reload).load("/order/"+type+"/id/"+id, {id: id, type: type},
-          function() {
-            $("#events").load($("#events").data("url"));
-        });
-*/
+        t = $(event.currentTarget);
+        url = t.parent().attr('action');
+        arg = t.attr('name');
+        args = {};
+        args[arg] = t.val();
+        $('#events').load(url, args);
+        if ($(t).attr("name") == "queue") {
+            $('#select_status').load('/orders/statuses')
+            console.log('reload statuses!');
+        };
     }
 ,
     select: function(event)
@@ -606,6 +601,7 @@ var ServoApp = Backbone.Router.extend(
 ,
     routes: {
         "calendar/events/:id"   : "detailRoute",
+        "queue/edit/:id"        : "detailRoute",
         "customer/view/:id"     : "detailRoute",
         "message/view/:id"      : "detailRoute",
         "*url"                  : "defaultRoute",

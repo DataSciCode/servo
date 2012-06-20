@@ -25,7 +25,7 @@
 <li>
     <a href="javascript:;" class="print"></a>
     <ul>
-{% for tpl in order.queue.attachments  %}
+{% for tpl in order.queue.attachments.all  %}
         <li><a href="/orders/print/{{ order.id }}/template/{{ tpl.id }}" class="window">{{ tpl.name }}</a></li>
 {% endfor %}
     </ul>
@@ -56,38 +56,8 @@
     </p>
 </div>
 <div style="padding:5px" class="droppable">
-  <form action="/orders/update/{{ order.id }}" method="post">
-    <span class="label">{% trans "Jono" %}</span>
-    <select name="queue">
-      <option value="">{% trans "Valitse" %}...</option>
-{% for queue in queues %}
-      <option value="{{ queue.id }}">{{ queue.title }}</option>
-{% endfor %}
-    </select>
-    <br/>
-    <span class="label">{% trans "Status" %}</span>
-    <select name="status">
-      <option value="">{% trans "Valitse" %}...</option>
-{% for status in statuses %}
-      <option value="{{ status.id }}">{{ status.title }}</option>
-{% endfor %}
-    </select>
-    <br/>
-    <span class="label">{% trans "Käsittelijä" %}</span>
-    <select name="user">
-      <option value="">{% trans "Valitse" %}...</option>
-{% for user in users %}
-      <option value="{{ user.id }}">{{ user.fullname }}</option>
-{% endfor %}
-    </select>
-    <br/>
-    <span class="label">{% trans "Prioriteetti" %}</span>
-    <select name="priority">
-      <option value="">{% trans "Valitse" %}...</option>
-{% for p in priorities %}
-      <option value="{{ forloop.counter0 }}">{{ p }}</option>
-{% endfor %}
-    </select>
+    <form action="/orders/update/{{ order.id }}" method="post">
+{{ form.as_p }}
     </form>
     <hr/>
     <div id="tags" data-url="/orders/tags/{{ order.id }}" style="border-bottom:none">

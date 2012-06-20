@@ -8,6 +8,12 @@ from django.shortcuts import render, render_to_response, redirect
 
 from django.views.decorators.csrf import csrf_exempt
 from servo.models import *
+from django import forms
+
+class SidebarForm(forms.ModelForm):
+    class Meta:
+        model = Order
+        fields = ['user', 'queue', 'priority', 'status']
 
 def index(req, param = None, value = None):
     data = Order.objects.all()
@@ -32,11 +38,12 @@ def index(req, param = None, value = None):
 def create(req):
     user = req.session.get('user')
     o = Order.objects.create(created_by=user, created_at=datetime.now())
+    
     desc = 'Tilaus %d luotu' % o.id
     Event.objects.create(description=desc, order=o,
         type='create_order', user=user)
 
-    return redirect("/orders/edit/%d" % o.id)
+    return redirect('/orders/edit/%d' % o.id)
 
 def tags(req, id):
     if 'title' in req.POST:
@@ -47,27 +54,29 @@ def tags(req, id):
         order.tags.append(title)
         order.save()
     
-    if len(Tag.objects(title = title, type = 'order')) < 1:
-        tag = Tag.objects.create(title = title, type = 'order')
+    if len(Tag.objects(title=title, type='order')) < 1:
+        tag = Tag.objects.create(title=title, type='order')
     
-    return HttpResponse(json.dumps({order.tags}), content_type = 'application/json')
+    return HttpResponse(json.dumps({order.tags}), content_type='application/json')
   
 def edit(req, id):
     o = Order.objects.get(pk = id)
 
     req.session['order'] = o
     
+    form = SidebarForm(instance=o)
     users = User.objects.all()
     queues = Queue.objects.all()
     statuses = Status.objects.all()
     priorities = ['Matala', 'Normaali', 'Korkea']
 
     return render(req, 'orders/edit.html', {
-        "order": o,
-        "queues": queues,
-        "users": users,
-        "statuses": statuses,
-        "priorities": priorities
+        'order': o,
+        'queues': queues,
+        'users': users,
+        'statuses': statuses,
+        'priorities': priorities,
+        'form': form
         })
 
 def remove(req, id = None):
@@ -94,7 +103,10 @@ def update(req, id):
         order.queue = queue
         order.save()
         event = Event.objects.create(description = queue.title,
-            order = order, type = 'set_queue')
+            order = order,
+            type = 'set_queue',
+            user = req.session.get('user')
+        )
     
     if 'status' in req.POST:
         from time import time
@@ -110,7 +122,8 @@ def update(req, id):
 
         event = Event.objects.create(description = status.title,
             order = req.session['order'],
-            type = 'set_status')
+            type = 'set_status',
+            user = req.session.get('user'))
     
     if 'user' in req.POST:
         user = req.POST['user']
@@ -259,6 +272,10 @@ def events(req, order_id):
 def customer(req, order_id):
     order = Order.objects.get(pk = order_id)
     return render(req, "orders/customer.html", {"order": order})
+
+def statuses(req):
+    statuses = req.session.get('order').queue.statuses.all()
+    return render(req, "orders/statuses.html", {"statuses": statuses})
 
 def products(req, order_id):
     order = Order.objects.get(pk = order_id)

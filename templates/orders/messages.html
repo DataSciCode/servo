@@ -10,7 +10,7 @@
                 <span class="date">{{ msg.created_at|relative_date }}</span>
 {% if msg.mailto %}<span class="email">{{ msg.mailto }}</span>{% endif %}<br/>
         {{ msg.body }}
-    {% for file in msg.attachments %}
+    {% for file in msg.attachments.all %}
           <a class="window attachment" href="/document/view/{{ file.id }}">{{ file.name }}</a>
     {% endfor %}
         </td>

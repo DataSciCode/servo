@@ -4,12 +4,13 @@
 {% block toolbar %}
 
 <ul class="navigation">
-    <li><a class="popup" href="/queue/create">{% trans "Uusi jono" %}</a></li>
+	<li><a class="popup" href="/queue/create">{% trans "Uusi jono" %}</a></li>
 </ul>
 
 {% endblock %}
 
 {% block content %}
+
 <div class="small_block listView" id="queues" data-url="/admin/queues">
     <ul>
 {% for q in queues %}
@@ -17,5 +18,7 @@
 {% endfor %}
     </ul>
 </div>
+
+<div id="detailView"></div>
 
 {% endblock %}

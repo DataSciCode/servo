@@ -1,5 +1,6 @@
+{% extends "queues/index.html" %}
 {% load i18n %}
-
+{% block content %}
 <div class="tabView">
   <form method="post" action="/queue/save" accept-charset="utf-8" rel="queues">
     {% csrf_token %}
@@ -26,50 +27,37 @@
         <table>
 {% for status in statuses %}
             <tr>
-            <td style="width:20px">
-                <input type="checkbox" class="toggle_row" value="{{ status.id }}"/>
-            </td>
-            <td>{{ status.title }}</td>
-            <td style="width:30px">
-                <input type="text" value="" name="{{ status.id }}.limit_green" />
-            </td>
-            <td style="width:30px">
-                <input type="text" value="" name="{{ status.id }}.limit_yellow" />
-            </td>
-            <td style="width:40px">
-                <select name="{{ status.id }}.limit_factor"></select>
-            </td>
+                <td style="width:20px">
+                    <input type="checkbox" class="toggle_row"
+                    value="{{ status.id }}"
+                    name="status.{{ status.id }}.id"/>
+                </td>
+                <td>{{ status.title }}</td>
+                <td><input type="text" value="" name="status.{{ status.id }}.limit_green" /></td>
+                <td><input type="text" value="" name="status.{{ status.id }}.limit_yellow" /></td>
+                <td>
+                    <select name="status.{{ status.id }}.limit_factor">
+                    {% for k, v in status.FACTORS %}
+                        <option value="{{ k }}">{{ v }}</option>
+                    {% endfor %}
+                    </select>
+                </td>
           </tr>
 {% endfor %}
-      </table>
+        </table>
     </div><!-- //#statuses -->
     
     <div id="templates" class="tab">
-        <ul id="attachments">
-{% for f in queue.attachments %}
-            <li><a href="/documents/view/{{ f.id }}">{{ f.name }}</a></li>
+        <label>{% trans "Pohja" %}:</label>
+        <input type="text" id="filter_templates"/>
+        <table>
+{% for f in templates %}
+            <tr>
+                <td><input type="checkbox" name="attachments" value="{{ f.id }}"/></td>
+                <td><a href="/documents/view/{{ f.id }}">{{ f.name }}</a></td>
+            </tr>
 {% endfor %}
-        </ul>
-    <label>{% trans "Pohja" %}:</label>
-    <input type="file" name="incoming" id="fileupload"/>
-
-    </div>
+        </table>
     </form>
 </div>
-    
-<script type="text/javascript">
-  $("#fileupload").fileupload({
-      url: "/document/save",
-      done: function(e, data) {
-        file = data.result;
-          $("<li/>").text(file.name).appendTo($("#attachments"));
-          $("<input/>").attr("type", "hidden")
-              .attr("name", "attachments")
-              .val(file.id)
-              .insertAfter("#fileupload");
-      }
-  });
-  $('.toggle_row').click(function() {
-    $(this).siblings('input').attr('disabled', 'disabled');
-  });
-</script>
+{% endblock content %}

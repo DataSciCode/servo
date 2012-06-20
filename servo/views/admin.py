@@ -7,7 +7,7 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.http import HttpResponse
 
 from servo.models import *
-
+    
 def settings(req):
     if len(Configuration.objects) < 1:
         config = Configuration()

@@ -2,11 +2,21 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from servo.models import Message, Order, Attachment
 
+from django.forms import ModelForm
+
+class MessageForm(ModelForm):
+    class Meta:
+        model = Message
+        fields = ['body']
+
 def index(req):
     messages = Message.objects.filter(recipient = req.session['user'])
     return render(req, 'messages/index.html', {'messages': messages})
 
 def form(req, replyto = None, smsto = None, mailto = None):
+    form = MessageForm()
+    print form
+
     m = Message()
 
     if replyto:
@@ -28,8 +38,8 @@ def edit(req, id = None):
     return render(req, 'messages/form.html', {'message': m, 'templates': templates})
 
 def save(req):
-    m = Message(sender = req.session.get("user"))
-
+    m = Message(sender = req.session.get('user'))
+    
     m.body = req.POST.get("body")
     m.smsto = req.POST.get("smsto")
     m.subject = req.POST.get("body")

@@ -6,6 +6,17 @@ class Tag(models.Model):
     title = models.CharField(default = 'Uusi tagi', max_length=255)
     type = models.CharField(max_length=32)
 
+class Attachment(models.Model):
+    name = models.CharField(default = 'Uusi tiedosto', max_length=255)
+    
+    content_type = models.CharField(max_length=64)
+    description = models.TextField(null=True)
+    uploaded_by = models.CharField(default='filipp', max_length=32)
+    uploaded_at = models.DateTimeField(default=datetime.now())
+    updated_at = models.DateTimeField(default=datetime.now())
+    tags = models.ManyToManyField(Tag)
+    content = models.FileField(upload_to = 'attachments')
+
 class Configuration(models.Model):
     company_name = models.CharField(max_length=255)
     # the default margin percent for new products
@@ -107,12 +118,13 @@ class SpecInfo(models.Model):
     value = models.CharField(max_length=255)
 
 class Article(models.Model):
-    title = models.CharField(default = "Uusi artikkeli", max_length=255)
+    title = models.CharField(default = 'Uusi artikkeli', max_length=255)
     content = models.TextField()
     created_by = models.CharField(max_length=32)
     updated_at = models.DateTimeField()
     tags = models.TextField()
     created_at = models.DateTimeField(default = datetime.now())
+    attachments = models.ManyToManyField(Attachment)
 
 class Device(models.Model):
     sn = models.CharField(max_length=32)
@@ -146,6 +158,7 @@ class Product(models.Model):
     is_serialized = models.BooleanField(default = False)
     
     tags = models.ManyToManyField(Tag)
+    attachments = models.ManyToManyField(Attachment)
 
     def tax(self):
         return self.price_sales - self.price_notax
@@ -186,6 +199,9 @@ class User(models.Model):
     password = models.CharField(max_length=64)
     role = models.CharField(max_length=64)
     location = models.ForeignKey(Location)
+
+    def __unicode__(self):
+        return self.fullname
 
 class OrderItem(models.Model):
     product = models.ForeignKey(Product)
@@ -296,15 +312,22 @@ class Status(models.Model):
     title = models.CharField(default = 'Uusi status', max_length=255)
 
     description = models.TextField()
-    limit_green = models.IntegerField()
-    limit_yellow = models.IntegerField()
-    limit_factor = models.IntegerField()
+    limit_green = models.IntegerField(default=0)
+    limit_yellow = models.IntegerField(default=0)
+    limit_factor = models.IntegerField(default=FACTORS[0])
+
+    def __unicode__(self):
+        return self.title
 
 class Queue(models.Model):
     title = models.CharField(default = 'Uusi jono', max_length=255)
     description = models.TextField(null=True)
     gsx_account = models.ForeignKey(GsxAccount, null=True)
     statuses = models.ManyToManyField(Status, through = 'QueueStatus')
+    attachments = models.ManyToManyField(Attachment)
+
+    def __unicode__(self):
+        return self.title
 
 class QueueStatus(models.Model):
     limit_green = models.IntegerField()
@@ -314,7 +337,8 @@ class QueueStatus(models.Model):
     status = models.ForeignKey(Status)
 
 class Order(models.Model):
-    priority = models.IntegerField(default = 1)
+    PRIORITIES = ((0, 'Matala'), (1, 'Normaali'), (2, 'Korkea'))
+    priority = models.IntegerField(default = 1, choices=PRIORITIES)
     created_at = models.DateTimeField(default=datetime.now())
     created_by = models.ForeignKey(User, related_name = 'created_by')
 
@@ -332,12 +356,13 @@ class Order(models.Model):
     queue = models.ForeignKey(Queue, null=True)
     status = models.ForeignKey(Status, null=True)
 
-    STATES = ('unassigned', 'open', 'closed')
-    state = models.CharField(default = STATES[0], max_length=16)
+    STATES = ((0, 'unassigned'), (1, 'open'), (2, 'closed'))
+    state = models.IntegerField(default = 0, max_length=16, choices=STATES)
 
     status_limit_green = models.IntegerField(null=True)   # timestamp in seconds
     status_limit_yellow = models.IntegerField(null=True)  # timestamp in seconds
     
+    attachments = models.ManyToManyField(Attachment)
     #gsx_repairs = models.TextField(DictField())
 
     def issues(self):
@@ -422,6 +447,7 @@ class Issue(models.Model):
     
     created_at = models.DateTimeField(default=datetime.now())
     created_by = models.CharField(default='filipp', max_length=32)
+
     order = models.ForeignKey(Order)
 
 class Message(models.Model):
@@ -431,11 +457,11 @@ class Message(models.Model):
     subject = models.CharField(max_length=255)
     body = models.TextField(default = '')
 
-    smsfrom = models.CharField(default='', max_length=32, null=True)
     mailfrom = models.EmailField(default='', null=True)
+    smsfrom = models.CharField(default='', max_length=32, null=True)
 
-    smsto = models.CharField(default='', max_length=32, null=True)
     mailto = models.EmailField(default='', null=True)
+    smsto = models.CharField(default='', max_length=32, null=True)
     
     sender = models.ForeignKey(User, related_name='sender')
     recipient = models.ForeignKey(User, null=True, related_name='recipient')
@@ -446,6 +472,7 @@ class Message(models.Model):
     path = models.CharField(max_length=255) #threading!
     flags = models.CharField(max_length=255, null=True)
     is_template = models.BooleanField(default = False)
+    attachments = models.ManyToManyField(Attachment)
     
     def save(self, *args, **kwargs):
         super(Message, self).save(*args, **kwargs)
@@ -475,26 +502,12 @@ class Message(models.Model):
     def send_sms(self):
         conf = Configuration.objects[0]
         import urllib
-        params = urllib.urlencode({"username": conf.sms_user,
-          "password": conf.sms_password,
-          "text" : self.body, "to" : self.smsto})
+        params = urllib.urlencode({
+            'username': conf.sms_user,
+            'password': conf.sms_password,
+            'text': self.body,
+            'to': self.smsto
+        })
 
         f = urllib.urlopen('%s?%s' %(conf.sms_url, params))
         print f.read()
-
-class Attachment(models.Model):
-    name = models.CharField(default = 'Uusi tiedosto', max_length=255)
-    content = models.FileField(upload_to = 'attachments')
-    content_type = models.CharField(max_length=64)
-    description = models.TextField(null=True)
-    uploaded_by = models.CharField(default="filipp", max_length=32)
-    uploaded_at = models.DateTimeField(default=datetime.now())
-    updated_at = models.DateTimeField(default=datetime.now())
-
-    tags = models.TextField()
-
-    queue = models.ForeignKey(Queue, null=True)
-    device = models.ForeignKey(Device, null=True)
-    product = models.ForeignKey(Product, null=True)
-    message = models.ForeignKey(Message, null=True)
-    customer = models.ForeignKey(Customer, null=True)
