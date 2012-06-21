@@ -12,8 +12,8 @@ def lookup(req, what):
 
     query = req.POST.get('q')
 
-    if what == "customer":
-        collection = "customer"
+    if what == 'customer':
+        collection = 'customer'
         customers = Customer.objects.filter(name__istartswith = query)
     
         for r in customers:
@@ -22,22 +22,33 @@ def lookup(req, what):
         return render(req, 'search/lookup.html', {'results': results,\
             'action': action, 'collection': collection})
 
+    if what == 'product-local':
+        collection = "products"
+        products = Product.objects.filter(code__istartswith = query)
+        for r in products:
+            results.append({'id': r.id, 'title': r.code, 'description': r.title})
+
+        return render(req, 'search/lookup.html', {'results': results,\
+            'action': action, 'collection': collection})
+    
+    if what == 'device-local':
+        local = Device.objects.filter(sn__istartswith = query)
+        for d in local:
+            results.append({'id': d.id, 'title': d.sn, 'description': d.description})
+
+        return render(req, 'search/lookup.html', {'results': results,\
+            'action': action, 'collection': collection})
+
     # @todo Use the order's queue's GSX account, then revert to default
     act = GsxAccount.objects.get(is_default = True)
     gsx = Gsx(act.sold_to, act.username, act.password)
 
-    if what == "product-local":
-        collection = "products"
-        products = Product.objects(code__istartswith = query)
-        for r in products:
-            results.append({'id': r.id, 'title': r.code, 'description': r.title})
-    
     param = gsx.looks_like(query)
-    print param, what
+    
     if what == "product-gsx":
         collection = "products"
         req.session['gsx_data'] = {}
-    
+        
         if param == "partNumber":
             for r in gsx.parts_lookup(query):
                 req.session['gsx_data'] = {r.get('partNumber'): r}
@@ -58,11 +69,6 @@ def lookup(req, what):
                         'description': r['partDescription']})
             except Exception, e:
                 pass
-    
-    if what == 'device-local':
-        local = Device.objects.filter(sn__istartswith = query)
-        for d in local:
-            results.append({'id': d.id, 'title': d.sn, 'description': d.description})
     
     if what == 'device-gsx':
         gsx_results = gsx.warranty_status(query)

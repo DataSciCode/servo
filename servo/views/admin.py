@@ -9,10 +9,10 @@ from django.http import HttpResponse
 from servo.models import *
     
 def settings(req):
-    if len(Configuration.objects) < 1:
+    try:
+        config = Configuration.objects.get(pk = 1)
+    except Exception, e:
         config = Configuration()
-    else:
-        config = Configuration.objects.first()
 
     if req.method == "POST":
 
@@ -24,7 +24,7 @@ def settings(req):
 
         return HttpResponse('Asetukset tallennettu')
     else:
-        return render(req, 'admin/settings.html', config)
+        return render(req, 'admin/settings.html', {'config': config})
 
 def status(req):
     statuses = Status.objects.all()

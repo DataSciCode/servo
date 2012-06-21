@@ -30,9 +30,11 @@
       <textarea name="description">{{ product.description }}</textarea>
       <br/>
       <div style="margin-left:85px">
-{% for t in  product.tags %}
-  <input type="text" name="tags" style="width:80px" class="autocomplete tag" value="{{ t }}"/>
-{% endfor %}
+        {% if product.pk %}
+            {% for t in  product.tags.all %}
+        <input type="text" name="tags" style="width:80px" class="autocomplete tag" value="{{ t }}"/>
+            {% endfor %}
+        {% endif %}
       <input type="text" id="newTag" class="autocomplete" style="width:80px"/>
     </div>
     </div><!-- //#info -->
@@ -84,13 +86,15 @@
     <div id="files" class="tab">
         <label>{% trans "Liitteet" %}:</label>
         <ul id="attachments">
-{% for f in product.documents %}
+            {% if product.pk %}
+                {% for f in product.attachments.all %}
   <li class="attachment">
       <a href="/attachment/view/{{ f.id }}">{{ f.name }}</a>
       <span>{{ f.description }}</span>
       <a href="/attachment/remove/{{ f.id }}" class="delete" style="float:right;margin-right:30px"></a>
   </li>
 {% endfor %}
+            {% endif %}
       </ul>
       <br/>
       <label></label>

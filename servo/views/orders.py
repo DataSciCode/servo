@@ -13,7 +13,7 @@ from django import forms
 class SidebarForm(forms.ModelForm):
     class Meta:
         model = Order
-        fields = ['user', 'queue', 'priority', 'status']
+        fields = ['user', 'queue', 'status', 'priority']
 
 def index(req, param = None, value = None):
     data = Order.objects.all()
@@ -38,7 +38,7 @@ def index(req, param = None, value = None):
 def create(req):
     user = req.session.get('user')
     o = Order.objects.create(created_by=user, created_at=datetime.now())
-    
+
     desc = 'Tilaus %d luotu' % o.id
     Event.objects.create(description=desc, order=o,
         type='create_order', user=user)
@@ -130,10 +130,10 @@ def update(req, id):
         user = User.objects.get(id = user)
         req.session['order'].user = user
         req.session['order'].save()
-        event = Event(description = user.fullname,
-            order = req.session['order'], 
-            type = "set_user")
-        event.save()
+        event = Event.objects.create(description=user.fullname,
+            order=req.session['order'], 
+            type='set_user',
+            user=req.session.get('user'))
     
     if 'priority' in req.POST:
         req.session['order'].priority = req.POST['priority']

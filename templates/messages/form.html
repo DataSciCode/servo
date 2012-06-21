@@ -24,9 +24,11 @@
     <label>{% trans 'Liite' %}:</label>
     <input type="file" id="fileupload" name="incoming"/>
     <ul id="attachments">
-{% for a in message.attachments.all %}
+    {% if order.pk %}
+        {% for a in message.attachments.all %}
         <li><a href="/document/">{{ a.name }}</a></li>
-{% endfor %}
+        {% endfor %}
+    {% endif %}
     </ul>
 </form>
 

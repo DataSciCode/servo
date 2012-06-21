@@ -62,55 +62,54 @@ def dispatch(req, order_id = None, numbers = None):
     return render(req, "store/dispatch.html", {"products": products, "totals": totals})
 
 def save_po(req):
+    po = PurchaseOrder()
 
-  po = PurchaseOrder()
+    for k, v in req.POST.items():
+        po.__setattr__(k, v)
   
-  for k, v in req.POST.items():
-    po.__setattr__(k, v)
+    codes = req.POST.getlist("code")
+    titles = req.POST.getlist("title")
+    prices = req.POST.getlist("price")
+    amounts = req.POST.getlist("amount")
   
-  codes = req.POST.getlist("code")
-  titles = req.POST.getlist("title")
-  prices = req.POST.getlist("price")
-  amounts = req.POST.getlist("amount")
+    po.save()
   
-  po.save()
-  
-  for k, v in enumerate(codes):
-    amt = int(amounts[k])
-    price = float(prices[k])
-    product = Product.objects(code = v).first()
-    po.products.append({"code": v, "title": titles[k], "amount": amt, "price": price})
+    for k, v in enumerate(codes):
+        amt = int(amounts[k])
+        price = float(prices[k])
+        product = Product.objects(code = v).first()
+        po.products.append({"code": v, "title": titles[k], "amount": amt, "price": price})
     
     for i in xrange(amt):
-      i = Inventory(slot = po, product = product, kind = "po")
-      i.save()
+        i = Inventory(slot = po, product = product, kind = "po")
+        i.save()
   
-  po.save()
+    po.save()
 
-  return HttpResponse('Ostotilaus tallennettu')
+    return HttpResponse('Ostotilaus tallennettu')
   
 def edit_po(req, id):
-  pass
+    pass
 
 def order_products(req, ids):
-  products = []
+    products = []
   
-  for i in ids.strip(";").split(";"):
-    products.append(Product.objects(number = int(i)).first())
+    for i in ids.strip(";").split(";"):
+        products.append(Product.objects(number = int(i)).first())
   
-  return render(req, "store/purchase_order.html", {"products": products})
+    return render(req, "store/purchase_order.html", {"products": products})
   
 def sell_product(req):
-  pass
+    pass
   
 def index_po(req):
-  data = PurchaseOrder.objects().all()
-  return render(req, 'store/index_po.html', {"orders": data})
+    data = PurchaseOrder.objects.all()
+    return render(req, 'store/index_po.html', {"orders": data})
   
 def index_incoming(req, shipment = None, date = None):
     inventory = Inventory.objects.filter(kind = "po")
     return render(req, "store/index_incoming.html", {"inventory": inventory})
   
 def index_outgoing(req, shipment = None, date = None):
-  pass
+    pass
   

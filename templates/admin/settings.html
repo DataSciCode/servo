@@ -9,13 +9,13 @@
   {% csrf_token %}
   <div class="tab" id="general">
 		<label>{% trans "Yritys" %}:</label>
-	  <input type="text"  name="company_name" value="{{ company_name }}"/>
+	  <input type="text"  name="company_name" value="{{ config.company_name }}"/>
     <br/>
     <label>{% trans "Kate %" %}:</label>
-    <input type="text" name="pct_margin" value="{{ pct_margin }}"/>
+    <input type="text" name="pct_margin" value="{{ config.pct_margin }}"/>
     <br/>
     <label>{% trans "ALV %" %}:</label>
-    <input type="text" name="pct_vat" value="{{ pct_vat }}"/>
+    <input type="text" name="pct_vat" value="{{ config.pct_vat }}"/>
     <br/>
     <label>{% trans "Salausavain" %}:</label>
     <input  type="password" name="encryption_key"/>
@@ -23,10 +23,10 @@
 	
 	<div class="tab" id="sms">
 		<label>{% trans "Palvelin" %}:</label>
-		<input type="text" name="sms_url" value="{{ sms_url }}"/>
+		<input type="text" name="sms_url" value="{{ config.sms_url }}"/>
 		<br/>
   	<label>{% trans "Tunnus" %}:</label>
-		<input type="text" name="sms_user" value="{{ sms_user }}"/>
+		<input type="text" name="sms_user" value="{{ config.sms_user }}"/>
 		<br/>
   	<label>{% trans "Salasana" %}:</label>
 		<input type="password" name="sms_password"/>
@@ -34,16 +34,16 @@
 
 	<div class="tab" id="mail">
 		<label>{% trans "Osoite" %}:</label>
-		<input type="text" name="mail_from" value="{{ mail_from }}"/>
+		<input type="text" name="mail_from" value="{{ config.mail_from }}"/>
 	  <br/>
 		<label>{% trans "Lähtevä" %}:</label>
-		<input type="text" name="smtp_host" value="{{ smtp_host }}"/>
+		<input type="text" name="smtp_host" value="{{ config.smtp_host }}"/>
 		<br/>
 		<label>{% trans "Tuleva" %}:</label>
-		<input type="text" name="imap_host" value="{{ imap_host }}"/>
+		<input type="text" name="imap_host" value="{{ config.imap_host }}"/>
 		<br/>
 		<label>{% trans "Tunnus" %}:</label>
-		<input type="text" name="imap_user" value="{{ imap_user }}"/>
+		<input type="text" name="imap_user" value="{{ config.imap_user }}"/>
 		<br/>
 		<label>{% trans "Salasana" %}:</label>
 		<input type="password" name="imap_password"/>

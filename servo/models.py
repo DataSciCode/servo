@@ -10,7 +10,7 @@ class Attachment(models.Model):
     name = models.CharField(default = 'Uusi tiedosto', max_length=255)
     
     content_type = models.CharField(max_length=64)
-    description = models.TextField(null=True)
+    description = models.TextField(blank=True)
     uploaded_by = models.CharField(default='filipp', max_length=32)
     uploaded_at = models.DateTimeField(default=datetime.now())
     updated_at = models.DateTimeField(default=datetime.now())
@@ -20,10 +20,9 @@ class Attachment(models.Model):
 class Configuration(models.Model):
     company_name = models.CharField(max_length=255)
     # the default margin percent for new products
-    pct_margin = models.DecimalField(decimal_places=2, max_digits=4)
-    repair_rate = models.DecimalField(decimal_places=2, max_digits=4)
+    pct_margin = models.DecimalField(decimal_places=2, max_digits=4, default=0.0)
     # default VAT for new products
-    pct_vat = models.DecimalField(decimal_places=2, max_digits=4)
+    pct_vat = models.DecimalField(decimal_places=2, max_digits=4, default=0.0)
     encryption_key = models.CharField(max_length=64)
 
     mail_from = models.EmailField(default = 'servo@example.com')
@@ -139,16 +138,24 @@ class Device(models.Model):
     spec = models.ForeignKey(Spec, null=True)
 
 class Product(models.Model):
-    #gsx_data = DictField()
+    def default_vat():
+        conf = Configuration.objects.get(pk = 1)
+        return conf.pct_vat
+
+    def default_margin():
+        conf = Configuration.objects.get(pk = 1)
+        return conf.pct_margin
+
+    #gsx_data = models.TextField(null=True)
     title = models.CharField(default = 'Uusi tuote', max_length=255)
     warranty_period = models.IntegerField(default = 0)
 
-    code = models.CharField(default = '', max_length=32)
-    shelf = models.CharField(default = '', max_length=8)
-    brand = models.CharField(default = '', max_length=32)
-
-    pct_vat = models.DecimalField(decimal_places=2, max_digits=4)
-    pct_margin = models.DecimalField(decimal_places=2, max_digits=4)
+    code = models.CharField(default = '', max_length=32, unique=True)
+    shelf = models.CharField(default = '', max_length=8, blank=True)
+    brand = models.CharField(default = '', max_length=32, blank=True)
+    
+    pct_vat = models.DecimalField(decimal_places=2, max_digits=4, default=default_vat)
+    pct_margin = models.DecimalField(decimal_places=2, max_digits=4, default=default_margin)
     price_notax = models.DecimalField(default = 0, decimal_places=2, max_digits=6)
     price_sales = models.DecimalField(default = 0, decimal_places=2, max_digits=6)
     price_purchase = models.DecimalField(default = 0, decimal_places=2, max_digits=6)
@@ -157,8 +164,8 @@ class Product(models.Model):
     amount_minimum = models.IntegerField(default = 0)
     is_serialized = models.BooleanField(default = False)
     
-    tags = models.ManyToManyField(Tag)
-    attachments = models.ManyToManyField(Attachment)
+    tags = models.ManyToManyField(Tag, blank=True)
+    attachments = models.ManyToManyField(Attachment, blank=True)
 
     def tax(self):
         return self.price_sales - self.price_notax
@@ -321,7 +328,7 @@ class Status(models.Model):
 
 class Queue(models.Model):
     title = models.CharField(default = 'Uusi jono', max_length=255)
-    description = models.TextField(null=True)
+    description = models.TextField(blank=True)
     gsx_account = models.ForeignKey(GsxAccount, null=True)
     statuses = models.ManyToManyField(Status, through = 'QueueStatus')
     attachments = models.ManyToManyField(Attachment)
@@ -457,11 +464,11 @@ class Message(models.Model):
     subject = models.CharField(max_length=255)
     body = models.TextField(default = '')
 
-    mailfrom = models.EmailField(default='', null=True)
-    smsfrom = models.CharField(default='', max_length=32, null=True)
+    mailfrom = models.EmailField(default='', blank=True)
+    smsfrom = models.CharField(default='', max_length=32, blank=True)
 
-    mailto = models.EmailField(default='', null=True)
-    smsto = models.CharField(default='', max_length=32, null=True)
+    mailto = models.EmailField(default='', blank=True)
+    smsto = models.CharField(default='', max_length=32, blank=True)
     
     sender = models.ForeignKey(User, related_name='sender')
     recipient = models.ForeignKey(User, null=True, related_name='recipient')
@@ -487,8 +494,8 @@ class Message(models.Model):
   
     def send_mail(self):
         import smtplib
-        conf = Configuration.objects.get()
-        subject = 'Huoltotilaus SRV#%d' %(self.order.number)
+        conf = Configuration.objects.get(pk = 1)
+        subject = 'Huoltotilaus SRV#%d' %(self.order.id)
         message = "\r\n".join(("From: %s" % conf.mail_from,
           "To: %s" % self.mailto,
           "Subject: %s" % subject,
@@ -500,8 +507,8 @@ class Message(models.Model):
         server.quit()
     
     def send_sms(self):
-        conf = Configuration.objects[0]
         import urllib
+        conf = Configuration.objects.get(pk = 1)
         params = urllib.urlencode({
             'username': conf.sms_user,
             'password': conf.sms_password,

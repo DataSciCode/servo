@@ -22,7 +22,6 @@ def form(req, replyto = None, smsto = None, mailto = None):
     if replyto:
         parent = Message.objects.get(pk = replyto)
         m = Message(path = parent.path)
-
     if smsto:
         m.smsto = smsto
     if mailto:
@@ -39,7 +38,7 @@ def edit(req, id = None):
 
 def save(req):
     m = Message(sender = req.session.get('user'))
-    
+
     m.body = req.POST.get("body")
     m.smsto = req.POST.get("smsto")
     m.subject = req.POST.get("body")

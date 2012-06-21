@@ -1,44 +1,26 @@
 {% load i18n %}
 <form method="post" action="/document/save" rel="attachments">
   {% csrf_token %}
-{% if file.id %}
-  <input type="hidden" name="id" value="{{ file.id }}"/>
-{% endif %}
-	<label>{% trans "Nimi" %}:</label>
-	<input type="text" name="name" value="{{ file.name }}"/>
-	<br/>
-	<label>{% trans "Kuvaus" %}:</label>
-	<textarea name="description">{{ file.description }}</textarea>
-	<br/>
-	<label>{% trans "Tagit" %}:</label>
-  {% with tags as file.tags.all %}
-      {% if tags %}
-        {% for t in  tags %}
-  <input type="text" name="tags" style="width:80px" class="autocomplete tag" value="{{ t }}"/>
-{% endfor %}
-      {% endif %}
-  {% endwith %}
-	<input type="text" id="newTag" class="autocomplete" style="width:80px"/>
-	<br/>
-	<label>{% trans "Tiedosto" %}:</label>
-	<input type="file" name="incoming" id="fileupload"/>
+  {{ form }}
 </form>
 <script type="text/javascript">
-	$("#fileupload").fileupload();
-	$(".autocomplete").autocomplete({source: "/tag/index/document"});
-	$(".autocomplete").keydown(function(e) {
-    if(e.keyCode == 13) {
-      $.post("/tag/save/document", { tag: $(this).val() });
-      $('<input type="text" name="tags" class="autocomplete tag" style="width:76px"/>')
-        .insertBefore($("#newTag")).val($(this).val());
-      $(this).val("");
-    }
+	$('#id_content').fileupload();
+	$('.autocomplete').autocomplete({source: '/tag/index/document'});
+
+	$('.autocomplete').keydown(function(e)
+    {
+        if(e.keyCode == 13) {
+            $.post("/tag/save/document", { tag: $(this).val() });
+            $('<input type="text" name="tags" class="autocomplete tag" style="width:76px"/>')
+                .insertBefore($("#newTag")).val($(this).val());
+            $(this).val('');
+        }
  	});
 
   $(".tag").keydown(function(e) {
     if($(this).val().length < 1) {
-      $(this).remove();
-      e.preventDefault();
+        $(this).remove();
+        e.preventDefault();
     }
   });
 </script>

@@ -3,6 +3,12 @@ import json, mimetypes
 from django.http import HttpResponse
 from django.shortcuts import render
 from servo.models import Attachment, Invoice, Configuration
+from django import forms
+
+class DocumentForm(forms.ModelForm):
+    class Meta:
+        model = Attachment
+        fields = ['content']
 
 def barcode(req, text):
     import barcode
@@ -11,16 +17,18 @@ def barcode(req, text):
 
 def index(req):
     files = Attachment.objects.all()
-    return render(req, 'documents/index.html', {"files": files})
+    return render(req, 'documents/index.html', {'files': files})
 
 def edit(req, id):
-    doc = Attachment.objects(id = ObjectId(id)).first()
-    return render(req, 'documents/form.html', {"file": doc})
+    doc = Attachment.objects.get(pk = id)
+    form = DocumentForm(instance=doc)
+    return render(req, 'documents/form.html', {'form': form})
 
 def create(req):
     doc = Attachment()
-    return render(req, 'documents/form.html', {"file": doc})
-  
+    form = DocumentForm()
+    return render(req, 'documents/form.html', {'form': form})
+
 def save(req):
     mimetypes.init()
 
@@ -29,7 +37,7 @@ def save(req):
     else:
         doc = Attachment()
 
-    f = req.FILES['incoming']
+    f = req.FILES['content']
 
     type, encoding = mimetypes.guess_type(f.name)
     doc.content = f
@@ -38,11 +46,11 @@ def save(req):
     doc.content_type = type
 
     if 'tags' in req.POST:
-        doc.tags = req.POST.getlist("tags")
+        doc.tags = req.POST.getlist('tags')
         
     doc.save()
-  
-    return HttpResponse(json.dumps({"name": doc.name, "id": doc.id}),
+    
+    return HttpResponse(json.dumps({'name': doc.name, 'id': doc.id}),
         content_type='application/json')
 
 def view(req, id):
@@ -52,13 +60,13 @@ def view(req, id):
   
 def remove(req, id = None):
     if "id" in req.POST:
-        doc = Attachment.objects(id = ObjectId(req.POST['id'])).first()
+        doc = Attachment.objects.get(pk = req.POST['id'])
         doc.content.delete()
         doc.delete()
         return HttpResponse('Tiedosto poistettu')
     else:
-        doc = Attachment.objects(id = ObjectId(id)).first()
-        return render(req, 'documents/remove.html', doc)
+        doc = Attachment.objects.get(pk = id)
+        return render(req, 'documents/remove.html', {'document': doc})
 
 def output(req, id, ref, ref_id):
     import pystache
