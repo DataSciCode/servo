@@ -435,12 +435,13 @@ var SidebarView = Backbone.View.extend(
     update_order: function(event)
     {
         t = $(event.currentTarget);
-        url = t.parent().attr('action');
+        url = t.parents('form').attr('action');
         arg = t.attr('name');
         args = {};
         args[arg] = t.val();
+        console.log(url)
         $('#events').load(url, args);
-        if ($(t).attr("name") == "queue") {
+        if (arg == "queue") {
             $('#select_status').load('/orders/statuses')
             console.log('reload statuses!');
         };
