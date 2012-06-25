@@ -12,8 +12,10 @@ class DocumentForm(forms.ModelForm):
 
 def barcode(req, text):
     import barcode
-    code = barcode.get_barcode("Code39", text)
-    return HttpResponse(code.render(None), content_type="image/svg+xml")
+    from barcode.writer import ImageWriter
+    code = barcode.get_barcode("Code39", text, writer = ImageWriter())
+    # content_type="image/svg+xml"
+    return HttpResponse(code.render(None), content_type='image/png')
 
 def index(req):
     files = Attachment.objects.all()
@@ -68,16 +70,15 @@ def remove(req, id = None):
         doc = Attachment.objects.get(pk = id)
         return render(req, 'documents/remove.html', {'document': doc})
 
-def output(req, id, ref, ref_id):
+def output(req, ref, ref_id, doc_id):
     import pystache
-
-    conf = Configuration.objects().first()
-    doc = Attachment.objects(id = ObjectId(id)).first()
-    data = Invoice.objects(id = ObjectId(ref_id)).first()
+    conf = Configuration.objects.get(pk = 1)
+    doc = Attachment.objects.get(pk = doc_id)
+    #data = Invoice.objects(id = ObjectId(ref_id)).first()
     tpl = doc.content.read().decode("utf-8")
 
     return HttpResponse(pystache.render(tpl, {
-        "data": data,
-        "config": conf,
-        "location": req.session['user'].location
+        'data': {},
+        'config': conf,
+        'location': req.session['user'].location
     }))

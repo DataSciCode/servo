@@ -1,5 +1,13 @@
 [
     {
+        "model": "servo.configuration",
+        "pk": 1,
+        "fields": {
+            "pct_margin": "1",
+            "pct_vat": "1"
+        }
+    },
+    {
         "model": "servo.queue",
         "pk": 1,
         "fields": {

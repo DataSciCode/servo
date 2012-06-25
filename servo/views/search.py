@@ -1,14 +1,24 @@
-from servo.models import Device, Product, Customer, GsxAccount
+from gsxlib.gsxlib import Gsx
+from servo.models import Device, Product, Customer, GsxAccount, Search
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-from gsxlib.gsxlib import Gsx
+from django.utils.datastructures import DotExpandedDict
+import json
+
+@csrf_exempt
+def save(req):
+    query = DotExpandedDict(req.POST)
+    title = req.POST.get('title', '')
+    model = req.POST.get('model')
+    query = json.dumps(query['query'])
+    Search.objects.create(query = query, title = title, model = model)
 
 @csrf_exempt
 def lookup(req, what):
     results = []
-    action = "edit"
-    collection = "device"
+    action = 'edit'
+    collection = 'device'
 
     query = req.POST.get('q')
 
@@ -23,7 +33,7 @@ def lookup(req, what):
             'action': action, 'collection': collection})
 
     if what == 'product-local':
-        collection = "products"
+        collection = 'products'
         products = Product.objects.filter(code__istartswith = query)
         for r in products:
             results.append({'id': r.id, 'title': r.code, 'description': r.title})
@@ -45,11 +55,11 @@ def lookup(req, what):
 
     param = gsx.looks_like(query)
     
-    if what == "product-gsx":
-        collection = "products"
+    if what == 'product-gsx':
+        collection = 'products'
         req.session['gsx_data'] = {}
         
-        if param == "partNumber":
+        if param == 'partNumber':
             for r in gsx.parts_lookup(query):
                 req.session['gsx_data'] = {r.get('partNumber'): r}
                 results.append({'id': r['partNumber'], 'title': r['partNumber'],\
@@ -58,8 +68,8 @@ def lookup(req, what):
         if req.session.get('order'):
             try:
                 sn = req.session['order']['devices'][0].sn
-                if gsx.looks_like(sn, "serialNumber"):
-                    query = {"serialNumber": sn, "partDescription": query}
+                if gsx.looks_like(sn, 'serialNumber'):
+                    query = {'serialNumber': sn, 'partDescription': query}
 
                 for r in gsx.parts_lookup(query):
                     pn = r.get('partNumber')

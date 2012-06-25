@@ -153,7 +153,7 @@ class Product(models.Model):
     code = models.CharField(default = '', max_length=32, unique=True)
     shelf = models.CharField(default = '', max_length=8, blank=True)
     brand = models.CharField(default = '', max_length=32, blank=True)
-    
+
     pct_vat = models.DecimalField(decimal_places=2, max_digits=4, default=default_vat)
     pct_margin = models.DecimalField(decimal_places=2, max_digits=4, default=default_margin)
     price_notax = models.DecimalField(default = 0, decimal_places=2, max_digits=6)
@@ -187,7 +187,7 @@ class Product(models.Model):
         """Get or set the ordered amount of this product
         """
         try:
-            return Inventory.objects.filter(product = self.id, kind = "po").count()
+            return Inventory.objects.filter(product = self.id, kind = 'po').count()
         except Exception, e:
             return 0
 
@@ -195,7 +195,7 @@ class Product(models.Model):
         """Get or set the reserved amount of this product
         """
         try:
-            return Inventory.objects.filter(product = self.id, kind = "order").count()
+            return Inventory.objects.filter(product = self.id, kind = 'order').count()
         except Exception, e:
             return 0
 
@@ -209,12 +209,6 @@ class User(models.Model):
 
     def __unicode__(self):
         return self.fullname
-
-class OrderItem(models.Model):
-    product = models.ForeignKey(Product)
-    sn = models.CharField(max_length=32)
-    amount = models.IntegerField()
-    price = models.DecimalField(max_digits=4, decimal_places=2)
     
 class GsxRepair(models.Model):
     #customer_data = DictField()
@@ -357,7 +351,7 @@ class Order(models.Model):
     tags = models.ManyToManyField(Tag)
 
     customer = models.ForeignKey(Customer, null=True)
-    products = models.ManyToManyField(Product)
+    products = models.ManyToManyField(Product, through='OrderItem')
     devices = models.ManyToManyField(Device)
 
     queue = models.ForeignKey(Queue, null=True)
@@ -459,7 +453,7 @@ class Issue(models.Model):
 
 class Message(models.Model):
     class Meta:
-        ordering = ["id"]
+        ordering = ['id']
 
     subject = models.CharField(max_length=255)
     body = models.TextField(default = '')
@@ -496,10 +490,10 @@ class Message(models.Model):
         import smtplib
         conf = Configuration.objects.get(pk = 1)
         subject = 'Huoltotilaus SRV#%d' %(self.order.id)
-        message = "\r\n".join(("From: %s" % conf.mail_from,
-          "To: %s" % self.mailto,
-          "Subject: %s" % subject,
-          "",
+        message = "\r\n".join(('From: %s' % conf.mail_from,
+          'To: %s' % self.mailto,
+          'Subject: %s' % subject,
+          '',
           self.body))
 
         server = smtplib.SMTP(conf.smtp_host)
@@ -518,3 +512,16 @@ class Message(models.Model):
 
         f = urllib.urlopen('%s?%s' %(conf.sms_url, params))
         print f.read()
+
+class OrderItem(models.Model):
+    order = models.ForeignKey(Order)
+    product = models.ForeignKey(Product)
+    sn = models.CharField(max_length=32)
+    price = models.DecimalField(max_digits=4, decimal_places=2)
+    reported = models.BooleanField(default=True)
+
+class Search(models.Model):
+    query = models.TextField()
+    model = models.CharField(max_length=32)
+    title = models.CharField(max_length=128)
+    shared = models.BooleanField(default=True)

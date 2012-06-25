@@ -21,12 +21,12 @@ def edit(req, id):
   
 def remove(req, id = None):
     if 'id' in req.POST:
-        issue = Issue.objects(pk = req.POST['id'])
+        issue = Issue.objects.get(pk = req.POST['id'])
         issue.delete()
         return HttpResponse('Tehtävä poistettu')
     else:
         issue = Issue.objects.get(pk = id)
-        return render(req, 'issues/remove.html', issue)
+        return render(req, 'issues/remove.html', {'issue': issue})
 
 def save(req):
     issue = Issue()

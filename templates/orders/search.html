@@ -1,0 +1,80 @@
+{% load i18n %}
+<form action="/search/save" method="post" accept-charset="utf-8">
+    <input type="hidden" name="model" value="Order"/>
+    <label>{% trans "Tallenna" %}:</label>
+    <input type="text" name="title" id="title"/>
+    <label></label>
+    <select name="query.queue">
+        <option value="">{% trans "Jono" %}...</option>
+{% for q in queues %}
+        <option value="{{ q.id }}">{{ q.title }}</option>
+{% endfor %}
+    </select>
+    <select name="query.status">
+        <option value="">{% trans "Status" %}...</option>
+{% for s in statuses %}
+        <option value="{{ s.id }}">{{ s.title }}</option>
+{% endfor %}
+    </select>
+    <select name="query.location">
+        <option value="">{% trans "Sijainti" %}...</option>
+{% for l in locations %}
+    <option value="{{ l.id }}">{{ l.title }}</option>
+{% endfor %}
+    </select>
+    <br/>
+    <label></label>
+    <select name="query.user">
+        <option value="">{% trans "Käsittelijä" %}...</option>
+        <option value="1">{% trans "Ei kukaan" %}</option>
+{% for u in users %}
+    <option value="{{ u.id }}">{{ u.fullname }}</option>
+{% endfor %}
+    </select>
+    <select name="query.priority">
+        <option value="">{% trans "Prioriteetti" %}...</option>
+        <option value="2">{% trans "Korkea" %}</option>
+        <option value="1">{% trans "Normaali" %}</option>
+        <option value="0">{% trans "Matala" %}</option>
+    </select>
+    <select name="query.state">
+        <option value="">{% trans "Tila" %}...</option>
+        <option value="new">{% trans "Uusi" %}</option>
+        <option value="open">{% trans "Avoin" %}</option>
+        <option value="closed">{% trans "Suljettu" %}</option>
+    </select>
+    <hr/>
+    <label></label>
+    <select name="query.spec">
+        <option value="">{% trans "Malli" %}...</option>
+{% for s in specs %}
+        <option value="{{ s.id }}">{{ s.title }}</option>
+{% endfor %}
+    </select>
+    <hr/>
+    <label></label>
+    <select name="query.date">
+        <option value="">{% trans "Päivämäärä" %}...</option>
+        <option value="created">{% trans "Luotu" %}</option>
+        <option value="closed">{% trans "Suljettu" %}</option>
+        <option value="returned">{% trans "Luovutettu" %}</option>       
+    </select>
+    <select name="query[status.limit]">
+        <option value="">{% trans "Tila" %}...</option>
+        <option value="green > $time">{% trans "Vihreä" %}</option>
+        <option value="yellow > $time">{% trans "Keltainen" %}</option>
+        <option value="yellow < $time">{% trans "Punainen" %}</option>       
+    </select>
+    <hr/>
+    <label>{% trans "Vika" %}:</label>
+    <input type="text" name="query.issues.symptom"/>
+    <br/>
+    <label>{% trans "Diagnoosi" %}:</label>
+    <input type="text" name="query.issues.diagnosis"/>
+    <br/>
+    <label>{% trans "Ratkaisu" %}:</label>
+    <input type="text" name="query.issues.solution"/>
+    <hr/>
+    <label>{% trans "Jaettu" %}:</label>
+    <input type="checkbox" named="shared"/>
+</form>

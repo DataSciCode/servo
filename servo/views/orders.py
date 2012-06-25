@@ -15,14 +15,24 @@ class SidebarForm(forms.ModelForm):
         model = Order
         fields = ['user', 'queue', 'status', 'priority']
 
+def search(req):
+    queues = Queue.objects.all()
+    statuses = Status.objects.all()
+    users = User.objects.all()
+    locations = Location.objects.all()
+    return render(req, 'orders/search.html', {'queues': queues,
+        'statuses': statuses,
+        'users': users,
+        'locations': locations})
+
 def index(req, param = None, value = None):
     data = Order.objects.all()
 
-    if param == "status":
+    if param == 'status':
         status = Status.objects.get(id = value)
         data = status.order_set.all()
 
-    if param == "user":
+    if param == 'user':
         try:
             user = User.objects.get(username = value)
             data = user.order_set.all()
@@ -33,7 +43,7 @@ def index(req, param = None, value = None):
         customer = Customer.objects.get(id = value)
         data = customer.order_set.all()
 
-    return render(req, 'orders/index.html', {'data' : data})
+    return render(req, 'orders/index.html', {'data': data})
 
 def create(req):
     user = req.session.get('user')
@@ -201,7 +211,20 @@ def create_gsx_repair(req, order_id):
         "customer": customer,
         "order": order
     })
-    
+
+def put_on_paper(req, order_id, template_id):
+    import pystache
+    conf = Configuration.objects.get(pk = 1)
+    doc = Attachment.objects.get(pk = template_id)
+    data = Order.objects.get(pk = order_id)
+    tpl = doc.content.read().decode('utf-8')
+
+    return HttpResponse(pystache.render(tpl, {
+        'order': data,
+        'config': conf,
+        'location': req.session['user'].location
+    }))
+
 def submit_gsx_repair(req):
     data = DotExpandedDict(req.POST)
     parts = []

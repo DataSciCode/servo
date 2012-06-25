@@ -10,6 +10,10 @@
   </ul>
 {% endblock %}
 
+{% block secondary %}
+    <li><a href="/orders/search" class="search popup">&nbsp;</a></li>
+{% endblock secondary %}
+
 {% block content %}
 <div class="tableView">
     <table id="orders" data-url="/orders/">

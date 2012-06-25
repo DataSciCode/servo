@@ -40,15 +40,15 @@ def save(req):
     m = Message(sender = req.session.get('user'))
 
     m.body = req.POST.get("body")
-    m.smsto = req.POST.get("smsto")
-    m.subject = req.POST.get("body")
-    m.mailto = req.POST.get("mailto")
+    m.smsto = req.POST.get("smsto", '')
+    m.subject = req.POST.get("body", '')
+    m.mailto = req.POST.get("mailto", '')
     
     for a in req.POST.getlist('attachments'):
         doc = Attachment.objects.get(pk = id)
         m.attachments.append(doc)
     
-    if "order" in req.session:
+    if 'order' in req.session:
         m.order = req.session['order']
         m.recipient = req.session['order'].user
     

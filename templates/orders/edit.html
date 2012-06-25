@@ -112,9 +112,9 @@
 {% block content %}
 
 <div id="devices" class="tableView" data-url="/orders/devices/{{ order.id }}">
-  {% if order.devices %}
-    {% include "orders/devices.html" %}
-  {% endif %}
+    {% if order.devices %}
+        {% include "orders/devices.html" %}
+    {% endif %}
 </div>
 
 <div id="issues" class="tableView" data-url="/orders/issues/{{ order.id }}">
@@ -130,13 +130,13 @@
 </div><!-- //#messages -->
 
 <div id="products" class="tableView" data-url="/orders/products/{{ order.id }}">
-  {% if order.products %}
-    {% include "orders/products.html" %}
-  {% endif %}
+    {% if order.products %}
+        {% include "orders/products.html" %}
+    {% endif %}
 </div><!-- //#products -->
 
 <div id="events" data-url="/orders/events/id/{{ order.id }}">
-{% include "orders/events.html" %}
+    {% include "orders/events.html" %}
 </div>
 
 {% endblock %}
