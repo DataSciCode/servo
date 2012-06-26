@@ -13,7 +13,7 @@ def index(req):
     messages = Message.objects.filter(recipient = req.session['user'])
     return render(req, 'messages/index.html', {'messages': messages})
 
-def form(req, replyto = None, smsto = None, mailto = None):
+def form(req, replyto=None, smsto=None, mailto=None):
     form = MessageForm()
     print form
 
@@ -27,39 +27,41 @@ def form(req, replyto = None, smsto = None, mailto = None):
     if mailto:
         m.mailto = mailto
 
-    templates = Message.objects.filter(is_template = True)
+    templates = Message.objects.filter(is_template=True)
 
     return render(req, 'messages/form.html', {'message': m, 'templates': templates})
 
 def edit(req, id = None):
-    m = Message.objects.get(pk = id)
-    templates = Message.objects.filter(is_template = True)
+    m = Message.objects.get(pk=id)
+    templates = Message.objects.filter(is_template=True)
     return render(req, 'messages/form.html', {'message': m, 'templates': templates})
 
 def save(req):
     m = Message(sender = req.session.get('user'))
 
-    m.body = req.POST.get("body")
-    m.smsto = req.POST.get("smsto", '')
-    m.subject = req.POST.get("body", '')
-    m.mailto = req.POST.get("mailto", '')
-    
-    for a in req.POST.getlist('attachments'):
-        doc = Attachment.objects.get(pk = id)
-        m.attachments.append(doc)
+    m.body = req.POST.get('body')
+    m.smsto = req.POST.get('smsto', '')
+    m.subject = req.POST.get('body', '')
+    m.mailto = req.POST.get('mailto', '')
     
     if 'order' in req.session:
         m.order = req.session['order']
         m.recipient = req.session['order'].user
     
+    m.save()
+
+    for a in req.POST.getlist('attachments'):
+        doc = Attachment.objects.get(pk = a)
+        m.attachments.add(doc)
+
+    m.path = req.POST.get('path', str(m.id))
+
     if m.mailto:
         m.send_mail()
     
     if m.smsto:
         m.send_sms()
-    
-    m.save()
-    m.path = req.POST.get('path', str(m.id))
+        
     m.save()
 
     return HttpResponse('Viesti tallennettu')

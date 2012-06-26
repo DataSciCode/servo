@@ -70,7 +70,7 @@ def tags(req, id):
     return HttpResponse(json.dumps({order.tags}), content_type='application/json')
   
 def edit(req, id):
-    o = Order.objects.get(pk = id)
+    o = Order.objects.get(pk=id)
 
     req.session['order'] = o
     
@@ -79,11 +79,12 @@ def edit(req, id):
     queues = Queue.objects.all()
     statuses = Status.objects.all()
     priorities = ['Matala', 'Normaali', 'Korkea']
-
+    products = OrderItem.objects.filter(order=o)
     return render(req, 'orders/edit.html', {
         'order': o,
         'queues': queues,
         'users': users,
+        'products': products,
         'statuses': statuses,
         'priorities': priorities,
         'form': form

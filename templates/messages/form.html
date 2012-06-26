@@ -22,7 +22,7 @@
     <input id="smsto" type="text" name="smsto" value="{{ message.smsto }}"/>
     <br/>
     <label>{% trans 'Liite' %}:</label>
-    <input type="file" id="fileupload" name="incoming"/>
+    <input type="file" id="fileupload" name="content"/>
     <ul id="attachments">
     {% if order.pk %}
         {% for a in message.attachments.all %}

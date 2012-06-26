@@ -2,6 +2,9 @@
 from django.db import models
 from datetime import datetime
 
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
+
 class Tag(models.Model):
     title = models.CharField(default = 'Uusi tagi', max_length=255)
     type = models.CharField(max_length=32)
@@ -146,8 +149,9 @@ class Product(models.Model):
         conf = Configuration.objects.get(pk = 1)
         return conf.pct_margin
 
-    #gsx_data = models.TextField(null=True)
+    gsx_data = models.TextField(blank=True)
     title = models.CharField(default = 'Uusi tuote', max_length=255)
+    description = models.TextField(blank=True)
     warranty_period = models.IntegerField(default = 0)
 
     code = models.CharField(default = '', max_length=32, unique=True)
@@ -257,14 +261,13 @@ class PurchaseOrder(models.Model):
     sales_order = models.CharField(max_length=32)
 
     date_created = models.DateTimeField(default = datetime.now())
-    date_ordered = models.DateTimeField()
-    date_arrived = models.DateTimeField()
-
-    products = models.ForeignKey(PoItem)
+    date_ordered = models.DateTimeField(default = datetime.now())
+    date_arrived = models.DateTimeField(blank=True)
+    
     carrier = models.CharField(max_length=32)
     supplier = models.CharField(max_length=32)
     tracking_id = models.CharField(max_length=128)
-    days_delivered = models.IntegerField()
+    days_delivered = models.IntegerField(blank=True)
 
     def sum(self):
         total = 0
@@ -389,7 +392,7 @@ class Order(models.Model):
         if self.status:
             return self.status.title
         else:
-            return "Ei statusta"
+            return 'Ei statusta'
 
     def status_id(self):
         if self.status:
@@ -403,17 +406,17 @@ class Order(models.Model):
             return 'undefined'
         else:
             if time() < self.status_limit_green:
-                return "green"
+                return 'green'
             if time() < self.status_limit_yellow:
-                return "yellow"
+                return 'yellow'
             if time() > self.status_limit_yellow:
-                return "red"
+                return 'red'
     
     def customer_name(self):
-        return 'Filipp Lepalaan'
+        return self.customer.name
   
     def customer_id(self):
-        return 1
+        return self.customer.id
   
     def device_name(self):
         result = ''
@@ -485,19 +488,33 @@ class Message(models.Model):
 
     def indent(self):
         return self.path.count(',')+1
-  
+    
     def send_mail(self):
         import smtplib
+        from email.mime.base import MIMEBase
+        from email.mime.text import MIMEText
+        from email.mime.multipart import MIMEMultipart
+
         conf = Configuration.objects.get(pk = 1)
         subject = 'Huoltotilaus SRV#%d' %(self.order.id)
-        message = "\r\n".join(('From: %s' % conf.mail_from,
-          'To: %s' % self.mailto,
-          'Subject: %s' % subject,
-          '',
-          self.body))
+
+        msg = MIMEMultipart()
+        msg['Subject'] = subject
+        msg['From'] = conf.mail_from
+        msg['To'] = self.mailto
+        msg.preamble = self.body
+
+        txt = MIMEText(self.body)
+        msg.attach(txt)
+
+        for f in self.attachments.all():
+            maintype, subtype = f.content_type.split('/', 1)
+            a = MIMEBase(maintype, subtype)
+            a.set_payload(f.content.read())
+            msg.attach(a)
 
         server = smtplib.SMTP(conf.smtp_host)
-        server.sendmail(conf.mail_from, self.mailto, message)
+        server.sendmail(conf.mail_from, self.mailto, msg.as_string())
         server.quit()
     
     def send_sms(self):

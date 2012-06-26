@@ -1,25 +1,22 @@
 {% load i18n %}
 
 <div class="tabView">
-  <ul class="tabs"><li><a href="#info">{% trans 'Perustiedot' %}</a></li><li><a href="#price">{% trans 'Hinnat' %}</a></li><li><a href="#stock">{% trans 'Varasto' %}</a></li><li><a href="#files">{% trans 'Liitteet' %}</a></li><li><a href="#gsx">{% trans 'GSX' %}</a></li></ul>
+    <ul class="tabs"><li><a href="#info">{% trans 'Perustiedot' %}</a></li><li><a href="#price">{% trans 'Hinnat' %}</a></li><li><a href="#stock">{% trans 'Varasto' %}</a></li><li><a href="#files">{% trans 'Liitteet' %}</a></li><li><a href="#gsx">{% trans 'GSX' %}</a></li></ul>
 
-<form method="post" rel="products" accept-charset="utf-8" action="/products/save">
-  {% csrf_token %}
-{% if product.id %}
-    <input name="id" type="hidden" value="{{ product.id }}"/>
-{% endif %}
+<form method="post" rel="products" accept-charset="utf-8" action="/products/save/{{ product.id }}">
+    {% csrf_token %}
     <div id="info" class="tab">
-      <label>{% trans 'Koodi' %}:</label>
-      <input id="code" name="code" type="text" class="ucase searchable" value="{{ product.code }}"/>
-      <a class="search" href="javascript:;" data-url="/products/search"></a>
-      <br/>
-      <label>{% trans 'Nimike' %}:</label>
-      <input id="title" type="text" name="title" value="{{ product.title }}"/>
-      <br/>
+        <label>{% trans 'Koodi' %}:</label>
+        <input id="code" name="code" type="text" class="ucase searchable" value="{{ product.code }}"/>
+        <a class="search" href="javascript:;" data-url="/products/search"></a>
+        <br/>
+        <label>{% trans 'Nimike' %}:</label>
+      {{ form.title }}
+        <br/>
 {% if product.amount_sold %}
-      <label>{% trans "Määrä" %}:</label>
-      <input type="text" name="amount_sold" value="{{ product.amount_sold }}"/>
-      <br/>
+        <label>{% trans "Määrä" %}:</label>
+        <input type="text" name="amount_sold" value="{{ product.amount_sold }}"/>
+        <br/>
     {% if product.is_serialized %}
       <label>{% trans "Sarjanumero" %}:</label>
       <input type="text" name="sn" value="{{ product.sn }}"/>
@@ -27,78 +24,78 @@
     {% endif %}
 {% endif %}
       <label>{% trans 'Kuvaus' %}:</label>
-      <textarea name="description">{{ product.description }}</textarea>
+      {{ form.description }}
       <br/>
       <div style="margin-left:85px">
         {% if product.pk %}
-            {% for t in  product.tags.all %}
-        <input type="text" name="tags" style="width:80px" class="autocomplete tag" value="{{ t }}"/>
-            {% endfor %}
+        {% for t in  product.tags.all %}
+            <input type="text" name="tags" style="width:80px" class="autocomplete tag" value="{{ t }}"/>
+        {% endfor %}
         {% endif %}
       <input type="text" id="newTag" class="autocomplete" style="width:80px"/>
     </div>
     </div><!-- //#info -->
+
     <div id="price" class="tab">
-      <label>{% trans 'Ostohinta' %}:</label>
-      <input type="text" name="price_purchase" value="{{ product.price_purchase }}"/>
-      <br/>
-      <label>{% trans 'Vaihtohinta' %}:</label>
-      <input type="text" name="price_exchange" value="{{ product.price_exchange }}"/>
-      <br/>
-      <label>{% trans 'Kate %' %}:</label>
-      <input type="text" name="pct_margin" value="{{ product.pct_margin }}"/>
-      <br/>
-      <label>{% trans 'ALV %' %}:</label>
-      <input type="text" name="pct_vat" value="{{ product.pct_vat }}"/>
-      <br/>
-      <label>{% trans 'Perushinta' %}:</label>
-      <input type="text" name="price_notax" value="{{ product.price_notax }}"/>
-      <br/>
-      <label>{% trans 'Myyntihinta' %}:</label>
-      <input type="text" name="price_sales" value="{{ product.price_sales }}"/>
+        <label>{% trans 'Ostohinta' %}:</label>
+        {{ form.price_purchase }}
+        <br/>
+        <label>{% trans 'Kate %' %}:</label>
+        {{ form.pct_margin }}
+        <br/>
+        <label>{% trans 'ALV %' %}:</label>
+        {{ form.pct_vat }}
+        <br/>
+        <label>{% trans 'Perushinta' %}:</label>
+        {{ form.price_notax }}
+        <br/>
+        <label>{% trans 'Vaihtohinta' %}:</label>
+        {{ form.price_exchange }}
+        <br/>
+        <label>{% trans 'Myyntihinta' %}:</label>
+        {{ form.price_sales }}
     </div><!-- //#price -->
     <div id="stock" class="tab">
-      <label>{% trans 'Valmistaja' %}:</label>
-      <input type="text" name="brand" value="{{ product.brand }}"/>
-      <br/>
-      <label>{% trans 'Takuu (kk)' %}:</label>
-      <input type="text" name="warranty_period" value="{{ product.warranty_period }}"/>
-      <br/>
-      <label>{% trans 'Hyllykoodi' %}:</label>
-      <input type="text" name="shelf" value="{{ product.shelf }}"/>
-      <br/>
-      <label>{% trans 'Tilattu' %}:</label>
-      <input type="text" value="{{ product.amount_ordered }}" readonly="readonly"/>
-      <br/>
-      <label>{% trans 'Varastossa' %}:</label>
-      <input type="text" name="amount_stocked" value="{{ product.amount_stocked }}"/>
-      <br/>
-      <label>{% trans 'Minimiraja' %}:</label>
-      <input type="text" name="amount_minimum" value="{{ product.amount_minimum }}"/>
-      <br/>
-      <label>{% trans 'Varattu' %}:</label>
-      <input type="text" readonly="readonly" value="{{ product.amount_reserved }}"/>
-      <br/>
-      <label><input type="checkbox" name="is_serialized"></label>
-      {% trans "sarjanumeroseuranta" %}
+        <label>{% trans 'Valmistaja' %}:</label>
+        {{ form.brand }}
+        <br/>
+        <label>{% trans 'Takuu (kk)' %}:</label>
+        {{ form.warranty_period }}
+        <br/>
+        <label>{% trans 'Hyllykoodi' %}:</label>
+        {{ form.shelf }}
+        <br/>
+        <label>{% trans 'Tilattu' %}:</label>
+        {{ form.amount_ordered }}
+        <br/>
+        <label>{% trans 'Varastossa' %}:</label>
+        {{ form.amount_stocked }}
+        <br/>
+        <label>{% trans 'Minimiraja' %}:</label>
+        {{ form.amount_minimum }}
+        <br/>
+        <label>{% trans 'Varattu' %}:</label>
+        {{ form.amount_reserved }}
+        <br/>
+        <label>{{ form.is_serialized }}</label>
+        {% trans "sarjanumeroseuranta" %}
     </div><!-- //#stock -->
-    
     <div id="files" class="tab">
         <label>{% trans "Liitteet" %}:</label>
         <ul id="attachments">
             {% if product.pk %}
                 {% for f in product.attachments.all %}
-  <li class="attachment">
-      <a href="/attachment/view/{{ f.id }}">{{ f.name }}</a>
-      <span>{{ f.description }}</span>
-      <a href="/attachment/remove/{{ f.id }}" class="delete" style="float:right;margin-right:30px"></a>
+            <li class="attachment">
+                <a href="/document/view/{{ f.id }}">{{ f.name }}</a>
+                <span>{{ f.description }}</span>
+                <a href="/document/remove/{{ f.id }}" class="delete" style="float:right;margin-right:30px"></a>
   </li>
 {% endfor %}
             {% endif %}
       </ul>
       <br/>
       <label></label>
-      <input type="file" id="fileupload" name="incoming"/>
+      <input type="file" id="fileupload" name="content"/>
     </div><!-- //#files -->
     <div id="gsx" class="tab">
 {% for k, v in product.gsx_data.items %}

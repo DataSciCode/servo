@@ -5,6 +5,11 @@ from django.http import HttpResponse
 from datetime import datetime
 
 from django.utils.datastructures import DotExpandedDict
+from django import forms
+
+class PurchaseOrderForm(forms.ModelForm):
+    class Meta:
+        model = PurchaseOrder
 
 def invoices(req):
     data = Invoice.objects.all()
@@ -63,15 +68,16 @@ def dispatch(req, order_id = None, numbers = None):
 
 def save_po(req):
     po = PurchaseOrder()
-
+    form = PurchaseOrderForm(req.POST)
+    print form.errors
     for k, v in req.POST.items():
         po.__setattr__(k, v)
   
-    codes = req.POST.getlist("code")
-    titles = req.POST.getlist("title")
-    prices = req.POST.getlist("price")
-    amounts = req.POST.getlist("amount")
-  
+    codes = req.POST.getlist('code')
+    titles = req.POST.getlist('title')
+    prices = req.POST.getlist('price')
+    amounts = req.POST.getlist('amount')
+
     po.save()
   
     for k, v in enumerate(codes):
@@ -93,11 +99,13 @@ def edit_po(req, id):
 
 def order_products(req, ids):
     products = []
-  
-    for i in ids.strip(";").split(";"):
-        products.append(Product.objects(number = int(i)).first())
-  
-    return render(req, "store/purchase_order.html", {"products": products})
+    form = PurchaseOrderForm()
+
+    for i in ids.strip(';').split(';'):
+        products.append(Product.objects.get(pk=i))
+        
+    return render(req, 'store/purchase_order.html', {'products': products,
+        'form': form})
   
 def sell_product(req):
     pass

@@ -2,16 +2,22 @@ from servo.models import *
 from django.shortcuts import render
 from django.http import HttpResponse
 import json
+from django import forms
 
-from django.forms import ModelForm
-
-class ProductForm(ModelForm):
+class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
 
+    amount_ordered = forms.CharField(max_length=3,
+        widget=forms.TextInput(attrs={'readonly':'readonly'}), required=False)
+    amount_reserved = forms.CharField(max_length=3,
+        widget=forms.TextInput(attrs={'readonly':'readonly'}), required=False)
+    amount_stocked = forms.CharField(max_length=3, required=False)
+
 def create(req, order_id=None):
     p = Product()
-    return render(req, 'products/form.html', {'product': p})
+    form = ProductForm()
+    return render(req, 'products/form.html', {'form': form})
 
 def index(req):
     req.session['order'] = None
@@ -23,6 +29,7 @@ def index(req):
 def edit(req, id):
     try:
         product = Product.objects.get(pk = id)
+        form = ProductForm(instance = product)
     except Exception, e:
         gsx_data = req.session.get('gsx_data')
 
@@ -36,75 +43,77 @@ def edit(req, id):
             ep = ep+(ep/100*conf.pct_margin)+(ep/100*conf.pct_vat)
             sp = sp+(sp/100*conf.pct_margin)
 
-            product = Product(code = result.get('partNumber'),
-                title = result.get('partDescription'),
-                price_purchase = result.get('stockPrice'),
-                price_exchange = ep,
-                pct_margin = conf.pct_margin,
-                pct_vat = conf.pct_vat,
-                price_notax = sp,
-                price_sales = sp+(sp/100*conf.pct_vat))
+            form = ProductForm({
+                'code': result.get('partNumber'),
+                'title': result.get('partDescription'),
+                'price_purchase': result.get('stockPrice'),
+                'price_exchange': ep,
+                'pct_margin': conf.pct_margin,
+                'pct_vat': conf.pct_vat,
+                'price_notax': sp,
+                'price_sales': sp+(sp/100*conf.pct_vat)
+            })
             #product.gsx_data = json.dumps(result)
-  
-    return render(req, 'products/form.html', {'product': product})
+    
+    return render(req, 'products/form.html', {'form': form, 'product': product})
 
-def remove(req, id = None, idx = None):
-    if idx:
-        idx = int(idx)
-        order_id = req.session.get('order').id
+def remove(req, id=None, order_item_id=None):
+    if order_item_id:
+        oi = OrderItem.objects.get(pk=order_item_id).delete()
         return HttpResponse('Tuote poistettu tilauksesta')
 
     if 'id' in req.POST:
-        product = Product.objects.get(pk = req.POST['id']);
-        Inventory.objects.filter(product = product).delete()
+        product = Product.objects.get(pk=req.POST['id']);
+        Inventory.objects.filter(product=product).delete()
         product.delete()
         return HttpResponse('Tuote poistettu')
     else:
-        product = Product.objects.get(pk = id)
+        product = Product.objects.get(pk=id)
 
     return render(req, 'products/remove.html', {'product': product})
 
-def save(req):
-    if 'id' in req.POST:
-        product = Product.objects.get(pk = req.POST['id'])
-        form = ProductForm(instance = product)
+def save(req, id=None):
+    if id:
+        product = Product.objects.get(pk=id)
+        form = ProductForm(req.POST, instance=product)
     else:
         form = ProductForm(req.POST)
 
-    if form.is_valid():
-        form.save()
-    else:
-        pass
-        #return HttpResponse(form.errors)
-    
-    if req.session.get('gsx_data'):
-        if product.code in req.session.get('gsx_data'):
-            product.gsx_data = req.session['gsx_data'].get(data.code)
-    
-    product.save()
-    product.tags = req.POST.getlist('tags')
+    if not form.is_valid():
+        print form.errors
+        return HttpResponse(form.errors)
+
+    form.save()
+    data = form.cleaned_data
+
+    if data['code'] in req.session.get('gsx_data'):
+        gsx_data = json.dumps(req.session['gsx_data'].get(data.code))
+        product.gsx_data = gsx_data
+
+    #product.tags = req.POST.getlist('tags')
 
     if req.POST.get('amount_stocked'):
-        product.amount_stocked(req.POST.get('amount_stocked'))
+        pass
+        #product.amount_stocked(req.POST.get('amount_stocked'))
     
     for a in req.POST.getlist('attachments'):
-        doc = Attachment.objects(id = ObjectId(a)).first()
-        product.attachments.append(doc)
+        doc = Attachment.objects.get(pk=a)
+        product.attachments.add(doc)
     
     if req.session['order']:
-        oi = OrderItem(product = product,
-            sn = req.POST.get('sn', ''),
-            price = req.POST.get('price_sales'),
-            order = req.session['order'])
+        oi = OrderItem(product=product,
+            sn=req.POST.get('sn', ''),
+            price=req.POST.get('price_sales'),
+            order=req.session['order'])
         oi.save()
         req.session['order'] = req.session['order']
     
     return HttpResponse('Tuote tallennettu')
-  
+    
 def search(req):
     return render(req, 'products/search.html')
 
-def reserve(req, order_id = None):
+def reserve(req, order_id=None):
     if req.method == 'POST':
         oid = req.POST['id']
         order = Order.objects.get(pk = oid)

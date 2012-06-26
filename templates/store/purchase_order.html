@@ -22,11 +22,11 @@
             </thead>
             <tbody>
 {% for item in products %}
-              <tr>
-                <td><input type="text" name="code" value="{{ item.code }}"/></td>
-                <td><input type="text" name="title" value="{{ item.title }}"/></td>
-                <td><input type="text" name="amount" value="{{ item.amount_ordered }}"/></td>
-                <td><input type="text" class="price" name="price" value="{{ item.price_purchase }}"/></td>
+                <tr>
+                    <td><input type="text" name="code" value="{{ item.code }}"/></td>
+                    <td><input type="text" name="title" value="{{ item.title }}"/></td>
+                    <td><input type="text" name="amount" value="{{ item.amount_ordered }}"/></td>
+                    <td><input type="text" class="price" name="price" value="{{ item.price_purchase }}"/></td>
               </tr>
 {% endfor %}
             </tbody>
@@ -35,19 +35,19 @@
     
     <div id="dispatch" class="tab">
         <label>{% trans "Huoltotilaus" %}:</label>
-        <input type="text" name="reference" value="{{ order.reference }}"/>
+        {{ form.reference }}
         <br/>
         <label>{% trans "Vahvistusnro" %}:</label>
-        <input type="text" name="confirmation" value="{{ order.confirmation }}"/>
+        {{ form.confirmation }}
         <br/>
         <label>{% trans "Tilausviite" %}:</label>
-        <input type="text" name="dispatch_id" value="{{ order.dispatch_id }}"/>
+        {{ form.dispatch_id }}
         <br/>
         <label>{% trans "Maksuviite" %}:</label>
-        <input type="text" name="sales_order" value="{{ order.sales_order }}"/>
+        {{ form.sales_order }}
         <br/>
         <label>{% trans "Tilattu" %}:</label>
-        <input type="text" class="datepicker" name="date_ordered" value="{{ order.date_ordered }}"/>
+        {{ form.date_ordered }}
     </div><!-- //#dispatch -->
     
     <div id="delivery" class="tab">
@@ -55,16 +55,16 @@
         <input type="text" name="supplier" class="autocomplete" data-type="supplier" value="{{ order.supplier }}"/>
         <br/>
         <label>{% trans "Toimitusaika" %}:</label>
-        <input type="text" name="days_delivered" value="{{ order.days_delivered }}"/>
+        {{ form.days_delivered }}
         <br/>
         <label>{% trans "Saapuu" %}:</label>
-        <input type="text" class="datepicker" name="date_arrived" value="{{ order.date_arrived }}"/>
+        {{ form.date_arrived }}
         <br/>
         <label>{% trans "Toimitustapa" %}:</label>
-        <input type="text" name="carrier" value="{{ order.carrier }}"/>
+        {{ form.carrier }}
         <br/>
         <label>{% trans "Seurantanro" %}:</label>
-        <input type="text" name="tracking_id" value="{{ order.tracking_id }}"/>
+        {{ form.tracking_id }}
     </div><!-- //#delivery -->
 </form>
 </div>
