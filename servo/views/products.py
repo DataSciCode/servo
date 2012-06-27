@@ -86,9 +86,12 @@ def save(req, id=None):
     form.save()
     data = form.cleaned_data
 
-    if data['code'] in req.session.get('gsx_data'):
-        gsx_data = json.dumps(req.session['gsx_data'].get(data.code))
-        product.gsx_data = gsx_data
+    try:
+        if data['code'] in req.session.get('gsx_data'):
+            gsx_data = json.dumps(req.session['gsx_data'].get(data.code))
+            product.gsx_data = gsx_data
+    except Exception, e:
+        pass
 
     #product.tags = req.POST.getlist('tags')
 

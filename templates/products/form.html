@@ -29,13 +29,12 @@
       <div style="margin-left:85px">
         {% if product.pk %}
         {% for t in  product.tags.all %}
-            <input type="text" name="tags" style="width:80px" class="autocomplete tag" value="{{ t }}"/>
+            <input type="text" name="tags" style="width:80px" class="autocomplete tag" value="{{ t.title }}"/>
         {% endfor %}
         {% endif %}
       <input type="text" id="newTag" class="autocomplete" style="width:80px"/>
     </div>
     </div><!-- //#info -->
-
     <div id="price" class="tab">
         <label>{% trans 'Ostohinta' %}:</label>
         {{ form.price_purchase }}
