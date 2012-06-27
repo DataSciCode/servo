@@ -6,16 +6,16 @@
 {% block toolbar %}
 
 <ul>
-  <li><a href="/products/create" class="popup">{% trans "Uusi tuote" %}</a></li>
+    <li><a href="/products/create" class="popup">{% trans "Uusi tuote" %}</a></li>
 </ul>
 
 {% endblock toolbar %}
 
 {% block secondary %}
 
-  <li><a href="javascript:;" class="search popup">&nbsp;</a>
+<li><a href="javascript:;" class="search popup">&nbsp;</a>
     <ul>
-      <li>
+        <li>
         <table>
 {% for tag in tags %}
           <tr>
@@ -29,7 +29,6 @@
       </li>
     </ul>
   </li>
-
   <li><a href="/store/order_products/" class="purchase popup buy">&nbsp;</a></li>
   <li><a href="/store/sell_products/" class="sell popup sell">&nbsp;</a></li>
 
@@ -38,35 +37,35 @@
 {% block content %}
 
 <div class="tableView">
-  <table id="products" data-url="/products/index">
-    <thead>
-        <tr>
-          <th style="width:20px"></th>
-          <th>#</th>
-          <th>{% trans "Koodi" %}</th>
-          <th>{% trans "Nimike" %}</th>
-          <th>{% trans "Ostohinta" %}</th>
-          <th>{% trans "Hinta" %}</th>
-          <th>{% trans "Varastossa" %}</th>
-          <th>{% trans "Tilattu" %}</th>
-          <th>{% trans "Varattu" %}</th>
-        </tr>
-    </thead>
-      <tbody>
+    <table id="products" data-url="/products/index">
+        <thead>
+            <tr>
+                <th style="width:20px"></th>
+                <th>#</th>
+                <th>{% trans "Koodi" %}</th>
+                <th>{% trans "Nimike" %}</th>
+                <th>{% trans "Ostohinta" %}</th>
+                <th>{% trans "Hinta" %}</th>
+                <th>{% trans "Varastossa" %}</th>
+                <th>{% trans "Tilattu" %}</th>
+                <th>{% trans "Varattu" %}</th>
+            </tr>
+        </thead>
+        <tbody>
 {% for i in data %}
         <tr data-url="/products/edit/{{ i.id }}" class="{% cycle 'odd' 'even' %}">
-          <td><input type="checkbox" class="selected_product" value="{{ i.id }}"/></td>
-          <td><a href="/products/edit/{{ i.id }}" class="popup">{{ i.id }}</a></td>
-          <td>{{ i.code }}</td>
-          <td>{{ i.title }}</td>
-          <td>{{ i.price_purchase }}</td>
-          <td>{{ i.price_sales }}</td>
-          <td>{{ i.amount_stocked }}</td>
-          <td>{{ i.amount_ordered }}</td>
-          <td>{{ i.amount_reserved }}</td>
+            <td><input type="checkbox" class="selected_product" value="{{ i.id }}"/></td>
+            <td><a href="/products/edit/{{ i.id }}" class="popup">{{ i.id }}</a></td>
+            <td>{{ i.code }}</td>
+            <td>{{ i.title }}</td>
+            <td>{{ i.price_purchase }}</td>
+            <td>{{ i.price_sales }}</td>
+            <td>{{ i.amount_stocked }}</td>
+            <td>{{ i.amount_ordered }}</td>
+            <td>{{ i.amount_reserved }}</td>
         </tr>
 {% endfor %}
-      </tbody>
+        </tbody>
     </table>
 </div>
 

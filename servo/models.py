@@ -110,15 +110,6 @@ class Location(models.Model):
     zip = models.CharField(max_length=8)
     city = models.CharField(max_length=16)
 
-class Spec(models.Model):
-    title = models.CharField(max_length=255, unique=True)
-    path = models.TextField()
-
-class SpecInfo(models.Model):
-    spec = models.ForeignKey(Spec)
-    key = models.CharField(max_length=255)
-    value = models.CharField(max_length=255)
-
 class Article(models.Model):
     title = models.CharField(default = 'Uusi artikkeli', max_length=255)
     content = models.TextField()
@@ -128,14 +119,22 @@ class Article(models.Model):
     created_at = models.DateTimeField(default = datetime.now())
     attachments = models.ManyToManyField(Attachment)
 
-class Device(models.Model):
-    sn = models.CharField(max_length=32)
-    description = models.TextField()
+class Spec(models.Model):
+    title = models.CharField(max_length=255, unique=True)
+    path = models.TextField()
 
+class SpecInfo(models.Model):
+    spec = models.ForeignKey(Spec)
+    key = models.CharField(max_length=255)
+    value = models.CharField(max_length=255)
+
+class Device(models.Model):
+    sn = models.CharField(max_length=32, unique=True, blank=True)
+    description = models.CharField(max_length=128)
     username = models.CharField(max_length=32)
     password = models.CharField(max_length=32)
-    purchased_on = models.DateField()
-    notes = models.TextField()
+    purchased_on = models.DateField(blank=True)
+    notes = models.TextField(blank=True)
 
     gsx_data = models.TextField()
     spec = models.ForeignKey(Spec, null=True)
@@ -169,6 +168,7 @@ class Product(models.Model):
     is_serialized = models.BooleanField(default = False)
     
     tags = models.ManyToManyField(Tag, blank=True)
+    specs = models.ManyToManyField(Spec, blank=True)    
     attachments = models.ManyToManyField(Attachment, blank=True)
 
     def tax(self):
@@ -237,8 +237,8 @@ class CalendarEvent(models.Model):
 class InvoiceItem(Product):
     pass
 
-class PoItem(Product):
-    pass
+class PoItem(models.Model):
+    code = models.CharField(max_length=128)
 
 class Invoice(models.Model):
     created_at = models.DateTimeField(default = datetime.now())
@@ -260,13 +260,13 @@ class PurchaseOrder(models.Model):
     dispatch_id = models.CharField(max_length=32)
     sales_order = models.CharField(max_length=32)
 
-    date_created = models.DateTimeField(default = datetime.now())
+    date_created = models.DateTimeField(default = datetime.now(), editable=False)
     date_ordered = models.DateTimeField(default = datetime.now())
-    date_arrived = models.DateTimeField(blank=True)
+    date_arrived = models.DateTimeField(blank=True, editable=False)
     
-    carrier = models.CharField(max_length=32)
-    supplier = models.CharField(max_length=32)
-    tracking_id = models.CharField(max_length=128)
+    carrier = models.CharField(max_length=32, blank=True)
+    supplier = models.CharField(max_length=32, blank=True)
+    tracking_id = models.CharField(max_length=128, blank=True)
     days_delivered = models.IntegerField(blank=True)
 
     def sum(self):
@@ -282,7 +282,7 @@ class PurchaseOrder(models.Model):
             amount += p.get('amount')
 
         return amount
-  
+
 class Inventory(models.Model):
     """A slot can refer to basically any model in the system.
     The amount of stocked items is determined by the number of rows
@@ -304,6 +304,9 @@ class GsxAccount(models.Model):
     password = models.CharField(max_length=64)
     environment = models.CharField(max_length=3)
     is_default = models.BooleanField(default=True)
+
+    def __unicode__(self):
+        return self.title
 
 class Status(models.Model):
     FACTORS = (
@@ -327,7 +330,7 @@ class Queue(models.Model):
     title = models.CharField(default = 'Uusi jono', max_length=255)
     description = models.TextField(blank=True)
     gsx_account = models.ForeignKey(GsxAccount, null=True)
-    statuses = models.ManyToManyField(Status, through = 'QueueStatus')
+    statuses = models.ManyToManyField(Status, through='QueueStatus')
     attachments = models.ManyToManyField(Attachment)
 
     def __unicode__(self):
@@ -341,24 +344,26 @@ class QueueStatus(models.Model):
     status = models.ForeignKey(Status)
 
 class Order(models.Model):
+    class Meta:
+        ordering = ['-priority', 'id']
+
     PRIORITIES = ((0, 'Matala'), (1, 'Normaali'), (2, 'Korkea'))
-    priority = models.IntegerField(default = 1, choices=PRIORITIES)
+    priority = models.IntegerField(default=1, choices=PRIORITIES, verbose_name=u'Prioriteetti')
     created_at = models.DateTimeField(default=datetime.now())
     created_by = models.ForeignKey(User, related_name = 'created_by')
 
-    closed_at = models.DateTimeField(null = True)
-    followed_by = models.ManyToManyField(User, related_name = 'followed_by')
+    closed_at = models.DateTimeField(null=True)
+    followed_by = models.ManyToManyField(User, related_name='followed_by')
 
-    user = models.ForeignKey(User, null=True)
-
+    user = models.ForeignKey(User, null=True, verbose_name=u'Käsittelijä')
     tags = models.ManyToManyField(Tag)
 
     customer = models.ForeignKey(Customer, null=True)
     products = models.ManyToManyField(Product, through='OrderItem')
     devices = models.ManyToManyField(Device)
 
-    queue = models.ForeignKey(Queue, null=True)
-    status = models.ForeignKey(Status, null=True)
+    queue = models.ForeignKey(Queue, null=True, verbose_name=u'Jono')
+    status = models.ForeignKey(Status, null=True, verbose_name=u'Status')
 
     STATES = ((0, 'unassigned'), (1, 'open'), (2, 'closed'))
     state = models.IntegerField(default = 0, max_length=16, choices=STATES)
@@ -411,25 +416,24 @@ class Order(models.Model):
                 return 'yellow'
             if time() > self.status_limit_yellow:
                 return 'red'
-    
-    def customer_name(self):
-        return self.customer.name
   
     def customer_id(self):
         return self.customer.id
   
     def device_name(self):
-        result = ''
+        name = 'Ei laitetta'
         if self.devices.count():
-            result = self.devices.all()[0].description
+            name = self.devices.all()[0].description
 
-        return result
+        return name
     
     def customer_name(self):
-        if self.customer:
-            return self.customer.name
-        else:
-            return ""
+        try:
+            name = self.customer.name
+        except Exception, e:
+            name = 'Ei asiakasta'
+        
+        return name
     
     def device_spec(self):
         if self.devices.count():
@@ -495,7 +499,7 @@ class Message(models.Model):
         from email.mime.text import MIMEText
         from email.mime.multipart import MIMEMultipart
 
-        conf = Configuration.objects.get(pk = 1)
+        conf = Configuration.objects.get(pk=1)
         subject = 'Huoltotilaus SRV#%d' %(self.order.id)
 
         msg = MIMEMultipart()
@@ -519,7 +523,7 @@ class Message(models.Model):
     
     def send_sms(self):
         import urllib
-        conf = Configuration.objects.get(pk = 1)
+        conf = Configuration.objects.get(pk=1)
         params = urllib.urlencode({
             'username': conf.sms_user,
             'password': conf.sms_password,

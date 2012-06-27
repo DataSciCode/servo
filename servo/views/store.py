@@ -67,12 +67,9 @@ def dispatch(req, order_id = None, numbers = None):
     return render(req, "store/dispatch.html", {"products": products, "totals": totals})
 
 def save_po(req):
-    po = PurchaseOrder()
     form = PurchaseOrderForm(req.POST)
     print form.errors
-    for k, v in req.POST.items():
-        po.__setattr__(k, v)
-  
+
     codes = req.POST.getlist('code')
     titles = req.POST.getlist('title')
     prices = req.POST.getlist('price')
@@ -83,7 +80,7 @@ def save_po(req):
     for k, v in enumerate(codes):
         amt = int(amounts[k])
         price = float(prices[k])
-        product = Product.objects(code = v).first()
+        product = Product.objects.get(code = v)
         po.products.append({"code": v, "title": titles[k], "amount": amt, "price": price})
     
     for i in xrange(amt):

@@ -1,0 +1,12 @@
+{% extends "default.html" %}
+
+
+{% block content %}
+<div class="listView small_block">
+	<ul>
+{% for spec in specs %}
+	<li>{{ spec.title }}</li>
+{% endfor %}
+	</ul>
+</div>
+{% endblock content %}

@@ -25,23 +25,32 @@ def search(req):
         'users': users,
         'locations': locations})
 
-def index(req, param = None, value = None):
+def index(req, param=None, value=None):
     data = Order.objects.all()
 
     if param == 'status':
-        status = Status.objects.get(id = value)
-        data = status.order_set.all()
+        data = Order.objects.filter(status__pk=value)
 
     if param == 'user':
         try:
-            user = User.objects.get(username = value)
+            user = User.objects.get(username=value)
             data = user.order_set.all()
         except Exception, e:
             data = Order.objects.all()
 
-    if param == "customer":
-        customer = Customer.objects.get(id = value)
+    if param == 'customer':
+        customer = Customer.objects.get(pk=value)
         data = customer.order_set.all()
+
+    if param == 'spec':
+        spec = Spec.objects.get(pk=value)
+        data = Order.objects.filter(devices__spec=spec)
+
+    if param == 'device':
+        data = Order.objects.filter(devices__pk=value)
+
+    if param == 'state':
+        data = Order.objects.filter(state=value)
 
     return render(req, 'orders/index.html', {'data': data})
 
@@ -57,7 +66,7 @@ def create(req):
 
 def tags(req, id):
     if 'title' in req.POST:
-        order = Order.objects.get(pk = id)
+        order = Order.objects.get(pk=id)
         title = req.POST['title']
     
     if title not in order.tags:
@@ -92,31 +101,31 @@ def edit(req, id):
 
 def remove(req, id = None):
     if 'id' in req.POST:
-        order = Order.objects.get(id = req.POST['id'])
+        order = Order.objects.get(pk=req.POST['id'])
         #Inventory.objects(slot = order).delete()
         order.delete()
         return HttpResponse('Tilaus poistettu')
     else :
-        order = Order.objects.get(pk = id)
+        order = Order.objects.get(pk=id)
         return render(req, 'orders/remove.html', {'order': order})
 
 def follow(req, id):
-    order = Order.objects.get(pk = id)
+    order = Order.objects.get(pk=id)
     order.followed_by.add(req.session.get('user'))
     return HttpResponse('%d seuraa' % order.followed_by.count())
 
 @csrf_exempt
 def update(req, id):
-    order = Order.objects.get(pk = id)
+    order = Order.objects.get(pk=id)
 
     if 'queue' in req.POST:
-        queue = Queue.objects.get(pk = req.POST['queue'])
+        queue = Queue.objects.get(pk=req.POST['queue'])
         order.queue = queue
         order.save()
-        event = Event.objects.create(description = queue.title,
-            order = order,
-            type = 'set_queue',
-            user = req.session.get('user')
+        event = Event.objects.create(description=queue.title,
+            order=order,
+            type='set_queue',
+            user=req.session.get('user')
         )
     
     if 'status' in req.POST:
@@ -131,15 +140,16 @@ def update(req, id):
         req.session['order'].status = status
         req.session['order'].save()
 
-        event = Event.objects.create(description = status.title,
-            order = req.session['order'],
-            type = 'set_status',
-            user = req.session.get('user'))
+        event = Event.objects.create(description=status.title,
+            order=req.session['order'],
+            type='set_status',
+            user=req.session.get('user'))
     
     if 'user' in req.POST:
-        user = req.POST['user']
-        user = User.objects.get(id = user)
+        user_id = req.POST['user']
+        user = User.objects.get(pk=user_id)
         req.session['order'].user = user
+        req.session['order'].state = 1
         req.session['order'].save()
         event = Event.objects.create(description=user.fullname,
             order=req.session['order'], 
@@ -150,12 +160,12 @@ def update(req, id):
         req.session['order'].priority = req.POST['priority']
         req.session['order'].save()
 
-    return render(req, "orders/events.html", {"order": order})
+    return render(req, 'orders/events.html', {'order': order})
   
 def create_gsx_repair(req, order_id):
     order = Order.objects(id = ObjectId(order_id)).first()
     customer = {}
-    templates = Message.objects.filter(is_template = True)
+    templates = Message.objects.filter(is_template=True)
     comptia = json.load(open("/Users/filipp/Projects/servo3/gsx/symptoms.json"))
   
     if order.customer:

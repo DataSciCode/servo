@@ -47,7 +47,7 @@ urlpatterns = patterns('servo',
   url(r'^orders/$', 'views.orders.index'),
   url(r'^orders/index/(\w+)/(\w+)/$', 'views.orders.index'),
   
-  url(r'^orders/edit/(\w+)$', 'views.orders.edit'),
+  url(r'^orders/edit/(\d+)$', 'views.orders.edit'),
   url(r'^orders/search$', 'views.orders.search'),
   url(r'^orders/remove/(\w+)$', 'views.orders.remove'),
   url(r'^orders/statuses$', 'views.orders.statuses'),
@@ -168,5 +168,6 @@ urlpatterns = patterns('servo',
   url(r'^article/remove$', 'views.articles.remove'),
 
   url(r'^search/save$', 'views.search.save'),
+  url(r'^specs/index$', 'views.specs.index'),
   # url(r'^servo3/', include('servo3.foo.urls')),
 )

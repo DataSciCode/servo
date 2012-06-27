@@ -37,7 +37,7 @@ def edit(req, id = None):
     return render(req, 'messages/form.html', {'message': m, 'templates': templates})
 
 def save(req):
-    m = Message(sender = req.session.get('user'))
+    m = Message(sender=req.session.get('user'))
 
     m.body = req.POST.get('body')
     m.smsto = req.POST.get('smsto', '')
@@ -51,7 +51,7 @@ def save(req):
     m.save()
 
     for a in req.POST.getlist('attachments'):
-        doc = Attachment.objects.get(pk = a)
+        doc = Attachment.objects.get(pk=a)
         m.attachments.add(doc)
 
     m.path = req.POST.get('path', str(m.id))

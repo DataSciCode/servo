@@ -13,16 +13,16 @@
         <a class="search" href="javascript:;" data-url="/device/search"></a>
         <br/>
         <label>{% trans "Malli" %}:</label>
-        <input type="text" id="description" name="description" value="{{ device.description }}"/>
+        {{ form.description }}
         <br/>
         <label class="mid">{% trans "Käyttäjä" %}:</label>
-        <input type="text" id="username" name="username" value="{{ device.username }}"/>
+        {{ form.username }}
         <br/>
         <label>{% trans "Salasana" %}:</label>
-        <input type="text" id="password" name="password" value="{{ device.password }}"/>
+        {{ form.password }}
         <br/>
         <label>{% trans "Ostettu" %}:</label>
-        <input type="text" id="purchased_on" name="purchased_on" value="{{ device.purchased_on }}" />
+        {{ form.purchased_on }}
         <br/>
         <label>{% trans "Loppuu" %}:</label>
         <input type="text" value="{{ device.warranty_ends }}" />

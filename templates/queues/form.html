@@ -16,11 +16,7 @@
           <textarea name="description">{{ queue.description }}</textarea>
           <br/>
           <label>{% trans 'GSX-tili' %}:</label>
-          <select name="gsx_account">
-{% for act in accounts %}
-            <option value="{{ act.id }}">{{ act.title }}</option>
-{% endfor %}
-          </select>
+          {{ form.gsx_account }}
       </div>
     
     <div id="statuses" class="tab">

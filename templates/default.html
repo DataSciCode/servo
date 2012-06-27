@@ -17,7 +17,7 @@
     <script type="text/javascript">
         $(function() {
             window.app = new ServoApp();
-            Backbone.history.start({pushState: true});
+            //Backbone.history.start({pushState: true});
         });
     </script>
     <style type="text/css" media="screen">
@@ -79,7 +79,7 @@
                   <span class="head" id="sidebar-item-2">{% trans "Tilaukset" %}</span>
                   <ul class="sidebar-item-2">
                       <li class=""><a href="/orders/index/user/nobody" class="table">{% trans "Jonossa" %}</a></li>
-                      <li><a href="/orders/index/state/open" class="table">{% trans "Avoimet" %}</a></li>
+                      <li><a href="/orders/index/state/1" class="table">{% trans "Avoimet" %}</a></li>
                       <li><a href="/orders/index/search/4f8c7f1034db74e25c000000" class="gear draggable">My aging repairs</a></li>
                   </ul>
                 </li>

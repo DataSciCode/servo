@@ -28,14 +28,14 @@ def index(req):
 
 def edit(req, id):
     try:
-        product = Product.objects.get(pk = id)
+        product = Product.objects.get(pk=id)
         form = ProductForm(instance = product)
     except Exception, e:
         gsx_data = req.session.get('gsx_data')
 
         if id in gsx_data:
             result = gsx_data.get(id)
-            conf = Configuration.objects.get(pk = 1)
+            conf = Configuration.objects.get(pk=1)
 
             ep = float(result.get('exchangePrice'))
             sp = float(result.get('stockPrice'))
@@ -55,7 +55,8 @@ def edit(req, id):
             })
             #product.gsx_data = json.dumps(result)
     
-    return render(req, 'products/form.html', {'form': form, 'product': product})
+    return render(req, 'products/form.html', {'form': form,
+        'product': product})
 
 def remove(req, id=None, order_item_id=None):
     if order_item_id:

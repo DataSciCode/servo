@@ -122,11 +122,12 @@ def create_template(req):
     return render(req, 'admin/template_form.html')
 
 def save_template(req):
-    template = Message(is_template = True)
-
     if 'id' in req.POST:
-        template = Message.objects.get(pk = req.POST['id'])
+        template = Message.objects.get(pk=req.POST['id'])
+    else:
+        template = Message(is_template=True)
 
+    template.sender = req.session.get('user')    
     template.subject = req.POST['title']
     template.body = req.POST['body']
     template.save()

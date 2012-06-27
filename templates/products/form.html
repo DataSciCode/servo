@@ -120,8 +120,7 @@
     
     $(".autocomplete").autocomplete({source: "/tag/index/product"});
     
-    $(".autocomplete").keydown(function(e)
-    {
+    $(".autocomplete").keydown(function(e) {
         if(e.keyCode == 13) {
             $.post("/tag/save/product", { tag: $(this).val() });
             $('<input type="text" name="tags" class="autocomplete tag" style="width:76px"/>')

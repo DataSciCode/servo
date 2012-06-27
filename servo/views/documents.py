@@ -13,7 +13,7 @@ class DocumentForm(forms.ModelForm):
 def barcode(req, text):
     import barcode
     from barcode.writer import ImageWriter
-    code = barcode.get_barcode("Code39", text, writer = ImageWriter())
+    code = barcode.get_barcode("Code39", text, writer=ImageWriter())
     # content_type="image/svg+xml"
     return HttpResponse(code.render(None), content_type='image/png')
 
@@ -22,7 +22,7 @@ def index(req):
     return render(req, 'documents/index.html', {'files': files})
 
 def edit(req, id):
-    doc = Attachment.objects.get(pk = id)
+    doc = Attachment.objects.get(pk=id)
     form = DocumentForm(instance=doc)
     return render(req, 'documents/form.html', {'form': form})
 
@@ -56,7 +56,7 @@ def save(req):
         content_type='application/json')
 
 def view(req, id):
-    doc = Attachment.objects.get(pk = id)
+    doc = Attachment.objects.get(pk=id)
     data = doc.content.read()
     return HttpResponse(data, content_type=doc.content_type)
   

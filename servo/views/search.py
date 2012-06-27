@@ -50,7 +50,12 @@ def lookup(req, what):
             'action': action, 'collection': collection})
 
     # @todo Use the order's queue's GSX account, then revert to default
-    act = GsxAccount.objects.get(is_default = True)
+    try:
+        order = req.session.get('order')
+        act = order.queue.gsx_account
+    except Exception, e:
+        act = GsxAccount.objects.get(is_default=True)
+    
     gsx = Gsx(act.sold_to, act.username, act.password)
 
     param = gsx.looks_like(query)
