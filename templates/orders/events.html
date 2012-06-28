@@ -7,7 +7,7 @@
   <tbody>
 {% for event in order.events %}
     <tr class="{% cycle 'odd' 'even' %}">
-        <td><img src="/static/images/event-{{ event.type }}.png" alt="{{ event.description }}" class="icon"/></td>
+        <td><img src="/static/images/event-{{ event.kind }}.png" alt="{{ event.description }}" class="icon"/></td>
         <td style="width:55%">{{ event.description }}</td>
         <td>{{ event.created_by }} @ {{ event.created_at|relative_date }}</td>
     </tr>

@@ -23,8 +23,8 @@
                 <input
                     type="text"
                     readonly="readonly"
-                    value="{{ p.product.number }}"
-                    name="products.{{ forloop.counter0 }}.number"/>
+                    value="{{ p.product.id }}"
+                    name="products.{{ forloop.counter0 }}.id"/>
             </td>
             <td>
                 <input
@@ -112,14 +112,8 @@
         <td></td>
         <td style="text-align:right">{% trans "Maksutapa" %}:</td>
         <td colspan="4">
-            <select name="payment_method">
-              <option>{% trans "Ei veloitusta" %}</option>
-              <option>{% trans "Käteinen" %}</option>
-              <option>{% trans "Lasku" %}</option>
-              <option>{% trans "Maksukortti" %}</option>
-              <option>{% trans "Postiennakko" %}</option>
-              <option>{% trans "Verkkomaksu" %}</option>
-            </select>
+            {{ form.payment_method }}
+
         </td>
     </tr>
     <tr>

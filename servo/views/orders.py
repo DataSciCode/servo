@@ -13,7 +13,7 @@ from django import forms
 class SidebarForm(forms.ModelForm):
     class Meta:
         model = Order
-        fields = ['user', 'queue', 'status', 'priority']
+        fields = ['user', 'queue', 'status', 'priority', 'dispatch_method']
 
 def search(req):
     queues = Queue.objects.all()
@@ -60,7 +60,7 @@ def create(req):
 
     desc = 'Tilaus %d luotu' % o.id
     Event.objects.create(description=desc, order=o,
-        type='create_order', user=user)
+        kind='create_order', user=user)
 
     return redirect('/orders/edit/%d' % o.id)
 
@@ -73,8 +73,8 @@ def tags(req, id):
         order.tags.append(title)
         order.save()
     
-    if len(Tag.objects(title=title, type='order')) < 1:
-        tag = Tag.objects.create(title=title, type='order')
+    if len(Tag.objects(title=title, kind='order')) < 1:
+        tag = Tag.objects.create(title=title, kind='order')
     
     return HttpResponse(json.dumps({order.tags}), content_type='application/json')
   
@@ -124,14 +124,14 @@ def update(req, id):
         order.save()
         event = Event.objects.create(description=queue.title,
             order=order,
-            type='set_queue',
+            kind='set_queue',
             user=req.session.get('user')
         )
     
     if 'status' in req.POST:
         from time import time
         status_id = req.POST.get('status')
-        status = Status.objects.get(pk = status_id)
+        status = Status.objects.get(pk=status_id)
         # calculate when this status will timeout
         green = (status.limit_green*status.limit_factor)+time()
         yellow = (status.limit_yellow*status.limit_factor)+time()
@@ -142,22 +142,35 @@ def update(req, id):
 
         event = Event.objects.create(description=status.title,
             order=req.session['order'],
-            type='set_status',
+            kind='set_status',
             user=req.session.get('user'))
     
     if 'user' in req.POST:
         user_id = req.POST['user']
-        user = User.objects.get(pk=user_id)
+        if user_id == '':
+            user = None
+            event = u'Käsittelijä poistettu'
+            state = 0 # unassigned
+        else:
+            user = User.objects.get(pk=user_id)
+            event = user.fullname
+            state = 1 # open
+
         req.session['order'].user = user
-        req.session['order'].state = 1
+        req.session['order'].state = state
         req.session['order'].save()
-        event = Event.objects.create(description=user.fullname,
+
+        Event.objects.create(description=event,
             order=req.session['order'], 
-            type='set_user',
+            kind='set_user',
             user=req.session.get('user'))
     
     if 'priority' in req.POST:
         req.session['order'].priority = req.POST['priority']
+        req.session['order'].save()
+
+    if 'dispatch_method' in req.POST:
+        req.session['order'].dispatch_method = req.POST['dispatch_method']
         req.session['order'].save()
 
     return render(req, 'orders/events.html', {'order': order})

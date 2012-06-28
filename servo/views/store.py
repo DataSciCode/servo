@@ -11,39 +11,44 @@ class PurchaseOrderForm(forms.ModelForm):
     class Meta:
         model = PurchaseOrder
 
+class InvoiceForm(forms.ModelForm):
+    class Meta:
+        model = Invoice
+
 def invoices(req):
     data = Invoice.objects.all()
-    return render(req, "store/invoices.html", {"invoices": data})
+    return render(req, 'store/invoices.html', {'invoices': data})
 
-def dispatch(req, order_id = None, numbers = None):
+def dispatch(req, order_id=None, numbers=None):
     products = []
 
-    if req.method == "POST":
+    if req.method == 'POST':
+        form = InvoiceForm(req.POST)
+        print form.errors
         data = DotExpandedDict(req.POST)
-        #print data
         invoice = Invoice(payment_method=data['payment_method'],
             total_payable=float(data['total']))
 
-        if "paid" in data:
+        if 'paid' in data:
             invoice.paid_at = datetime.now()
+            products = data.get('products')
 
-            products = data.get("products")
-
-            if "customer" in data:
-                customer = Customer.objects.with_id(ObjectId(data['customer']))
+            if 'customer' in data:
+                customer = Customer.objects.get(pk=data['customer'])
                 invoice.customer = customer.asdict()
-
+                
             for k in products:
                 invoice.products.append(products[k])
     
             invoice.save()
 
-        return HttpResponse("Tuotteet toimitettu")
+        return HttpResponse('Tuotteet toimitettu')
 
+    form = InvoiceForm()
     total = 0
 
     if order_id:
-        order = Order.objects.with_id(ObjectId(order_id))
+        order = Order.objects.get(pk=order_id)
         total = order.total
         products = order.products
 
@@ -54,19 +59,21 @@ def dispatch(req, order_id = None, numbers = None):
         totals['tax'] = 0
         totals['sum'] = 0
 
-    for p in numbers.rstrip(";").split(";"): # http://store/blaa/45;234;123;
-        product = Product.objects(number = int(p)).first()
+    for p in numbers.rstrip(';').split(';'): # http://store/blaa/45;234;123;
+        product = Product.objects.get(pk=p)
         totals['amount'] += 1
         totals['notax'] += product.price_notax
         totals['tax'] += product.tax()
         totals['sum'] += product.price_sales
-      
-        oi = OrderItem(product = product, price = product.price_sales, amount = 1)
+        
+        oi = OrderItem(product=product, price=product.price_sales)
         products.append(oi)
 
-    return render(req, "store/dispatch.html", {"products": products, "totals": totals})
+    return render(req, 'store/dispatch.html', {'products': products, 'totals': totals, 'form': form})
 
 def save_po(req):
+    """Save Purchase Order
+    """
     form = PurchaseOrderForm(req.POST)
     print form.errors
 
@@ -84,7 +91,7 @@ def save_po(req):
         po.products.append({"code": v, "title": titles[k], "amount": amt, "price": price})
     
     for i in xrange(amt):
-        i = Inventory(slot = po, product = product, kind = "po")
+        i = Inventory(slot=po, product=product, kind='po')
         i.save()
   
     po.save()
@@ -111,10 +118,10 @@ def index_po(req):
     data = PurchaseOrder.objects.all()
     return render(req, 'store/index_po.html', {"orders": data})
   
-def index_incoming(req, shipment = None, date = None):
+def index_incoming(req, shipment=None, date=None):
     inventory = Inventory.objects.filter(kind = "po")
     return render(req, "store/index_incoming.html", {"inventory": inventory})
   
-def index_outgoing(req, shipment = None, date = None):
+def index_outgoing(req, shipment=None, date=None):
     pass
   

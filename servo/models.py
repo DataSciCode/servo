@@ -6,8 +6,10 @@ from django.db.models.signals import pre_save
 from django.dispatch import receiver
 
 class Tag(models.Model):
+    TYPES = ((0, 'Sijainti'))
     title = models.CharField(default = 'Uusi tagi', max_length=255)
-    type = models.CharField(max_length=32)
+    kind = models.CharField(max_length=32)
+    times_used = models.IntegerField()
 
 class Attachment(models.Model):
     name = models.CharField(default = 'Uusi tiedosto', max_length=255)
@@ -23,7 +25,8 @@ class Attachment(models.Model):
 class Configuration(models.Model):
     company_name = models.CharField(max_length=255)
     # the default margin percent for new products
-    pct_margin = models.DecimalField(decimal_places=2, max_digits=4, default=0.0)
+    pct_margin = models.DecimalField(decimal_places=2, max_digits=4,
+        default=0.0)
     # default VAT for new products
     pct_vat = models.DecimalField(decimal_places=2, max_digits=4, default=0.0)
     encryption_key = models.CharField(max_length=64)
@@ -171,6 +174,11 @@ class Product(models.Model):
     specs = models.ManyToManyField(Spec, blank=True)    
     attachments = models.ManyToManyField(Attachment, blank=True)
 
+    def save(self, *args, **kwargs):
+        super(Product, self).save(*args, **kwargs)
+        self.code = self.code.upper()
+        super(Product, self).save(*args, **kwargs)
+
     def tax(self):
         return self.price_sales - self.price_notax
 
@@ -179,11 +187,11 @@ class Product(models.Model):
         """
         if amount:
             amount = int(amount)
-            Inventory.objects.filter(slot = self.id).delete()
+            Inventory.objects.filter(slot=self.id).delete()
             for _ in xrange(amount):
-                i = Inventory.objects.create(slot = self.id, product = self)
+                i = Inventory.objects.create(slot=self.id, product=self)
         try:
-            return Inventory.objects.filter(slot = self.id).count()
+            return Inventory.objects.filter(slot=self.id).count()
         except Exception, e:
             return 0
 
@@ -191,7 +199,7 @@ class Product(models.Model):
         """Get or set the ordered amount of this product
         """
         try:
-            return Inventory.objects.filter(product = self.id, kind = 'po').count()
+            return Inventory.objects.filter(product=self.id, kind='po').count()
         except Exception, e:
             return 0
 
@@ -199,7 +207,7 @@ class Product(models.Model):
         """Get or set the reserved amount of this product
         """
         try:
-            return Inventory.objects.filter(product = self.id, kind = 'order').count()
+            return Inventory.objects.filter(product=self.id, kind='order').count()
         except Exception, e:
             return 0
 
@@ -220,39 +228,41 @@ class GsxRepair(models.Model):
     diagnosis = models.TextField()
 
 class Calendar(models.Model):
-    title = models.CharField(default = 'Uusi kalenteri', max_length=128)
+    title = models.CharField(default='Uusi kalenteri', max_length=128)
     user = models.ForeignKey(User)
     hours = models.IntegerField(default = 0)
 
     def events(self):
-        return CalendarEvent.objects.filter(calendar = self)
+        return CalendarEvent.objects.filter(calendar=self)
 
 class CalendarEvent(models.Model):
     started_at = models.DateTimeField(default = datetime.now())
     finished_at = models.DateTimeField(null=True)
-    description = models.CharField(default = '', max_length = 255)
+    description = models.CharField(default='', max_length=255)
     hours = models.IntegerField(default = 8)
     calendar = models.ForeignKey(Calendar)
 
-class InvoiceItem(Product):
-    pass
-
-class PoItem(models.Model):
-    code = models.CharField(max_length=128)
-
 class Invoice(models.Model):
-    created_at = models.DateTimeField(default = datetime.now())
-    is_paid = models.BooleanField()
+    PAYMENT_METHOS = (
+        (0, u'Ei veloitusta'), (1, u'Käteinen'), (2, u'Lasku'),
+        (3, u'Maksukortti'), (4, u'Postiennakko'), (5, u'Verkkomaksu'))
+    created_at = models.DateTimeField(default=datetime.now())
+    created_by = models.ForeignKey(User)
+    is_paid = models.BooleanField(default=False)
     paid_at = models.DateTimeField()
-    payment_method = models.CharField(max_length=128)
+    payment_method = models.CharField(max_length=128,
+        choices=PAYMENT_METHOS,
+        default=PAYMENT_METHOS[0])
 
     customer = models.ForeignKey(Customer)
     customer_info = models.TextField()
-    products = models.ForeignKey(InvoiceItem)
 
     total_tax = models.DecimalField(max_digits=4, decimal_places=2)
     total_margin = models.DecimalField(max_digits=4, decimal_places=2)
-    total_payable = models.DecimalField(max_digits=4, decimal_places=2)
+    total_sum = models.DecimalField(max_digits=4, decimal_places=2)
+
+class InvoiceItem(Product):
+    invoice = models.ForeignKey(Invoice)
 
 class PurchaseOrder(models.Model):
     reference = models.CharField(max_length=32)
@@ -260,7 +270,8 @@ class PurchaseOrder(models.Model):
     dispatch_id = models.CharField(max_length=32)
     sales_order = models.CharField(max_length=32)
 
-    date_created = models.DateTimeField(default = datetime.now(), editable=False)
+    date_created = models.DateTimeField(default = datetime.now(),
+        editable=False)
     date_ordered = models.DateTimeField(default = datetime.now())
     date_arrived = models.DateTimeField(blank=True, editable=False)
     
@@ -282,6 +293,10 @@ class PurchaseOrder(models.Model):
             amount += p.get('amount')
 
         return amount
+
+class PurchaseOrderItem(models.Model):
+    code = models.CharField(max_length=128)
+    purchase_order = models.ForeignKey(PurchaseOrder)
 
 class Inventory(models.Model):
     """A slot can refer to basically any model in the system.
@@ -350,7 +365,7 @@ class Order(models.Model):
     PRIORITIES = ((0, 'Matala'), (1, 'Normaali'), (2, 'Korkea'))
     priority = models.IntegerField(default=1, choices=PRIORITIES, verbose_name=u'Prioriteetti')
     created_at = models.DateTimeField(default=datetime.now())
-    created_by = models.ForeignKey(User, related_name = 'created_by')
+    created_by = models.ForeignKey(User, related_name='created_by')
 
     closed_at = models.DateTimeField(null=True)
     followed_by = models.ManyToManyField(User, related_name='followed_by')
@@ -374,14 +389,17 @@ class Order(models.Model):
     attachments = models.ManyToManyField(Attachment)
     #gsx_repairs = models.TextField(DictField())
 
+    DISPATCH_METHODS = ((0, 'Ei toimitusta'), (1, 'Nouto'), (2, 'Posti'), (3, 'Kuriiri'))
+    dispatch_method = models.IntegerField(choices=DISPATCH_METHODS, default=1, verbose_name=u'Toimitustapa')
+
     def issues(self):
-        return Issue.objects.filter(order = self)
+        return Issue.objects.filter(orders=self)
 
     def messages(self):
-        return Message.objects.filter(order = self)
+        return Message.objects.filter(order=self)
 
     def events(self):
-        return Event.objects.filter(order = self)
+        return Event.objects.filter(order=self)
 
     def total(self):
         total = 0
@@ -441,22 +459,29 @@ class Order(models.Model):
 
 class Event(models.Model):
     description = models.CharField(max_length=255)
-    created_by = models.CharField(default = 'filipp', max_length=32)
-    created_at = models.DateTimeField(default = datetime.now())
+    created_at = models.DateTimeField(default=datetime.now())
     handled_at = models.DateTimeField(null=True)
     order = models.ForeignKey(Order)
     user = models.ForeignKey(User)
-    type = models.CharField(max_length=32)
+    kind = models.CharField(max_length=32)
+
+class Solution(models.Model):
+    description = models.TextField()
+    created_at = models.DateTimeField(default=datetime.now())
+    created_by = models.ForeignKey(User)
+
+class Diagnosis(models.Model):
+    description = models.TextField(default='')
+    created_at = models.DateTimeField(default=datetime.now())
+    created_by = models.ForeignKey(User)
+    solutions = models.ManyToManyField(Solution)
 
 class Issue(models.Model):
-    symptom = models.TextField(default='')
-    diagnosis = models.TextField(default='')
-    solution = models.TextField(default='')
-    
+    description = models.TextField()
+    created_by = models.ForeignKey(User)
     created_at = models.DateTimeField(default=datetime.now())
-    created_by = models.CharField(default='filipp', max_length=32)
-
-    order = models.ForeignKey(Order)
+    orders = models.ManyToManyField(Order)
+    diagnosis = models.ManyToManyField(Diagnosis)
 
 class Message(models.Model):
     class Meta:

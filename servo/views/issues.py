@@ -3,7 +3,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 
-from servo.models import Issue, Message, Order
+from servo.models import Issue, Diagnosis, Solution, Message, Order
 
 def index(req):
   pass

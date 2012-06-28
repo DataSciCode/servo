@@ -22,7 +22,7 @@ def create(req, order_id=None):
 def index(req):
     req.session['order'] = None
     data = Product.objects.all()
-    tags = Tag.objects.filter(type='product')
+    tags = Tag.objects.filter(kind='product')
 
     return render(req, 'products/index.html', {'data': data, 'tags': tags})
 
@@ -126,7 +126,7 @@ def reserve(req, order_id=None):
         for p in order.products.all():
             i = Inventory.objects.create(slot=oid, product=p, kind='order')
         
-        Event.objects.create(description = 'Tilauksen tuotteet varattu',
+        Event.objects.create(description='Tilauksen tuotteet varattu',
             order = order,
             type = 'products_reserved',
             user = req.session.get('user'))

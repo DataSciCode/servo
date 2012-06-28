@@ -17,13 +17,14 @@ def relative_date(value):
     today = timezone.now()
     delta =  today - value
 
-    if delta <= datetime.timedelta(days = 1):
-        result = "Tänään klo %s" % value.strftime("%k:%M")
+    if delta <= datetime.timedelta(hours=8):
+        print delta
+        result = 'Tänään klo %s' % value.strftime("%k:%M")
 
-    if delta > datetime.timedelta(days = 1):
-        result = "Eilen klo %s" % value.strftime("%k:%M")
+    if delta > datetime.timedelta(hours=8):
+        result = 'Eilen klo %s' % value.strftime("%k:%M")
 
-    if delta > datetime.timedelta(days = 3):
+    if delta > datetime.timedelta(days=2):
         result = value.strftime("%a, %d.%m.%y klo %k:%M")
 
     return result

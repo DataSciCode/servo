@@ -91,6 +91,7 @@ urlpatterns = patterns('servo',
   url(r'^admin/locations$', 'views.admin.locations'),
   url(r'^admin/location/create$', 'views.admin.edit_location'),
   url(r'^location/edit/(\w+)$', 'views.admin.edit_location'),
+  url(r'^admin/tags/$', 'views.admin.tags'),
     
   url(r'^fields/edit/(\w+)$', 'views.admin.edit_field'),
   url(r'^fields/remove/$', 'views.admin.remove_field'),

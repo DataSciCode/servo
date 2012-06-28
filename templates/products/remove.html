@@ -3,6 +3,6 @@
   {% csrf_token %}
 	<input type="hidden" name="id" value="{{ product.id }}" />
 	<img src="/static/images/alert_48.png" alt="alert" class="alert" />
-	<h2>{% blocktrans %}Haluatko varmasti poistaa tuotteen "{{ product.id }}"?{% endblocktrans %}</h2>
+	<h2>{% blocktrans %}Haluatko varmasti poistaa tuotteen "{{ product.code }}"?{% endblocktrans %}</h2>
 	<p>{% trans "Tätä toimintoa ei voi peruuttaa." %}</p>
 </form>

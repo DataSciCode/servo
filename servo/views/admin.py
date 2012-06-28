@@ -1,5 +1,4 @@
 # coding=utf-8
-
 import logging, hashlib
 from datetime import datetime
 from django.template import RequestContext
@@ -7,7 +6,11 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.http import HttpResponse
 
 from servo.models import *
-    
+
+def tags(req):
+    tags = Tag.objects.all()
+    return render(req, 'admin/tags.html', {'tags': tags})
+
 def settings(req):
     try:
         config = Configuration.objects.get(pk = 1)
@@ -30,11 +33,11 @@ def status(req):
     statuses = Status.objects.all()
     return render(req, 'admin/status.html', {'statuses': statuses})
 
-def status_form(req, id = None):
+def status_form(req, id=None):
     status = Status()
 
     if id:
-        status = Status.objects.get(pk = id)
+        status = Status.objects.get(pk=id)
 
     queues = Queue.objects.all()
 
