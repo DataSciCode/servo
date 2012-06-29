@@ -1,0 +1,26 @@
+{% load i18n %}
+{% load extras %}
+<table>
+    <thead><tr><th colspan="4">{% trans 'Tehtävät' %}</th></tr></thead>
+    <tbody>
+{% for note in order.notes %}
+        <tr class="{% cycle 'odd' 'even' %}" data-url="/issue/edit/{{ issue.id }}">
+            <td>
+                <span class="user">{{ issue.created_by }}</span>
+                <span class="date">{{ issue.created_at|relative_date }}</span>
+                <p>{{ issue.symptom }}</p>
+{% if issue.diagnosis %}
+                <hr/>
+                {{ issue.diagnosis }}
+                <span class="small">{{ issue.diagnosed_by }} @ {{ issue.diagnosed_at|relative_date }}</span>
+{% endif %}
+{% if issue.solution %}
+                <hr/>
+  {{ issue.solution }}
+                <span class="small">{{ issue.solved_by }} @ {{ solved_at|relative_date }}</span>
+{% endif %}
+            </td>
+        </tr> 
+{% endfor %}
+    </tbody>
+</table>
