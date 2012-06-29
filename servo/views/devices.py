@@ -1,8 +1,9 @@
-from servo.models import Device, Order, Spec
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.utils.datastructures import DotExpandedDict
 from django import forms
+
+from servo.models import Device, Order, Spec
 
 class DeviceForm(forms.ModelForm):
     class Meta:

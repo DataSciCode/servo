@@ -622,7 +622,7 @@ a.button:active, a.button.active {
     width: 175px;
     height: 24px;
     font-size: 9pt;
-    padding-left: 23px;
+    padding: 5px 5px 20px 23px;
     -webkit-box-shadow: none;
     background: url(/static/images/dark/searchfield.png) no-repeat;
 }

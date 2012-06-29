@@ -1,26 +1,28 @@
 #coding=utf-8
 from django.db import models
 from datetime import datetime
+from django.contrib.auth.models import User
 
-from django.db.models.signals import pre_save
-from django.dispatch import receiver
+class UserProfile(models.Model):
+    user = models.OneToOneField(User)
+    tech_id = models.CharField(max_length=16, blank=True)
+    phone = models.CharField(max_length=16, blank=True)
 
 class Tag(models.Model):
     TYPES = ((0, 'Sijainti'))
-    title = models.CharField(default = 'Uusi tagi', max_length=255)
+    title = models.CharField(default='Uusi tagi', max_length=255)
     kind = models.CharField(max_length=32)
     times_used = models.IntegerField()
 
 class Attachment(models.Model):
-    name = models.CharField(default = 'Uusi tiedosto', max_length=255)
-    
+    name = models.CharField(default='Uusi tiedosto', max_length=255)
     content_type = models.CharField(max_length=64)
     description = models.TextField(blank=True)
     uploaded_by = models.CharField(default='filipp', max_length=32)
     uploaded_at = models.DateTimeField(default=datetime.now())
     updated_at = models.DateTimeField(default=datetime.now())
     tags = models.ManyToManyField(Tag)
-    content = models.FileField(upload_to = 'attachments')
+    content = models.FileField(upload_to='attachments')
 
 class Configuration(models.Model):
     company_name = models.CharField(max_length=255)
@@ -31,7 +33,7 @@ class Configuration(models.Model):
     pct_vat = models.DecimalField(decimal_places=2, max_digits=4, default=0.0)
     encryption_key = models.CharField(max_length=64)
 
-    mail_from = models.EmailField(default = 'servo@example.com')
+    mail_from = models.EmailField(default='servo@example.com')
     imap_host = models.CharField(max_length=255)
     imap_user = models.CharField(max_length=32)
     imap_password = models.CharField(max_length=32)
@@ -48,7 +50,7 @@ class Property(models.Model):
     format = models.CharField(max_length=32)
 
 class Customer(models.Model):
-    name = models.CharField(default = 'Uusi asiakas', max_length=255)
+    name = models.CharField(default='Uusi asiakas', max_length=255)
     """path is a comma-separated list of Customer ids 
     with the last one always being the current customer
     """
@@ -57,7 +59,7 @@ class Customer(models.Model):
     def property(self, key):
         result = None
         """return the value of a specific property"""
-        ci = ContactInfo.objects.filter(customer = self)
+        ci = ContactInfo.objects.filter(customer=self)
         for i in ci:
             if i.key == key:
                 result = key.value
@@ -65,7 +67,7 @@ class Customer(models.Model):
         return result
 
     def properties(self):
-        return ContactInfo.objects.filter(customer = self)
+        return ContactInfo.objects.filter(customer=self)
 
     def get_indent(self):
         """docstring for get_indent"""
@@ -77,7 +79,7 @@ class Customer(models.Model):
         title = []
 
         for c in self.path.split(','):
-            customer = Customer.objects.get(pk = c)
+            customer = Customer.objects.get(pk=c)
             title.append(customer.name)
 
         title.reverse()
@@ -210,17 +212,6 @@ class Product(models.Model):
             return Inventory.objects.filter(product=self.id, kind='order').count()
         except Exception, e:
             return 0
-
-class User(models.Model):
-    email = models.EmailField()
-    username = models.CharField(max_length=64)
-    fullname = models.CharField(max_length=128, default='Uusi käyttäjä')
-    password = models.CharField(max_length=64)
-    role = models.CharField(max_length=64)
-    location = models.ForeignKey(Location)
-
-    def __unicode__(self):
-        return self.fullname
     
 class GsxRepair(models.Model):
     #customer_data = DictField()
@@ -363,7 +354,8 @@ class Order(models.Model):
         ordering = ['-priority', 'id']
 
     PRIORITIES = ((0, 'Matala'), (1, 'Normaali'), (2, 'Korkea'))
-    priority = models.IntegerField(default=1, choices=PRIORITIES, verbose_name=u'Prioriteetti')
+    priority = models.IntegerField(default=1, choices=PRIORITIES,
+        verbose_name=u'Prioriteetti')
     created_at = models.DateTimeField(default=datetime.now())
     created_by = models.ForeignKey(User, related_name='created_by')
 
@@ -392,8 +384,8 @@ class Order(models.Model):
     DISPATCH_METHODS = ((0, 'Ei toimitusta'), (1, 'Nouto'), (2, 'Posti'), (3, 'Kuriiri'))
     dispatch_method = models.IntegerField(choices=DISPATCH_METHODS, default=1, verbose_name=u'Toimitustapa')
 
-    def issues(self):
-        return Issue.objects.filter(orders=self)
+    def notes(self):
+        return Note.objects.filter(order=self)
 
     def messages(self):
         return Message.objects.filter(order=self)
@@ -465,23 +457,14 @@ class Event(models.Model):
     user = models.ForeignKey(User)
     kind = models.CharField(max_length=32)
 
-class Solution(models.Model):
-    description = models.TextField()
-    created_at = models.DateTimeField(default=datetime.now())
-    created_by = models.ForeignKey(User)
-
-class Diagnosis(models.Model):
-    description = models.TextField(default='')
-    created_at = models.DateTimeField(default=datetime.now())
-    created_by = models.ForeignKey(User)
-    solutions = models.ManyToManyField(Solution)
-
-class Issue(models.Model):
+class Note(models.Model):
+    KINDS = ((0, 'Vika'), (1, 'Diagnoosi'), (2, 'Ratkaisu'))
+    kind = models.IntegerField(choices=KINDS, default=0, editable=False)
     description = models.TextField()
     created_by = models.ForeignKey(User)
     created_at = models.DateTimeField(default=datetime.now())
-    orders = models.ManyToManyField(Order)
-    diagnosis = models.ManyToManyField(Diagnosis)
+    parent = models.ForeignKey('self')
+    order = models.ForeignKey(Order, editable=False)
 
 class Message(models.Model):
     class Meta:

@@ -4,7 +4,7 @@ from servo.models import Article, Tag
 
 def index(req):
 	articles = Article.objects.all()
-	return render(req, "articles/index.html", {"data": articles})
+	return render(req, 'articles/index.html', {'data': articles})
 
 def remove(req, id):
 	pass

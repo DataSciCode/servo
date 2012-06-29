@@ -1,8 +1,8 @@
-from servo.models import *
 from django.shortcuts import render
 from django.http import HttpResponse
 import json
 from django import forms
+from servo.models import *
 
 class ProductForm(forms.ModelForm):
     class Meta:

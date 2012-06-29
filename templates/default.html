@@ -65,7 +65,7 @@
 {% block sidebar %}
         <ul>
             <li>
-                <span class="head" id="sidebar-item-1">Filipp Lepalaan</span>
+                <span class="head" id="sidebar-item-1">{{ user.username }}</span>
                 <ul class="sidebar-item-1">
                   <li><a href="/orders/index/user/filipp" class="home">{% trans "Kotisivu" %}</a></li>
                   <li><a href="/message/" class="message">{% trans "Viestit" %}</a></li>

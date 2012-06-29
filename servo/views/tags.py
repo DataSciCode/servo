@@ -1,8 +1,8 @@
 import json, re
-from servo.models import Tag
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
+from servo.models import Tag
 
 def create(req, type):
     tag = Tag(type=type)

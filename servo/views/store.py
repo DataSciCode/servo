@@ -1,11 +1,10 @@
-from servo.models import *
-
 from django.shortcuts import render
 from django.http import HttpResponse
 from datetime import datetime
 
 from django.utils.datastructures import DotExpandedDict
 from django import forms
+from servo.models import *
 
 class PurchaseOrderForm(forms.ModelForm):
     class Meta:

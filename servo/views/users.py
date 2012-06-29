@@ -1,33 +1,39 @@
 import hashlib
-from servo.models import User, Location
 from django.shortcuts import redirect, render
 from django.http import HttpResponse
+from django.contrib import auth
 
-def logout(req):
-    if "confirm" in req.POST:
-        return redirect("/user/login")
+from servo.models import Location
+
+def logout(request):
+    if 'confirm' in request.POST:
+        auth.logout(request)
+        return redirect('/user/login')
     
-    return render(req, "users/logout.html")
+    return render(request, "users/logout.html")
   
-def login(req):
-    if "email" in req.POST:
-        pw = hashlib.sha1(req.POST['password']).hexdigest()
-        user = User.objects.get(email = req.POST['email'], password = pw)
+def login(request):
+    if 'email' in request.POST:
+        user = auth.authenticate(username=request.POST['username'],
+            password=request.POST['password'])
     
-        if user:
-            req.session['user'] = user
-            return redirect("/orders/index/user/%s" %(user.username))
+        if user is not None and user.is_active:
+            auth.login(request, user)
+            return redirect('/orders/index/user/%s' %(user.username))
+        else:
+            print 'authentication failed'
       
-    return render(req, "users/login.html")
+    return render(request, 'users/login.html')
 
-def settings(req):
-    if req.method == "POST":
-        req.session['user'].phone = req.POST['phone']
-        loc = Location.objects(id = req.POST['location']).first()
-        req.session['user'].location = loc
-        req.session['user'].save()
+def settings(request):
+    if request.method == 'POST':
+        request.session['user'].phone = request.POST['phone']
+        loc = Location.objects(id = request.POST['location']).first()
+        request.session['user'].location = loc
+        request.session['user'].save()
         return HttpResponse('Asetukset tallennettu')
     else:
-        user = req.session.get("user")
+        user = request.session.get("user")
         locations = Location.objects.all()
-        return render(req, 'users/settings.html', {'user': user, 'locations': locations})
+        return render(request, 'users/settings.html', {'user': user,
+            'locations': locations})

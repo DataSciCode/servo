@@ -1,17 +1,17 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from servo.models import Message, Order, Attachment
-
 from django.forms import ModelForm
+from servo.models import Message, Order, Attachment
 
 class MessageForm(ModelForm):
     class Meta:
         model = Message
         fields = ['body']
 
-def index(req):
-    messages = Message.objects.filter(recipient = req.session['user'])
-    return render(req, 'messages/index.html', {'messages': messages})
+def index(request):
+    messages = Message.objects.filter(recipient=request.user.id)
+    return render(request, 'messages/index.html', {'messages':
+        messages})
 
 def form(req, replyto=None, smsto=None, mailto=None):
     form = MessageForm()
@@ -20,8 +20,8 @@ def form(req, replyto=None, smsto=None, mailto=None):
     m = Message()
 
     if replyto:
-        parent = Message.objects.get(pk = replyto)
-        m = Message(path = parent.path)
+        parent = Message.objects.get(pk=replyto)
+        m = Message(path=parent.path)
     if smsto:
         m.smsto = smsto
     if mailto:

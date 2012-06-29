@@ -7,13 +7,22 @@ from django.utils.datastructures import DotExpandedDict
 from django.shortcuts import render, render_to_response, redirect
 
 from django.views.decorators.csrf import csrf_exempt
-from servo.models import *
 from django import forms
+from servo.models import *
 
 class SidebarForm(forms.ModelForm):
     class Meta:
         model = Order
         fields = ['user', 'queue', 'status', 'priority', 'dispatch_method']
+
+def create(request):
+    o = Order.objects.create(created_by=request.user, created_at=datetime.now())
+
+    desc = 'Tilaus %d luotu' % o.id
+    Event.objects.create(description=desc, order=o,
+        kind='create_order', user=request.user)
+
+    return redirect('/orders/edit/%d' % o.id)
 
 def search(req):
     queues = Queue.objects.all()
@@ -54,16 +63,6 @@ def index(req, param=None, value=None):
 
     return render(req, 'orders/index.html', {'data': data})
 
-def create(req):
-    user = req.session.get('user')
-    o = Order.objects.create(created_by=user, created_at=datetime.now())
-
-    desc = 'Tilaus %d luotu' % o.id
-    Event.objects.create(description=desc, order=o,
-        kind='create_order', user=user)
-
-    return redirect('/orders/edit/%d' % o.id)
-
 def tags(req, id):
     if 'title' in req.POST:
         order = Order.objects.get(pk=id)
@@ -80,7 +79,7 @@ def tags(req, id):
   
 def edit(req, id):
     o = Order.objects.get(pk=id)
-
+    #return HttpResponse('blaaa')
     req.session['order'] = o
     
     form = SidebarForm(instance=o)
@@ -304,7 +303,7 @@ def messages(req, order_id):
     order = Order.objects.get(pk = order_id)
     return render(req, "orders/messages.html", {"order": order})
   
-def issues(req, order_id):
+def notes(req, order_id):
     order = Order.objects.get(pk = order_id)
     return render(req, "orders/issues.html", {"order": order})
   

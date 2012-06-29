@@ -1,10 +1,10 @@
 from gsxlib.gsxlib import Gsx
-from servo.models import Device, Product, Customer, GsxAccount, Search
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.datastructures import DotExpandedDict
 import json
+from servo.models import Device, Product, Customer, GsxAccount, Search
 
 @csrf_exempt
 def save(req):
@@ -12,7 +12,7 @@ def save(req):
     title = req.POST.get('title', '')
     model = req.POST.get('model')
     query = json.dumps(query['query'])
-    Search.objects.create(query = query, title = title, model = model)
+    Search.objects.create(query=query, title=title, model=model)
 
 @csrf_exempt
 def lookup(req, what):

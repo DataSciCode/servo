@@ -39,29 +39,5 @@
         "fields": {
             "title": "Huolto"
         }
-    },
-    {
-        "model": "servo.user",
-        "pk": 1,
-        "fields": {
-            "location": 1,
-            "username": "filipp",
-            "fullname": "Filipp Lepalaan",
-            "email": "filipp@mcare.fi",
-            "role": "admin",
-            "password": "7110eda4d09e062aa5e4a390b0a572ac0d2c0220"
-        }
-    },
-    {
-        "model": "servo.user",
-        "pk": 2,
-        "fields": {
-            "location": 1,
-            "username": "servo",
-            "fullname": "Servo Integration User",
-            "email": "servo@mcare.fi",
-            "role": "technician",
-            "password": "7110eda4d09e062aa5e4a390b0a572ac0d2c0220"
-        }
     }
 ]

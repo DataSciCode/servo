@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from servo.models import *
 from django.utils.datastructures import DotExpandedDict
 from django import forms
+from servo.models import *
 
 class QueueForm(forms.ModelForm):
     class Meta:
