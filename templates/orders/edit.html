@@ -17,11 +17,13 @@
 {% endblock %}
 
 {% block secondary %}
-
 <li><a href="javascript:;" class="reply disabled popup"></a>
-    <ul></ul>
+    <ul id="note-actions">
+        <li><a href="/message/0/reply/" class="popup">{% trans "Vastaus" %}</a></li>
+        <li><a href="/note/0/diagnose/" class="popup">{% trans "Diagnoosi" %}</a></li>
+        <li><a href="/note/0/solve/" class="popup">{% trans "Ratkaisu" %}</a></li>
+    </ul>
 </li>
-
 <li>
     <a href="javascript:;" class="print"></a>
     <ul>
@@ -30,7 +32,6 @@
 {% endfor %}
     </ul>
 </li>
-
 <li>
     <a href="javascript:;" class="gear"></a>
     <ul>

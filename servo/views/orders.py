@@ -16,7 +16,7 @@ class SidebarForm(forms.ModelForm):
         fields = ['user', 'queue', 'status', 'priority', 'dispatch_method']
 
 def create(request):
-    o = Order.objects.create(created_by=request.user, created_at=datetime.now())
+    o = Order.objects.create(created_by_id=request.user.id, created_at=datetime.now())
 
     desc = 'Tilaus %d luotu' % o.id
     Event.objects.create(description=desc, order=o,
@@ -124,7 +124,7 @@ def update(req, id):
         event = Event.objects.create(description=queue.title,
             order=order,
             kind='set_queue',
-            user=req.session.get('user')
+            user_id=req.user.id
         )
     
     if 'status' in req.POST:
@@ -142,27 +142,28 @@ def update(req, id):
         event = Event.objects.create(description=status.title,
             order=req.session['order'],
             kind='set_status',
-            user=req.session.get('user'))
+            user_id=req.user.id)
     
     if 'user' in req.POST:
         user_id = req.POST['user']
+
         if user_id == '':
             user = None
             event = u'Käsittelijä poistettu'
             state = 0 # unassigned
         else:
             user = User.objects.get(pk=user_id)
-            event = user.fullname
+            event = user.username
             state = 1 # open
 
-        req.session['order'].user = user
+        req.session['order'].user_id = user.id
         req.session['order'].state = state
         req.session['order'].save()
 
         Event.objects.create(description=event,
             order=req.session['order'], 
             kind='set_user',
-            user=req.session.get('user'))
+            user_id=req.user.id)
     
     if 'priority' in req.POST:
         req.session['order'].priority = req.POST['priority']
@@ -294,29 +295,29 @@ def submit_gsx_repair(req):
     po.confirmation = gsx_repair['confirmationNumber']
     po.save()
     
-    order = Order.objects(number = int(order_number)).first()
+    order = Order.objects(number=int(order_number)).first()
     order.gsx_repairs.append(gsx_repair)
     
     return HttpResponse("GSX korjaus luotu")
   
 def messages(req, order_id):
-    order = Order.objects.get(pk = order_id)
+    order = Order.objects.get(pk=order_id)
     return render(req, "orders/messages.html", {"order": order})
   
 def notes(req, order_id):
-    order = Order.objects.get(pk = order_id)
-    return render(req, "orders/issues.html", {"order": order})
+    order = Order.objects.get(pk=order_id)
+    return render(req, 'orders/notes.html', {'order': order})
   
 def devices(req, order_id):
-    order = Order.objects.get(pk = order_id)
+    order = Order.objects.get(pk=order_id)
     return render(req, "orders/devices.html", {"order": order})
   
 def events(req, order_id):
-    order = Order.objects.get(pk = order_id)
+    order = Order.objects.get(pk=order_id)
     return render(req, "orders/events.html", {"order": order})
   
 def customer(req, order_id):
-    order = Order.objects.get(pk = order_id)
+    order = Order.objects.get(pk=order_id)
     return render(req, "orders/customer.html", {"order": order})
 
 def statuses(req):
@@ -324,5 +325,5 @@ def statuses(req):
     return render(req, "orders/statuses.html", {"statuses": statuses})
 
 def products(req, order_id):
-    order = Order.objects.get(pk = order_id)
+    order = Order.objects.get(pk=order_id)
     return render(req, "orders/products.html", {"order": order})

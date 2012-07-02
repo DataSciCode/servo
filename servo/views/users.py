@@ -13,7 +13,7 @@ def logout(request):
     return render(request, "users/logout.html")
   
 def login(request):
-    if 'email' in request.POST:
+    if 'username' in request.POST:
         user = auth.authenticate(username=request.POST['username'],
             password=request.POST['password'])
     

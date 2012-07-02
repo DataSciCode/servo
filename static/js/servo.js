@@ -5,6 +5,16 @@
  * http://documentcloud.github.com/underscore/
  */
 
+/* A thing */
+var Model = Backbone.Model.extend({
+
+});
+
+/* A collection of things */
+var Collection = Backbone.Collection.extend({
+    model: Model
+});
+
 var TabView = Backbone.View.extend(
 {
     el: "div.tabView"
@@ -129,7 +139,7 @@ var PanelView = Backbone.View.extend(
     hidePanel: function()
     {
         if(this.$el.is(":visible")) {
-            this.$el.hide("slide", { direction: "up" }, 200 );
+            this.$el.hide("slide", {direction: "up"}, 200 );
             $("#pager_msg").text("");
         }
     }
@@ -235,6 +245,7 @@ var AppView = Backbone.View.extend(
         event.preventDefault();
         var url = $(event.currentTarget).attr("href");
         if(url != "javascript:;") {
+            $('#toolbar li > ul').fadeOut();
             window.panelView.loadUrl(url);
             $("#toolbar .menu li ul").fadeOut("fast");
         }
@@ -274,24 +285,15 @@ var ToolbarView = Backbone.View.extend(
 {
     el: "div#toolbar"
 ,
-    initialize: function()
-    {
-        this.setElement('div#toolbar');
-    }
-,
-    render: function()
-    {
-        $(this.el).html(Mustache.render(
-            $('#toolbar-template').html(),
-            this.model.get('items')
-        ));
-        return this;
-    }
-,
     events: {
-        "submit #search"        : "search",
-        "click .filterProducts" : "filterProducts",
-        "click .menu > li > a"  : "toggleMenu"
+        "submit #search"            : "search",
+        "click .filterProducts"     : "filterProducts",
+        "click ul > li a.enabled"   : "toggleMenu"
+    }
+,
+    showMenu: function(event)
+    {
+        this.$("li > ul").hide();
     }
 ,
     toggleMenu: function(event)
@@ -469,7 +471,7 @@ var ContentView = Backbone.View.extend(
 ,
     events: {
         "click .tableView tbody tr" : "selectRow",
-        "click a.async" : "goto",
+        "click a.async"             : "goto",
     }
 ,
     goto: function(event)
@@ -486,32 +488,21 @@ var ContentView = Backbone.View.extend(
         
         $(row).addClass("current");
 
-        this.collection = $(row).parent("tbody")
-            .data("collection");
-
-        this.collection = (this.collection)
-            ? this.collection
-            : window.collection;
-
-        this.editAction = $(row).data("action");
-        if(!this.editAction) this.editAction = "edit";
-
-        this.id = $(row).data("id");
-        this.deleteAction = "remove";
-        this.item = $(row).data("item");
-
-        if(this.item) {
-            this.editAction += "-" + this.item;
-            this.deleteAction += "-" + this.item;
-        }
-
         $("#delete-button").removeClass("disabled")
             .addClass("popup");
 
         var url = $(row).data("url");
+        results = url.match(/\d+/);
+        id = results[0]
+
+        $('#note-actions a').map(function(e) {
+            href = $(this).attr('href');
+            href = href.replace(/\d+/, id);
+            $(this).attr('href', href).addClass('enabled');
+        });
         
+        $("#secondary li > a").addClass("enabled");
         $("#edit-button").attr("href", url);
-        $(".reply").attr("href", url.replace("/edit/", "/reply/"));
         $("#delete-button").attr("href", url.replace("/edit", "/remove"));
         $("#edit-button").removeClass("disabled");
 		
@@ -558,12 +549,11 @@ var ListView = Backbone.View.extend(
 	select: function(event)
 	{
 		var e = event.currentTarget;
-		//this.$("li").removeClass("current");
         $(e).siblings().removeClass("current");
 		$(e).addClass("current");
         
         var url = $(e).data("url");
-        
+
         $("#delete-button").attr("href", url.replace(/^\/(\w+)\/\w+/, '/$1/remove'));
 		$("#delete-button").removeClass("disabled");
         $("#edit-button").attr("href", url.replace(/^\/(\w+)\/\w+/, '/$1/edit'));

@@ -72,29 +72,6 @@ a.tag:after {
     content: url(/static/images/dark/tag-right.png);
 }
 
-a.tag:hover {
-    background: url(/static/images/dark/tag-hover.png) repeat-x;
-}
-
-a.tag:hover::before {
-    content: url(/static/images/dark/tag-hover-left.png);
-}
-
-a.tag:hover::after {
-    content: url(/static/images/dark/tag-hover-right.png);
-}
-
-a.tag:active {
-    background: url(/static/images/dark/tag-active.png) no-repeat;
-}
-
-a.tag:active::before {
-    content: url(/static/images/dark/tag-active-left.png);
-}
-a.tag:active::after {
-    content: url(/static/images/dark/tag-active-right.png);
-}
-
 #tags li {
     margin: 5px;
     display: inline;
@@ -888,7 +865,7 @@ span.date {
     display: block;
 }
 #toolbar ul > li:hover {
-    background: #222;
+    /*background: #222;*/
     box-shadow: 6px 0px 10px -7px #000, -6px 0px 10px -7px #000;
 }
 
@@ -900,21 +877,25 @@ span.date {
 }
 
 #toolbar ul > li:hover ul {
-    display: block;
+    /*display: block;*/
 }
 
 #toolbar ul ul {
     min-width: 200px;
     display: none;
-    position: absolute;
     background: #222;
+    position: absolute;
 /*  -webkit-box-shadow: 1px 1px 5px #000;*/
     box-shadow: 1px 1px 5px #000, 1px 1px 5px #000;
 }
 
+#toolbar ul#primary {
+    width: 420px;
+    display: block;
+}
+
 #toolbar ul#secondary {
     border-left: 1px solid #222;
-    margin-left: 220px;
 }
 
 #toolbar ul#primary a.customer:before {

@@ -1,8 +1,11 @@
 {% load i18n %}
-<form action="/note/{{ note.id }}/edit/" accept-charset="utf-8" method="post" rel="issues">
+<form action="/note/{{ id }}/edit/" accept-charset="utf-8" method="post" rel="notes">
     {% csrf_token %}
-    <input type="hidden" value="{{ kind }}" name="kind"/>
-    {{ form.order }}
+    <input type="hidden" value="{{ note.kind }}" name="kind"/>
+    <input type="hidden" value="{{ note.order_id }}" name="order_id"/>
+    {% if note.parent_id %}
+    <input type="hidden" value="{{ note.parent_id }}" name="parent_id"/>
+    {% endif %}
     <select class="label chooser" rel="symptom">
         <option value="0">{% trans "Otsikko" %}…</option>
 {% for tpl in templates %}

@@ -31,13 +31,13 @@ def form(req, replyto=None, smsto=None, mailto=None):
 
     return render(req, 'messages/form.html', {'message': m, 'templates': templates})
 
-def edit(req, id = None):
+def edit(req, id=None):
     m = Message.objects.get(pk=id)
     templates = Message.objects.filter(is_template=True)
     return render(req, 'messages/form.html', {'message': m, 'templates': templates})
 
 def save(req):
-    m = Message(sender=req.session.get('user'))
+    m = Message(sender=req.user)
 
     m.body = req.POST.get('body')
     m.smsto = req.POST.get('smsto', '')
@@ -66,16 +66,16 @@ def save(req):
 
     return HttpResponse('Viesti tallennettu')
 
-def remove(req, id = None):
+def remove(req, id=None):
     if 'id' in req.POST:
-        msg = Message.objects.get(pk = req.POST['id'])
+        msg = Message.objects.get(pk=req.POST['id'])
         msg.delete()
         return HttpResponse('Viesti poistettu')
     else:
-        msg = Message.objects.get(pk = id)
+        msg = Message.objects.get(pk=id)
     
     return render(req, 'messages/remove.html', {'message': msg})
     
 def view(req, id):
-    msg = Message.objects.get(pk = id)
+    msg = Message.objects.get(pk=id)
     return render(req, 'messages/view.html', {'message': msg})

@@ -382,7 +382,8 @@ class Order(models.Model):
     #gsx_repairs = models.TextField(DictField())
 
     DISPATCH_METHODS = ((0, 'Ei toimitusta'), (1, 'Nouto'), (2, 'Posti'), (3, 'Kuriiri'))
-    dispatch_method = models.IntegerField(choices=DISPATCH_METHODS, default=1, verbose_name=u'Toimitustapa')
+    dispatch_method = models.IntegerField(choices=DISPATCH_METHODS,
+        default=1, verbose_name=u'Toimitustapa')
 
     def notes(self):
         return Note.objects.filter(order=self)
@@ -462,16 +463,16 @@ class Note(models.Model):
     kind = models.IntegerField(choices=KINDS, default=0, editable=False)
     description = models.TextField()
     created_by = models.ForeignKey(User)
-    created_at = models.DateTimeField(default=datetime.now())
-    parent = models.ForeignKey('self')
+    created_at = models.DateTimeField(default=datetime.now(), editable=False)
+    parent = models.ForeignKey('self', null=True)
     order = models.ForeignKey(Order, editable=False)
 
 class Message(models.Model):
     class Meta:
         ordering = ['id']
-
+    
+    body = models.TextField()
     subject = models.CharField(max_length=255)
-    body = models.TextField(default = '')
 
     mailfrom = models.EmailField(default='', blank=True)
     smsfrom = models.CharField(default='', max_length=32, blank=True)
