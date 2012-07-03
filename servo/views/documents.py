@@ -8,7 +8,7 @@ from django import forms
 class DocumentForm(forms.ModelForm):
     class Meta:
         model = Attachment
-        fields = ['content']
+        fields = ['content', 'is_template']
 
 def barcode(req, text):
     import barcode
@@ -35,7 +35,7 @@ def save(req):
     mimetypes.init()
 
     if 'id' in req.POST:
-        doc = Attachment.objects.get(pk = req.POST['id'])
+        doc = Attachment.objects.get(pk=req.POST['id'])
     else:
         doc = Attachment()
 
@@ -46,6 +46,7 @@ def save(req):
 
     doc.name = req.POST.get('name', f.name)
     doc.content_type = type
+    doc.is_template = req.POST.get('is_template', False)
 
     if 'tags' in req.POST:
         doc.tags = req.POST.getlist('tags')

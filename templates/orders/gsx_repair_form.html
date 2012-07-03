@@ -15,7 +15,7 @@
   <div class="tab" id="general">
     <label>{% trans "Laite" %}:</label>
     <select name="sn" style="width:365px">
-{% for dev in order.devices %}
+{% for dev in order.devices.all %}
       <option value="{{ dev.sn }}">{{ dev.description }} - {{ dev.sn }}</option>
 {% endfor %}
     </select>

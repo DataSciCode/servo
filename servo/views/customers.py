@@ -33,21 +33,23 @@ def edit(req, id):
 
 def save(req):
     """Save either a new or old customer.
-    @todo: handling of properties with empty values
     """
     keys = req.POST.getlist('keys')
     values = req.POST.getlist('values')
     props = dict(zip(keys, values))
 
-    c = Customer(name = req.POST['name'])
-
     if 'id' in req.POST:
-        c = Customer.objects.get(pk = req.POST['id'])
+        c = Customer.objects.get(pk=req.POST['id'])
+        ContactInfo.objects.filter(customer=c).delete()
+    else:
+        c = Customer(name=req.POST['name'])
+        c.save()
 
-    c.save()
+    c.name = req.POST.get('name')
 
     for k, v in props.items():
-        ContactInfo.objects.create(key = k, value = v, customer = c)
+        if v != '':
+            ContactInfo.objects.create(key=k, value=v, customer=c)
 
     c.path = req.POST.get('path', str(c.id))
 
@@ -63,9 +65,9 @@ def save(req):
 
     return HttpResponse('Asiakas tallennettu')
 
-def remove(req, id = None):
+def remove(req, id=None):
     if 'id' in req.POST:
-        c = Customer.objects.get(pk = req.POST['id'])
+        c = Customer.objects.get(pk=req.POST['id'])
         c.delete()
         return HttpResponse('Asiakas poistettu')
     else:

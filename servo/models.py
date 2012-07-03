@@ -3,11 +3,6 @@ from django.db import models
 from datetime import datetime
 from django.contrib.auth.models import User
 
-class UserProfile(models.Model):
-    user = models.OneToOneField(User)
-    tech_id = models.CharField(max_length=16, blank=True)
-    phone = models.CharField(max_length=16, blank=True)
-
 class Tag(models.Model):
     TYPES = ((0, 'Sijainti'))
     title = models.CharField(default='Uusi tagi', max_length=255)
@@ -23,6 +18,10 @@ class Attachment(models.Model):
     updated_at = models.DateTimeField(default=datetime.now())
     tags = models.ManyToManyField(Tag)
     content = models.FileField(upload_to='attachments')
+    is_template = models.BooleanField(default=False)
+
+    def __unicode__(self):
+        return self.name
 
 class Configuration(models.Model):
     company_name = models.CharField(max_length=255)
@@ -49,6 +48,9 @@ class Property(models.Model):
     type = models.CharField(max_length=32)
     format = models.CharField(max_length=32)
 
+    def __unicode__(self):
+        return self.title
+
 class Customer(models.Model):
     name = models.CharField(default='Uusi asiakas', max_length=255)
     """path is a comma-separated list of Customer ids 
@@ -56,15 +58,22 @@ class Customer(models.Model):
     """
     path = models.CharField(max_length=255)
 
-    def property(self, key):
+    def get_property(self, key):
         result = None
         """return the value of a specific property"""
         ci = ContactInfo.objects.filter(customer=self)
         for i in ci:
             if i.key == key:
-                result = key.value
+                result = i.value
 
         return result
+
+    # @todo: make these localizable
+    def email(self):
+        return self.get_property(u'Sähköposti')
+
+    def phone(self):
+        return self.get_property(u'Puhelin')
 
     def properties(self):
         return ContactInfo.objects.filter(customer=self)
@@ -91,7 +100,7 @@ class Customer(models.Model):
         """
         props = {}
         for c in self.path.split(','):
-            parent = Customer.objects.get(pk = c)
+            parent = Customer.objects.get(pk=c)
             for r in parent.properties():
                 props[r.key] = r.value
 
@@ -114,6 +123,9 @@ class Location(models.Model):
     shipto = models.CharField(max_length=32)
     zip = models.CharField(max_length=8)
     city = models.CharField(max_length=16)
+
+    def __unicode__(self):
+        return self.title
 
 class Article(models.Model):
     title = models.CharField(default = 'Uusi artikkeli', max_length=255)
@@ -333,11 +345,18 @@ class Status(models.Model):
         return self.title
 
 class Queue(models.Model):
-    title = models.CharField(default = 'Uusi jono', max_length=255)
+    title = models.CharField(default='Uusi jono', max_length=255)
     description = models.TextField(blank=True)
     gsx_account = models.ForeignKey(GsxAccount, null=True)
+    
+    order_template = models.ForeignKey(Attachment,
+        related_name='order_template', null=True)
+    receipt_template = models.ForeignKey(Attachment,
+        related_name='receipt_template', null=True)
+    dispatch_template = models.ForeignKey(Attachment,
+        related_name='dispatch_template', null=True)
+
     statuses = models.ManyToManyField(Status, through='QueueStatus')
-    attachments = models.ManyToManyField(Attachment)
 
     def __unicode__(self):
         return self.title
@@ -555,3 +574,11 @@ class Search(models.Model):
     model = models.CharField(max_length=32)
     title = models.CharField(max_length=128)
     shared = models.BooleanField(default=True)
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User)
+    tech_id = models.CharField(max_length=16, blank=True)
+    phone = models.CharField(max_length=16, blank=True)
+    location = models.ForeignKey(Location)
+    locale = models.CharField(max_length=8)
+    

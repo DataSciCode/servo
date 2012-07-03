@@ -1,30 +1,26 @@
 {% load i18n %}
 
 <form action="/user/settings" method="post" accept-charset="utf-8">
-  {% csrf_token %}
-  <label>{% trans "Puhelin" %}:</label>
-  <input type="text" name="phone" value="{{ user.phone }}"/>
-  <br/>
-  <label>{% trans "Salasana" %}:</label>
-  <input type="password" name="password" />
-  <br/>
-  <label>{% trans "Varmistus" %}:</label>
-  <input type="password" name="password-conf"/>
-  <br/>
-  <label>{% trans "Tech ID" %}:</label>
-  <input type="text" name="tech_id" value="{{ user.tech_id }}"/>
-  <br/>
-  <label>{% trans "Toimipaikka" %}:</label>
-  <select name="location">
-{% for loc in locations %}
-    <option value="{{ loc.id }}">{{ loc.title }}</option>  
-{% endfor %}
-    </select>
+    {% csrf_token %}
+    <label>{% trans "Puhelin" %}:</label>
+    {{ form.phone }}
+    <br/>
+    <label>{% trans "Salasana" %}:</label>
+    <input type="password" name="password" />
+    <br/>
+    <label>{% trans "Varmistus" %}:</label>
+    <input type="password" name="password-conf"/>
+    <br/>
+    <label>{% trans "Tech ID" %}:</label>
+    {{ form.tech_id }}
+    <br/>
+    <label>{% trans "Toimipaikka" %}:</label>
+    {{ form.location }}
     <br/>
     <label>{% trans "Kieli" %}:</label>
     <select name="locale">
-      <option value="fi_FI">{% trans "Suomi" %}</option>
-      <option value="en_US">{% trans "Englanti" %}</option>
-      <option value="et_EE">{% trans "Viro" %}</option>
+        <option value="fi_FI">{% trans "Suomi" %}</option>
+        <option value="en_US">{% trans "Englanti" %}</option>
+        <option value="et_EE">{% trans "Viro" %}</option>
     </select>
 </form>

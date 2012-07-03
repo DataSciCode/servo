@@ -118,7 +118,7 @@ def remove_field(req, id=None):
     return render(req, 'admin/field_remove.html', field)
 
 def templates(req):
-    templates = Message.objects.filter(is_template = True)
+    templates = Message.objects.filter(is_template=True)
     return render(req, 'admin/templates.html', {'templates': templates})
 
 def create_template(req):
@@ -130,7 +130,7 @@ def save_template(req):
     else:
         template = Message(is_template=True)
 
-    template.sender = req.session.get('user')    
+    template.sender = req.user
     template.subject = req.POST['title']
     template.body = req.POST['body']
     template.save()

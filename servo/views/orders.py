@@ -176,13 +176,14 @@ def update(req, id):
     return render(req, 'orders/events.html', {'order': order})
   
 def create_gsx_repair(req, order_id):
-    order = Order.objects(id = ObjectId(order_id)).first()
+    order = Order.objects.get(pk=order_id)
     customer = {}
     templates = Message.objects.filter(is_template=True)
-    comptia = json.load(open("/Users/filipp/Projects/servo3/gsx/symptoms.json"))
+    comptia = json.load(open("/Users/filipp/Projects/servo3/gsxlib/symptoms.json"))
   
     if order.customer:
-        for k, v in order.customer.properties.items():
+        for p in order.customer.properties():
+            v = p.value
             if re.search('@', v):
                 customer['emailAddress'] = v
             if re.search('^\d{5}$', v):
@@ -197,37 +198,42 @@ def create_gsx_repair(req, order_id):
         (customer['firstName'], customer['lastName']) = order.customer.name.split(" ", 1)
   
     if not "primaryPhone" in customer:
-        customer['primaryPhone'] = req.session['user'].location.phone
+        pass
+        #customer['primaryPhone'] = req.session['user'].location.phone
   
     if not "city" in customer:
-        customer['city'] = req.session['user'].location.city
+        pass
+        #customer['city'] = req.session['user'].location.city
   
     if not "addressLine1" in customer:
-        customer['adressLine1'] = req.session['user'].location.address
+        pass
+        #customer['adressLine1'] = req.session['user'].location.address
   
     if not "zip" in customer:
-        customer['zip'] = req.session['user'].location.zip
+        pass
+        #customer['zip'] = req.session['user'].location.zip
   
     if not "primaryPhone" in customer:
-        customer['primaryPhone'] = req.session['user'].location.phone
+        pass
+        #customer['primaryPhone'] = req.session['user'].location.phone
 
     if not "emailAddress" in customer:
-        customer['emailAddress'] = req.session['user'].location.email
+        pass
+        #customer['emailAddress'] = req.session['user'].location.email
 
     parts = []
   
-    for p in order.products:
+    for p in order.products.all():
         # find the corresponding compnent code from coptia
         try:
-            comp = p.product.gsx_data['componentCode']
+            #comp = p.product.gsx_data['componentCode']
+            comp = "B"
+            symptoms = comptia['symptoms'][comp]
+            parts.append({"number": p.id, "title": p.title, "code": p.code, "symptoms": symptoms})
         except Exception, e:
             # skip products with no GSX data
             continue
 
-    symptoms = comptia['symptoms'][comp]
-    parts.append({"number": p.product.number,
-        "title": p.product.title, "code": p.product.code, "symptoms": symptoms})
-  
     return render(req, "orders/gsx_repair_form.html", {
         "templates": templates,
         "parts": parts,
@@ -236,17 +242,17 @@ def create_gsx_repair(req, order_id):
         "order": order
     })
 
-def put_on_paper(req, order_id, template_id):
+def put_on_paper(req, order_id, template_id, kind='order_template'):
     import pystache
-    conf = Configuration.objects.get(pk = 1)
-    doc = Attachment.objects.get(pk = template_id)
-    data = Order.objects.get(pk = order_id)
+    conf = Configuration.objects.get(pk=1)
+    doc = Attachment.objects.get(pk=template_id)
+    data = Order.objects.get(pk=order_id)
     tpl = doc.content.read().decode('utf-8')
 
     return HttpResponse(pystache.render(tpl, {
         'order': data,
         'config': conf,
-        'location': req.session['user'].location
+        'location': req.session.get('user_profile').location
     }))
 
 def submit_gsx_repair(req):

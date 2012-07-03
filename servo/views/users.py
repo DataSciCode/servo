@@ -2,8 +2,13 @@ import hashlib
 from django.shortcuts import redirect, render
 from django.http import HttpResponse
 from django.contrib import auth
+from django import forms
 
-from servo.models import Location
+from servo.models import Location, UserProfile
+
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
 
 def logout(request):
     if 'confirm' in request.POST:
@@ -27,13 +32,21 @@ def login(request):
 
 def settings(request):
     if request.method == 'POST':
-        request.session['user'].phone = request.POST['phone']
-        loc = Location.objects(id = request.POST['location']).first()
-        request.session['user'].location = loc
-        request.session['user'].save()
+        loc = Location.objects.get(pk=request.POST.get('location'))
+        profile = UserProfile.objects.get_or_create(user=request.user,
+            location=loc)[0]
+        profile.phone = request.POST.get('phone')
+        profile.tech_id = request.POST.get('tech_id')
+        profile.locale = request.POST.get('locale')
+        profile.save()
+
+        if request.POST.get('password'):
+            request.user.set_password(request.POST['password'])
+
+        profile.save()
+        request.session['user_profile'] = profile
+
         return HttpResponse('Asetukset tallennettu')
     else:
-        user = request.session.get("user")
-        locations = Location.objects.all()
-        return render(request, 'users/settings.html', {'user': user,
-            'locations': locations})
+        form = ProfileForm(instance=request.session.get('user_profile'))
+        return render(request, 'users/settings.html', {'form': form})

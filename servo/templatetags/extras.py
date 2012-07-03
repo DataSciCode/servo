@@ -41,10 +41,10 @@ def clickable(value):
 
 @register.filter
 def gsx_date(value):
-    formats = json.load(open("/Users/filipp/Projects/servo3/gsx/langs.json"))
+    formats = json.load(open("/Users/filipp/Projects/servo3/gsxlib/langs.json"))
     return value.strftime(formats['en_XXX']['df'])
   
 @register.filter
 def gsx_time(value):
-    formats = json.load(open("/Users/filipp/Projects/servo3/gsx/langs.json"))
+    formats = json.load(open("/Users/filipp/Projects/servo3/gsxlib/langs.json"))
     return value.strftime(formats['en_XXX']['tf'])

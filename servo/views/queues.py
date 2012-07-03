@@ -15,7 +15,6 @@ def index(req):
 def edit(req, id=None):
     accounts = GsxAccount.objects.all()
     statuses = Status.objects.all()
-    templates = Attachment.objects.all()
 
     if id:
         queue = Queue.objects.get(pk=id)
@@ -28,8 +27,7 @@ def edit(req, id=None):
         'queue': queue,
         'form': form,
         'accounts': accounts,
-        'statuses': statuses,
-        'templates': templates
+        'statuses': statuses
     })
 
 def save(req):
@@ -43,6 +41,11 @@ def save(req):
     q.title = req.POST.get('title')
     q.description = req.POST.get('description')
     q.gsx_account = GsxAccount.objects.get(pk=req.POST['gsx_account'])
+
+    q.order_template_id = req.POST.get('order_template')
+    q.receipt_template_id = req.POST.get('receipt_template')
+    q.dispatch_template_id = req.POST.get('dispatch_template', None)
+
     q.save()
 
     if d.get('status'):
@@ -53,9 +56,6 @@ def save(req):
                     limit_green=s['limit_green'],
                     limit_yellow=s['limit_yellow'],
                     limit_factor=s['limit_factor'])
-
-    for a in req.POST.getlist('attachments'):
-        q.attachments.add(Attachment.objects.get(pk=a))
     
     return HttpResponse('Jono tallennettu')
 

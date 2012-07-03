@@ -6,7 +6,7 @@
     {% if note.parent_id %}
     <input type="hidden" value="{{ note.parent_id }}" name="parent_id"/>
     {% endif %}
-    <select class="label chooser" rel="symptom">
+    <select class="label chooser">
         <option value="0">{% trans "Otsikko" %}…</option>
 {% for tpl in templates %}
         <option value="{{ tpl.id }}">{{ tpl.subject }}</option>
@@ -16,7 +16,6 @@
 </form>
 <script type="text/javascript">
     $(".chooser").change(function() {
-        var ta = "#" + $(this).attr("rel");
-        $(ta).load("/template/view/" + $(this).val());
+        $("#id_description").load("/template/view/" + $(this).val());
     });
 </script>

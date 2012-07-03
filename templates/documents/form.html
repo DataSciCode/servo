@@ -1,7 +1,7 @@
 {% load i18n %}
 <form method="post" action="/document/save" rel="attachments">
-  {% csrf_token %}
-  {{ form }}
+    {% csrf_token %}
+    {{ form }}
 </form>
 <script type="text/javascript">
 	$('#id_content').fileupload();

@@ -25,15 +25,24 @@
     </ul>
 </li>
 <li>
-    <a href="javascript:;" class="print"></a>
+    <a href="javascript:;" class="print enabled"></a>
     <ul>
-{% for tpl in order.queue.attachments.all  %}
-        <li><a href="/orders/print/{{ order.id }}/template/{{ tpl.id }}" class="window">{{ tpl.name }}</a></li>
-{% endfor %}
+{% if order.queue.order_template  %}
+        <li><a href="/orders/{{ order.id }}/print/{{ order.queue.order_template.id }}" class="window">{% trans "Tulosta huoltotilaus" %}</a></li>
+{% endif %}
+{% if order.queue.quote_template  %}
+        <li><a href="/orders/{{ order.id }}/print/quote/{{ order.queue.quote_template.id }}" class="window">{% trans "Tulosta kustannusarvio" %}</a></li>
+{% endif %}
+{% if order.queue.receipt_template  %}
+        <li><a href="/orders/{{ order.id }}/print/receipt/{{ order.queue.receipt_template.id }}" class="window">{% trans "Tulosta kuitti" %}</a></li>
+{% endif %}
+{% if order.queue.dispatch_template  %}
+        <li><a href="/orders/{{ order.id }}/print/dispatch/{{ order.queue.dispatch_template.id }}" class="window">{% trans "Tulosta lähete" %}</a></li>
+{% endif %}
     </ul>
 </li>
 <li>
-    <a href="javascript:;" class="gear"></a>
+    <a href="javascript:;" class="gear enabled"></a>
     <ul>
 {% if order.devices %}
         <li><a href="/orders/gsx_repair/{{ order.id }}" class="popup">{% trans "Luo GSX korjaus" %}...</a></li>
