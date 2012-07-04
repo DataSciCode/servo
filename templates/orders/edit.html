@@ -9,7 +9,7 @@
 <ul class="navigation">
     <li><a href="/customer/create/order/{{ order.id }}" class="popup customer">{% trans "Asiakas" %}</a></li>
     <li><a href="/device/create/order/{{ order.id }}" class="popup device">{% trans "Laite" %}</a></li>
-    <li><a href="/note/create/order/{{ order.id }}/" class="popup issue">{% trans "Tehtävä" %}</a></li>
+    <li><a href="/issue/create/order/{{ order.id }}/" class="popup issue">{% trans "Tehtävä" %}</a></li>
     <li><a href="/products/create/order/{{ order.id }}/" class="popup product">{% trans "Tuote" %}</a></li>
     <li><a href="/message/create" class="popup message">{% trans "Viesti" %}</a></li>
 </ul>
@@ -20,8 +20,8 @@
 <li><a href="javascript:;" class="reply disabled popup"></a>
     <ul id="note-actions">
         <li><a href="/message/0/reply/" class="popup">{% trans "Vastaus" %}</a></li>
-        <li><a href="/note/0/diagnose/" class="popup">{% trans "Diagnoosi" %}</a></li>
-        <li><a href="/note/0/solve/" class="popup">{% trans "Ratkaisu" %}</a></li>
+        <li><a href="/issue/0/diagnosis/" class="popup">{% trans "Diagnoosi" %}</a></li>
+        <li><a href="/issue/0/solution/" class="popup">{% trans "Ratkaisu" %}</a></li>
     </ul>
 </li>
 <li>
@@ -126,11 +126,11 @@
     {% endif %}
 </div>
 
-<div id="notes" class="tableView" data-url="/orders/notes/{{ order.id }}">
-  {% if order.notes %}
-    {% include "orders/notes.html" %}
+<div id="issues" class="tableView" data-url="/orders/{{ order.id }}/issues/">
+  {% if order.issue_set.count %}
+    {% include "orders/issues.html" %}
   {% endif %}
-</div><!-- //#notes -->
+</div><!-- //#issues -->
 
 <div class="tableView" id="messages" data-url="/orders/messages/{{ order.id }}">
   {% if order.messages %}

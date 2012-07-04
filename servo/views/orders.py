@@ -16,13 +16,14 @@ class SidebarForm(forms.ModelForm):
         fields = ['user', 'queue', 'status', 'priority', 'dispatch_method']
 
 def create(request):
-    o = Order.objects.create(created_by_id=request.user.id, created_at=datetime.now())
+    o = Order.objects.create(created_by_id=request.user.id,
+        created_at=datetime.now())
 
     desc = 'Tilaus %d luotu' % o.id
     Event.objects.create(description=desc, order=o,
         kind='create_order', user=request.user)
 
-    return redirect('/orders/edit/%d' % o.id)
+    return redirect('/orders/%d/' % o.id)
 
 def search(req):
     queues = Queue.objects.all()
@@ -79,7 +80,6 @@ def tags(req, id):
   
 def edit(req, id):
     o = Order.objects.get(pk=id)
-    #return HttpResponse('blaaa')
     req.session['order'] = o
     
     form = SidebarForm(instance=o)
@@ -110,7 +110,7 @@ def remove(req, id = None):
 
 def follow(req, id):
     order = Order.objects.get(pk=id)
-    order.followed_by.add(req.session.get('user'))
+    order.followed_by.add(req.user)
     return HttpResponse('%d seuraa' % order.followed_by.count())
 
 @csrf_exempt
@@ -198,29 +198,23 @@ def create_gsx_repair(req, order_id):
         (customer['firstName'], customer['lastName']) = order.customer.name.split(" ", 1)
   
     if not "primaryPhone" in customer:
-        pass
-        #customer['primaryPhone'] = req.session['user'].location.phone
+        customer['primaryPhone'] = req.session['user_profile'].location.phone
   
     if not "city" in customer:
-        pass
-        #customer['city'] = req.session['user'].location.city
+        customer['city'] = req.session['user_profile'].location.city
   
     if not "addressLine1" in customer:
-        pass
-        #customer['adressLine1'] = req.session['user'].location.address
+        customer['adressLine1'] = req.session['user_profile'].location.address
   
     if not "zip" in customer:
-        pass
-        #customer['zip'] = req.session['user'].location.zip
+        customer['zip'] = req.session['user_profile'].location.zip
   
     if not "primaryPhone" in customer:
-        pass
-        #customer['primaryPhone'] = req.session['user'].location.phone
+        customer['primaryPhone'] = req.session['user_profile'].location.phone
 
     if not "emailAddress" in customer:
-        pass
-        #customer['emailAddress'] = req.session['user'].location.email
-
+        customer['emailAddress'] = req.session['user_profile'].location.email
+        
     parts = []
   
     for p in order.products.all():
@@ -229,7 +223,8 @@ def create_gsx_repair(req, order_id):
             #comp = p.product.gsx_data['componentCode']
             comp = "B"
             symptoms = comptia['symptoms'][comp]
-            parts.append({"number": p.id, "title": p.title, "code": p.code, "symptoms": symptoms})
+            parts.append({"number": p.id, "title": p.title,
+                "code": p.code, "symptoms": symptoms})
         except Exception, e:
             # skip products with no GSX data
             continue
@@ -310,9 +305,9 @@ def messages(req, order_id):
     order = Order.objects.get(pk=order_id)
     return render(req, "orders/messages.html", {"order": order})
   
-def notes(req, order_id):
+def issues(req, order_id):
     order = Order.objects.get(pk=order_id)
-    return render(req, 'orders/notes.html', {'order': order})
+    return render(req, 'orders/issues.html', {'order': order})
   
 def devices(req, order_id):
     order = Order.objects.get(pk=order_id)

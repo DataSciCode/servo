@@ -2,21 +2,21 @@
 {% load extras %}
 
 <div class="tabView">
-  <ul class="tabs">
-   <li><a href="#general">{% trans "Yleiset" %}</a></li><li><a href="#parts">{% trans "Varaosat" %}</a></li><li><a href="#customer">{% trans "Asiakas" %}</a></li>
+    <ul class="tabs">
+        <li><a href="#general">{% trans "Yleiset" %}</a></li><li><a href="#parts">{% trans "Varaosat" %}</a></li><li><a href="#customer">{% trans "Asiakas" %}</a></li>
   </ul>
-<form method="post" accept-charset="utf-8" action="/orders/submit_gsx_repair">
+    <form method="post" accept-charset="utf-8" action="/orders/submit_gsx_repair">
   {% csrf_token %}
-  <input type="hidden" name="ws_account" value="{{ ws_account }}"/>
-  <input type="hidden" name="order_number" value="{{ order.number }}"/>
-  <input type="hidden" name="customerAddress.state" value="ZZ"/>
-  <input type="hidden" name="customerAddress.regionCode" value="004"/>
-  <input type="hidden" name="customerAddress.country" value="FIN"/>
+        <input type="hidden" name="ws_account" value="{{ ws_account }}"/>
+        <input type="hidden" name="order_number" value="{{ order.number }}"/>
+        <input type="hidden" name="customerAddress.state" value="ZZ"/>
+        <input type="hidden" name="customerAddress.regionCode" value="004"/>
+        <input type="hidden" name="customerAddress.country" value="FIN"/>
   <div class="tab" id="general">
-    <label>{% trans "Laite" %}:</label>
-    <select name="sn" style="width:365px">
+        <label>{% trans "Laite" %}:</label>
+        <select name="sn" style="width:365px">
 {% for dev in order.devices.all %}
-      <option value="{{ dev.sn }}">{{ dev.description }} - {{ dev.sn }}</option>
+        <option value="{{ dev.sn }}">{{ dev.description }} - {{ dev.sn }}</option>
 {% endfor %}
     </select>
     <br/>
@@ -38,15 +38,15 @@
     <br/>
     <label>{% trans "Luotu" %}:</label>
     <input
-      type="text"
-      name="unitReceivedDate"
-      class="datepicker short"
-      value="{{ order.created_at|gsx_date }}"/>
+        type="text"
+        name="unitReceivedDate"
+        class="datepicker short"
+        value="{{ order.created_at|gsx_date }}"/>
     <input
-      type="text"
-      class="short"
-      name="unitReceivedTime"
-      value="{{ order.created_at|gsx_time }}"/>
+        type="text"
+        class="short"
+        name="unitReceivedTime"
+        value="{{ order.created_at|gsx_time }}"/>
     <br/>
     <label>{% trans "Liite" %}:</label>
     <input type="file" name="incoming"/>
@@ -86,33 +86,33 @@
 {% endfor %}
     </div><!-- //#parts -->
     <div class="tab" id="customer">
-      <label>{% trans "Etunimi" %}:</label>
-      <input type="text" name="customerAddress.firstName" value="{{ customer.firstName }}"/>
-      <br/>
-      <label>{% trans "Sukunimi" %}:</label>
-      <input type="text" name="customerAddress.lastName" value="{{ customer.lastName }}"/>
-      <br/>
-      <label>{% trans "Sähköposti" %}:</label>
-      <input type="text" name="customerAddress.emailAddress" value="{{ customer.emailAddress }}"/>
-      <br/>
-      <label>{% trans "Puhelin" %}:</label>
-      <input type="text" name="customerAddress.primaryPhone" value="{{ customer.primaryPhone }}"/>
-      <br/>
-      <label>{% trans "Katuosoite" %}:</label>
-      <input type="text" name="customerAddress.addressLine1" value="{{ customer.adressLine1 }}"/>
-      <br/>
-      <label>{% trans "Postinumero" %}:</label>
-      <input type="text" name="customerAddress.zipCode" value="{{ customer.zip }}"/>
-      <br/>
-      <label>{% trans "Toimipaikka" %}:</label>
-      <input type="text" name="customerAddress.city" value="{{ customer.city }}"/>
+        <label>{% trans "Etunimi" %}:</label>
+        <input type="text" name="customerAddress.firstName" value="{{ customer.firstName }}"/>
+        <br/>
+        <label>{% trans "Sukunimi" %}:</label>
+        <input type="text" name="customerAddress.lastName" value="{{ customer.lastName }}"/>
+        <br/>
+        <label>{% trans "Sähköposti" %}:</label>
+        <input type="text" name="customerAddress.emailAddress" value="{{ customer.emailAddress }}"/>
+        <br/>
+        <label>{% trans "Puhelin" %}:</label>
+        <input type="text" name="customerAddress.primaryPhone" value="{{ customer.primaryPhone }}"/>
+        <br/>
+        <label>{% trans "Katuosoite" %}:</label>
+        <input type="text" name="customerAddress.addressLine1" value="{{ customer.adressLine1 }}"/>
+        <br/>
+        <label>{% trans "Postinumero" %}:</label>
+        <input type="text" name="customerAddress.zipCode" value="{{ customer.zip }}"/>
+        <br/>
+        <label>{% trans "Toimipaikka" %}:</label>
+        <input type="text" name="customerAddress.city" value="{{ customer.city }}"/>
     </div><!-- //#customer -->
 </form>
 </div>
 <script type="text/javascript">
-  $(".datepicker").datepicker({format: ""});
-  $(".chooser").change( function() {
-      var ta = "#" + $(this).attr("rel");
-      $(ta).load("/template/view/" + $(this).val());
-  });
+    $(".datepicker").datepicker({format: ""});
+    $(".chooser").change( function() {
+        var ta = "#" + $(this).attr("rel");
+        $(ta).load("/template/view/" + $(this).val());
+    });
 </script>

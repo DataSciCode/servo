@@ -53,9 +53,9 @@
         </thead>
         <tbody>
 {% for i in data %}
-        <tr data-url="/products/edit/{{ i.id }}" class="{% cycle 'odd' 'even' %}">
+        <tr data-url="/products/{{ i.id }}/edit/" class="{% cycle 'odd' 'even' %}">
             <td><input type="checkbox" class="selected_product" value="{{ i.id }}"/></td>
-            <td><a href="/products/edit/{{ i.id }}" class="popup">{{ i.id }}</a></td>
+            <td><a href="/products/{{ i.id }}" class="popup">{{ i.id }}</a></td>
             <td>{{ i.code }}</td>
             <td>{{ i.title }}</td>
             <td>{{ i.price_purchase }}</td>
@@ -70,23 +70,23 @@
 </div>
 
 <script type="text/javascript" charset="utf-8">
-  $(".selected_product").click(function() {
-    url = $(".buy").attr("href");
-    url = url+$(this).val()+";";
-    $(".buy").attr("href", url);
-  });
+    $(".selected_product").click(function() {
+        url = $(".buy").attr("href");
+        url = url+$(this).val()+";";
+        $(".buy").attr("href", url);
+    });
 
-  $(".selected_product").click(function() {
-    url = $(".sell").attr("href");
-    url = url + $(this).val()+";";
-    $(".sell").attr("href", url);
-  });
+    $(".selected_product").click(function() {
+        url = $(".sell").attr("href");
+        url = url + $(this).val()+";";
+        $(".sell").attr("href", url);
+    });
 
-  $("#search_query").keydown(function(e) {
-    var rex = new RegExp($(this).val(), 'i');
-    $('#products tbody tr').hide();
-    $('#products tbody tr').filter(function() {
-        return rex.test($(this).text());
+    $("#search_query").keydown(function(e) {
+        var rex = new RegExp($(this).val(), 'i');
+        $('#products tbody tr').hide();
+        $('#products tbody tr').filter(function() {
+            return rex.test($(this).text());
     }).show();
   });
 </script>

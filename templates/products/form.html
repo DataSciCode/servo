@@ -3,7 +3,7 @@
 <div class="tabView">
     <ul class="tabs"><li><a href="#info">{% trans 'Perustiedot' %}</a></li><li><a href="#price">{% trans 'Hinnat' %}</a></li><li><a href="#stock">{% trans 'Varasto' %}</a></li><li><a href="#files">{% trans 'Liitteet' %}</a></li><li><a href="#gsx">{% trans 'GSX' %}</a></li></ul>
 
-<form method="post" rel="products" accept-charset="utf-8" action="/products/save/{{ product.id }}">
+<form method="post" rel="products" accept-charset="utf-8" action="/products/{{ id }}/save/">
     {% csrf_token %}
     <div id="info" class="tab">
         <label>{% trans 'Koodi' %}:</label>
@@ -68,7 +68,7 @@
         {{ form.amount_ordered }}
         <br/>
         <label>{% trans 'Varastossa' %}:</label>
-        {{ form.amount_stocked }}
+        <input type="text" name="amount_stocked" id="id_amount_stocked" value="{{ product.amount_stocked }}"/>
         <br/>
         <label>{% trans 'Minimiraja' %}:</label>
         {{ form.amount_minimum }}
@@ -97,9 +97,10 @@
       <input type="file" id="fileupload" name="content"/>
     </div><!-- //#files -->
     <div id="gsx" class="tab">
-{% for k, v in product.gsx_data.items %}
-        <label style="width:150px">{{ k }}:</label>
-        <input type="text" style="width:50%" readonly="readonly" value="{{ v }}"/>
+{% for k, v in gsx_data.items %}
+        <label>{% trans k %}:</label>
+        <input type="text" style="width:50%" value="{{ v }}"/>
+        <br/>
 {% endfor %}
     </div><!-- //#gsx -->
   </form>
@@ -107,15 +108,15 @@
 
 <script type="text/javascript">
     $("#fileupload").fileupload({
-      url: "/document/save",
-      done: function(e, data) {
-          var file = data.result;
-          $("<li/>").text(file.name).appendTo($("#attachments"));
-          $("<input/>").attr("type", "hidden")
-              .attr("name", "attachments")
-              .val(file.id)
-              .insertAfter("#fileupload");
-      }
+        url: "/document/save",
+        done: function(e, data) {
+            var file = data.result;
+            $("<li/>").text(file.name).appendTo($("#attachments"));
+            $("<input/>").attr("type", "hidden")
+                .attr("name", "attachments")
+                .val(file.id)
+                .insertAfter("#fileupload");
+        }
     });
     
     $(".autocomplete").autocomplete({source: "/tag/index/product"});

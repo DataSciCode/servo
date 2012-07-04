@@ -503,7 +503,7 @@ var ContentView = Backbone.View.extend(
         
         $("#secondary li > a").addClass("enabled");
         $("#edit-button").attr("href", url);
-        $("#delete-button").attr("href", url.replace("/edit", "/remove"));
+        $("#delete-button").attr("href", url.replace("/edit/", "/remove/"));
         $("#edit-button").removeClass("disabled");
 		
 //		if( this.shouldPopup() ) {

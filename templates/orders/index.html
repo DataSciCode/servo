@@ -28,8 +28,8 @@
         </thead>
         <tbody data-collection="orders">
 {% for order in data %}
-            <tr data-url="/orders/edit/{{ order.id }}" class="{% cycle  'odd' 'even' %}">
-                <td><a href="/orders/edit/{{ order.id }}">{{ order.id }}</a></td>
+            <tr data-url="/orders/{{ order.id }}/" class="{% cycle  'odd' 'even' %}">
+                <td><a href="/orders/{{ order.id }}/">{{ order.id }}</a></td>
                 <td><a href="/orders/index/date/{{ order.created_at|date:"Y-m-d" }}">{{ order.created_at|relative_date }}</a></td>
                 <td><a href="/orders/index/customer/{{ order.customer.id }}">{{ order.customer_name }}</a></td>
                 <td><a href="/orders/index/spec/{{ order.device_spec }}">{{ order.device_name }}</a></td>

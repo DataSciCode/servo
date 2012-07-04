@@ -1,0 +1,20 @@
+{% load i18n %}
+<form action="/issue/{{ id }}/edit/" accept-charset="utf-8" method="post" rel="issues">
+    {% csrf_token %}
+    {% if issue.id %}
+    <input type="hidden" value="{{ issue.id }}" name="id"/>    
+    {% endif %}
+    <input type="hidden" value="{{ issue.order_id }}" name="order_id"/>
+    <select class="label chooser">
+        <option value="0">{% trans "Pohja" %}…</option>
+{% for tpl in templates %}
+        <option value="{{ tpl.id }}">{{ tpl.subject }}</option>
+{% endfor %}
+    </select>
+    <textarea name="{{ kind }}">{{ description }}</textarea>
+</form>
+<script type="text/javascript">
+    $(".chooser").change(function() {
+        $("#id_description").load("/template/view/" + $(this).val());
+    });
+</script>

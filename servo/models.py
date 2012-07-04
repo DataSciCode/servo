@@ -165,7 +165,6 @@ class Product(models.Model):
         conf = Configuration.objects.get(pk = 1)
         return conf.pct_margin
 
-    gsx_data = models.TextField(blank=True)
     title = models.CharField(default = 'Uusi tuote', max_length=255)
     description = models.TextField(blank=True)
     warranty_period = models.IntegerField(default = 0)
@@ -174,12 +173,18 @@ class Product(models.Model):
     shelf = models.CharField(default = '', max_length=8, blank=True)
     brand = models.CharField(default = '', max_length=32, blank=True)
 
-    pct_vat = models.DecimalField(decimal_places=2, max_digits=4, default=default_vat)
-    pct_margin = models.DecimalField(decimal_places=2, max_digits=4, default=default_margin)
-    price_notax = models.DecimalField(default = 0, decimal_places=2, max_digits=6)
-    price_sales = models.DecimalField(default = 0, decimal_places=2, max_digits=6)
-    price_purchase = models.DecimalField(default = 0, decimal_places=2, max_digits=6)
-    price_exchange = models.DecimalField(default = 0, decimal_places=2, max_digits=6)
+    pct_vat = models.DecimalField(decimal_places=2, max_digits=4, 
+        default=default_vat)
+    pct_margin = models.DecimalField(decimal_places=2, max_digits=4, 
+        default=default_margin)
+    price_notax = models.DecimalField(default = 0, decimal_places=2, 
+        max_digits=6)
+    price_sales = models.DecimalField(default = 0, decimal_places=2, 
+        max_digits=6)
+    price_purchase = models.DecimalField(default = 0, decimal_places=2, 
+        max_digits=6)
+    price_exchange = models.DecimalField(default = 0, decimal_places=2, 
+        max_digits=6)
 
     amount_minimum = models.IntegerField(default = 0)
     is_serialized = models.BooleanField(default = False)
@@ -196,7 +201,7 @@ class Product(models.Model):
     def tax(self):
         return self.price_sales - self.price_notax
 
-    def amount_stocked(self, amount = 0):
+    def amount_stocked(self, amount=0):
         """Get or set the stocked amount of this product
         """
         if amount:
@@ -225,6 +230,12 @@ class Product(models.Model):
         except Exception, e:
             return 0
     
+class GsxData(models.Model):
+    key = models.CharField(max_length=128)
+    value = models.TextField(blank=True)
+    references = models.CharField(max_length=16)
+    reference_id = models.IntegerField()
+
 class GsxRepair(models.Model):
     #customer_data = DictField()
     symptom = models.TextField()
@@ -296,10 +307,6 @@ class PurchaseOrder(models.Model):
             amount += p.get('amount')
 
         return amount
-
-class PurchaseOrderItem(models.Model):
-    code = models.CharField(max_length=128)
-    purchase_order = models.ForeignKey(PurchaseOrder)
 
 class Inventory(models.Model):
     """A slot can refer to basically any model in the system.
@@ -469,6 +476,12 @@ class Order(models.Model):
         if self.devices.count():
             return self.devices.all()[0].spec.id
 
+class PurchaseOrderItem(models.Model):
+    code = models.CharField(max_length=128)
+    amount = models.IntegerField()
+    service_order = models.ForeignKey(Order, null=True)
+    purchase_order = models.ForeignKey(PurchaseOrder)
+    
 class Event(models.Model):
     description = models.CharField(max_length=255)
     created_at = models.DateTimeField(default=datetime.now())
@@ -477,13 +490,16 @@ class Event(models.Model):
     user = models.ForeignKey(User)
     kind = models.CharField(max_length=32)
 
-class Note(models.Model):
-    KINDS = ((0, 'Vika'), (1, 'Diagnoosi'), (2, 'Ratkaisu'))
-    kind = models.IntegerField(choices=KINDS, default=0, editable=False)
-    description = models.TextField()
+class Issue(models.Model):
+    class Meta:
+        ordering = ['id']
+    
+    symptom = models.TextField()
+    diagnosis = models.TextField()
+    solution = models.TextField()
+
     created_by = models.ForeignKey(User)
     created_at = models.DateTimeField(default=datetime.now(), editable=False)
-    parent = models.ForeignKey('self', null=True)
     order = models.ForeignKey(Order, editable=False)
 
 class Message(models.Model):
