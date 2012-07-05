@@ -5,16 +5,6 @@
  * http://documentcloud.github.com/underscore/
  */
 
-/* A thing */
-var Model = Backbone.Model.extend({
-
-});
-
-/* A collection of things */
-var Collection = Backbone.Collection.extend({
-    model: Model
-});
-
 var TabView = Backbone.View.extend(
 {
     el: "div.tabView"
@@ -139,7 +129,7 @@ var PanelView = Backbone.View.extend(
     hidePanel: function()
     {
         if(this.$el.is(":visible")) {
-            this.$el.hide("slide", {direction: "up"}, 200 );
+            this.$el.hide("slide", {direction: "up"}, 200);
             $("#pager_msg").text("");
         }
     }
@@ -153,41 +143,30 @@ var PanelView = Backbone.View.extend(
         $.ajax(
         {
             type: "POST",
-            url: $(form).attr("action"),
             data: $(form).serialize(),
+            url: $(form).attr("action"),
 
             complete: function(data, json) {
-                console.log(data, json);
+                console.log(data);
                 $("#pager_spinner").hide()
             },
 
-            error: function(data) {
-                console.log(data);
-                json = JSON.parse(data.responseText);
-                
-                if(data.status == 302) {
+            error: function(resp, status, data) {
+                console.log(status)
+                if(status == 302) {
                     window.location.replace(json.redirect);
                     return false;
                 }
-                
-                var badField = document.getElementById(json.badfield);
-                
-                $('<div class="error"></div>')
-                    .html('<span>'+json.message+'</span>')
-                    .insertAfter(badField)
-                    .fadeIn();
+                $('#status_bar').html(resp.responseText).fadeIn();
             }
 ,
-            success: function(data, status, json) {
-                console.log(data);
-                $("#pager_msg").text(json.responseText);
-                
-                //indow.panelView.hidePanel();
-                
+            success: function(response) {
+                console.log(response);
                 // reload only the relevant portion of the page
                 $(reload).load($(reload).data("url"),
                     function() {
                         window.tableView.render();
+                        window.panelView.hidePanel();
                 });
             }
         });
@@ -242,6 +221,7 @@ var AppView = Backbone.View.extend(
 ,
     runPanel: function(event)
     {
+        $('#status_bar').hide();
         event.preventDefault();
         var url = $(event.currentTarget).attr("href");
         if(url != "javascript:;") {

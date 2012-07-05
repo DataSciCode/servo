@@ -21,7 +21,7 @@ def create(req, order=None, customer=None):
     
     return render(req, 'devices/form.html', {'device': device, 'form': form})
   
-def remove(req, id = None):
+def remove(req, id=None):
     if 'id' in req.POST:
         dev = Device.objects.get(pk=req.POST['id'])
         dev.delete()
@@ -31,36 +31,43 @@ def remove(req, id = None):
         return render(req, 'devices/remove.html', {'device': dev})
 
 def edit(req, id):
+    gsx_data = {}
     if id in req.session.get('gsx_data'):
         import json
         result = req.session['gsx_data'].get(id)
         dev = Device(sn=result.get('serialNumber'),\
             description=result.get('productDescription'),
             purchased_on=result.get('estimatedPurchaseDate'))
+        gsx_data = result
     else:
         dev = Device.objects.get(pk=id)
     
     form = DeviceForm(instance=dev)
-    return render(req, 'devices/form.html', {'device': dev, 'form': form})
+    return render(req, 'devices/form.html', {'device': dev,
+        'form': form, 'gsx_data': gsx_data})
 
 def save(req):
-
     if 'id' in req.POST:
         # search by SN to avoid duplicates
         dev = Device.objects.get(sn=req.POST['sn'])
     else:
         dev = Device()
     
-    for k, v in data.items():
-        dev.__setattr__(k, v)
+    form = DeviceForm(req.POST)
+    
+    if not form.is_valid:
+        print form.errors
+        return HttpResponse(str(form.errors))
+
+    dev = form.save(commit=False)
     
     # make sure we have this spec
-    spec, created = Spec.objects.get_or_create(title=dev.description)
+    spec = Spec.objects.get_or_create(title=dev.description)[0]
     dev.spec = spec
 
     dev.save()
 
-    if req.session['order']:
+    if req.session.get('order'):
         order = Order.objects.get(pk=req.session['order'].id)
         order.devices.add(dev)
         req.session['order'] = order

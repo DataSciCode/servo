@@ -148,28 +148,30 @@ class SpecInfo(models.Model):
 class Device(models.Model):
     sn = models.CharField(max_length=32, unique=True, blank=True)
     description = models.CharField(max_length=128)
-    username = models.CharField(max_length=32)
-    password = models.CharField(max_length=32)
+    username = models.CharField(max_length=32, blank=True)
+    password = models.CharField(max_length=32, blank=True)
     purchased_on = models.DateField(blank=True)
     notes = models.TextField(blank=True)
-
-    gsx_data = models.TextField()
     spec = models.ForeignKey(Spec, null=True)
 
 class Product(models.Model):
+    class Meta:
+        ordering = ['-id']
+        verbose_name = u'Tuote'
+
     def default_vat():
-        conf = Configuration.objects.get(pk = 1)
+        conf = Configuration.objects.get(pk=1)
         return conf.pct_vat
 
     def default_margin():
-        conf = Configuration.objects.get(pk = 1)
+        conf = Configuration.objects.get(pk=1)
         return conf.pct_margin
 
     title = models.CharField(default = 'Uusi tuote', max_length=255)
     description = models.TextField(blank=True)
     warranty_period = models.IntegerField(default = 0)
 
-    code = models.CharField(default = '', max_length=32, unique=True)
+    code = models.CharField(default = '', max_length=32, unique=True, verbose_name = u'koodi')
     shelf = models.CharField(default = '', max_length=8, blank=True)
     brand = models.CharField(default = '', max_length=32, blank=True)
 
@@ -481,7 +483,7 @@ class PurchaseOrderItem(models.Model):
     amount = models.IntegerField()
     service_order = models.ForeignKey(Order, null=True)
     purchase_order = models.ForeignKey(PurchaseOrder)
-    
+
 class Event(models.Model):
     description = models.CharField(max_length=255)
     created_at = models.DateTimeField(default=datetime.now())

@@ -87,12 +87,10 @@ def edit(req, id):
     queues = Queue.objects.all()
     statuses = Status.objects.all()
     priorities = ['Matala', 'Normaali', 'Korkea']
-    products = OrderItem.objects.filter(order=o)
     return render(req, 'orders/edit.html', {
         'order': o,
         'queues': queues,
         'users': users,
-        'products': products,
         'statuses': statuses,
         'priorities': priorities,
         'form': form

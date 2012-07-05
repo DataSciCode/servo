@@ -15,6 +15,6 @@
 </form>
 <script type="text/javascript">
     $(".chooser").change(function() {
-        $("#id_description").load("/template/view/" + $(this).val());
+        $(this).next('textarea').load("/template/view/" + $(this).val());
     });
 </script>

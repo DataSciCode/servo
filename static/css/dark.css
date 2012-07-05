@@ -29,6 +29,12 @@ div#page {
     height: auto !important;
 }
 
+ul.errorlist {
+    background-color: red;
+    border-radius: 5px;
+    padding: 6px;
+}
+
 #toolbar {
     top: 0px;
     left: 0px;

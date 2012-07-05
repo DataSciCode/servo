@@ -28,12 +28,12 @@
         <input type="text" value="{{ device.warranty_ends }}" />
         <br/>
         <label>{% trans "Lisätiedot" %}:</label>
-        <textarea id="notes" name="notes">{{ device.notes }}</textarea>
+        {{ form.notes }}
     </div>
     <div id="gsx" class="tab">
 {% for k, v in gsx_data.items %}
         <label style="width:150px">{{ k }}:</label>
-        <input type="text" readonly="readonly" style="width:50%" name="gsx_data.{{ k }}" value="{{ v }}"/>
+        <input type="text" readonly="readonly" style="width:50%" value="{{ v }}"/>
         <br/>
 {% endfor %}
     </div>

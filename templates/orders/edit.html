@@ -44,9 +44,6 @@
 <li>
     <a href="javascript:;" class="gear enabled"></a>
     <ul>
-{% if order.devices %}
-        <li><a href="/orders/gsx_repair/{{ order.id }}" class="popup">{% trans "Luo GSX korjaus" %}...</a></li>
-{% endif %}
 {% if order.products %}
         <li><a href="/purchase-order/create/order/{{ order.id }}" class="popup">{% trans "Tilaa tuotteet" %}...</a></li>
         <li><a href="/products/reserve/{{ order.id }}" class="popup">{% trans "Varaa tuotteet" %}…</a></li>
@@ -105,10 +102,10 @@
     </div>
 
     <form id="miniform" method="post" action="/message/save">
-      {% csrf_token %}
-      <input type="hidden" name="order" value="{{ order.id }}"/>
-      <span class="label">{% trans "Pikaviesti" %}</span>
-      <textarea name="body" id="minimessage"></textarea>
+        {% csrf_token %}
+        <input type="hidden" name="order" value="{{ order.id }}"/>
+        <span class="label">{% trans "Pikaviesti" %}</span>
+        <textarea name="body" id="minimessage"></textarea>
     </form>
     <div class="buttons">
         <a href="javascript:;" class="save button"><span>{% trans "Tallenna" %}</span></a>
@@ -120,8 +117,8 @@
 
 {% block content %}
 
-<div id="devices" class="tableView" data-url="/orders/devices/{{ order.id }}">
-    {% if order.devices %}
+<div id="devices" class="tableView" data-url="/orders/{{ order.id }}/devices/">
+    {% if order.devices.count %}
         {% include "orders/devices.html" %}
     {% endif %}
 </div>
@@ -132,14 +129,14 @@
   {% endif %}
 </div><!-- //#issues -->
 
-<div class="tableView" id="messages" data-url="/orders/messages/{{ order.id }}">
-  {% if order.messages %}
-    {% include "orders/messages.html" %}
-  {% endif %}
+<div class="tableView" id="messages" data-url="/orders/{{ order.id }}/messages/">
+    {% if order.messages %}
+        {% include "orders/messages.html" %}
+    {% endif %}
 </div><!-- //#messages -->
 
-<div id="products" class="tableView" data-url="/orders/products/{{ order.id }}">
-    {% if order.products %}
+<div id="products" class="tableView" data-url="/orders/{{ order.id }}/products/">
+    {% if order.orderitem_set.count %}
         {% include "orders/products.html" %}
     {% endif %}
 </div><!-- //#products -->

@@ -43,7 +43,6 @@ def edit(req, id=0):
             conf = Configuration.objects.get(pk=1)
 
             getcontext().rounding = ROUND_UP
-            #getcontext().prec = 2
 
             sp = Decimal(result.get('stockPrice'))
             ep = Decimal(result.get('exchangePrice'))
@@ -90,9 +89,8 @@ def save(req, id=None):
         form = ProductForm(req.POST)
         
     if not form.is_valid():
-        print form.errors
-        return HttpResponse(form.errors)
-
+        return HttpResponse(str(form.errors), status=500)
+        
     form.save()
     data = form.cleaned_data
 
@@ -103,7 +101,7 @@ def save(req, id=None):
                 GsxData.objects.create(key=k, value=v,
                     references="product", reference_id=1)
     except Exception, e:
-        print e
+        print form.errors
 
     #product.tags = req.POST.getlist('tags')
 
