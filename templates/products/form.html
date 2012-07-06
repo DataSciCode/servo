@@ -2,7 +2,6 @@
 
 <div class="tabView">
     <ul class="tabs"><li><a href="#info">{% trans 'Perustiedot' %}</a></li><li><a href="#price">{% trans 'Hinnat' %}</a></li><li><a href="#stock">{% trans 'Varasto' %}</a></li><li><a href="#files">{% trans 'Liitteet' %}</a></li><li><a href="#gsx">{% trans 'GSX' %}</a></li></ul>
-
 <form method="post" rel="products" accept-charset="utf-8" action="/products/{{ id }}/save/">
     {% csrf_token %}
     <div id="info" class="tab">
@@ -18,9 +17,9 @@
         <input type="text" name="amount_sold" value="{{ product.amount_sold }}"/>
         <br/>
     {% if product.is_serialized %}
-      <label>{% trans "Sarjanumero" %}:</label>
-      <input type="text" name="sn" value="{{ product.sn }}"/>
-      <br/>
+        <label>{% trans "Sarjanumero" %}:</label>
+        <input type="text" name="sn" value="{{ product.sn }}"/>
+        <br/>
     {% endif %}
 {% endif %}
       <label>{% trans 'Kuvaus' %}:</label>
@@ -32,7 +31,7 @@
             <input type="text" name="tags" style="width:80px" class="autocomplete tag" value="{{ t.title }}"/>
         {% endfor %}
         {% endif %}
-      <input type="text" id="newTag" class="autocomplete" style="width:80px"/>
+        <input type="text" id="newTag" class="autocomplete" style="width:80px"/>
     </div>
     </div><!-- //#info -->
     <div id="price" class="tab">
@@ -88,8 +87,8 @@
                 <a href="/document/view/{{ f.id }}">{{ f.name }}</a>
                 <span>{{ f.description }}</span>
                 <a href="/document/remove/{{ f.id }}" class="delete" style="float:right;margin-right:30px"></a>
-  </li>
-{% endfor %}
+            </li>
+                {% endfor %}
             {% endif %}
       </ul>
       <br/>

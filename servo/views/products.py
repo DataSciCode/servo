@@ -92,6 +92,7 @@ def save(req, id=None):
         return HttpResponse(str(form.errors), status=500)
         
     product = form.save()
+    data = form.cleaned_data
 
     try:
         if product.code in req.session.get('gsx_data'):
@@ -104,7 +105,7 @@ def save(req, id=None):
 
     #product.tags = req.POST.getlist('tags')
 
-    if req.POST.get('amount_stocked'):
+    if data.get('amount_stocked'):
         product.amount_stocked(data.get('amount_stocked'))
     
     for a in req.POST.getlist('attachments'):

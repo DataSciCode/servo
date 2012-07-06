@@ -1,6 +1,6 @@
 # coding=utf-8
 import logging, json, re
-from datetime import datetime
+from datetime import date, datetime
 from django.http import HttpResponse
 from django.template import RequestContext
 from django.utils.datastructures import DotExpandedDict
@@ -8,6 +8,7 @@ from django.shortcuts import render, render_to_response, redirect
 
 from django.views.decorators.csrf import csrf_exempt
 from django import forms
+
 from servo.models import *
 
 class SidebarForm(forms.ModelForm):
@@ -40,6 +41,11 @@ def index(req, param=None, value=None):
 
     if param == 'status':
         data = Order.objects.filter(status__pk=value)
+
+    if param == 'date':
+        year, month, day = value.split('-')
+        value = date(int(year), int(month), int(day))
+        data = Order.objects.filter(created_at__startswith=value)
 
     if param == 'user':
         try:

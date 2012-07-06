@@ -602,12 +602,13 @@ a.button:active, a.button.active {
 }
 
 #search_query {
-    width: 175px;
-    height: 24px;
+    width: 210px;
+    height: 31px;
     font-size: 9pt;
-    padding: 5px 5px 20px 23px;
+    font-weight: bold;
+    padding: 5px 5px 25px 28px;
     -webkit-box-shadow: none;
-    background: url(/static/images/dark/searchfield.png) no-repeat;
+    background: url(/static/images/moonkit/search_round.png) no-repeat;
 }
 div.property {
     clear: both;
@@ -649,7 +650,7 @@ div.property a {
 }
 
 div.small_block {
-    width: 250px;
+    width: 280px;
     position: absolute;
     background-color: #222;
     border-right: 1px solid #222;
@@ -898,6 +899,7 @@ span.date {
 #toolbar ul#primary {
     width: 420px;
     display: block;
+    border-right: 1px solid #ccc;
 }
 
 #toolbar ul#secondary {
@@ -1151,4 +1153,20 @@ div.pbar div:after {
 
 td img {
     margin: 4px;
+}
+
+#searchbar .dropdown {
+    position: absolute;
+    width: 80px;
+    height: 25px;
+    background-color: red;
+}
+#searchbar .dropdown > ul {
+    display: none;
+    position: absolute;
+    top: 25px;
+}
+
+#searchbar .dropdown.enabled > ul {
+    display: block;
 }

@@ -7,7 +7,7 @@ class Tag(models.Model):
     TYPES = ((0, 'Sijainti'))
     title = models.CharField(default='Uusi tagi', max_length=255)
     kind = models.CharField(max_length=32)
-    times_used = models.IntegerField()
+    times_used = models.IntegerField(default=0)
 
 class Attachment(models.Model):
     name = models.CharField(default='Uusi tiedosto', max_length=255)
@@ -154,10 +154,10 @@ class Device(models.Model):
     notes = models.TextField(blank=True)
     spec = models.ForeignKey(Spec, null=True)
 
-class Product(models.Model):
+class BaseProduct(models.Model):
     class Meta:
+        abstract = True
         ordering = ['-id']
-        verbose_name = u'Tuote'
 
     def default_vat():
         conf = Configuration.objects.get(pk=1)
@@ -169,11 +169,8 @@ class Product(models.Model):
 
     title = models.CharField(default = 'Uusi tuote', max_length=255)
     description = models.TextField(blank=True)
-    warranty_period = models.IntegerField(default = 0)
-
-    code = models.CharField(default = '', max_length=32, unique=True, verbose_name = u'koodi')
-    shelf = models.CharField(default = '', max_length=8, blank=True)
-    brand = models.CharField(default = '', max_length=32, blank=True)
+    code = models.CharField(default = '', max_length=32, unique=True,
+        verbose_name = u'koodi')
 
     pct_vat = models.DecimalField(decimal_places=2, max_digits=4, 
         default=default_vat)
@@ -187,12 +184,19 @@ class Product(models.Model):
         max_digits=6)
     price_exchange = models.DecimalField(default = 0, decimal_places=2, 
         max_digits=6)
-
-    amount_minimum = models.IntegerField(default = 0)
     is_serialized = models.BooleanField(default = False)
-    
+
+class Product(BaseProduct):
+    class Meta:
+        verbose_name = u'Tuote'
+
+    warranty_period = models.IntegerField(default = 0)
+    shelf = models.CharField(default = '', max_length=8, blank=True)
+    brand = models.CharField(default = '', max_length=32, blank=True)
+
     tags = models.ManyToManyField(Tag, blank=True)
-    specs = models.ManyToManyField(Spec, blank=True)    
+    specs = models.ManyToManyField(Spec, blank=True)
+    amount_minimum = models.IntegerField(default = 0)
     attachments = models.ManyToManyField(Attachment, blank=True)
 
     def save(self, *args, **kwargs):
@@ -580,11 +584,10 @@ class Message(models.Model):
         f = urllib.urlopen('%s?%s' %(conf.sms_url, params))
         print f.read()
 
-class OrderItem(models.Model):
+class OrderItem(BaseProduct):
     order = models.ForeignKey(Order)
     product = models.ForeignKey(Product)
     sn = models.CharField(max_length=32)
-    price = models.DecimalField(max_digits=4, decimal_places=2)
     reported = models.BooleanField(default=True)
 
 class Search(models.Model):

@@ -49,7 +49,7 @@
         <li><a href="/products/reserve/{{ order.id }}" class="popup">{% trans "Varaa tuotteet" %}…</a></li>
         <li><a href="/store/dispatch/order/{{ order.id }}" class="popup">{% trans "Toimita tilaus" %}...</a></li>
 {% endif %}
-        <li><a href="/orders/close/id/{{ order.id }}" class="popup">{% trans "Sulje tilaus" %}...</a></li>
+        <li><a href="/orders/{{ order.id }}/close/" class="popup">{% trans "Sulje tilaus" %}...</a></li>
 	</ul>
 </li>
 
@@ -75,12 +75,13 @@
         </ul>
       
       <div id="newTagTarget"><a class="tag" id="add_tag" href="/tag/create/order">{% trans "Lisää" %}</a></div>
-      <script type="text/javascript">
-          $(".draggable").draggable({revert: "invalid", zIndex: 1000, opacity: 0.5});
 
-          $("#add_tag").click(function(e) {
-              e.preventDefault();
-              $("#newTagTarget").load($(this).attr("href"), {
+    <script type="text/javascript">
+        $(".draggable").draggable({revert: "invalid", zIndex: 1000, opacity: 0.5});
+
+        $("#add_tag").click(function(e) {
+            e.preventDefault();
+            $("#newTagTarget").load($(this).attr("href"), {
                 action: "/orders/tags/{{ order.id }}"
               });
           });
@@ -141,7 +142,7 @@
     {% endif %}
 </div><!-- //#products -->
 
-<div id="events" data-url="/orders/events/id/{{ order.id }}">
+<div id="events" data-url="/orders/{{ order.id }}/events/">
     {% include "orders/events.html" %}
 </div>
 

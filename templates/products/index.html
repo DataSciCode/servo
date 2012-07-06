@@ -36,37 +36,19 @@
 
 {% block content %}
 
-<div class="tableView">
-    <table id="products" data-url="/products/index">
-        <thead>
-            <tr>
-                <th style="width:20px"></th>
-                <th>#</th>
-                <th>{% trans "Koodi" %}</th>
-                <th>{% trans "Nimike" %}</th>
-                <th>{% trans "Ostohinta" %}</th>
-                <th>{% trans "Hinta" %}</th>
-                <th>{% trans "Varastossa" %}</th>
-                <th>{% trans "Tilattu" %}</th>
-                <th>{% trans "Varattu" %}</th>
-            </tr>
-        </thead>
-        <tbody>
-{% for i in data %}
-        <tr data-url="/products/{{ i.id }}/edit/" class="{% cycle 'odd' 'even' %}">
-            <td><input type="checkbox" class="selected_product" value="{{ i.id }}"/></td>
-            <td><a href="/products/{{ i.id }}" class="popup">{{ i.id }}</a></td>
-            <td>{{ i.code }}</td>
-            <td>{{ i.title }}</td>
-            <td>{{ i.price_purchase }}</td>
-            <td>{{ i.price_sales }}</td>
-            <td>{{ i.amount_stocked }}</td>
-            <td>{{ i.amount_ordered }}</td>
-            <td>{{ i.amount_reserved }}</td>
-        </tr>
-{% endfor %}
-        </tbody>
-    </table>
+<div class="small_block">
+    <div class="listView" style="top:0px;bottom:0px;left:0px;right:0px;position:absolute">
+        {% for i in data %}
+        <div class="list-view-item" data-url="/products/{{ i.id }}/edit/" class="{% cycle 'odd' 'even' %}">
+            <div class="first-row code">
+                <span class="wrapper">{{ i.code }}</span>
+            </div>
+            <div class="second-row title">
+                {{ i.title }}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
 </div>
 
 <script type="text/javascript" charset="utf-8">
@@ -87,8 +69,16 @@
         $('#products tbody tr').hide();
         $('#products tbody tr').filter(function() {
             return rex.test($(this).text());
-    }).show();
-  });
+        }).show();
+    });
+
+    $('#searchbar .dropdown').click(function() {
+        $(this).toggleClass('enabled');
+    });
+    $('#searchbar .dropdown ul li a').click(function() {
+        console.log('clicked!')
+        $(this).parent('.dropdown').val($(this).text());
+    });
 </script>
 
 {% endblock  %}

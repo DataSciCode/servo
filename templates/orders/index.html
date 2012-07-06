@@ -17,16 +17,7 @@
 {% block content %}
 <div class="tableView">
     <table id="orders" data-url="/orders/">
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>{% trans "Luotu" %}</th>
-                <th>{% trans "Asiakas" %}</th>
-                <th>{% trans "Laite" %}</th>
-                <th>{% trans "Status" %}</th>
-            </tr>
-        </thead>
-        <tbody data-collection="orders">
+        <tbody>
 {% for order in data %}
             <tr data-url="/orders/{{ order.id }}/" class="{% cycle  'odd' 'even' %}">
                 <td><a href="/orders/{{ order.id }}/">{{ order.id }}</a></td>
