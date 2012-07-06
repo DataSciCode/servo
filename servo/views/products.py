@@ -91,15 +91,14 @@ def save(req, id=None):
     if not form.is_valid():
         return HttpResponse(str(form.errors), status=500)
         
-    form.save()
-    data = form.cleaned_data
+    product = form.save()
 
     try:
-        if data['code'] in req.session.get('gsx_data'):
-            gsx_data = req.session['gsx_data'].get(data['code'])
+        if product.code in req.session.get('gsx_data'):
+            gsx_data = req.session['gsx_data'].get(product.code)
             for k, v in gsx_data.items():
                 GsxData.objects.create(key=k, value=v,
-                    references="product", reference_id=1)
+                    references="product", reference_id=product.id)
     except Exception, e:
         print form.errors
 

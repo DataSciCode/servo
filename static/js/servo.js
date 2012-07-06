@@ -149,8 +149,8 @@ var PanelView = Backbone.View.extend(
             complete: function(data, json) {
                 console.log(data);
                 $("#pager_spinner").hide()
-            },
-
+            }
+,
             error: function(resp, status, data) {
                 console.log(status)
                 if(status == 302) {
