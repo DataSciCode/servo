@@ -146,7 +146,7 @@ class SpecInfo(models.Model):
     value = models.CharField(max_length=255)
 
 class Device(models.Model):
-    sn = models.CharField(max_length=32, unique=True, blank=True)
+    sn = models.CharField(max_length=32, blank=True)
     description = models.CharField(max_length=128)
     username = models.CharField(max_length=32, blank=True)
     password = models.CharField(max_length=32, blank=True)
@@ -512,7 +512,7 @@ class Message(models.Model):
     class Meta:
         ordering = ['id']
     
-    body = models.TextField()
+    body = models.TextField(blank=False)
     subject = models.CharField(max_length=255)
 
     mailfrom = models.EmailField(default='', blank=True)

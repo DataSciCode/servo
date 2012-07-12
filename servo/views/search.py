@@ -3,16 +3,28 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.datastructures import DotExpandedDict
-import json
+import json, pickle
 from servo.models import Device, Product, Customer, GsxAccount, Search
 
 @csrf_exempt
 def save(req):
-    query = DotExpandedDict(req.POST)
+    data = DotExpandedDict(req.POST)
     title = req.POST.get('title', '')
     model = req.POST.get('model')
-    query = json.dumps(query['query'])
+    query = {}
+    
+    for k, v in data['query'].items():
+        print k, v
+        if v != '':
+            query[k] = v
+
+    query = pickle.dumps(query)
     Search.objects.create(query=query, title=title, model=model)
+    return HttpResponse('Haku tallennettu')
+
+def remove(req, id):
+    Search.objects.get(pk=id).delete()
+    return HttpResponse('Haku poistettu')
 
 @csrf_exempt
 def lookup(req, what):

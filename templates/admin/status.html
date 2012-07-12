@@ -1,13 +1,9 @@
 {% extends request.is_ajax|yesno:"empty.html,default.html" %}
 {% load i18n %}
 
-{%block toolbar %}
+{%block secondary %}
 
-  <ul class="navigation">
-      <li>
-          <a class="popup" href="/admin/status/create">{% trans "Uusi status" %}</a>
-      </li>
-  </ul>
+<div class="popup button new" data-url="/admin/status/create" title="{% trans "Uusi status" %}"></div>
 
 {% endblock %}
 

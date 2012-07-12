@@ -29,17 +29,17 @@ def index(req):
     return render(req, 'products/index.html', {'data': data, 'tags': tags})
 
 def edit(req, id=0):
+    form = ProductForm()
     try:
         result = {}
         product = Product.objects.get(pk=id)
         form = ProductForm(instance=product)
         id = product.id
     except Exception, e:
-        gsx_data = req.session.get('gsx_data')
+        gsx_data = req.session.get('gsx_data', {})
 
         if id in gsx_data:
             result = gsx_data.get(id)
-            print result
             conf = Configuration.objects.get(pk=1)
 
             getcontext().rounding = ROUND_UP
@@ -142,3 +142,8 @@ def reserve(req, order_id=None):
     else:
         order = Order.objects.get(pk = order_id)
         return render(req, 'products/reserve.html', {'order': order})
+
+def view(req, product_id):
+    product = Product.objects.get(pk=product_id)
+    return render(req, 'products/view.html', {'product': product})
+    

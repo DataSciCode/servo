@@ -2,30 +2,23 @@
 
 {% load i18n %}
 
-{% block toolbar %}
-
-<ul class="navigation">
-    <li>
-        <a class="popup customer" href="/customer/create">{% trans 'Uusi asiakas' %}</a>
-    </li>
-</ul>
-
-{% endblock %}
+{% block secondary %}
+    <div class="view button new" data-url="/orders/index/customer/{{ customer.id }}"></div>
+    <div class="view button" data-url="/orders/index/customer/{{ customer.id }}" title="{% trans 'Tilaukset' %}" style="left:40px"></div>
+    <div class="view button popup" data-url="/customer/move/{{ customer.id }}" title="{% trans 'Siirrä' %}" style="left:80px"></div>
+    <div class="view button popup" data-url="/customer/create/{{ customer.id }}" title="{% trans 'Lisää kontakti' %}" style="left:120px"></div>
+{% endblock secondary %}
 
 {% block content %}
 
 <div class="small_block listView" id="customers" data-url="/customer/index">
-	<ul>
-    
+	<ul>    
     {% for c in customers %}
-    
         <li style="padding-left: {{ c.get_indent }}em" data-url="/customer/view/{{ c.id }}" class="{% cycle 'odd' 'even' %}">{{ c.name }}</li>
-          
     {% endfor %}
-
     </ul>
 </div>
 
-<div id="detailView"></div>
+<div class="view" id="detailView"></div>
 
 {% endblock %}

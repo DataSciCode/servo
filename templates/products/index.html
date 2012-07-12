@@ -4,19 +4,16 @@
 {% block title %}Tuotteet{% endblock title %}
 
 {% block toolbar %}
-
 <ul>
     <li><a href="/products/create" class="popup">{% trans "Uusi tuote" %}</a></li>
 </ul>
-
 {% endblock toolbar %}
 
 {% block secondary %}
 
-<li><a href="javascript:;" class="search popup">&nbsp;</a>
-    <ul>
-        <li>
-        <table>
+<div class="view button search shownext"></div>
+<div class="popup-menu">
+    <table>
 {% for tag in tags %}
           <tr>
             <td style="width:25px">
@@ -25,31 +22,34 @@
             <td style="width:80px">{{ tag.title }}</td>
           </tr>
 {% endfor %}
-        </table>
-      </li>
-    </ul>
-  </li>
-  <li><a href="/store/order_products/" class="purchase popup buy">&nbsp;</a></li>
-  <li><a href="/store/sell_products/" class="sell popup sell">&nbsp;</a></li>
+    </table>
+</div>
+
+<div class="view button popup new" data-url="/product/create/" style="left:40px"></div>
+<div id="delete-button" class="view button popup delete disabled" data-url="/product/remove/" style="left:80px"></div>
+<div class="view button popup buy" data-url="/store/order_products/" style="left:120px"></div>
+<div class="view button popup sell" data-url="/store/sell_products/" style="left:160px"></div>
 
 {% endblock secondary %}
 
 {% block content %}
 
-<div class="small_block">
-    <div class="listView" style="top:0px;bottom:0px;left:0px;right:0px;position:absolute">
-        {% for i in data %}
-        <div class="list-view-item" data-url="/products/{{ i.id }}/edit/" class="{% cycle 'odd' 'even' %}">
-            <div class="first-row code">
-                <span class="wrapper">{{ i.code }}</span>
-            </div>
-            <div class="second-row title">
-                {{ i.title }}
-            </div>
+<div class="small_block listView" id="products" data-url="/products/">
+    <ul>
+    {% for i in data %}
+    <li data-url="/product/{{ i.id }}/" class="{% cycle 'odd' 'even' %}">
+        <div class="first-row code" style="font-weight:bold">
+            <span class="wrapper">{{ i.code }}</span>
         </div>
-        {% endfor %}
-    </div>
+        <div class="second-row title">
+            {{ i.title }}
+        </div>
+    </li>
+    {% endfor %}
+    </ul>
 </div>
+
+<div id="detailView"></div>
 
 <script type="text/javascript" charset="utf-8">
     $(".selected_product").click(function() {

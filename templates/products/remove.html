@@ -1,5 +1,5 @@
 {% load i18n %}
-<form action="/products/remove" method="post" accept-charset="utf-8" rel="products">
+<form action="/product/remove/" method="post" accept-charset="utf-8" rel="products">
   {% csrf_token %}
 	<input type="hidden" name="id" value="{{ product.id }}" />
 	<img src="/static/images/alert_48.png" alt="alert" class="alert" />

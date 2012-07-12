@@ -68,7 +68,8 @@ def dispatch(req, order_id=None, numbers=None):
         oi = OrderItem(product=product, price=product.price_sales)
         products.append(oi)
 
-    return render(req, 'store/dispatch.html', {'products': products, 'totals': totals, 'form': form})
+    return render(req, 'store/dispatch.html', {'products': products,
+        'totals': totals, 'form': form})
 
 def save_po(req):
     """Save Purchase Order

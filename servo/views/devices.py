@@ -8,6 +8,7 @@ from servo.models import Device, Order, Spec
 class DeviceForm(forms.ModelForm):
     class Meta:
         model = Device
+        exclude = ('spec',)
 
 def index(req):
     devices = Device.objects.all()
@@ -53,10 +54,10 @@ def save(req):
     else:
         dev = Device()
     
+    print req.POST
     form = DeviceForm(req.POST)
     
     if not form.is_valid:
-        print form.errors
         return HttpResponse(str(form.errors))
 
     dev = form.save(commit=False)

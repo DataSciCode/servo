@@ -24,7 +24,7 @@ def login(request):
     
         if user is not None and user.is_active:
             auth.login(request, user)
-            return redirect('/orders/index/user/%s' %(user.username))
+            return redirect('/orders/index/user/%s/' %(user.username))
         else:
             print 'authentication failed'
       

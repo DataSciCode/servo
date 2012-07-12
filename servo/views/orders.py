@@ -17,9 +17,7 @@ class SidebarForm(forms.ModelForm):
         fields = ['user', 'queue', 'status', 'priority', 'dispatch_method']
 
 def create(request):
-    o = Order.objects.create(created_by_id=request.user.id,
-        created_at=datetime.now())
-
+    o = Order.objects.create(created_by_id=request.user.id)
     desc = 'Tilaus %d luotu' % o.id
     Event.objects.create(description=desc, order=o,
         kind='create_order', user=request.user)
@@ -68,7 +66,14 @@ def index(req, param=None, value=None):
     if param == 'state':
         data = Order.objects.filter(state=value)
 
-    return render(req, 'orders/index.html', {'data': data})
+    if param == 'search':
+        import pickle
+        search = Search.objects.get(pk=value)
+        query = pickle.loads(search.query)
+        data = Order.objects.filter(**query)
+
+    searches = Search.objects.filter(model='Order')
+    return render(req, 'orders/index.html', {'data': data, 'searches': searches})
 
 def tags(req, id):
     if 'title' in req.POST:

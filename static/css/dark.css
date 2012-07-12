@@ -213,7 +213,6 @@ a.tag:after {
 #side_pane a.done:before {
   content: url(/static/images/dark/16/done.png);
 }
-
 #side_pane a.article:before {
     content: url(/static/images/article_16.png);
 }
@@ -472,10 +471,13 @@ input[type="radio"]:checked {
 input[type="text"], input[type="password"], textarea {
     color: #fff;
     border: none;
+    font-size: 10pt;
+}
+
+#popup input[type="text"], input[type="password"], textarea {
     width: 75%;
     margin: 3px;
     padding: 6px;
-    font-size: 10pt;
     border-radius: 4px;
     background-color: #222;
     font-family: "Helvetica Neue";
@@ -663,7 +665,9 @@ div.block {
 }
 
 div#detailView {
-    margin-left: 251px;
+    z-index: 100000;
+    left: 281px;
+    right: 0px;
 }
 
 h2.placeholder {
@@ -1169,4 +1173,79 @@ td img {
 
 #searchbar .dropdown.enabled > ul {
     display: block;
+}
+
+.view {
+    margin: 0px;
+    position: absolute;
+    /*border: 1px solid red;*/
+}
+
+#toolbar .button {
+    height: 32px;
+    width: 32px;
+    margin: 8px;
+    background: url(/static/images/packed.png) no-repeat;
+}
+
+#toolbar .button.disabled {
+    opacity: 0.3;
+}
+
+#toolbar .button.enabled {
+    opacity: 1;
+}
+
+.search-left {
+    background: url(/static/images/packed.png) no-repeat;
+    background-position: -190px 0px;
+}
+
+.search-mid {
+    background: url(/static/images/packed-bg.png) repeat-x;
+    background-position: 0px 0px;
+}
+.search-right {
+    background: url(/static/images/packed.png) no-repeat;
+    background-position: -225px 0px;
+}
+
+#toolbar .column {
+    height: 100%;
+    vertical-align: middle;
+}
+.button:hover {
+    cursor: pointer;
+}
+#toolbar .button.new {
+    background-position: 0px 0px;
+}
+#toolbar .button.delete {
+    background-position: -30px 0px;
+}
+#toolbar .button.search {
+    background-position: -60px 0px;
+}
+#toolbar .button.message {
+    background-position: -93px 0px;
+}
+#toolbar .button.print {
+    background-position: -125px 0px;
+}
+#toolbar .button.gear {
+    background-position: -157px 0px;
+}
+#toolbar .button.user {
+    background-position: -245px 0px;
+}
+#toolbar .button.buy {
+    background-position: -34px -55px;
+}
+#toolbar .button.sell {
+    background-position: 0px -55px;
+}
+.popup-menu {
+    display: none;
+    background-color: #444;
+    padding: 10px;
 }

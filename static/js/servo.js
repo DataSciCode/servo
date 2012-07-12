@@ -179,7 +179,7 @@ var AppView = Backbone.View.extend(
 ,
     events: {
         "keydown"			    : "closePanel",
-        "click a.popup"         : "runPanel",
+        "click .popup"         : "runPanel",
         "click a.window"        : "openWindow",
         "click #pager a.button" : "hidePager",
         "ajaxStart"             : "ajaxStart",
@@ -224,6 +224,11 @@ var AppView = Backbone.View.extend(
         $('#status_bar').hide();
         event.preventDefault();
         var url = $(event.currentTarget).attr("href");
+        
+        if(!url) {
+            url = $(event.currentTarget).data('url');
+        }
+
         if(url != "javascript:;") {
             $('#toolbar li > ul').fadeOut();
             window.panelView.loadUrl(url);
@@ -266,9 +271,26 @@ var ToolbarView = Backbone.View.extend(
     el: "div#toolbar"
 ,
     events: {
+        "click .shownext"           : "togglePopup",
+        "click .button"             : "buttonClicked",
         "submit #search"            : "search",
         "click .filterProducts"     : "filterProducts",
         "click ul > li a.enabled"   : "toggleMenu"
+    }
+,
+    togglePopup: function(event)
+    {
+        event.preventDefault();
+        $(event.currentTarget).next('.popup-menu').toggle();
+    }
+,
+    buttonClicked: function(event)
+    {
+        var t = $(event.currentTarget);
+        if(!t.hasClass('shownext') && !t.hasClass('popup')) {
+            console.log('buttonclick in toolbar');
+            window.location = $(event.currentTarget).data('url');
+        }
     }
 ,
     showMenu: function(event)
@@ -363,10 +385,10 @@ var SidebarView = Backbone.View.extend(
             revert: "invalid",
             drop: function(event, ui) {
                 console.log(event, ui);
-                ui.draggable.fadeOut("fast");
-                var url = ui.draggable.attr("href");
-                var id = url.split("/").pop();
-                $.post("/search/remove", {_id: id});
+                var url = ui.draggable.attr('href');
+                var id = url.split('/').pop();
+                $.get('/search/'+id+'/remove');
+                ui.draggable.remove();
             }
         }
         );
@@ -462,33 +484,27 @@ var ContentView = Backbone.View.extend(
 ,
     selectRow: function(event)
     {
-        this.$(".current").removeClass("current");
+        this.$('.current').removeClass('current');
         
         var row = event.currentTarget;
         
         $(row).addClass("current");
 
-        $("#delete-button").removeClass("disabled")
-            .addClass("popup");
+        $('.delete').removeClass('disabled').addClass('popup');
 
         var url = $(row).data("url");
         results = url.match(/\d+/);
         id = results[0]
-
-        $('#note-actions a').map(function(e) {
+        console.log(url);
+        
+        $('#note-actions a').map(function(e)
+        {
             href = $(this).attr('href');
             href = href.replace(/\d+/, id);
             $(this).attr('href', href).addClass('enabled');
         });
-        
-        $("#secondary li > a").addClass("enabled");
-        $("#edit-button").attr("href", url);
-        $("#delete-button").attr("href", url.replace("/edit/", "/remove/"));
-        $("#edit-button").removeClass("disabled");
-		
-//		if( this.shouldPopup() ) {
-			$("#edit-button").addClass( "popup" );
-//		}
+
+        $('.delete').data('url', url.replace(/(\d+)/, '$1/remove'));
 
     }
 ,
@@ -507,18 +523,24 @@ var ListView = Backbone.View.extend(
 	el: "div.listView"
 ,
 	initialize: function() {
-//		var first = this.$("> ul li:first");
-//		$(first).addClass("current");
+		var first = this.$("> ul li:first");
+		$(first).addClass("current");
 //		var url = first.children("a").attr("href");
 	},
     
 	events: {
-        "click ul li"		: "select"
+        'click ul li'		: 'select',
+        'dblclick ul li'    : 'open'
 	}
+,
+    open: function(event) {
+        var url = $(event.currentTarget).data('url');        
+        panelView.loadUrl(url);
+    }
 ,
 	render: function()
 	{
-		this.$("ul > li:even").css("background-color", "#252525");
+		this.$('ul > li:even').css('background-color', '#252525');
 		return this;
 	}
 ,
@@ -533,13 +555,13 @@ var ListView = Backbone.View.extend(
 		$(e).addClass("current");
         
         var url = $(e).data("url");
+        remove_url = url.replace(/(\d+)/, '$1/remove');
 
-        $("#delete-button").attr("href", url.replace(/^\/(\w+)\/\w+/, '/$1/remove'));
-		$("#delete-button").removeClass("disabled");
-        $("#edit-button").attr("href", url.replace(/^\/(\w+)\/\w+/, '/$1/edit'));
-		$("#edit-button").addClass("popup");
+        $('#delete-button').data('url', remove_url);
+        // @todo: this slows Safari down to a crawl
+		//$('#delete-button').removeClass('disabled');
 		
-		$("#detailView").load(url);
+		//$('#detailView').load(url);
 		window.app.navigate(url, true);
 	}
 	
@@ -571,10 +593,6 @@ var ServoApp = Backbone.Router.extend(
     }
 ,
     routes: {
-        "calendar/events/:id"   : "detailRoute",
-        "queue/edit/:id"        : "detailRoute",
-        "customer/view/:id"     : "detailRoute",
-        "message/view/:id"      : "detailRoute",
         "*url"                  : "defaultRoute",
     }
 });

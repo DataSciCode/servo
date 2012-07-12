@@ -4,19 +4,19 @@
     <label>{% trans "Tallenna" %}:</label>
     <input type="text" name="title" id="title"/>
     <label></label>
-    <select name="query.queue">
+    <select name="query.queue_id">
         <option value="">{% trans "Jono" %}...</option>
 {% for q in queues %}
         <option value="{{ q.id }}">{{ q.title }}</option>
 {% endfor %}
     </select>
-    <select name="query.status">
+    <select name="query.status_id">
         <option value="">{% trans "Status" %}...</option>
 {% for s in statuses %}
         <option value="{{ s.id }}">{{ s.title }}</option>
 {% endfor %}
     </select>
-    <select name="query.location">
+    <select name="query.location_id">
         <option value="">{% trans "Sijainti" %}...</option>
 {% for l in locations %}
     <option value="{{ l.id }}">{{ l.title }}</option>
@@ -24,7 +24,7 @@
     </select>
     <br/>
     <label></label>
-    <select name="query.user">
+    <select name="query.user_id">
         <option value="">{% trans "Käsittelijä" %}...</option>
         <option value="1">{% trans "Ei kukaan" %}</option>
 {% for u in users %}
@@ -39,7 +39,7 @@
     </select>
     <select name="query.state">
         <option value="">{% trans "Tila" %}...</option>
-        <option value="new">{% trans "Uusi" %}</option>
+        <option value="unassigned">{% trans "Uusi" %}</option>
         <option value="open">{% trans "Avoin" %}</option>
         <option value="closed">{% trans "Suljettu" %}</option>
     </select>
@@ -67,13 +67,13 @@
     </select>
     <hr/>
     <label>{% trans "Vika" %}:</label>
-    <input type="text" name="query.issues.symptom"/>
+    <input type="text" name="issues.symptom"/>
     <br/>
     <label>{% trans "Diagnoosi" %}:</label>
-    <input type="text" name="query.issues.diagnosis"/>
+    <input type="text" name="issues.diagnosis"/>
     <br/>
     <label>{% trans "Ratkaisu" %}:</label>
-    <input type="text" name="query.issues.solution"/>
+    <input type="text" name="issues.solution"/>
     <hr/>
     <label>{% trans "Jaettu" %}:</label>
     <input type="checkbox" named="shared"/>

@@ -4,54 +4,57 @@
 
 {% block title %}{% trans "Huoltotilaus #" %}{{ order.id }}{% endblock title %}
 
-{% block toolbar %}
-
-<ul class="navigation">
-    <li><a href="/customer/create/order/{{ order.id }}" class="popup customer">{% trans "Asiakas" %}</a></li>
-    <li><a href="/device/create/order/{{ order.id }}" class="popup device">{% trans "Laite" %}</a></li>
-    <li><a href="/issue/create/order/{{ order.id }}/" class="popup issue">{% trans "Tehtävä" %}</a></li>
-    <li><a href="/products/create/order/{{ order.id }}/" class="popup product">{% trans "Tuote" %}</a></li>
-    <li><a href="/message/create" class="popup message">{% trans "Viesti" %}</a></li>
-</ul>
-
-{% endblock %}
-
 {% block secondary %}
-<li><a href="javascript:;" class="reply disabled popup"></a>
-    <ul id="note-actions">
-        <li><a href="/message/0/reply/" class="popup">{% trans "Vastaus" %}</a></li>
-        <li><a href="/issue/0/diagnosis/" class="popup">{% trans "Diagnoosi" %}</a></li>
-        <li><a href="/issue/0/solution/" class="popup">{% trans "Ratkaisu" %}</a></li>
-    </ul>
-</li>
-<li>
-    <a href="javascript:;" class="print enabled"></a>
-    <ul>
-{% if order.queue.order_template  %}
+    
+    <div class="new view button shownext"></div>
+    <div class="view popup-menu" style="top:45px">
+        <ul>
+            <li><a class="popup" href="/customer/create/order/{{ order.id }}">{% trans "Lisää asiakas" %}...</a></li>
+            <li><a class="popup" href="/device/create/order/{{ order.id }}">{% trans "Lisää laite" %}...</a></li>
+            <li><a class="popup" href="/issue/create/order/{{ order.id }}/">{% trans "Lisää tehtävä" %}...</a></li>
+            <li><a class="popup" href="/products/create/order/{{ order.id }}/">{% trans "Lisää tuote" %}...</a></li>
+            <li><a class="popup" href="/message/create">{% trans "Lisää viesti" %}...</a></li>
+        </ul>
+    </div>
+
+    <div class="delete view button popup" style="left:40px"></div>
+
+    <div class="message view button shownext" style="left:80px"></div>
+    <div class="view popup-menu" style="top:45px" id="note-actions">
+        <ul>
+            <li><a href="/message/0/reply/" class="popup">{% trans "Lisää vastaus" %}...</a></li>
+            <li><a href="/issue/0/diagnosis/" class="popup">{% trans "Lisää diagnoosi" %}...</a></li>
+            <li><a href="/issue/0/solution/" class="popup">{% trans "Lisää ratkaisu" %}...</a></li>
+        </ul>
+    </div>
+
+    <div class="view button print shownext" style="left:120px"></div>
+    <div class="popup" style="display:none">
+    {% if order.queue.order_template  %}
         <li><a href="/orders/{{ order.id }}/print/{{ order.queue.order_template.id }}" class="window">{% trans "Tulosta huoltotilaus" %}</a></li>
-{% endif %}
-{% if order.queue.quote_template  %}
+    {% endif %}
+    {% if order.queue.quote_template  %}
         <li><a href="/orders/{{ order.id }}/print/quote/{{ order.queue.quote_template.id }}" class="window">{% trans "Tulosta kustannusarvio" %}</a></li>
-{% endif %}
-{% if order.queue.receipt_template  %}
+    {% endif %}
+    {% if order.queue.receipt_template  %}
         <li><a href="/orders/{{ order.id }}/print/receipt/{{ order.queue.receipt_template.id }}" class="window">{% trans "Tulosta kuitti" %}</a></li>
-{% endif %}
-{% if order.queue.dispatch_template  %}
+    {% endif %}
+    {% if order.queue.dispatch_template  %}
         <li><a href="/orders/{{ order.id }}/print/dispatch/{{ order.queue.dispatch_template.id }}" class="window">{% trans "Tulosta lähete" %}</a></li>
-{% endif %}
-    </ul>
-</li>
-<li>
-    <a href="javascript:;" class="gear enabled"></a>
-    <ul>
+    {% endif %}
+    </div>
+
+    <div class="view button gear shownext" style="left:160px"></div>
+    <div class="view popup-menu" style="top:45px">
+        <ul>
 {% if order.products %}
-        <li><a href="/purchase-order/create/order/{{ order.id }}" class="popup">{% trans "Tilaa tuotteet" %}...</a></li>
-        <li><a href="/products/reserve/{{ order.id }}" class="popup">{% trans "Varaa tuotteet" %}…</a></li>
-        <li><a href="/store/dispatch/order/{{ order.id }}" class="popup">{% trans "Toimita tilaus" %}...</a></li>
+            <li><a href="/purchase-order/create/order/{{ order.id }}" class="popup">{% trans "Tilaa tuotteet" %}...</a></li>
+            <li><a href="/products/reserve/{{ order.id }}" class="popup">{% trans "Varaa tuotteet" %}…</a></li>
+            <li><a href="/store/dispatch/order/{{ order.id }}" class="popup">{% trans "Toimita tilaus" %}...</a></li>
 {% endif %}
-        <li><a href="/orders/{{ order.id }}/close/" class="popup">{% trans "Sulje tilaus" %}...</a></li>
-	</ul>
-</li>
+            <li><a href="/orders/{{ order.id }}/close/" class="popup">{% trans "Sulje tilaus" %}...</a></li>
+        </ul>
+	</div>
 
 {% endblock secondary %}
 
