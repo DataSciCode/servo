@@ -370,7 +370,7 @@ var SidebarView = Backbone.View.extend(
         "click .follow"	    : "follow",
         "click .head"		: "toggle",
         "change select"		: "update_order",
-        //"click ul li ul li" : "select",
+        "click ul li ul li" : "select",
     }
 ,
     initialize: function()
@@ -418,22 +418,6 @@ var SidebarView = Backbone.View.extend(
     {
         var ul = $(event.currentTarget).toggleClass("closed")
             .next().toggle();
-        var id = $(event.currentTarget).attr("id");
-        
-        var hiddenItems = localStorage.getItem("hiddenSidebarItems");
-        
-        if(hiddenItems.typeof != 'array') {
-            hiddenItems = new Array()
-        }
-        
-        if(idx = hiddenItems.indexOf(id)) { // already hidden, unhide
-            hiddenItems = hiddenItems.splice(idx, 1);
-        } else {
-            hiddenItems.push(id);
-        }
-        
-        localStorage.setItem("hiddenSidebarItems", hiddenItems);
-        
     }
 ,
     update_order: function(event)
@@ -455,15 +439,12 @@ var SidebarView = Backbone.View.extend(
     {
         event.preventDefault();
         var li = event.currentTarget;
-        this.$("ul li").removeClass("current");
-        $(li).addClass("current");
+        this.$('ul li').removeClass('current');
+        $(li).addClass('current');
 
-        var url = $(li).children("a").attr("href");
-        console.log(url);
+        var url = $(li).children('a').attr('href');
+        $("head > title").text($(li).children("a").text());
         window.app.navigate(url , true);
-
-        //$("head > title").text(a.text());
-        
     }
 });
 
@@ -520,11 +501,11 @@ var ContentView = Backbone.View.extend(
 
 var ListView = Backbone.View.extend(
 {
-	el: "div.listView"
+	el: 'div.listView'
 ,
 	initialize: function() {
-		var first = this.$("> ul li:first");
-		$(first).addClass("current");
+		//var first = this.$("> ul li:first");
+		//$(first).addClass("current");
 //		var url = first.children("a").attr("href");
 	},
     
@@ -551,13 +532,18 @@ var ListView = Backbone.View.extend(
 	select: function(event)
 	{
 		var e = event.currentTarget;
-        $(e).siblings().removeClass("current");
-		$(e).addClass("current");
+        $(e).siblings().removeClass('current');
+		$(e).addClass('current');
         
         var url = $(e).data("url");
         remove_url = url.replace(/(\d+)/, '$1/remove');
 
+        $('#delete-button').removeClass('disabled');
+        $('#delete-button').addClass('enabled');
+        $('#edit-button').removeClass('disabled');
+        $('#edit-button').addClass('enabled');
         $('#delete-button').data('url', remove_url);
+        $('#edit-button').data('url', remove_url.replace('/remove', '/edit'));
         // @todo: this slows Safari down to a crawl
 		//$('#delete-button').removeClass('disabled');
 		
@@ -567,9 +553,9 @@ var ListView = Backbone.View.extend(
 	
 });
 
-var DetailView = Backbone.View.extend(
+var DetailView = ContentView.extend(
 {
-    el: "div.detailView"
+    el: "div#detailView"
 });
 
 var ServoApp = Backbone.Router.extend(
@@ -581,6 +567,10 @@ var ServoApp = Backbone.Router.extend(
 ,
     defaultRoute: function(url)
     {
+        if(url.match(/\d/)) {
+            detailView = new DetailView();
+            return this.detailRoute(url);
+        }
         console.log("defaultRoute", url);
         contentView.load(url);
         contentView.delegateEvents();
@@ -589,6 +579,7 @@ var ServoApp = Backbone.Router.extend(
     detailRoute: function(url)
     {
         console.log("load detailview:", url);
+        detailView.load(url);
         return false;
     }
 ,

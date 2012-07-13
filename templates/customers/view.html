@@ -1,5 +1,7 @@
+{% extends "customers/index.html" %}
 {%load i18n %}
 
+{% block detail %}
 <table>
     <tbody>
         <tr>
@@ -8,9 +10,9 @@
         </tr>
 {% for key, value in customer.fullprops.items %}
         <tr>
-            <td class="label">{{ key }}:</td>
-            <td>{{ value }}</td>
+            <td class="label">{{ key }}:</td><td>{{ value }}</td>
         </tr>
 {% endfor %}
     </tbody>
 </table>
+{% endblock detail %}

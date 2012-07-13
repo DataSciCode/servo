@@ -29,6 +29,7 @@
 <div id="delete-button" class="view button popup delete disabled" data-url="/product/remove/" style="left:80px"></div>
 <div class="view button popup buy" data-url="/store/order_products/" style="left:120px"></div>
 <div class="view button popup sell" data-url="/store/sell_products/" style="left:160px"></div>
+<div id="edit-button" class="view button popup edit disabled" data-url="/product/4/edit/" style="left:192px"></div>
 
 {% endblock secondary %}
 
@@ -49,7 +50,9 @@
     </ul>
 </div>
 
-<div id="detailView"></div>
+<div id="detailView">
+    {% block detail %}{% endblock detail %}
+</div>
 
 <script type="text/javascript" charset="utf-8">
     $(".selected_product").click(function() {

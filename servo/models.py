@@ -140,6 +140,9 @@ class Spec(models.Model):
     title = models.CharField(max_length=255, unique=True)
     path = models.TextField()
 
+    def __unicode__(self):
+        return self.title
+
 class SpecInfo(models.Model):
     spec = models.ForeignKey(Spec)
     key = models.CharField(max_length=255)
@@ -195,7 +198,9 @@ class Product(BaseProduct):
     brand = models.CharField(default = '', max_length=32, blank=True)
 
     tags = models.ManyToManyField(Tag, blank=True)
+    # which device models is this product compatible with?
     specs = models.ManyToManyField(Spec, blank=True)
+    
     amount_minimum = models.IntegerField(default = 0)
     attachments = models.ManyToManyField(Attachment, blank=True)
 
@@ -417,8 +422,8 @@ class Order(models.Model):
     dispatch_method = models.IntegerField(choices=DISPATCH_METHODS,
         default=1, verbose_name=u'Toimitustapa')
 
-    def notes(self):
-        return Note.objects.filter(order=self)
+    def issues(self):
+        return self.issue_set.all()
 
     def messages(self):
         return Message.objects.filter(order=self)

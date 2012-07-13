@@ -264,17 +264,17 @@ def submit_gsx_repair(req):
     parts = []
   
     order_number = data.get("order_number");
-    order = Order.objects(number = int(order_number)).first()
+    order = Order.objects(number=int(order_number)).first()
 
     # create Purchase Order
-    po = PurchaseOrder(supplier = "Apple", reference = order_number)
+    po = PurchaseOrder(supplier="Apple", reference=order_number)
     po.save()
   
     for k, v in data.get("items").items():
         # add to "ordered" inventory
-        p = Product.objects(code = v['partNumber']).first()
-        Inventory(kind = "po", product = p, slot = po).save()
-        Inventory(kind = "order", product = p, slot = order).save()
+        p = Product.objects(code=v['partNumber']).first()
+        Inventory(kind="po", product=p, slot=po).save()
+        Inventory(kind="order", product=p, slot=order).save()
         parts.append(v)
     
     po.products = parts

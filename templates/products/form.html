@@ -2,7 +2,7 @@
 
 <div class="tabView">
     <ul class="tabs"><li><a href="#info">{% trans 'Perustiedot' %}</a></li><li><a href="#price">{% trans 'Hinnat' %}</a></li><li><a href="#stock">{% trans 'Varasto' %}</a></li><li><a href="#files">{% trans 'Liitteet' %}</a></li><li><a href="#gsx">{% trans 'GSX' %}</a></li></ul>
-<form method="post" rel="products" accept-charset="utf-8" action="/products/{{ id }}/save/">
+<form method="post" rel="products" accept-charset="utf-8" action="/product/{{ id }}/save/">
     {% csrf_token %}
     <div id="info" class="tab">
         <label>{% trans 'Koodi' %}:</label>
@@ -25,6 +25,9 @@
       <label>{% trans 'Kuvaus' %}:</label>
       {{ form.description }}
       <br/>
+      <label>{% trans "Mallit" %}:</label>
+        {{ form.specs }}
+        <br/>
       <div style="margin-left:85px">
         {% if product.pk %}
         {% for t in  product.tags.all %}

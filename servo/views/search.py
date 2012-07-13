@@ -36,7 +36,7 @@ def lookup(req, what):
 
     if what == 'customer':
         collection = 'customer'
-        customers = Customer.objects.filter(name__istartswith = query)
+        customers = Customer.objects.filter(name__istartswith=query)
     
         for r in customers:
             results.append({'id': r.id, 'title': r.fullname})
@@ -46,7 +46,7 @@ def lookup(req, what):
 
     if what == 'product-local':
         collection = 'products'
-        products = Product.objects.filter(code__istartswith = query)
+        products = Product.objects.filter(code__istartswith=query)
         for r in products:
             results.append({'id': r.id, 'title': r.code, 'description': r.title})
 
@@ -54,7 +54,7 @@ def lookup(req, what):
             'action': action, 'collection': collection})
     
     if what == 'device-local':
-        local = Device.objects.filter(sn__istartswith = query)
+        local = Device.objects.filter(sn__istartswith=query)
         for d in local:
             results.append({'id': d.id, 'title': d.sn, 'description': d.description})
 
@@ -98,12 +98,14 @@ def lookup(req, what):
                 pass
     
     if what == 'device-gsx':
-        gsx_results = gsx.warranty_status(query)
-        
-        for r in gsx_results:
-            req.session['gsx_data'] = {query: r}
-            results.append({'title': r.get('productDescription'),
-                'description': r.get('configDescription'), 'id': query})
+        try:
+            gsx_results = gsx.warranty_status(query)
+            for r in gsx_results:
+                req.session['gsx_data'] = {query: r}
+                results.append({'title': r.get('productDescription'),
+                    'description': r.get('configDescription'), 'id': query})
+        except Exception, e:
+            results.append({'title': 'Ei hakutuloksia'})
   
     return render(req, 'search/lookup.html', {'results': results,\
         'action': action, 'collection': collection})

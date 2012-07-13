@@ -1,11 +1,10 @@
-{% extends "default.html" %}
-
+{% extends request.is_ajax|yesno:"empty.html,default.html" %}
 
 {% block content %}
 <div class="listView small_block">
 	<ul>
 {% for spec in specs %}
-	<li>{{ spec.title }}</li>
+		<li data-url="/spec/{{ spec.id }}/">{{ spec.title }}</li>
 {% endfor %}
 	</ul>
 </div>

@@ -1,20 +1,18 @@
 {% extends request.is_ajax|yesno:"empty.html,default.html" %}
 {% load i18n %}
 
-{% block toolbar %}
+{% block secondary %}
 
-<ul>
-  <li><a href="/admin/user/create" class="popup">{% trans "Uusi käyttäjä" %}</a></li>
-</ul>
+<div class="button view add popup" data-url="/admin/user/create" title="{% trans "Uusi käyttäjä" %}"></div>
 
-{% endblock toolbar %}
+{% endblock secondary %}
 
 {% block content %}
 
 <div class="small_block listView" id="users" data-url="/admin/users">
 	<ul data-collection="users">
 {% for user in users %}
-  <li data-url="/user/edit/{{ user.id }}">{{ user.fullname }}</li>
+		<li data-url="/user/edit/{{ user.id }}">{{ user.username }}</li>
 {% endfor %}
 	</ul>
 </div>

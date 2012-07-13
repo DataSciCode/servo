@@ -866,105 +866,6 @@ span.date {
     display: none;
 }
 
-#toolbar ul li ul li {
-    display: block;
-    padding: 10px;
-    vertical-align: middle;
-    cursor: pointer;
-}
-#toolbar a {
-    display: block;
-}
-#toolbar ul > li:hover {
-    /*background: #222;*/
-    box-shadow: 6px 0px 10px -7px #000, -6px 0px 10px -7px #000;
-}
-
-#toolbar ul ul li:hover {
-    background: #aaa;
-}
-#toolbar ul ul li:hover a {
-    color: #000;
-}
-
-#toolbar ul > li:hover ul {
-    /*display: block;*/
-}
-
-#toolbar ul ul {
-    min-width: 200px;
-    display: none;
-    background: #222;
-    position: absolute;
-/*  -webkit-box-shadow: 1px 1px 5px #000;*/
-    box-shadow: 1px 1px 5px #000, 1px 1px 5px #000;
-}
-
-#toolbar ul#primary {
-    width: 420px;
-    display: block;
-    border-right: 1px solid #ccc;
-}
-
-#toolbar ul#secondary {
-    border-left: 1px solid #222;
-}
-
-#toolbar ul#primary a.customer:before {
-    vertical-align: middle;
-    content: url(/static/images/dark/16/ab.png);
-}
-#toolbar ul#primary a.device:before {
-    content: url(/static/images/dark/16/device.png);
-}
-#toolbar ul#primary a.issue:before {
-    content: url(/static/images/dark/16/issue.png);
-}
-#toolbar ul#primary a.file:before {
-    content: url(/static/images/dark/16/file.png);
-}
-#toolbar ul#primary a.product:before {
-    content: url(/static/images/dark/16/cart.png);
-}
-#toolbar ul#primary a.order:before {
-    content: url(/static/images/dark/16/work.png);
-}
-#toolbar ul#primary a.message:before {
-    content: url(/static/images/dark/16/message.png);
-}
-#toolbar a.queue:before {
-    content: url(/static/images/inbox_32.png);
-}
-#toolbar a.status:before {
-    content: url(/static/images/status_32.png);
-}
-#toolbar a.priority:before {
-    content: url(/static/images/flag-blue_32.png);
-}
-#toolbar a.location:before {
-    content: url(/static/images/globe_32.png);
-}
-#toolbar a.print:before {
-    content: url(/static/images/print_32.png);
-}
-#toolbar a.reply:before {
-    content: url(/static/images/dark/32/reply.png);
-}
-#toolbar a.reply.disabled:before {
-    content: url(/static/images/dark/32/reply-disabled.png);
-}
-#toolbar a.user:before {
-    content: url(/static/images/user_32.png);
-}
-#toolbar a.purchase:before {
-    content: url(/static/images/product-add_32.png);
-}
-#toolbar a.sell:before {
-    content: url(/static/images/cart_32.png);
-}
-#toolbar a.search:before {
-    content: url(/static/images/search_32.png);
-}
 
 li.submenu a:after {
     content: url(/static/images/arrow-closed.gif);
@@ -1005,35 +906,13 @@ div.error {
     text-x: 1px 1px 1px #000;
     background: url("/static/images/error-bg.png") no-repeat;
 }
+
 div.error span {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     vertical-align: middle;
     padding-left: 32px;
-}
-
-div#footer {
-    left: 0;
-    right: 0;
-    bottom: 0;
-    width: 100%;
-    height: 34px;
-    z-index: 12000;
-    position: fixed;
-    line-height: 34px;  
-    border-top: 1px solid #222;
-    -webkit-box-shadow: 0px -1px 3px rgba(0, 0, 0, 0.1);
-    background-image: -webkit-gradient(
-       linear, left top, left bottom,
-        from(rgb(72, 72, 72)), to(rgb(60, 60, 60)));
-}
-
-#footer a {
-    width: 24px;
-    height: 24px;
-    float: right;
-    display: block;
 }
 
 #footer a.lock {
@@ -1244,8 +1123,20 @@ td img {
 #toolbar .button.sell {
     background-position: 0px -55px;
 }
+#toolbar .button.wiki {
+    background-position: -64px -50px;
+}
+#toolbar .button.edit {
+    background-position: -132px -50px;
+}
 .popup-menu {
     display: none;
     background-color: #444;
-    padding: 10px;
+    padding: 5px;
+}
+.popup-menu li {
+    padding: 5px;
+}
+#id_specs {
+    width: 350px;
 }

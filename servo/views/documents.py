@@ -5,17 +5,26 @@ from django.shortcuts import render
 from servo.models import Attachment, Invoice, Configuration
 from django import forms
 
+from reportlab.lib.units import mm
+from reportlab.graphics.shapes import Drawing, String
+from reportlab.graphics.barcode import createBarcodeDrawing
+from reportlab.graphics.charts.barcharts import HorizontalBarChart
+
 class DocumentForm(forms.ModelForm):
     class Meta:
         model = Attachment
         fields = ['content', 'is_template']
 
+class MyBarcodeDrawing(Drawing):
+    def __init__(self, text_value, *args, **kw):
+        barcode = createBarcodeDrawing('Code128', value=text_value, barHeight=10*mm, humanReadable=True)
+        Drawing.__init__(self, barcode.width, barcode.height, *args, **kw)       
+        self.add(barcode, name='barcode')
+
 def barcode(req, text):
-    import barcode
-    from barcode.writer import ImageWriter
-    code = barcode.get_barcode("Code39", text, writer=ImageWriter())
-    # content_type="image/svg+xml"
-    return HttpResponse(code.render(None), content_type='image/png')
+    d = MyBarcodeDrawing(text)
+    binaryStuff = d.asString('png')
+    return HttpResponse(binaryStuff, 'image/png')
 
 def index(req):
     files = Attachment.objects.all()

@@ -1,32 +1,43 @@
 import re
 from django.shortcuts import render
 from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
 from servo.models import Customer, Property, Order, ContactInfo
 
+@csrf_exempt
 def index(req):
     req.session['order'] = None
-    customers = Customer.objects.all()
+    if req.method == 'POST':
+        q = req.POST.get('query')
+        try:
+            (key, value) = q.split('=')
+            customers = Customer.objects.filter(**{key: value.strip()})
+        except Exception, e:
+            customers = Customer.objects.filter(name__icontains=q)
+    else:
+        customers = Customer.objects.all()
+
     return render(req, 'customers/index.html', {'customers': customers})
 
 def search(req):
     return render(req, 'customers/search.html')
   
-def create(req, parent = None, order = None):
-    fields = Property.objects.filter(type = 'customer')
+def create(req, parent=None, order=None):
+    fields = Property.objects.filter(type='customer')
     customer = Customer()
 
     if parent:
-        parent = Customer.objects.get(pk = parent)
+        parent = Customer.objects.get(pk=parent)
         customer.path = parent.path
     
     return render(req, 'customers/form.html', {'fields' : fields,
         'customer': customer, 'order' : order})
 
 def edit(req, id):
-    fields = Property.objects.filter(type = 'customer')
+    fields = Property.objects.filter(type='customer')
 
     if id:
-        customer = Customer.objects.get(pk = id)
+        customer = Customer.objects.get(pk=id)
 
     return render(req, 'customers/form.html', {'fields' : fields,
         'customer': customer})
@@ -71,26 +82,27 @@ def remove(req, id=None):
         c.delete()
         return HttpResponse('Asiakas poistettu')
     else:
-        c = Customer.objects.get(pk = id)
+        c = Customer.objects.get(pk=id)
         return render(req, 'customers/remove.html', {'customer': c})
 
 def view(req, id):
-    c = Customer.objects.get(pk = id)
-    return render(req, 'customers/view.html', {'customer': c})
+    c = Customer.objects.get(pk=id)
+    customers = Customer.objects.all()
+    return render(req, 'customers/view.html', {'customer': c, 'customers': customers})
 
 def move(req, id=None):
     """Move a customer under another customer
     @todo: recursively fix paths of child contacts
     """
     if 'id' in req.POST:
-        new_parent = Customer.objects.get(pk = req.POST['target'])
-        customer = Customer.objects.get(pk = req.POST['id'])
+        new_parent = Customer.objects.get(pk=req.POST['target'])
+        customer = Customer.objects.get(pk=req.POST['id'])
         customer.path = new_parent.path + ',' + str(customer.id)
         customer.save()
 
         return HttpResponse('Asiakas siirretty')
 
     if id:
-        customer = Customer.objects.get(pk = id)
+        customer = Customer.objects.get(pk=id)
 
     return render(req, 'customers/move.html', {'customer': customer})

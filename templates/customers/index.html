@@ -19,6 +19,15 @@
     </ul>
 </div>
 
-<div class="view" id="detailView"></div>
+<div id="detailView">
+    {% block detail %}{% endblock detail %}
+</div>
 
-{% endblock %}
+<script type="text/javascript">
+    $('#query').keydown(function(e) {
+        if(e.which == 13) {
+            $('#customers').load('/customers/', {'query': $(this).val()});
+        }
+    });
+</script>
+{% endblock content %}

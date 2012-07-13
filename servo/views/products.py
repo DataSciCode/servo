@@ -128,8 +128,8 @@ def search(req):
 def reserve(req, order_id=None):
     if req.method == 'POST':
         oid = req.POST['id']
-        order = Order.objects.get(pk = oid)
-        Inventory.objects.filter(slot = oid).delete()
+        order = Order.objects.get(pk=oid)
+        Inventory.objects.filter(slot=oid).delete()
         
         for p in order.products.all():
             i = Inventory.objects.create(slot=oid, product=p, kind='order')
@@ -140,10 +140,11 @@ def reserve(req, order_id=None):
             user = req.session.get('user'))
         return HttpResponse('Tuotteet varattu')
     else:
-        order = Order.objects.get(pk = order_id)
+        order = Order.objects.get(pk=order_id)
         return render(req, 'products/reserve.html', {'order': order})
 
 def view(req, product_id):
+    products = Product.objects.all()
     product = Product.objects.get(pk=product_id)
-    return render(req, 'products/view.html', {'product': product})
-    
+    return render(req, 'products/view.html', {'product': product,
+        'data': products})

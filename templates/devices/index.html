@@ -12,17 +12,17 @@
 {% block content %}
 
 <div class="tableView" id="devices" data-url="/device/index">
-  <table class="selectable">
-    <tbody>
+    <table class="selectable">
+        <tbody>
 {% for device in devices %}
-    <tr data-url="/device/edit/{{ device.id }}" class="{% cycle 'odd' 'even' %}">
-      <td><a href="/device/edit/{{ device.id }}" class="popup">{{ device.sn }}</a></td>
-      <td>{{ device.description }}</td>
-      <td>{{ device.purchased_on }}</td>
-      <td><a href="/orders/index/device/{{ device.id }}">{% trans "Tilaukset" %}</a></td>
-    </tr>
+            <tr data-url="/device/{{ device.id }}/" class="{% cycle 'odd' 'even' %}">
+                <td><a href="/device/edit/{{ device.id }}" class="popup">{{ device.sn }}</a></td>
+                <td>{{ device.description }}</td>
+                <td>{{ device.purchased_on }}</td>
+                <td><a href="/orders/index/device/{{ device.id }}">{% trans "Tilaukset" %}</a></td>
+            </tr>
 {% empty %}
-    <tr><td colspan="3" class="empty">{% trans "Ei yhtään laitetta" %}</td></tr>
+            <tr><td colspan="3" class="empty">{% trans "Ei yhtään laitetta" %}</td></tr>
 {% endfor %}
         </tbody>
     </table>

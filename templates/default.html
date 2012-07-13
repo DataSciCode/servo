@@ -43,18 +43,20 @@
         </div><!-- //#popup -->
 
     <div id="toolbar">
-        <div id="col1" class="view column" style="width:228px;"></div>
+        <div id="col1" class="view column" style="width:228px;">
+            <div class="button view wiki"></div>
+        </div>
         <div id="col2" class="view column" style="width:280px;left:229px;border-right:1px solid #222;border-left:1px solid #222">
             <div class="search-column" style="margin:8px">
                 <div class="view search-left" style="left:10px;width:26px;height:31px"></div>
                 <div class="view search-right" style="right:10px;width:20px;height:31px"></div>
                 <div class="view search-mid" style="left:36px;height:31px">
-                    <input type="text" name="q" style="width:214px;background:transparent;padding:5px"/>
+                    <input type="text" id="query" style="width:214px;background:transparent;padding:5px"/>
                 </div>
             </div>
         </div>
         <div id="col3" class="view column" style="left:520px;right:0px;width:auto">
-            {% block secondary %}{% endblock %}
+            {% block secondary %}{% endblock secondary %}
             <div class="view button user shownext" style="right:8px"></div>
             <div class="view popup-menu" style="right:8px;top:45px;width:160px">
                 <ul>
@@ -126,7 +128,7 @@
 
         <div id="main_pane">
           <div id="main_content">
-{% block content %}{% endblock %}
+                {% block content %}{% endblock content %}
           </div><!-- //#main_content -->
         </div><!-- //#main_pane -->
     </div><!-- //#main_view -->

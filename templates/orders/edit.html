@@ -12,12 +12,12 @@
             <li><a class="popup" href="/customer/create/order/{{ order.id }}">{% trans "Lisää asiakas" %}...</a></li>
             <li><a class="popup" href="/device/create/order/{{ order.id }}">{% trans "Lisää laite" %}...</a></li>
             <li><a class="popup" href="/issue/create/order/{{ order.id }}/">{% trans "Lisää tehtävä" %}...</a></li>
-            <li><a class="popup" href="/products/create/order/{{ order.id }}/">{% trans "Lisää tuote" %}...</a></li>
+            <li><a class="popup" href="/product/create/order/{{ order.id }}/">{% trans "Lisää tuote" %}...</a></li>
             <li><a class="popup" href="/message/create">{% trans "Lisää viesti" %}...</a></li>
         </ul>
     </div>
 
-    <div class="delete view button popup" style="left:40px"></div>
+    <div class="delete view button popup disabled" style="left:40px"></div>
 
     <div class="message view button shownext" style="left:80px"></div>
     <div class="view popup-menu" style="top:45px" id="note-actions">
@@ -29,19 +29,21 @@
     </div>
 
     <div class="view button print shownext" style="left:120px"></div>
-    <div class="popup" style="display:none">
+    <div class="view popup-menu" style="top:45px;left:100px">
+        <ul>
     {% if order.queue.order_template  %}
-        <li><a href="/orders/{{ order.id }}/print/{{ order.queue.order_template.id }}" class="window">{% trans "Tulosta huoltotilaus" %}</a></li>
+            <li><a href="/orders/{{ order.id }}/print/{{ order.queue.order_template.id }}" class="window">{% trans "Tulosta huoltotilaus" %}</a></li>
     {% endif %}
     {% if order.queue.quote_template  %}
-        <li><a href="/orders/{{ order.id }}/print/quote/{{ order.queue.quote_template.id }}" class="window">{% trans "Tulosta kustannusarvio" %}</a></li>
+            <li><a href="/orders/{{ order.id }}/print/quote/{{ order.queue.quote_template.id }}" class="window">{% trans "Tulosta kustannusarvio" %}</a></li>
     {% endif %}
     {% if order.queue.receipt_template  %}
-        <li><a href="/orders/{{ order.id }}/print/receipt/{{ order.queue.receipt_template.id }}" class="window">{% trans "Tulosta kuitti" %}</a></li>
+            <li><a href="/orders/{{ order.id }}/print/receipt/{{ order.queue.receipt_template.id }}" class="window">{% trans "Tulosta kuitti" %}</a></li>
     {% endif %}
     {% if order.queue.dispatch_template  %}
-        <li><a href="/orders/{{ order.id }}/print/dispatch/{{ order.queue.dispatch_template.id }}" class="window">{% trans "Tulosta lähete" %}</a></li>
+            <li><a href="/orders/{{ order.id }}/print/dispatch/{{ order.queue.dispatch_template.id }}" class="window">{% trans "Tulosta lähete" %}</a></li>
     {% endif %}
+        </ul>
     </div>
 
     <div class="view button gear shownext" style="left:160px"></div>
