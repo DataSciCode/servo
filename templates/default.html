@@ -74,8 +74,8 @@
 {% block sidebar %}
             <ul>
             <li>
-                <span class="head" id="sidebar-item-2">{% trans "Tilaukset" %}</span>
-                <ul class="sidebar-item-2">
+                <span class="head">{% trans "Tilaukset" %}</span>
+                <ul>
                     <li class=""><a href="/orders/index/user/nobody" class="table">{% trans "Jonossa" %}</a></li>
                     <li><a href="/orders/index/state/1" class="table">{% trans "Avoimet" %}</a></li>
                     {% block order_searches %}
@@ -84,8 +84,8 @@
                   </ul>
                 </li>
                 <li>
-                    <span class="head" id="sidebar-item-3">{% trans "Varasto" %}</span>
-                    <ul class="sidebar-item-3">
+                    <span class="head">{% trans "Varasto" %}</span>
+                    <ul>
                         <li><a href="/products/" class="table">{% trans "Tuotteet" %}</a></li>
                         <li><a href="/store/po/incoming" class="down">{% trans "Saapuvat" %}</a></li>
                         <li><a href="/products/outgoing" class="up">{% trans "Lähtevät" %}</a></li>
@@ -94,32 +94,32 @@
                     </ul>
                 </li>
                 <li>
-                    <span class="head" id="sidebar-item-4">{% trans "Asiakkaat" %}</span>
-                    <ul class="sidebar-item-4">
+                    <span class="head">{% trans "Asiakkaat" %}</span>
+                    <ul>
                         <li><a href="/customers/" class="ab">{% trans "Selaa" %}</a></li>
                     </ul>
                 </li>
                 <li>
-                    <span class="head" id="sidebar-item-5">{% trans "Laitteet" %}</span>
-                    <ul class="sidebar-item-5">
-                        <li><a href="/device/index" class="device">{% trans "Selaa" %}</a></li>
+                    <span class="head">{% trans "Laitteet" %}</span>
+                    <ul>
+                        <li><a href="/devices/" class="device">{% trans "Selaa" %}</a></li>
                         <li><a href="/specs/index" class="db">{% trans "Mallit" %}</a></li>
                     </ul>
                 </li>
                 <li>
-                    <span class="head" id="sidebar-item-6">{% trans "Ylläpito" %}</span>
-                    <ul class="sidebar-item-6">
-                      <li><a href="/admin/settings" class="prefs popup">{% trans "Asetukset" %}</a></li>
-                      <li><a href="/admin/queues" class="inbox">{% trans "Jonot" %}</a></li>
-                      <li><a href="/admin/status" class="color">{% trans "Statukset" %}</a></li>
-                      <li><a href="/admin/locations" class="globe">{% trans "Toimipaikat" %}</a></li>
-                      <li><a href="/admin/users" class="user">{% trans "Käyttäjät" %}</a></li>
-                      <li><a href="/gsx/accounts" class="db">{% trans "GSX-tilit" %}</a></li>
-                      <li><a href="/admin/automation" class="gear">{% trans "Automaatiot" %}</a></li>
-                      <li><a href="/admin/fields/" class="db">{% trans "Kentät" %}</a></li>
-                      <li><a href="/admin/templates" class="document">{% trans "Pohjat" %}</a></li>
-                      <li><a href="/admin/files" class="folder">{% trans "Tiedostot" %}</a></li>
-                      <li><a href="/admin/tags" class="db">{% trans "Tagit" %}</a></li>
+                    <span class="head">{% trans "Ylläpito" %}</span>
+                    <ul>
+                        <li><a href="/admin/settings" class="prefs popup">{% trans "Asetukset" %}</a></li>
+                        <li><a href="/admin/queues" class="inbox">{% trans "Jonot" %}</a></li>
+                        <li><a href="/admin/status" class="color">{% trans "Statukset" %}</a></li>
+                        <li><a href="/admin/locations" class="globe">{% trans "Toimipaikat" %}</a></li>
+                        <li><a href="/admin/users" class="user">{% trans "Käyttäjät" %}</a></li>
+                        <li><a href="/gsx/accounts" class="db">{% trans "GSX-tilit" %}</a></li>
+                        <li><a href="/admin/automation" class="gear">{% trans "Automaatiot" %}</a></li>
+                        <li><a href="/admin/fields/" class="db">{% trans "Kentät" %}</a></li>
+                        <li><a href="/admin/templates" class="document">{% trans "Pohjat" %}</a></li>
+                        <li><a href="/admin/files" class="folder">{% trans "Tiedostot" %}</a></li>
+                        <li><a href="/admin/tags" class="db">{% trans "Tagit" %}</a></li>
                     </ul>
                 </li>
 {% endblock %}

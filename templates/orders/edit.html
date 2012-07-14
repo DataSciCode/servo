@@ -47,7 +47,7 @@
     </div>
 
     <div class="view button gear shownext" style="left:160px"></div>
-    <div class="view popup-menu" style="top:45px">
+    <div class="view popup-menu" style="top:45px;left:160px">
         <ul>
 {% if order.products %}
             <li><a href="/purchase-order/create/order/{{ order.id }}" class="popup">{% trans "Tilaa tuotteet" %}...</a></li>
@@ -64,7 +64,7 @@
 
 <div class="block_header">
     <p style="padding:10px">
-        <a href="/orders/">Servo &gt; </a><a href="/orders/edit/{{ order.id }}">{{ order.number }}</a>
+        <a href="/orders/">Servo &gt; </a><a href="/orders/edit/{{ order.id }}">#{{ order.id }}</a>
     </p>
 </div>
 <div style="padding:5px" class="droppable">
@@ -72,37 +72,6 @@
         {{ form.as_p }}
     </form>
     <hr/>
-    <div id="tags" data-url="/orders/tags/{{ order.id }}" style="border-bottom:none">
-        <ul>
-{% for tag in order.tags.all %}
-            <li class="draggable"><a href="/orders/index/tag/{{ tag.id }}">{{ tag.title }}</a></li>
-{% endfor %}
-        </ul>
-      
-      <div id="newTagTarget"><a class="tag" id="add_tag" href="/tag/create/order">{% trans "Lisää" %}</a></div>
-
-    <script type="text/javascript">
-        $(".draggable").draggable({revert: "invalid", zIndex: 1000, opacity: 0.5});
-
-        $("#add_tag").click(function(e) {
-            e.preventDefault();
-            $("#newTagTarget").load($(this).attr("href"), {
-                action: "/orders/tags/{{ order.id }}"
-              });
-          });
-
-          $(".droppable").droppable({
-              drop: function(event, ui) {
-                  ui.draggable.fadeOut();
-                  $.post($("#tags").data("url"),
-                      {action: "remove", title: ui.draggable.text()}
-                  );
-              }
-          });
-      </script>
-      
-    </div>
-    <br/><hr/>
     <div id="customers" class="customerDetails" data-url="/orders/customer/{{ order.id }}">
       {% include "orders/customer.html" %}
     </div>

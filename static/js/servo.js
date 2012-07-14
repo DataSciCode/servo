@@ -100,28 +100,29 @@ var PanelView = Backbone.View.extend(
         window.tabView = new TabView();
         tabView.render();
         
-        if(popup.is(":hidden"))
+        if(popup.is(':hidden'))
         {
-            popup.show("slide", {direction: "up"}, 200,
+            $('.popup-menu').hide();
+            popup.show('slide', {direction: 'up'}, 200,
             
             function() {
-                $("#popup #drawer").hide();
+                $('#popup #drawer').hide();
                 
-                $("#popup a.search").click(function()
+                $('#popup a.search').click(function()
                 {
                     // load the search drawer
-                    $("#drawer").load($(this).data("url"), function() {
-                        tabView2 = new TabView({el: "div.searchTab"});
+                    $('#drawer').load($(this).data('url'), function()
+                    {
+                        tabView2 = new TabView({el: 'div.searchTab'});
                         tabView2.render();
                         window.panelView.render();
                         window.panelView.delegateEvents();
                     });
                     
-                    $(this).toggleClass("active");
-                    $("#drawer").toggle("slide", "fast");
+                    $(this).toggleClass('active');
+                    $('#drawer').toggle('slide', 'fast');
                     
-                });       
-                
+                });
             });
         }
     }

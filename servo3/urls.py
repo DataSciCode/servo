@@ -21,9 +21,9 @@ urlpatterns = patterns('servo',
     
     url(r'^search/lookup\-(.+)$', 'views.search.lookup'),
     
+    url(r'^devices/$', 'views.devices.index'),
     url(r'^device/search$', 'views.devices.search'),
-    url(r'^device/(\w+)/$', 'views.devices.edit'),
-    url(r'^device/index$', 'views.devices.index'),
+    url(r'^device/(\w+)$', 'views.devices.edit'),
     url(r'^device/create$', 'views.devices.create'),
     url(r'^device/remove$', 'views.devices.remove'),
     url(r'^device/remove/(\w+)$', 'views.devices.remove'),
