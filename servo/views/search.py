@@ -1,10 +1,91 @@
-from gsxlib.gsxlib import Gsx
-from django.shortcuts import render
+#coding=utf-8
+
+import re
+from lib.gsxlib.gsxlib import Gsx, looks_like
+from django.shortcuts import render, redirect
+from django.core.cache import cache
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.datastructures import DotExpandedDict
-import json, pickle
-from servo.models import Device, Product, Customer, GsxAccount, Search
+
+import json, cPickle as pickle
+
+from servo.models import *
+from orders.models import *
+from notes.models import *
+
+def gsx(request, what):
+    results = []
+    #results = cache.get('%s-%s' % (what, value))
+    results = False
+
+    if not results:
+        gsx = GsxAccount.default()
+        query = request.GET.get('serialNumber')
+
+        if what == 'warranty':
+            result = gsx.warranty_status(query)[0]
+
+            if re.match('iPhone', result.get('productDescription')):
+                ad = gsx.fetch_ios_activation(serialNumber=query)
+                result['activationDetails'] = ad[0]
+
+            results = [result]
+
+        if what == 'parts':
+            if not query:
+                query = request.GET.get('partNumber')
+
+            results = gsx.parts_lookup(query)
+
+        if what == 'repairs':
+            if query:
+                results = gsx.repair_lookup(serialNumber=query)
+            else:
+                what = 'repair_details'
+                results = gsx.repair_details(request.GET['dispatchId'])
+
+        cache.set('%s-%s' %(what, query), results)
+
+    return render(request, 'search/results-%s.html' % what, {
+        'results': results,
+        'query': query
+        })
+
+def spotlight(request, what='warranty'):
+    """
+    Search for anything
+    GSX searches are done separately
+    """
+    results = dict()
+    query = request.GET.get('q')
+
+    results['gsx'] = looks_like(query)
+    
+    if results['gsx'] == 'dispatchId':
+        what = 'repairs'
+
+    if results['gsx'] == 'partNumber':
+        what = 'parts'
+
+    if Order.objects.filter(code=query).exists():
+        order = Order.objects.get(code=query)
+        return redirect('/orders/%d/' % order.id)
+
+    results['what'] = what
+    results['query'] = query
+    results['devices'] = Device.objects.filter(sn__icontains=query)
+
+    results['orders'] = Order.objects.filter(customer__name__icontains=query)
+
+    if looks_like(query) == 'serialNumber':
+        results['orders'] = Order.objects.filter(devices__sn__contains=query)
+
+    results['notes'] = Note.objects.filter(body__contains=query)
+    results['customers'] = Customer.objects.filter(name__icontains=query)
+    results['products'] = Product.objects.filter(code__icontains=query)
+
+    return render(request, 'search/spotlight.html', results)
 
 @csrf_exempt
 def save(req):
@@ -25,87 +106,3 @@ def save(req):
 def remove(req, id):
     Search.objects.get(pk=id).delete()
     return HttpResponse('Haku poistettu')
-
-@csrf_exempt
-def lookup(req, what):
-    results = []
-    action = 'edit'
-    collection = 'device'
-
-    query = req.POST.get('q')
-
-    if what == 'customer':
-        collection = 'customer'
-        customers = Customer.objects.filter(name__istartswith=query)
-    
-        for r in customers:
-            results.append({'id': r.id, 'title': r.fullname})
-
-        return render(req, 'search/lookup.html', {'results': results,\
-            'action': action, 'collection': collection})
-
-    if what == 'product-local':
-        collection = 'products'
-        products = Product.objects.filter(code__istartswith=query)
-        for r in products:
-            results.append({'id': r.id, 'title': r.code, 'description': r.title})
-
-        return render(req, 'search/lookup.html', {'results': results,\
-            'action': action, 'collection': collection})
-    
-    if what == 'device-local':
-        local = Device.objects.filter(sn__istartswith=query)
-        for d in local:
-            results.append({'id': d.id, 'title': d.sn, 'description': d.description})
-
-        return render(req, 'search/lookup.html', {'results': results,\
-            'action': action, 'collection': collection})
-
-    # @todo Use the order's queue's GSX account, then revert to default
-    try:
-        order = req.session.get('order')
-        act = order.queue.gsx_account
-    except Exception, e:
-        act = GsxAccount.objects.get(is_default=True)
-    
-    gsx = Gsx(act.sold_to, act.username, act.password)
-
-    param = gsx.looks_like(query)
-    
-    if what == 'product-gsx':
-        collection = 'products'
-        req.session['gsx_data'] = {}
-        
-        if param == 'partNumber':
-            for r in gsx.parts_lookup(query):
-                req.session['gsx_data'] = {r.get('partNumber'): r}
-                results.append({'id': r['partNumber'], 'title': r['partNumber'],\
-                    'description': r['partDescription']})
-    
-        if req.session.get('order'):
-            try:
-                sn = req.session['order']['devices'][0].sn
-                if gsx.looks_like(sn, 'serialNumber'):
-                    query = {'serialNumber': sn, 'partDescription': query}
-
-                for r in gsx.parts_lookup(query):
-                    pn = r.get('partNumber')
-                    req.session['gsx_data'][pn] = r
-                    results.append({'id': r['partNumber'],\
-                        'title': r['partNumber'],\
-                        'description': r['partDescription']})
-            except Exception, e:
-                pass
-    
-    if what == 'device-gsx':
-        try:
-            gsx_results = gsx.warranty_status(query)
-            for r in gsx_results:
-                req.session['gsx_data'] = {query: r}
-                results.append({'title': r.get('productDescription'),
-                    'description': r.get('configDescription'), 'id': query})
-        except Exception, e:
-            results.append({'title': 'Ei hakutuloksia'})
-  
-    return render(req, 'search/lookup.html', {'results': results,\
-        'action': action, 'collection': collection})

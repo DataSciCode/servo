@@ -1,0 +1,48 @@
+{% load i18n %}
+
+<ul class="nav nav-tabs">
+	<li class="active"><a href="/search?q={{ query }}">{% trans "Laite" %}</a></li>
+	<li><a href="/search/parts/?q={{ query }}">{% trans "Varaosat" %}</a></li>
+	<li><a href="/search/repairs/?q={{ query }}">{% trans "Huollot" %}</a></li>
+</ul>
+
+{% for d in results %}
+<div class="row">
+	<div class="span3">
+		<img class="img-rounded" src="{{ d.imageURL }}" alt="{{ d.productDescription }}" title="{{ d.productDescription }}"/>
+	</div>
+	<div class="span9" id="gsx-results">
+		<h3>{{ d.productDescription }}</h3>
+		<dl class="dl-horizontal">
+			<dt>{% trans "Sarjanumero" %}</dt>
+			<dd>{{ d.serialNumber }}</dd>
+			<dt>{% trans "Kokoonpano" %}</dt>
+			<dd>{{ d.configDescription }}</dd>
+			<dt>{% trans "Ostettu" %}</dt>
+			<dd>{{ d.estimatedPurchaseDate }}, {{ d.purchaseCountry }}</dd>
+		{% if d.activationDetails %}
+		{% with d.activationDetails as ad %}
+			<dt>IMEI</dt>
+			<dd>{{ ad.imeiNumber }}</dd>
+			<dt>{% trans "Aktivointiprofiili" %}</dt>
+			<dd>{{ ad.initialActivationPolicyDetails }}</dd>
+			<dt>{% trans "Luketsematon" %}</dt>
+			<dd>{{ ad.unlocked }}</dd>
+		{% endwith %}
+		{% endif %}
+		</dl>
+		<div class="btn-group">
+      <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+        <i class="icon-cog"></i> <span class="caret"></span>
+      </a>
+    	<ul class="dropdown-menu">
+  		{% if request.session.current_order %}
+  			<li><a href="{% url orders.views.add_device order_id=request.session.current_order.id sn=d.serialNumber %}">{% trans "Vie tilaukselle"  %} #{{ request.session.current_order.id }}</a></li>
+  		{% endif %}
+				<li><a href="{{ d.manualURL }}">{% trans "Lataa ohjeet" %}</a></li>
+				<li><a href="{% url orders.views.create sn=d.serialNumber %}">{% trans "Luo huoltotilaus" %}</a></li>
+			</ul>
+		</div>
+	</div>
+</div>
+{% endfor %}

@@ -1,0 +1,31 @@
+{% extends "admin/index.html" %}
+{% load i18n %}
+
+{% block admin_content %}
+<ul class="nav nav-tabs" id="navtabs">
+    <li><a href="/admin/files/">{% trans "Kaikki" %}</a></li>
+    <li class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">{% trans "Tagi" %} <b class="caret"></b></a>
+        <ul class="dropdown-menu">
+        {% for t in  tags %}
+            <li><a href="/documents/index/tag/{{ t.id }}/">{{ t.title }}</a></li>
+        {% endfor %}
+        </ul>
+      </li>
+      <li class="pull-right"><a href="/documents/new">{% trans "Luo tiedosto" %}</a></li>
+    </ul>
+    <table>
+        <tbody>
+{% for file in files %}
+            <tr data-url="/document/edit/{{ file.id }}" class="{% cycle 'odd' 'even' %}">
+                <td><a href="/documents/{{ file.id }}/view/" class="window">{{ file.name }}</a></td>
+                <td>{{ file.description }}</td>
+                <td>{{ file.content.size|filesizeformat }}</td>
+                <td>{{ file.uploaded_by }}</td>
+                <td>{{ file.uploaded_at }}</td>
+            </tr>
+{% endfor %}
+    </tbody>
+  </table>
+
+{% endblock admin_content %}

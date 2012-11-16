@@ -1,0 +1,14 @@
+{% extends "login.html" %}
+{% load i18n %}
+
+{% block content %}
+<form action="{% url accounts.views.login %}" method="post" accept-charset="utf-8">
+	{% csrf_token %}
+	<label>{% trans "Tunnus" %}:</label>
+	<input type="text" name="username" value=""/><br/>
+	<label>{% trans "Salasana" %}:</label>
+	<input type="password" name="password" value=""/>
+	<br/>
+	<button class="btn btn-primary" type="submit">{% trans "Kirjaudu" %}</button>
+</form>
+{% endblock content %}

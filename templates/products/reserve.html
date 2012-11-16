@@ -1,8 +1,0 @@
-{% load i18n %}
-<form action="/products/reserve" method="post" accept-charset="utf-8">
-	{% csrf_token %}
-	<input type="hidden" name="id" value="{{ order.id }}"/>
-	<img src="/static/images/alert_48.png" alt="alert" class="alert" />
-	<h2>{% blocktrans %}Varataanko tilausen {{ order.id }} kaikki tuotteet?{% endblocktrans %}</h2>
-	<p>{% trans "Tätä toimintoa ei voida peruuttaa." %}</p>
-</form>

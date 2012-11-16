@@ -1,19 +1,52 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.utils.datastructures import DotExpandedDict
-from django import forms
+from django.views.decorators.http import require_POST
+from django.utils.translation import ugettext as _
 
-from servo.models import Device, Order, Spec
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+
+from django import forms
+from django.contrib import messages
+from django.core.cache import cache
+
+from servo.models import Device, Tag
+from orders.models import Order
 
 class DeviceForm(forms.ModelForm):
     class Meta:
         model = Device
-        exclude = ('spec',)
+        exclude = ('spec', 'customers', )
+    
+    tags = forms.ModelMultipleChoiceField(queryset=Tag.objects.filter(type='device'),
+        required=False)
 
-def index(req):
-    devices = Device.objects.all()
-    return render(req, 'devices/index.html', {'devices': devices})
-  
+def index(request, *args, **kwargs):
+    if 'query' in kwargs:
+        all_devices = Device.objects.filter(sn=kwargs['query'])
+    else:
+        all_devices = Device.objects.all()
+
+    if 'tag' in kwargs:
+        all_devices = Device.objects.filter(tags=kwargs['tag'])
+
+    page = request.GET.get('page')
+    paginator = Paginator(all_devices, 50)
+
+    try:
+        devices = paginator.page(page)
+    except PageNotAnInteger:
+        devices = paginator.page(1)
+    except EmptyPage:
+        devices = paginator.page(paginator.num_pages)
+
+    tags = Tag.objects.filter(type='device')
+
+    return render(request, 'devices/index.html', {
+        'devices': devices,
+        'tags': tags
+        })
+
 def create(req, order=None, customer=None):
     device = Device()
     form = DeviceForm()
@@ -21,59 +54,83 @@ def create(req, order=None, customer=None):
         req.session['order'] = Order.objects.get(pk=order)
     
     return render(req, 'devices/form.html', {'device': device, 'form': form})
-  
-def remove(req, id=None):
+
+def remove(req, id):
     if 'id' in req.POST:
         dev = Device.objects.get(pk=req.POST['id'])
         dev.delete()
-        return HttpResponse('Laite poistettu')
+        messages.add_message(req, messages.INFO, _(u'Laite poistettu'))
+        return redirect('/devices/')
     else:
         dev = Device.objects.get(pk=id)
         return render(req, 'devices/remove.html', {'device': dev})
 
 def edit(req, id):
     gsx_data = {}
-    if id in req.session.get('gsx_data'):
-        import json
-        result = req.session['gsx_data'].get(id)
-        dev = Device(sn=result.get('serialNumber'),\
-            description=result.get('productDescription'),
-            purchased_on=result.get('estimatedPurchaseDate'))
-        gsx_data = result
-    else:
-        dev = Device.objects.get(pk=id)
+
+    #if id in req.session.get('gsx_data'):
+    #    import json
+    #    result = req.session['gsx_data'].get(id)
+    #    dev = Device(sn=result.get('serialNumber'),\
+    #        description=result.get('productDescription'),
+    #        purchased_on=result.get('estimatedPurchaseDate'))
+    #    gsx_data = result
+    #else:
+    dev = Device.objects.get(pk=id)
     
     form = DeviceForm(instance=dev)
     return render(req, 'devices/form.html', {'device': dev,
         'form': form, 'gsx_data': gsx_data})
 
-def save(req):
-    if 'id' in req.POST:
+def view(request, id):
+    device = Device.objects.get(pk=id)
+    return render(request, 'devices/view.html', {'device': device})
+
+@require_POST
+def save(request, id):
+    if request.method == 'POST':
         # search by SN to avoid duplicates
-        dev = Device.objects.get(sn=req.POST['sn'])
+        device = Device.objects.get(sn=request.POST['sn'])
+        form = DeviceForm(request.POST, instance=device)
     else:
-        dev = Device()
+        form = DeviceForm(request.POST)
     
-    print req.POST
-    form = DeviceForm(req.POST)
-    
-    if not form.is_valid:
-        return HttpResponse(str(form.errors))
+    if form.is_valid():
+        device = form.save()
+        messages.add_message(request, messages.INFO, _(u'Laite tallennettu'))
+        return redirect('/devices/')
 
-    dev = form.save(commit=False)
-    
-    # make sure we have this spec
-    spec = Spec.objects.get_or_create(title=dev.description)[0]
-    dev.spec = spec
+    return render(request, 'devices/form.html', {'form': form, 'device': device})
 
-    dev.save()
+def search(req, query):
+    if query:
+        return render(req, 'search_results.html')
 
-    if req.session.get('order'):
-        order = Order.objects.get(pk=req.session['order'].id)
-        order.devices.add(dev)
-        req.session['order'] = order
+    return render(req, 'devices/earch.html')
 
-    return HttpResponse('Laite tallennettu')
+def edit_spec(req, spec_id=None):
+    if req.method == 'POST':
+        form = SpecForm(req.POST)
+        if 'id' in req.POST:
+            spec = Spec.objects.get(pk=req.POST['id'])
+            form = SpecForm(req.POST, instance=spec)
+        if form.is_valid():
+            form.save()
+            messages.add_message(req, messages.INFO, u'Malli tallennettu')
+            return redirect('/devices/specs/')
+    else:
+        form = SpecForm()
+        if spec_id:
+            spec = Spec.objects.get(pk=spec_id)
+            form = SpecForm(instance=spec)
 
-def search(req):
-    return render(req, 'devices/search.html')
+    specs = Spec.objects.all()
+
+    return render(req, 'devices/spec_form.html', {
+        'form': form,
+        'specs': specs
+        })
+
+def view_spec(req, spec_id):
+    specs = Spec.objects.all()
+    return render(req, 'devices/view_spec.html', {'specs': specs})

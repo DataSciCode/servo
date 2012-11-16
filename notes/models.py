@@ -1,0 +1,128 @@
+#coding=utf-8
+
+from django.db import models
+from datetime import datetime
+from django.utils.translation import ugettext as _
+from mptt.models import MPTTModel, TreeForeignKey
+from django.db.models.signals import pre_save, post_save
+from django.dispatch import receiver
+from django.core.cache import cache
+
+from lib.shorturl import encode_url, from_time
+
+from django.contrib.auth.models import User, Group
+from orders.models import Order
+from servo.models import Attachment
+
+class Note(MPTTModel):
+    subject = models.CharField(max_length=255, blank=True, 
+        verbose_name=_(u'otsikko'))
+    body = models.TextField(verbose_name=_(u'viesti'))
+    code = models.CharField(max_length=8, editable=False, default=from_time())
+    
+    KINDS = (
+        ('note', _(u'Merkintä')),
+        ('problem', _(u'Ongelma')),
+        ('diagnosis', _(u'Diagnoosi')),
+        ('solution', _(u'Ratkaisu')),
+        ('message', _(u'Viesti'))
+    )
+
+    kind = models.CharField(max_length=10, choices=KINDS, default=KINDS[0])
+
+    parent = TreeForeignKey('self', null=True, blank=True, related_name='replies')
+    mailfrom = models.EmailField(default='', blank=True)
+    smsfrom = models.CharField(default='', max_length=32, blank=True)
+
+    mailto = models.EmailField(default='', blank=True)
+    smsto = models.CharField(default='', max_length=32, blank=True)
+
+    sender = models.CharField(max_length=64, null=True, blank=True)
+    recipient = models.CharField(max_length=64, null=True, blank=True)
+    
+    created_by = models.ForeignKey(User)
+    created_at = models.DateTimeField(default = datetime.now(), editable=False)
+
+    order = models.ForeignKey(Order, null=True, blank=True)
+    flags = models.CharField(max_length=2, default='01', blank=True)
+
+    report = models.BooleanField(default=True)
+    attachments = models.ManyToManyField(Attachment, null=True, blank=True)
+    
+    def __str__(self):
+        return str(self.pk)
+
+    def diagnosis(self):
+        """
+        Returns the diagnosis for this note, if any
+        """
+        try:
+            diag = Note.objects.get(parent=self)
+            return diag.body
+        except Note.DoesNotExist:
+            return ""
+
+    def solution(self):
+        return ""
+
+    def send_mail(self):
+        import smtplib
+        from email import encoders
+        from email.mime.base import MIMEBase
+        from email.mime.text import MIMEText
+        from email.mime.multipart import MIMEMultipart
+
+        conf = cache.get('config')
+        server = smtplib.SMTP(conf['smtp_host'])
+
+        if conf['smtp_user']:
+            server.login(conf['smtp_user'], conf['smtp_password'])
+        
+        subject = 'Huoltoviesti SRV#%d' %(self.id)
+
+        msg = MIMEMultipart()
+        msg['To'] = self.mailto
+        msg['Subject'] = subject
+        msg['From'] = conf['mail_from']
+        msg['In-Reply-To'] = str(self.id)
+        
+        txt = MIMEText(self.body, 'plain', 'utf-8')
+        msg.attach(txt)
+        
+        for f in self.attachments.all():
+            maintype, subtype = f.content_type.split('/', 1)
+            a = MIMEBase(maintype, subtype)
+            a.set_payload(f.content.read())
+            encoders.encode_base64(a)
+            msg.add_header('Content-Disposition', 'attachment', filename=f.name)
+            msg.attach(a)
+
+        server.sendmail(msg['From'], msg['To'], msg.as_string())
+
+        self.mail_sent = True
+        self.save()
+        server.quit()
+    
+    def send_sms(self):
+        import urllib
+        conf = Configuration.objects.get(pk=1)
+        params = urllib.urlencode({
+            'username': conf.sms_user,
+            'password': conf.sms_password,
+            'text': self.body,
+            'to': self.smsto
+        })
+
+        f = urllib.urlopen('%s?%s' %(conf.sms_url, params))
+        self.sms_sent = True
+        self.save()
+
+        print f.read()
+
+@receiver(post_save, sender=Note)
+def send_message(sender, instance, created, **kwargs):
+    if created:
+        if instance.mailto:
+            instance.send_mail()
+        if instance.smsto:
+            instance.send_sms()

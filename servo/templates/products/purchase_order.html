@@ -1,0 +1,99 @@
+{% extends "products/purchase_orders.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="row">
+  <form method="post" accept-charset="utf-8" action="{% url servo.views.products.edit_po order.pk %}">
+    <div class="span3">
+      {% csrf_token %}
+      <label>{{ form.sales_order.label }}</label>
+      {% for e in form.sales_order.errors %}
+      <div class="alert alert-error">{{ e }}</div>
+      {% endfor %}
+      {{ form.sales_order }}
+      <label>{{ form.reference.label }}</label>
+      {% for e in form.reference.errors %}
+      <div class="alert alert-error">{{ e }}</div>
+      {% endfor %}
+      {{ form.reference }}
+      <label>{{ form.confirmation.label }}</label>
+      {% for e in form.confirmation.errors %}
+      <div class="alert alert-error">{{ e }}</div>
+      {% endfor %}
+      {{ form.confirmation }}
+    </div>
+    <div class="span9">
+      <ul class="nav nav-tabs">
+        <li class="active"><a href="#tab1" data-toggle="tab">{% trans "Tuotteet" %}</a></li>
+        <li><a href="#tab2" data-toggle="tab">{% trans "Toimitus" %}</a></li>
+      </ul>
+      <div class="tab-content" style="overflow:visible">
+        <div class="tab-pane active" id="tab1">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>{% trans "Tuote" %}</th>
+                <th>{% trans "Koodi" %}</th>
+                <th>{% trans "Nimike" %}</th>
+                <th>{% trans "Määrä" %}</th>
+                <th>{% trans "Ostohinta" %}</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+            {% for item in order.purchaseorderitem_set.all %}
+              <input type="hidden" name="items" value="{{ item.id }}"/>
+              <tr>
+                <td>{{ item.product.id }}</td>
+                <td>{{ item.code }}</td>
+                <td>{{ item.product.title }}</td>
+                <td><input type="text" class="input-mini" name="amounts" value="{{ item.quantity }}"/></td>
+                <td><input type="text" class="input-mini" name="prices" value="{{ item.price }}"/></td>
+                <td>
+                  <div class="btn-group">
+                    <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">
+                      <i class="icon-cog"></i> <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                      <li><a href="{% url servo.views.products.edit_po id=order.id item_id=item.id action='remove' %}">{% trans "Poista" %}</a></li>
+                    </ul>
+                  </div>
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="6" class="muted" style="text-align:center">{% trans "Ei yhtään tuotetta" %}</td>
+              </tr>
+            {% endfor %}
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td colspan="3" style="text-align:right">{% trans "Yhteensä" %}:</td>
+                  <td>{{ order.amount }}</td>
+                  <td>{{ order.sum }}</td>
+                  <td></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+          <div class="tab-pane" id="tab2">
+            <label>{{ form.carrier.label }}</label>
+            {{ form.carrier }}
+            <label>{{ form.supplier.label }}</label>
+            {{ form.supplier }}
+            <label>{{ form.tracking_id.label }}</label>
+            {{ form.tracking_id }}
+            <label>{{ form.days_delivered.label }}</label>
+            {{ form.days_delivered }}
+          </div>
+        </div>
+        {% if not order.date_submitted %}
+        <div class="pull-right">
+          <button type="submit" class="btn">{% trans "Tallenna" %}</button>
+          <a href="{% url servo.views.products.submit_po order.pk %}" class="btn btn-primary">{% trans "Tilaa tuotteet" %}</a>
+        </div>
+        {% endif %}
+    </div>
+  </form>
+</div>
+{% endblock content %}

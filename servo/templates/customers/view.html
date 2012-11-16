@@ -1,0 +1,36 @@
+{% extends "customers/index.html" %}
+{% load i18n %}
+
+{% load extras %}
+{% block detail_block %}
+	<legend>{{ customer.name }}</legend>
+	<dl class="dl-horizontal">
+	{% for ci in customer.contactinfo_set.all %}
+		<dt>{{ ci.key }}</dt>
+		<dd>{{ ci.value }}</dd>
+	{% endfor %}
+		<dt></dt>
+		<dd>
+			<div class="btn-group">
+				<a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+		  		<i class="icon-cog"></i> <span class="caret"></span>
+				</a>
+				<ul class="dropdown-menu">
+				{% if request.session.current_order %}
+					<li><a href="{% url customers.views.add_order customer.id request.session.current_order.id %}">{% trans "Vie tilaukselle" %} #{{ request.session.current_order.code }}</a></li>
+					<li class="divider"></li>
+				{% endif %}
+		  		<li><a href="{% url customers.views.notes customer_id=customer.id %}">{% trans "Lähetä viesti" %}</a></li>
+					<li><a href="{% url customers.views.edit parent_id=customer.id %}">{% trans "Luo kontakti" %}</a></li>
+					<li><a href="{% url customers.views.create_order customer.id %}">{% trans "Luo tilaus" %}</a></li>
+					<li class="divider"></li>
+					<li><a href="{% url customers.views.edit customer_id=customer.id %}">{% trans "Muokkaa" %}</a></li>
+					<li><a href="{% url customers.views.move customer.id %}">{% trans "Siirrä" %}</a></li>
+					<li><a href="{% url customers.views.delete customer.id %}">{% trans "Poista" %}</a></li>
+				</ul>
+			</div>
+		</dd>
+	</dl>
+	<legend>{% trans "Tilaukset" %}</legend>
+	{% include "orders/list.html" %}
+{% endblock detail_block %}

@@ -1,0 +1,101 @@
+{% extends "default.html" %}
+{% load i18n %}
+{% load extras %}
+
+{% block title %}{% trans "Huoltotilaus #" %}{{ order.code }}{% endblock title %}
+
+{% block navtabs %}
+<ul class="breadcrumb">
+  <li><a href="{% url orders.views.index %}">{% trans "Tilaukset" %}</a> <span class="divider">/</span></li>
+  <li class="active"><a href="{% url orders.views.edit order.id %}">#{{ order.code }}</a></li>
+</ul>
+
+<ul class="nav nav-tabs">
+  <li class="dropdown active">
+    <a class="dropdown-toggle" data-toggle="dropdown" href="#">{% trans "Tilaus" %}<b class="caret"></b></a>
+    <ul class="dropdown-menu">
+      {% if order.queue.order_template  %}
+      <li><a href="/orders/{{ order.id }}/print/confirmation/" class="window">{% trans "Tulosta huoltotilaus" %}</a></li>
+      {% endif %}
+      {% if order.queue.quote_template  %}
+      <li><a href="/orders/{{ order.id }}/print/quote/" class="window">{% trans "Tulosta kustannusarvio" %}</a></li>
+      {% endif %}
+      {% if order.queue.receipt_template  %}
+      <li><a href="/orders/{{ order.id }}/print/receipt/" class="window">{% trans "Tulosta kuitti" %}</a></li>
+      {% endif %}
+      {% if order.queue.dispatch_template  %}
+      <li><a href="/orders/{{ order.id }}/print/dispatch/{{ order.queue.dispatch_template.id }}" class="window">{% trans "Tulosta lähete" %}</a></li>
+      <li class="divider"></li>
+      {% endif %}
+      {% if order.serviceorderitem_set.count %}
+      <li><a href="{% url products.views.create_po order_id=order.id %}">{% trans "Tilaa tuotteet" %}...</a></li>
+      <li><a href="{% url orders.views.reserve_products order.id %}">{% trans "Varaa tuotteet" %}...</a></li>
+      <li><a href="{% url orders.views.dispatch order.id %}">{% trans "Toimita tilaus" %}...</a></li>
+      {% if order.issues %}
+      <li><a href="{% url orders.views.create_gsx_repair order.id %}">{% trans "Luo GSX korjaus" %}...</a></li>
+      {% endif %}
+      <li class="divider"></li>
+      {% endif %}
+      <li><a href="{% url orders.views.remove order.id %}">{% trans "Poista tilaus" %}</a></li>
+      <li><a href="{% url orders.views.close order.id %}">{% trans "Sulje tilaus" %}</a></li>
+    </ul>
+  </li>
+  <li class="dropdown">
+    <a class="dropdown-toggle" data-toggle="dropdown" href="#">{% trans "Tagit" %}<b class="caret"></b></a>
+    <ul id="tags" class="dropdown-menu">
+    {% for t in tags %}
+      <li><a href="/orders/{{ order.id }}/tags/{{ t.id }}/toggle/">{{ t.title }}</a></li>
+    {% endfor %}
+    </ul>
+  </li>
+  <li class="dropdown">
+    <a class="dropdown-toggle" data-toggle="dropdown" href="#">{% trans "Merkinnät" %}<b class="caret"></b></a>
+    <ul id="tags" class="dropdown-menu">
+      <li><a href="{% url notes.views.edit order_id=order.id kind='note' %}">{% trans "Lisää merkintä" %}</a></li>
+      <li><a href="{% url notes.views.edit order_id=order.id kind='message' %}">{% trans "Lisää viesti" %}</a></li>
+      <li><a href="{% url notes.views.edit order_id=order.id kind='problem' %}">{% trans "Lisää ongelma" %}</a></li>
+    </ul>
+  </li>
+</ul>
+{% endblock navtabs %}
+
+{% block content %}
+
+<div class="row">
+  <div class="span3" id="order-sidebar">
+    <h4>{% trans "Huoltotilaus" %} #{{ order.code }}</h4>
+    <div class="well">
+    {% if order.customer %}
+      {% include "orders/customer.html" with nodes=customer %}
+    {% endif %}
+    </div>
+    <form action="{% url orders.views.update order.id %}" method="post">
+      {{ form.as_p }}
+      {% for f in fields %}
+      <label>{{ f.title }}:</label>
+      <select name="{{ f.title }}">
+      {% for v in f.values %}
+        <option>{{ v }}</option>
+      {% endfor %}
+      </select>
+      {% endfor %}
+    </form>
+    <a href="{% url orders.views.follow order.id %}" class="btn" data-toggle="button">{% trans "Seuraa" %}</a>
+  </div>
+  <div class="span9">
+    <div id="devices">
+      {% include "orders/devices.html" %}
+    </div>
+    <div id="notes">
+      {% include "orders/notes.html" with notes=order.notes %}
+    </div>
+    <div id="products">
+      {% include "orders/products.html" %}
+    </div><!-- //#products -->
+    <div id="events">
+      {% include "orders/events.html" %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}

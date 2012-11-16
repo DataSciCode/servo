@@ -1,0 +1,17 @@
+{% extends request.is_ajax|yesno:"empty.html,admin/index.html" %}
+{% load i18n %}
+
+{% block admin_content %}
+<ul class="nav nav-tabs" id="navtabs">
+	<li><a href="/admin/statuses/">{% trans "Kaikki" %}</a></li>
+	<li class="pull-right"><a href="/admin/status/new/">{% trans "Luo status" %}</a></li>
+</ul>
+
+<table>
+{% for status in statuses %}
+	<tr>
+		<td><a href="/admin/statuses/{{ status.id }}/edit/">{{ status.title }}</a></td>
+	</tr>
+{% endfor %}
+</table>
+{% endblock %}

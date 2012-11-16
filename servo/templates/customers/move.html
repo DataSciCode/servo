@@ -1,0 +1,30 @@
+{% extends "default.html" %}
+{% load i18n %}
+{% block content %}
+
+<div class="modal">
+  <div class="modal-header">
+    <form action="{% url servo.views.customers.search %}" method="post" accept-charset="utf-8" style="margin-bottom:0" id="search-form" data-target="#search-results">
+			{% csrf_token %}
+			<input type="hidden" name="id" value="{{ customer.id }}"/>
+			<input type="text" style="width:500px" class="search-query" name="name"/>
+		</form>
+  </div>
+  <div class="modal-body" id="search-results">
+  	
+  </div>
+  <div class="modal-footer">
+    <a href="javascript:history.back();" class="btn">{% trans "Peruuta" %}</a>
+  </div>
+</div>
+
+<script type="text/javascript">
+	$('#search-form').submit(function(e) {
+		e.preventDefault();
+		var action = $(this).attr('action');
+		var target = $(this).data('target');
+		$(target).load(action, $(this).serializeArray());
+	});
+</script>
+
+{% endblock content %}

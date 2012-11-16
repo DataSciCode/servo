@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 
 from datetime import datetime, timedelta
+
 from servo.models import Calendar, CalendarEvent
 
 def edit(req, id):
@@ -17,7 +18,7 @@ def create(req):
 
 def save(req):
 	if "id" in req.POST:
-		cal = Calendar.objects(id = ObjectId(req.POST['id']))
+		cal = Calendar.objects(id=ObjectId(req.POST['id']))
 	else:
 		cal = Calendar()
 

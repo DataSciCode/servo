@@ -1,0 +1,9 @@
+{% extends "admin/files.html" %}
+{% load i18n %}
+{% block content %}
+<form method="post" action="/document/save" enctype="multipart/form-data" class="form-horizontal">
+  {% csrf_token %}
+  {% include "form_snippet.html" %}
+  {% include "form_buttons.html" %}
+</form>
+{% endblock content %}

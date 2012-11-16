@@ -1,0 +1,16 @@
+{% extends "default.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="alert alert-block alert-error">
+	<form action="{% url servo.views.admin.gsx_remove account.id %}" method="post" accept-charset="utf-8">
+	  {% csrf_token %}
+	  <input type="hidden" name="id" value="{{ account.id }}" />
+		<h4 class="alert-heading">{% trans "Poistetaanko GSX tili" %}?</h4>
+		<p>{% trans 'Tätä toimintoa ei voida peruuttaa.' %}</p>
+		<p>
+	  <button class="btn btn-danger" type="submit">{% trans "Poista" %}</button> <a class="btn" href="#">{% trans "Peruuta" %}</a>
+		</p>
+	</form>
+</div>
+{% endblock content %}

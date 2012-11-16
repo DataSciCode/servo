@@ -1,0 +1,15 @@
+{% extends "default.html" %}
+{% load i18n %}
+{% block content %}
+<div class="alert alert-block alert-error">
+	<form action="{% url servo.views.devices.remove device.id %}" method="post" accept-charset="utf-8">
+		{% csrf_token %}
+		<input type="hidden" name="id" value="{{ device.id }}" />
+		{% blocktrans with sn=device.sn%}
+		<h4>Haluatko varmasti poistaa laitteen "{{ sn }}"?</h4>
+		{% endblocktrans %}
+		<p>{% trans "Toiminto poistaa laitteen myös kaikista tilauksista." %}</p>
+		<button type="submit" class="btn btn-danger">{% trans "Poista" %}</button>
+	</form>
+</div>
+{% endblock content %}

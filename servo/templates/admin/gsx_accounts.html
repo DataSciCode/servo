@@ -1,0 +1,34 @@
+{% extends "admin/index.html" %}
+{% load i18n %}
+
+{% block admin_content %}
+
+<ul class="nav nav-tabs" id="navtabs">
+	<li><a href="/admin/gsx/accounts/">{% trans "Kaikki" %}</a></li>
+	<li class="pull-right"><a href="/admin/gsx/accounts/new/">{% trans "Luo tili" %}</a></li>
+</ul>
+
+<table class="table">
+	{% for a in accounts %}
+		<tr>
+			<td><a href="{% url servo.views.admin.gsx_form a.id %}">{{ a.title }}</a></td>
+			<td>{{ a.username }}</td>
+			<td>{{ a.environment }}</td>
+			<td>{{ a.sold_to }}</td>
+			<td>{{ a.ship_to }}</td>
+			<td>
+				<div class="btn-group">
+				  <a class="btn dropdown-toggle" data-toggle="dropdown" href="#"> <i class="icon-cog"></i>
+				    <span class="caret"></span>
+				  </a>
+				  <ul class="dropdown-menu">
+				    <li><a href="{% url servo.views.admin.gsx_form a.id %}">{% trans "Muokkaa" %}</a></li>
+				    <li><a href="/admin/gsx/accounts/{{ a.id }}/delete/">{% trans "Poista" %}</a></li>
+				  </ul>
+				</div>
+			</td>
+		</tr>
+	{% endfor %}
+</table>
+
+{% endblock admin_content %}

@@ -1,0 +1,9 @@
+{% extends "admin/products/groups.html" %}
+
+{% block admin_content %}
+	<form action="/admin/products/groups/{{ group_id }}/save/" method="post">
+		{% csrf_token %}
+		{% include "form_snippet.html" %}
+		{% include "form_buttons.html" %}
+	</form>
+{% endblock admin_content %}

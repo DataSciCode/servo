@@ -1,0 +1,11 @@
+{% extends "default.html" %}
+{% load i18n %}
+{% block content %}
+<form action="{% url servo.views.orders.reserve_products order.id %}" method="post" 
+	accept-charset="utf-8">
+	{% csrf_token %}
+	<h4>{% blocktrans with id=order.id %}Varataanko tilausen {{ id }} kaikki tuotteet?{% endblocktrans %}</h4>
+	<p>{% trans "Tätä toimintoa ei voida peruuttaa." %}</p>
+	<button class="btn btn-primary" type="submit">{% trans "Varaa" %}</button>
+</form>
+{% endblock content %}

@@ -1,0 +1,11 @@
+{% load extras %}
+{% load mptt_tags %}
+{% recursetree nodes %}
+<address>
+	<strong>{{ node.name }}</strong><br/>
+	{% for k, v in node.fullprops.items %}
+		{{ v|clickable:order.id }}<br/>
+	{% endfor %}
+</address>
+{{ children }}
+{% endrecursetree %}

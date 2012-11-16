@@ -1,0 +1,17 @@
+{% extends "admin/index.html" %}
+{% load i18n %}
+
+{% block admin_content %}
+<ul class="nav nav-tabs">
+	<li><a href="/admin/tags/">{% trans "Kaikki" %}</a></li>
+	<li class="pull-right"><a href="/admin/tags/new/">{% trans "Luo tagi" %}</a></li>
+</ul>
+
+<table class="table">
+	<tbody>
+	{% for t in tags %}
+		<tr data-url="/tag/edit/{{ t.id }}"><td>{{ t.title }}</td></tr>
+	{% endfor %}
+	</tbody>
+</table>
+{% endblock admin_content %}

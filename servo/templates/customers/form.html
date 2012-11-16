@@ -1,0 +1,68 @@
+{% extends "customers/index.html" %}
+{% load i18n %}
+
+{% block sidebar %}
+{% endblock sidebar %}
+
+{% block detail_block %}
+<form method="post" action="{% url customers.views.save id %}"
+  accept-charset="utf-8" 
+  class="form-horizontal">
+  {% csrf_token %}
+  <legend>{% trans "Muokkaa asiakasta" %}</legend>
+  <div class="control-group">
+    <label class="control-label">{% trans 'Yritys' %}:</label>
+    <div class="controls">
+      {{ form.parent }}
+    </div>
+  </div>
+  <div class="control-group">
+    <label class="control-label">{% trans 'Nimi' %}:</label>
+    <div class="controls">
+      {{ form.name }}
+    </div>
+  </div>
+
+{% for p in customer.contactinfo_set.all %}
+  <div class="control-group">
+    <select name="keys" class="control-label">
+      <option>{{ p.key }}</option>
+    </select>
+    <div class="controls">
+      <input type="text" name="values" value="{{ p.value }}"/>
+    </div>
+  </div>
+{% endfor %}
+
+  <div class="control-group property">
+    <select name="keys" class="control-label" data-value="{{ fields.0.title }}">
+    {% for f in fields %}
+      <option>{{ f.title }}</option>
+    {% endfor %}
+    </select>
+    <div class="controls">
+      <input type="text" name="values"/>
+    </div>
+  </div>
+
+  <div class="control-group">
+    <label class="control-label">{% trans "Tagit" %}:</label>
+    <div class="controls">
+      {{ form.tags }}
+    </div>
+  </div>
+  <div class="control-group">
+    <div class="controls">
+      <label class="checkbox">
+        {{ form.is_company }} {% trans "yritys" %}
+      </label>
+    </div>
+  </div>
+  <div class="control-group">
+    <div class="controls">
+      <button class="btn btn-primary" type="submit">{% trans "Tallenna" %}</button>
+    </div>
+  </div>
+</form>
+
+{% endblock detail_block %}

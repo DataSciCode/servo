@@ -1,0 +1,26 @@
+{% extends "products/index.html" %}
+{% load i18n %}
+
+{% block products_sidebar %}
+{% endblock products_sidebar %}
+
+{% block products_content %}
+  <form method="post" action="{% url products.views.save product_id %}" class="form-horizontal">
+    <ul class="nav nav-tabs">
+      <li class="active"><a href="#tab1" data-toggle="tab">{% trans "Perustiedot" %}</a></li>
+      <li><a href="#tab2" data-toggle="tab">{% trans "Hinnat" %}</a></li>
+      <li><a href="#tab3" data-toggle="tab">{% trans "Lisätiedot" %}</a></li>
+    </ul>
+    <div class="tab-content">
+      <div class="tab-pane active" id="tab1">
+      {% csrf_token %}
+      {% include "form_snippet.html" %}
+      {% include "form_buttons.html" %}
+      </div>
+      <div class="tab-pane active" id="tab2">
+      </div>
+      <div class="tab-pane active" id="tab3">
+      </div>
+    </div>
+  </form>
+{% endblock products_content %}

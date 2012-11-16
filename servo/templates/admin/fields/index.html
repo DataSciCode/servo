@@ -1,0 +1,20 @@
+{% extends "admin/index.html" %}
+{% load i18n %}
+
+{% block admin_content %}
+<ul class="nav nav-tabs">
+	<li><a href="{% url servo.views.admin.fields %}">{% trans "Kaikki" %}</a></li>
+	<li class="pull-right"><a href="{% url servo.views.admin.edit_field field_id='new' %}">{% trans "Luo kenttä" %}</a></li>
+</ul>
+
+{% block detail_block %}
+<table>
+{% for f in fields %}
+	<tr>
+		<td><a href="{% url servo.views.admin.edit_field f.id %}">{{ f.title }}</a></td>
+		<td></td>
+	</tr>
+{% endfor %}
+</table>
+{% endblock detail_block %}
+{% endblock %}

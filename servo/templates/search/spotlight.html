@@ -1,0 +1,39 @@
+{% extends "default.html" %}
+{% load extras %}
+{% block content %}
+{% load i18n %}
+
+{% if customers %}
+<h3>{% trans "Asiakkaat" %}</h3>
+{% include "customers/list.html" %}
+{% endif %}
+
+{% if products %}
+<h3>{% trans "Tuotteet" %}</h3>
+{% include "products/list.html" %}
+{% endif %}
+
+{% if orders %}
+<h3>{% trans "Tilaukset" %}</h3>
+{% include "orders/list.html" %}
+{% endif %}
+
+{% if notes %}
+<h3>{% trans "Merkinnät" %}</h3>
+{% include "orders/notes.html" %}
+{% endif %}
+
+{% if devices %}
+<h3>{% trans "Laitteet" %}</h3>
+{% include "devices/list.html" %}
+{% endif %}
+
+{% if gsx %}
+<h3>GSX</h3>
+<div id="gsx-container" data-source="/search/gsx/{{ what }}/?{{ gsx }}={{ query }}">
+	<div class="progress progress-striped active">
+		<div class="bar" style="width: 100%;"></div>
+	</div>
+</div>
+{% endif %}
+{% endblock content %}

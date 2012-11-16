@@ -1,0 +1,17 @@
+{% extends "default.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="alert alert-block alert-error fade in">
+	<form action="{% url servo.views.orders.close order.id %}" method="post" accept-charset="utf-8" rel="customers">
+	{% csrf_token %}
+		<input type="hidden" name="id" value="{{ order.id }}" />
+		<button type="button" class="close" data-dismiss="alert">×</button>
+		<h4 class="alert-heading">{% trans 'Haluatko varmasti sulkea tilauksen' %} {{ order.id }}?</h4>
+		<p>{% trans 'Tämä poistaa myös kaikki asiakkaan kontaktit. Asiakkaan tilauksia ei poisteta.' %}</p>
+		<p>
+	  	<button class="btn btn-danger" type="submit">{% trans "Sulje" %}</button> <a class="btn" href="javascript:history.back();">{% trans "Peruuta" %}</a>
+		</p>
+	</form>
+</div>
+{% endblock content %}

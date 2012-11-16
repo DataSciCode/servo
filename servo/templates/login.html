@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+	<head>
+  	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  	<link href="/static/js/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  	<title>servo | login</title>
+	</head>
+	<body>
+  	<div class="container">
+      <div class="row">
+        <div class="span12">
+        	{% if messages %}
+          {% for message in messages %}
+          <div class="alert alert-block">
+            <button type="button" class="close" data-dismiss="alert">×</button>
+            <strong>{{ message }}</strong>
+          </div>
+          {% endfor %}
+          {% endif %}
+          <div class="hero-unit">
+          	<h1>servo</h1>
+          	<p>
+	    				{% block content %}{% endblock content %}
+	    			</p>
+	    		</div>
+    		</div>
+    	</div>
+    </div>
+	</body>
+</html>

@@ -1,0 +1,37 @@
+{% load i18n %}
+{% load extras %}
+{% load mptt_tags %}
+
+<table class="table">
+  <thead>
+    <tr><th colspan="2">{% trans "Merkinnät" %}</th></tr>
+  </thead>
+  {% for note in notes %}
+  <tbody>
+    <tr>
+      <td>
+        <small>{{ note.created_by.username }} @ {{ note.created_at|relative_date }}{% if note.mailto %} {{ note.mailto }}{% endif %}</small><br/>
+        {{ note.body }}
+        {% for file in note.attachments.all %}
+        <a class="window attachment" href="{% url servo.views.documents.view file.id %}">{{ file.name }}</a>
+      {% endfor %}
+      </td>
+      <td>
+        <div class="btn-group pull-right">
+          <a class="btn dropdown-toggle btn-small" data-toggle="dropdown" href="#">
+            <i class="icon-cog"></i> <span class="caret"></span>
+          </a>
+          <ul class="dropdown-menu">
+            <li><a href="/notes/{{ note.id }}/reply/">{% trans "Vastaa" %}</a></li>
+            <li><a href="{% url notes.views.edit note.id %}">{% trans "Muokkaa" %}</a></li>
+            <li><a href="/notes/{{ note.id }}/report/">{% trans "Raportoi" %}</a></li>
+            <li class="divider"></li>
+            <li><a href="/notes/{{ note.id }}/remove/">{% trans "Poista" %}</a></li>
+          </ul>
+        </div>
+      </tr>
+    {% empty %}
+    <tr><td colspan="2" class="muted" style="text-align:center">{% trans "Ei merkintöjä" %}</td></tr>
+  {% endfor %}
+  </tbody>
+</table>

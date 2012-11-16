@@ -1,8 +1,0 @@
-{% load i18n %}
-<form action="/queue/remove" method="post" accept-charset="utf-8" rel="queues">
-  {% csrf_token %}
-  <input type="hidden" name="id" value="{{ id }}" />
-  <img src="/static/images/alert_48.png" alt="alert" class="alert" />
-  <h2>{% blocktrans %}Haluatko varmasti poistaa jonon "{{ title }}"?{% endblocktrans %}</h2>
-  <p>{% trans "Tätä toimintoa ei voida peruuttaa." %}</p>
-</form>

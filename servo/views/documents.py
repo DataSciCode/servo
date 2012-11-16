@@ -1,23 +1,27 @@
 # coding=utf-8
 import json, mimetypes
 from django.http import HttpResponse
-from django.shortcuts import render
-from servo.models import Attachment, Invoice, Configuration
+from django.shortcuts import render, redirect
 from django import forms
+from django.contrib import messages
 
 from reportlab.lib.units import mm
 from reportlab.graphics.shapes import Drawing, String
 from reportlab.graphics.barcode import createBarcodeDrawing
 from reportlab.graphics.charts.barcharts import HorizontalBarChart
+from django.utils.translation import ugettext as _
+
+from servo.models import Attachment, Configuration
+from orders.models import Invoice
 
 class DocumentForm(forms.ModelForm):
     class Meta:
         model = Attachment
-        fields = ['content', 'is_template']
 
 class MyBarcodeDrawing(Drawing):
     def __init__(self, text_value, *args, **kw):
-        barcode = createBarcodeDrawing('Code128', value=text_value, barHeight=10*mm, humanReadable=True)
+        barcode = createBarcodeDrawing('Code128', value=text_value,
+            barHeight=10*mm, humanReadable=True)
         Drawing.__init__(self, barcode.width, barcode.height, *args, **kw)       
         self.add(barcode, name='barcode')
 
@@ -26,19 +30,13 @@ def barcode(req, text):
     binaryStuff = d.asString('png')
     return HttpResponse(binaryStuff, 'image/png')
 
-def index(req):
-    files = Attachment.objects.all()
-    return render(req, 'documents/index.html', {'files': files})
-
-def edit(req, id):
-    doc = Attachment.objects.get(pk=id)
-    form = DocumentForm(instance=doc)
-    return render(req, 'documents/form.html', {'form': form})
-
 def create(req):
     doc = Attachment()
     form = DocumentForm()
     return render(req, 'documents/form.html', {'form': form})
+
+def edit(req):
+    pass
 
 def save(req):
     mimetypes.init()
@@ -62,6 +60,9 @@ def save(req):
         
     doc.save()
     
+    messages.add_message(req, messages.INFO, _('Tiedosto tallennettu'))
+    return redirect('/admin/files/')
+
     return HttpResponse(json.dumps({'name': doc.name, 'id': doc.id}),
         content_type='application/json')
 
@@ -79,16 +80,3 @@ def remove(req, id = None):
     else:
         doc = Attachment.objects.get(pk = id)
         return render(req, 'documents/remove.html', {'document': doc})
-
-def output(req, ref, ref_id, doc_id):
-    import pystache
-    conf = Configuration.objects.get(pk = 1)
-    doc = Attachment.objects.get(pk = doc_id)
-    #data = Invoice.objects(id = ObjectId(ref_id)).first()
-    tpl = doc.content.read().decode("utf-8")
-
-    return HttpResponse(pystache.render(tpl, {
-        'data': {},
-        'config': conf,
-        'location': req.session['user'].location
-    }))

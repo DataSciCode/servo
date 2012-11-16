@@ -1,0 +1,24 @@
+{% extends "admin/users.html" %}
+{% load i18n %}
+{% block admin_content %}
+<form action="/admin/user/save/" method="post" accept-charset="utf-8" class="form-horizontal">
+{% csrf_token %}
+{% include "form_snippet.html" %}
+{% include "form_buttons.html" %}
+{% if user.id %}
+    <input type="hidden" name="id" value="{{ user.id }}"/>
+{% endif %}
+    <div id="general" class="tab">
+        <label>{% trans "Puhelin" %}:</label>
+        <input type="text" name="phone" value="{{ user.phone }}"/>
+        <input type="password" name="password_conf"/><br/>
+        <label>{% trans "Tech ID" %}:</label>
+        <input type="text" name="tech_id" value="{{ user.tech_id }}"/><br/>
+    </div><!-- //#general -->
+    <div class="tab" id="permissions">
+        <br/>
+        <label>{% trans "Asiakas" %}:</label>
+        <input type="text" name="customer_id" value="{{ user.customer_id }}"/>
+    </div><!-- //#permissions -->
+</form>
+{% endblock admin_content %}

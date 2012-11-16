@@ -1,0 +1,24 @@
+{% extends "admin/index.html" %}
+{% load i18n %}
+{% load mptt_tags %}
+{% block navtabs %}
+    
+{% endblock navtabs %}
+{% block admin_content %}
+<ul class="nav nav-tabs" id="navtabs">
+	<li><a href="/admin/products/groups/">{% trans "Kaikki" %}</a></li>
+	<li class="pull-right"><a href="/admin/products/groups/new/">{% trans "Luo ryhmä" %}</a></li>
+</ul>
+
+{% recursetree groups %}
+<ul class="unstyled">
+	<li><a href="/products/groups/{{ node.id }}/">{{ node.name }}</a>
+	{% if not node.is_leaf_node %}
+		<ul class="children">
+			{{ children }}
+		</ul>
+	{% endif %}
+	</li>
+</ul>
+{% endrecursetree %}
+{% endblock admin_content %}

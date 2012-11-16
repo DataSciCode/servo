@@ -1,0 +1,7 @@
+{% extends "devices/specs.html" %}
+{% block specs %}
+	<form method="post" action="/devices/specs/save/">
+		{% csrf_token %}
+		{% include "form_snippet.html" %}
+	</form>
+{% endblock specs %}

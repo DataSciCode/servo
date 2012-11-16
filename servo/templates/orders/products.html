@@ -1,0 +1,44 @@
+{% load i18n %}
+<table class="table">
+  <thead>
+    <tr><th colspan="4">{% trans "Tuotteet" %}</th></tr>
+  </thead>
+  <tbody>
+    {% with order.serviceorderitem_set.all as products %}
+      {% for item in products %}
+    <tr>
+      <td><a href="{{ item.product.get_absolute_url }}">{{ item.product.code }}</a></td>
+      <td>{{ item.title }}</td>
+      <td>{{ item.price }}</td>
+      <td>
+        <div class="btn-group pull-right">
+          <a class="btn dropdown-toggle btn-small" data-toggle="dropdown" href="#">
+            <i class="icon-cog"></i> <span class="caret"></span>
+          </a>
+          <ul class="dropdown-menu">
+            <li><a href="{% url orders.views.products order_id=order.id item_id=item.id action='edit' %}">{% trans "Muokkaa" %}</a></li>
+            <li><a href="{% url orders.views.products order_id=order.id item_id=item.id action='report' %}">{% trans "Raportoi" %}</a></li>
+            <li class="divider"></li>
+            <li><a href="{% url orders.views.products order_id=order.id item_id=item.id action='remove' %}">{% trans "Poista" %}</a></li>
+          </ul>
+        </div>
+      </td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="4" class="muted" style="text-align:center">{% trans "Ei tuotteita" %}</td>
+    </tr>
+  {% endfor %}
+{% endwith %}
+    </tbody>
+{% if order.serviceorderitem_set.count %}
+    <tfoot>
+      <tr>
+        <td></td>
+        <td style="text-align:right">{% trans "Yhteensä" %}:</td>
+        <td>{{ order.net_total }}</td>
+        <td></td>
+      </tr>
+    </tfoot>
+{% endif %}
+</table>

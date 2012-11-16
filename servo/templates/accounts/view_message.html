@@ -1,0 +1,20 @@
+{% extends "users/messages.html" %}
+{% load i18n %}
+{% load extras %}
+
+{% block view_message %}
+	<p>{% trans "Lähettäjä" %}: {{ msg.sender }}</p>
+	{% if msg.order.id %}
+	<p>{% trans "Tilaus" %}: <a href="{% url servo.views.orders.edit msg.order.id %}">{{ msg.order.id }}</a></p>
+	{% endif %}
+	<p>{% trans "Luotu" %}: {{ msg.created_at|relative_date }}</p>
+	<hr/>
+	<p>
+		{{ msg.body }}
+	</p>
+	{% if not msg.order.id %}
+	<a href="{% url servo.views.orders.create note_id=msg.id %}" class="btn">{% trans "Luo tilaus" %}</a>	
+	{% endif %}
+	<a href="{% url servo.views.notes.remove msg.id %}" class="btn">{% trans "Poista" %}</a>
+	<a href="{% url servo.views.notes.edit parent=msg.id %}" class="btn btn-primary">{% trans "Vastaa" %}</a>
+{% endblock view_message %}

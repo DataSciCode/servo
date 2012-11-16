@@ -1,0 +1,54 @@
+{% load i18n %}
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>{% trans "Koodi" %}</th>
+      <th>{% trans "Nimike" %}</th>
+      <th>{% trans "Myyntihinta" %}</th>
+      <th>{% trans "Saldo" %}</th>
+      <th>{% trans "Tilattu" %}</th>
+      <th>{% trans "Varattu" %}</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for p in products %}
+    <tr>
+      <td><a href="{{ p.get_absolute_url }}">{{ p.id }}</a></td>
+      <td>{{ p.code }}</td>
+      <td>{{ p.title|truncatechars:36 }}</td>
+      <td>{{ p.price_sales }}</td>
+      <td>{{ p.amount_stocked }}</td>
+      <td>{{ p.amount_ordered }}</td>
+      <td>{{ p.amount_reserved }}</td>
+      <td>
+        <div class="btn-group">
+          <a class="btn dropdown-toggle btn-small" data-toggle="dropdown" href="#">
+            <i class="icon-cog"></i> <span class="caret"></span>
+          </a>
+          <ul class="dropdown-menu">
+            {% with request.session.current_order as co %}
+            {% if co %}
+            <li><a href="{% url orders.views.products order_id=co.id item_id=p.id action='add'%}">{% trans "Vie tilaukselle" %} #{{ co.id }}</a></li>
+            <li class="divider"></li>
+            {% endif %}
+            {% with request.session.current_po as po %}
+              {% if po %}
+                <li><a href="{% url products.views.edit_po id=po.id item_id=p.id action='add' %}">{% trans "Vie ostotilaukselle" %}</a></li>
+              {% endif %}
+            {% endwith %}
+            {% endwith %}
+            <li class="divider"></li>
+            <li><a href="{% url orders.views.create product_id=p.id %}">{% trans "Luo myyntitilaus" %}</a></li>
+            <li><a href="{% url products.views.create_po product_id=p.id %}">{% trans "Luo ostotilaus" %}</a></li>
+            <li class="divider"></li>
+            <li><a href="{% url products.views.edit p.id %}">{% trans "Muokkaa" %}</a></li>
+            <li><a href="{% url products.views.remove p.id %}">{% trans "Poista" %}</a></li>
+          </ul>
+          </div>
+        </td>
+      </tr>
+  {% endfor %}
+  </tbody>
+</table>

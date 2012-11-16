@@ -1,0 +1,31 @@
+{% extends "default.html" %}
+{% load i18n %}
+{% block navtabs %}
+
+{% endblock navtabs %}
+
+{% block content %}
+<div class="row">
+	<div class="span3">
+		<ul id="navtabs" class="nav nav-list well well-small">
+			<li class="nav-header">{% trans "Ylläpito" %}</li>
+			<li><a href="/admin/settings/">{% trans "Asetukset" %}</a></li>
+			<li><a href="/admin/queues/">{% trans "Jonot" %}</a></li>
+			<li><a href="/admin/fields/">{% trans "Kentät" %}</a></li>
+			<li><a href="/admin/statuses/">{% trans "Statukset" %}</a></li>
+			<li><a href="/admin/locations/">{% trans "Sijainnit" %}</a></li>
+			<li><a href="/admin/users/">{% trans "Käyttäjät" %}</a></li>
+			<li><a href="/admin/files/">{% trans "Tiedostot" %}</a></li>
+			<li><a href="/admin/gsx/accounts/">{% trans "GSX tilit" %}</a></li>
+			<li><a href="/admin/templates/">{% trans "Pohjat" %}</a></li>
+			<li><a href="/admin/tags/">{% trans "Tagit" %}</a></li>
+			<li><a href="/admin/products/groups/">{% trans "Tuoteryhmät" %}</a></li>
+		</ul>
+	</div>
+	<div class="span9">
+    	{% block admin_content %}
+    		
+    	{% endblock admin_content %}
+	</div>
+</div>
+{% endblock content %}

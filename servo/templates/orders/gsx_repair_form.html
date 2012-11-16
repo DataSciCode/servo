@@ -1,0 +1,70 @@
+{% extends "default.html" %}
+{% load i18n %}
+{% load extras %}
+
+{% block content %}
+<ul class="breadcrumb">
+  <li><a href="{% url orders.views.index %}">{% trans "Tilaukset" %}</a> <span class="divider">/</span></li>
+  <li><a href="{{ order.get_absolute_url }}">#{{ order.code }}</a></li>
+  <span class="divider">/</span> <li class="active">{% trans "GSX korjaus" %}</li>
+</ul>
+
+<form method="post" accept-charset="utf-8" 
+  action="{% url orders.views.create_gsx_repair order.id %}" 
+  class="form-horizontal">
+  {% csrf_token %}
+  <div class="tabbable"> <!-- Only required for left/right tabs -->
+    <ul class="nav nav-tabs">
+      <li class="active"><a href="#tab1" data-toggle="tab">{% trans "Tilaus" %}</a></li>
+      <li><a href="#tab2" data-toggle="tab">{% trans "Varaosat" %}</a></li>
+      <li><a href="#tab3" data-toggle="tab">{% trans "Asiakas" %}</a></li>
+    </ul>
+    <div class="tab-content">
+      <div class="tab-pane active" id="tab1">
+        <fieldset>
+          {% include "form_snippet.html" with form=repair_form %}
+          <div class="control-group">
+            <div class="controls">
+              <label class="checkbox">
+                <input type="checkbox" name="requestReview"/> request review
+              </label>
+            </div>
+          </div>
+        </fieldset>
+      </div>
+      <div class="tab-pane" id="tab2">
+        <fieldset>
+        {% for part in parts %}
+          <div class="control-group">
+            <input type="text" readonly="readonly" value="{{ part.code }}" name="part_numbers" class="input-small"/>
+            <input type="text" readonly="readonly" value="{{ part.title }}"/>
+            <select name="part_codes">
+              <option value="">{% trans "CompTIA code" %}...</option>
+              {% for k, v in part.symptoms.items %}
+              <option value="{{ k }}">{{ k }} - {{ v }}</option>
+              {% endfor %}
+            </select>
+            <select name="part_modifiers">
+              <option value="">{% trans "CompTIA modifier" %}...</option>
+              {% for k, v in modifiers.items %}
+              <option value="{{ k }}">{{ k }} - {{ v }}</option>
+              {% endfor %}
+            </select>
+            <select name="items.{{ forloop.counter0 }}.abused" class="input-small">
+              <option value="N">{% trans "Takuu" %}</option>
+              <option value="Y">{% trans "Vahinko" %}</option>
+            </select>
+          </div>
+        {% endfor %}
+        </fieldset>
+      </div>
+      <div class="tab-pane" id="tab3">
+        <fieldset>
+          {% include "form_snippet.html" with form=customer_form %}
+        </fieldset>
+      </div>
+    </div>
+  </div>
+  <button type="submit" class="btn btn-primary pull-right" data-loading-text="Loading...">{% trans "Jatka" %}...</button>
+</form>
+{% endblock content %}

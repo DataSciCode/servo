@@ -1,0 +1,19 @@
+{% load i18n %}
+
+{% for r in results %}
+<h3>{{ r.dispatchId }}</h3>
+<dl class="dl-horizontal">
+	<dt>{% trans "Viite" %}</dt>
+	<dd>{{ r.purchaseOrderNumber }}</dd>
+	<dt>{% trans "CS-koodi" %}</dt>
+	<dd>{{ r.csCode }}</dd>
+	<dt>{% trans "Lähetystunnus" %}</dt>
+	<dd>{{ r.deliveryTrackingNumber }}</dd>
+	<dt>{% trans "Vikakuvaus" %}</dt>
+	<dd>{{ r.notes }}</dd>
+	<dt>{% trans "Takuustatus" %}</dt>
+	<dd>{{ r.coverageStatusDescription }}</dd>
+	<dt>{% trans "Tila" %}</dt>
+	<dd>{{ r.orderStatus }}</dd>
+</dl>
+{% endfor %}

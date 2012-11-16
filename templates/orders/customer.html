@@ -1,7 +1,0 @@
-{% load extras %}
-<div class="view"></div>
-<a href="/customer/edit/{{ order.customer.id }}" class="popup"><h3>{{ order.customer.name }}</h3></a>
-{% for k, v in order.customer.fullprops.items %}
-  <p>{{ v|clickable }}</p>  
-{% endfor %}
-<hr/>

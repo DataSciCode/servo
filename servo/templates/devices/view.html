@@ -1,0 +1,9 @@
+{% extends "default.html" %}
+{% load i18n %}
+{% block content %}
+<ul class="nav nav-tabs">
+  <li class="active"><a href="{% url servo.views.devices.view device.id %}">{% trans "Laite" %}</a></li>
+  <li><a href="{% url products.views.index tag_id=device.spec_id %}">{% trans "Varaosat" %}</a></li>
+ </ul>
+<h3>{{ device.description }}</h3>
+{% endblock content %}

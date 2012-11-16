@@ -1,0 +1,34 @@
+{% extends "default.html" %}
+{% load i18n %}
+
+{% block navtabs %}
+<ul class="breadcrumb">
+  <li><a href="{% url customers.views.index %}">{% trans "Asiakkaat" %}</a> <span class="divider">/</span></li>
+</ul>
+<ul class="nav nav-tabs">
+  <li class="dropdown active">
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown">{% trans "Kaikki" %} <span class="badge">{{ customers.paginator.count }}</span> <b class="caret"></b></a>
+    <ul class="dropdown-menu">
+      <li><a href="{% url customers.views.index %}">{% trans "Kaikki" %}</a></li>
+      {% for t in  tags %}
+      <li><a href="{% url customers.views.index tag=t.id %}">{{ t.title }}</a></li>
+      {% endfor %}
+    </ul>
+  </li>
+  <li class="pull-right"><a href="/customers/new/">{% trans "Luo asiakas" %}</a></li>
+</ul>
+{% endblock navtabs %}
+
+{% block content %}
+<div class="row">
+  <div class="span3">
+  {% block sidebar %}
+    {% include "customers/list.html" %}  
+  {% endblock sidebar %}
+  </div>
+  <div class="span9">
+    {% block detail_block %}
+    {% endblock detail_block %}
+  </div>
+</div>
+{% endblock content %}

@@ -1,0 +1,14 @@
+{% extends "default.html" %}
+{% load i18n %}
+{% block content %}
+<div class="alert alert-error">
+	<form action="{% url servo.views.products.remove product.id %}" method="post" accept-charset="utf-8">
+	  {% csrf_token %}
+		<input type="hidden" name="id" value="{{ product.id }}" />
+		<h4>{% blocktrans with code=product.code %}
+			Haluatko varmasti poistaa tuotteen "{{ code }}"?{% endblocktrans %}</h4>
+		<p>{% trans "Tätä toimintoa ei voi peruuttaa." %}</p>
+		<button type="submit" class="btn btn-danger">{% trans "Poista" %}</buttom>
+	</form>
+</div>
+{% endblock content %}

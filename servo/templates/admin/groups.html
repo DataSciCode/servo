@@ -1,0 +1,19 @@
+{% extends "admin/index.html" %}
+{% load i18n %}
+
+{% block admin_content %}
+<ul class="nav nav-tabs" id="navtabs">
+	<li><a href="{% url servo.views.admin.users %}">{% trans "Käyttäjät" %}</a></li>
+	<li><a href="{% url servo.views.admin.groups %}">{% trans "Ryhmät" %}</a></li>
+	<li class="pull-right"><a href="/admin/groups/new">{% trans "Luo ryhmä" %}</a></li>
+</ul>
+
+<table>
+{% for group in groups %}
+	<tr>
+		<td><a href="/admin/groups/{{ group.id }}/edit/">{{ group.name }}</a></td>
+	</tr>
+{% endfor %}
+</table>
+
+{% endblock %}

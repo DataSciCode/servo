@@ -1,0 +1,8 @@
+{% extends "admin/tags.html" %}
+{% block admin_content %}
+<form action="{% url servo.views.admin.edit_tag tag_id %}" method="post" class="form-horizontal">
+	{% csrf_token %}
+	{% include "form_snippet.html" %}
+	{% include "form_buttons.html" %}
+</form>	
+{% endblock admin_content %}

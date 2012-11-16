@@ -1,0 +1,33 @@
+{% extends "admin/queues.html" %}
+{% load i18n %}
+
+{% block admin_content %}
+<form method="post" action="/admin/queue/save/" accept-charset="utf-8" enctype="multipart/form-data" class="form-horizontal">
+{% csrf_token %}
+  <legend>{% trans "Muokkaa jonoa" %}</legend>
+  {% include "form_snippet.html" %}
+  
+  <h4>{% trans "Statukset" %}</h4>
+  <table class="table">
+  {% for status in statuses %}
+    <tr>
+      <td style="width:20px">
+        <input type="checkbox" class="toggle_row" value="{{ status.id }}" name="status.{{ status.id }}.id"/>
+      </td>
+      <td>{{ status.title }}</td>
+      <td><input type="text" class="input-mini" value="" name="status.{{ status.id }}.limit_green"/></td>
+      <td><input type="text" class="input-mini" value="" name="status.{{ status.id }}.limit_yellow"/></td>
+      <td>
+        <select name="status.{{ status.id }}.limit_factor">
+        {% for k, v in status.FACTORS %}
+          <option value="{{ k }}">{{ v }}</option>
+        {% endfor %}
+        </select>
+      </td>
+    </tr>
+  {% endfor %}
+  </table>
+  {% include "form_buttons.html" %}
+</form>
+
+{% endblock admin_content %}

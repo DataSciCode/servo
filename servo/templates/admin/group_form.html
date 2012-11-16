@@ -1,0 +1,11 @@
+{% extends "admin/groups.html" %}
+{% load i18n %}
+
+{% block admin_content %}
+<form action="{% url servo.views.admin.edit_group %}" 
+	method="post" accept-charset="utf-8" class="form-horizontal">
+{% csrf_token %}
+{% include "form_snippet.html" %}
+{% include "form_buttons.html" %}
+</form>
+{% endblock %}

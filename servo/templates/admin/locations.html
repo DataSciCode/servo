@@ -1,0 +1,18 @@
+{% extends "admin/index.html" %}
+{% load i18n %}
+
+{% block admin_content %}
+<ul class="nav nav-tabs">
+	<li><a href="/admin/locations/">{% trans "Kaikki" %}</a></li>
+	<li class="pull-right"><a href="/admin/locations/new/">{% trans "Luo sijainti" %}</a></li>
+</ul>
+{% block detail_block %}
+<table>
+	{% for loc in locations %}
+		<tr>
+			<td><a href="/admin/locations/{{ loc.id }}/edit/">{{ loc.title }}</a></td>
+		</tr>
+{% endfor %}
+</table>
+	{% endblock detail_block %}
+{% endblock admin_content %}
