@@ -10,8 +10,8 @@ from django import forms
 from django.contrib import messages
 from django.core.cache import cache
 
-from servo.models import Device, Tag
-from orders.models import Order
+from servo.models import Tag
+from devices.models import Device
 
 class DeviceForm(forms.ModelForm):
     class Meta:
@@ -42,18 +42,13 @@ def index(request, *args, **kwargs):
 
     tags = Tag.objects.filter(type='device')
 
-    return render(request, 'devices/index.html', {
+    return render(request, "devices/index.html", {
         'devices': devices,
         'tags': tags
         })
 
-def create(req, order=None, customer=None):
-    device = Device()
-    form = DeviceForm()
-    if order:
-        req.session['order'] = Order.objects.get(pk=order)
-    
-    return render(req, 'devices/form.html', {'device': device, 'form': form})
+def create(request):
+	return render(request, "devices/form.html", {'form': DeviceForm()})
 
 def remove(req, id):
     if 'id' in req.POST:

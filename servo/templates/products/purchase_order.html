@@ -3,7 +3,7 @@
 
 {% block content %}
 <div class="row">
-  <form method="post" accept-charset="utf-8" action="{% url servo.views.products.edit_po order.pk %}">
+  <form method="post" accept-charset="utf-8" action="{% url products.views.edit_po order.pk %}">
     <div class="span3">
       {% csrf_token %}
       <label>{{ form.sales_order.label }}</label>
@@ -55,7 +55,7 @@
                       <i class="icon-cog"></i> <span class="caret"></span>
                     </a>
                     <ul class="dropdown-menu">
-                      <li><a href="{% url servo.views.products.edit_po id=order.id item_id=item.id action='remove' %}">{% trans "Poista" %}</a></li>
+                      <li><a href="{% url products.views.edit_po id=order.id item_id=item.id action='remove' %}">{% trans "Poista" %}</a></li>
                     </ul>
                   </div>
                 </td>
@@ -90,7 +90,7 @@
         {% if not order.date_submitted %}
         <div class="pull-right">
           <button type="submit" class="btn">{% trans "Tallenna" %}</button>
-          <a href="{% url servo.views.products.submit_po order.pk %}" class="btn btn-primary">{% trans "Tilaa tuotteet" %}</a>
+          <a href="{% url products.views.submit_po order.pk %}" class="btn btn-primary">{% trans "Tilaa tuotteet" %}</a>
         </div>
         {% endif %}
     </div>

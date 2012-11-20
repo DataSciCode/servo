@@ -6,11 +6,10 @@ from datetime import datetime
 from mptt.models import MPTTModel, TreeForeignKey
 from django.utils.translation import ugettext as _
 
-from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
 from django.core.cache import cache
-
 from lib.shorturl import encode_url
+
 from django.contrib.auth.models import User, Group
 
 class GsxObject(object):
@@ -66,11 +65,12 @@ class Tag(MPTTModel):
 class Attachment(models.Model):
     name = models.CharField(default=_(u'Uusi tiedosto'), max_length=255,
         verbose_name=_(u'nimi'))
-    content_type = models.CharField(max_length=64, editable=False)
     uploaded_by = models.CharField(max_length=32, editable=False)
     uploaded_at = models.DateTimeField(default=datetime.now(), editable=False)
+
     content = models.FileField(upload_to='attachments', 
         verbose_name=_(u'tiedosto'))
+    content_type = models.CharField(max_length=64, editable=False)
 
     def __unicode__(self):
         return self.name
@@ -158,7 +158,7 @@ class Configuration(models.Model):
 
         cache.set('config', conf)
 
-        return conf
+        return conf.get("key") if key else conf
 
 class Property(models.Model):
     TYPES = (
@@ -208,34 +208,6 @@ class Template(models.Model):
     title = models.CharField(max_length=128, blank=False,
         verbose_name=_(u'otsikko'))
     content = models.TextField(blank=False, verbose_name=_(u'teksti'))
-
-class Device(models.Model):
-    sn = models.CharField(max_length=32, blank=True, 
-        verbose_name=_(u'sarjanumero'))
-    description = models.CharField(max_length=128, default=_('Uusi laite'),
-        verbose_name=_(u'kuvaus'))
-    username = models.CharField(max_length=32, blank=True, null=True, 
-        verbose_name=_(u'käyttäjätunnus'))
-    password = models.CharField(max_length=32, blank=True, null=True, 
-        verbose_name=_(u'salasana'))
-    purchased_on = models.DateField(blank=True, null=True,
-        verbose_name=_(u'hankittu'))
-    notes = models.TextField(blank=True, null=True,
-        verbose_name=_(u'merkinnät'))
-    tags = models.ManyToManyField(Tag, null=True, blank=True,
-        verbose_name=_(u'tagit'))
-
-    def get_absolute_url(self):
-        return "/devices/%d/view/" % self.id
-
-    def __unicode__(self):
-        return self.description
-    
-class CheckList(models.Model):
-    pass
-
-class CheckListItem(models.Model):
-    pass
 
 class Status(models.Model):
     FACTORS = (
@@ -289,20 +261,3 @@ class QueueStatus(models.Model):
     limit_factor = models.IntegerField()
     queue = models.ForeignKey(Queue)
     status = models.ForeignKey(Status)
-
-class GsxRepair(models.Model):
-    #customer_data = DictField()
-    firstname = models.CharField(max_length=64)
-    lastname = models.CharField(max_length=64)
-
-    symptom = models.TextField()
-    diagnosis = models.TextField()
-
-@receiver(post_save, sender=Device)
-def create_spec(sender, instance, created, **kwargs):
-    # make sure we have this spec
-    if created:
-        (tag, created) = Tag.objects.get_or_create(title=instance.description, 
-            type='device')
-        instance.tags.add(tag)
-        instance.save()

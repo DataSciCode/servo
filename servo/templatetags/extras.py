@@ -28,13 +28,21 @@ def relative_date(value):
     return result
   
 @register.filter
-def clickable(value, order):
+def clickable(value, order=None):
     result = value
-
+    if not isinstance(value, basestring):
+        return ""
+        
     if re.search('^[\w\.\-_]+@[\w\.\-_]+\.[a-z]{2,4}$', value):
-        result = '<a href="/orders/%d/mailto/%s" title="%s">%s...</a>' % (order, value, value, value[:25])
+        if order:
+            result = '<a href="/orders/%d/mailto/%s" title="%s">%s...</a>' % (order, value, value, value[:25])
+        else:
+            result = '<a href="/notes/mailto/%s" title="%s">%s...</a>' % (value, value, value[:25])
     if re.search('^\+?\d{8}', value):
-        result = '<a href="/orders/%d/smsto/%s" title="%s">%s</a>' % (order, value, value, value)
+        if order:
+            result = '<a href="/orders/%d/smsto/%s" title="%s">%s</a>' % (order, value, value, value)
+        else:
+            result = '<a href="/notes/smsto/%s" title="%s">%s</a>' % (value, value, value)
 
     return safestring.mark_safe(result)
 

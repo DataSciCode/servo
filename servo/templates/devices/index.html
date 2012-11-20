@@ -7,15 +7,15 @@
 
 {% block content %}
 <ul class="breadcrumb">
-  <li><a href="{% url servo.views.devices.index %}">{% trans "Laitteet" %}</a></li>
-  <li class="pull-right"><a href="{% url servo.views.devices.create %}"><i class="icon-plus"></i> {% trans "Luo laite" %}</a></li>
+  <li><a href="{% url devices.views.index %}">{% trans "Laitteet" %}</a></li>
+  <li class="pull-right"><a href="{% url devices.views.create %}"><i class="icon-plus"></i> {% trans "Luo laite" %}</a></li>
 </ul>
 <div class="row">
   <div class="span4">
     <ul class="nav nav-pills nav-stacked">
     {% recursetree tags %}
       <li>
-        <a href="{% url servo.views.devices.index tag=node.id %}">{{ node.title }}</a>
+        <a href="{% url devices.views.index tag=node.id %}">{{ node.title }}</a>
         {% if not node.is_leaf_node %}
         <ul>{{ children }}</ul>
         {% endif %}

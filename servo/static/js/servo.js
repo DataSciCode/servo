@@ -7,7 +7,7 @@ $(function() {
 		$('.searchable tr').hide();
 		$('.searchable tr').filter(function() {
 		    return rex.test($(this).text());
-		}).show();
+			}).show();
 	});
 
 	$('#gsx-container').load($('#gsx-container').data('source'));
@@ -37,10 +37,9 @@ $(function() {
         arg = t.attr('name');
         args = {};
         args[arg] = t.val();
-        
+
         $('#events').load(url, args, function() {
         	if (arg == "queue") {
-        		console.log('reload statuses!');
             	$('#id_status').load('/orders/'+t.val()+'/statuses/');
         	};
         });
@@ -55,4 +54,9 @@ $(function() {
     $('input.datepicker').datepicker();
     $('textarea:first').focus();
 
+    $('.typeahead').typeahead({source: function(query, process) {
+    	$.get('/customers/search/', {'query': query}, function(r) {
+			process(r);
+    	});
+    }});
 });

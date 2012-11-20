@@ -6,7 +6,7 @@ class NoteForm(forms.ModelForm):
         model = Note
 
     recipient = forms.CharField(widget=forms.TextInput(
-        attrs={'class': 'input-xxlarge'}))
+        attrs={'class': "input-xxlarge typeahead",
+        'data-source': "customers"}), required=False)
     body = forms.CharField(widget=forms.Textarea(attrs={
             'class': 'input-xxlarge', 'rows': 6}))
-    

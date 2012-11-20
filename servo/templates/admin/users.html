@@ -3,8 +3,8 @@
 
 {% block admin_content %}
 <ul class="nav nav-tabs" id="navtabs">
-	<li><a href="{% url servo.views.admin.users %}">{% trans "Käyttäjät" %}</a></li>
-	<li><a href="{% url servo.views.admin.groups %}">{% trans "Ryhmät" %}</a></li>
+	<li><a href="{% url admin.views.users %}">{% trans "Käyttäjät" %}</a></li>
+	<li><a href="{% url admin.views.groups %}">{% trans "Ryhmät" %}</a></li>
 	<li class="pull-right"><a href="/admin/users/new">{% trans "Luo käyttäjä" %}</a></li>
 </ul>
 

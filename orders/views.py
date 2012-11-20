@@ -1,49 +1,33 @@
 # coding=utf-8
 
+from django import forms
 from datetime import date, datetime
 from django.http import HttpResponse
 from django.template import RequestContext
-from django.utils.datastructures import DotExpandedDict
 from django.shortcuts import render, render_to_response, redirect
 from django.utils.translation import ugettext as _
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
-from django import forms
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.models import User
 
 from orders.models import *
+from orders.forms import *
+
+from devices.models import Device
 from customers.models import Customer
 from servo.models import Queue, Status, Tag
-
-class InvoiceForm(forms.ModelForm):
-    class Meta:
-        model = Invoice
-        exclude = ['created_at', 'paid_at', 'created_by', 'customer', 'order']
-
-class SidebarForm(forms.ModelForm):
-    class Meta:
-        model = Order
-        fields = ['user', 'queue', 'status', 'priority']
-
-class FieldsForm(forms.Form):
-    pass
-
-class OrderItemForm(forms.ModelForm):
-    class Meta:
-        model = ServiceOrderItem
-        fields = ['title', 'price', 'reported', 'sn']
 
 def close(request, id):
     order = Order.objects.get(pk=id)
 
-    if 'id' in request.POST:
+    if request.method == "POST":
         order.close(request.user)
         messages.add_message(request, messages.INFO, _(u'Tilaus suljettu'))
         return redirect(order)
 
-    return render(request, 'orders/close.html', {'order': order})
+    return render(request, "orders/close.html", {'order': order})
 
 @login_required
 def create(request, sn=None, product_id=None, note_id=None):
@@ -82,12 +66,12 @@ def create(request, sn=None, product_id=None, note_id=None):
     return redirect(o)
 
 @login_required
-def search(req):
+def search(request):
     queues = Queue.objects.all()
     statuses = Status.objects.all()
     users = User.objects.all()
     locations = Location.objects.all()
-    return render(req, 'orders/search.html', {
+    return render(request, 'orders/search.html', {
         'queues': queues,
         'statuses': statuses,
         'users': users,
@@ -162,7 +146,7 @@ def index(request, *args, **kwargs):
     tags = Tag.objects.filter(type='order')
     users = User.objects.all()
 
-    return render(request, 'orders/index.html', {
+    return render(request, "orders/index.html", {
         'tags': tags,
         'users': users,
         'orders': orders,
@@ -210,9 +194,7 @@ def edit(request, id):
 
 def remove(request, id):
     if request.method == 'POST':
-        order = Order.objects.get(pk=id)
-        #Inventory.objects(slot = order).delete()
-        order.delete()
+        order = Order.objects.filter(pk=id).delete()
         messages.add_message(request, messages.INFO, 
         	_(u'Tilaus %s poistettu' % id))
         return redirect('/orders/')
@@ -220,9 +202,9 @@ def remove(request, id):
         order = Order.objects.get(pk=id)
         return render(request, 'orders/remove.html', {'order': order})
 
-def follow(req, id):
+def follow(request, id):
     order = Order.objects.get(pk=id)
-    order.followed_by.add(req.user)
+    order.followed_by.add(request.user)
     return HttpResponse(_('%d seuraa') % order.followed_by.count())
 
 @csrf_exempt
@@ -245,48 +227,35 @@ def update(request, id):
         request.session['current_order'].priority = request.POST['priority']
         request.session['current_order'].save()
 
-    return render(request, 'orders/events.html', {'order': order})
+    return render(request, "orders/events.html", {'order': order})
   
 def create_gsx_repair(request, order_id):
     from lib.gsxlib import gsxlib
 
     order = Order.objects.get(pk=order_id)
 
-    class PartForm(forms.Form):
-        partNumber = forms.CharField(max_length=18)
-        comptiaCode = forms.CharField(max_length=3)
-        comptiaModifier = forms.CharField(max_length=1)
-
     class RepairForm(forms.Form):
-    	langs = gsxlib.langs("en_XXX")
-        symptom_text = order.issues()[0].body
-        diagnosis_text = order.issues()[0].replies.all()[0].body
-        device = forms.ModelChoiceField(queryset=order.devices.all())
+	    langs = gsxlib.langs("en_XXX")
+	    symptom_text = order.issues()[0].body
+	    diagnosis_text = order.issues()[0].replies.all()[0].body
+	    device = forms.ModelChoiceField(queryset=order.devices.all(), 
+	    	label=_(u'Laite'))
 
-        symptom = forms.CharField(widget=forms.Textarea(attrs={
-            'class': 'input-xxlarge', 'rows': 6}), initial=symptom_text)
-        diagnosis = forms.CharField(widget=forms.Textarea(attrs={
-            'class': 'input-xxlarge', 'rows': 6}), initial=diagnosis_text)
+	    symptom = forms.CharField(widget=forms.Textarea(attrs={
+	        'class': 'input-xxlarge', 'rows': 6}), initial=symptom_text)
+	    diagnosis = forms.CharField(widget=forms.Textarea(attrs={
+	        'class': 'input-xxlarge', 'rows': 6}), initial=diagnosis_text)
 
-        unitReceivedDate = forms.DateField(initial=order.created_at,
-            widget=forms.DateInput(format=langs["df"]),
-            input_formats=[langs["df"]])
-        unitReceivedTime = forms.TimeField(initial=order.created_at,
-            widget=forms.TimeInput(format=langs["tf"]),
-            input_formats=[langs["tf"]])
+	    unitReceivedDate = forms.DateField(initial=order.created_at,
+	        widget=forms.DateInput(format=langs["df"]),
+	        input_formats=[langs["df"]])
+	    unitReceivedTime = forms.TimeField(initial=order.created_at,
+	        widget=forms.TimeInput(format=langs["tf"]),
+	        input_formats=[langs["tf"]])
 
-        fileData = forms.FileField(required=False)
+	    fileData = forms.FileField(required=False)
 
-    class CustomerForm(forms.Form):
-        firstName = forms.CharField(max_length=100)
-        lastName = forms.CharField(max_length=100)
-        emailAddress = forms.CharField(max_length=100)
-        primaryPhone = forms.CharField(max_length=100)
-        addressLine1 = forms.CharField(max_length=100)
-        zipCode = forms.CharField(max_length=8)
-        city = forms.CharField(max_length=32)
-
-    if request.method == 'POST':
+    if request.method == "POST":
         customer_form = CustomerForm(request.POST)
         if not customer_form.is_valid():
             print customer_form.errors
@@ -331,8 +300,7 @@ def create_gsx_repair(request, order_id):
         print repair
 
         # data looks good, create Purchase Order...
-        po = PurchaseOrder.objects.create(supplier="Apple",
-        	sales_order=order.id,
+        po = PurchaseOrder.objects.create(supplier="Apple", sales_order=order.id,
         	created_by=request.user)
 
         repair['poNumber'] = str(po.id)
@@ -377,8 +345,8 @@ def create_gsx_repair(request, order_id):
         try:
             comp = p.component_code
             symptoms = comptia['symptoms'][comp]
-            parts.append({"number": p.id, "title": p.title,
-                "code": p.code, "symptoms": symptoms})
+            parts.append({"number": p.id, "title": p.title, "code": p.code,
+            	"symptoms": symptoms})
         except Exception, e:
             # skip products with no GSX data
             continue
@@ -403,62 +371,10 @@ def put_on_paper(request, order_id, kind='order_template'):
     tpl = doc.read().decode('utf-8')
 
     return HttpResponse(pystache.render(tpl, {
-        'order': order,
-        'config': conf,
-    }))
-
-def submit_gsx_repair(request):
-    data = DotExpandedDict(request.POST)
-    parts = []
+    	'order': order, 'config': conf
+    	}))
   
-    order_number = data.get("order_number");
-    order = Order.objects(number=int(order_number)).first()
-
-    # create Purchase Order
-    po = PurchaseOrder(supplier="Apple", reference=order_number)
-    po.save()
-  
-    for k, v in data.get("items").items():
-        # add to "ordered" inventory
-        p = Product.objects(code=v['partNumber']).first()
-        Inventory(kind="po", product=p, slot=po).save()
-        Inventory(kind="order", product=p, slot=order).save()
-        parts.append(v)
-    
-    po.products = parts
-    po.carrier = "UPS"
-    po.save()
-  
-    repair = {
-        "billTo": "677592",
-        "shipTo": "677592",
-        "diagnosis": data.get("diagnosis"),
-        "notes": data.get("diagnosis"),
-        "poNumber": "FL" + order_number,
-        "referenceNumber": po.number,
-        "requestReviewByApple": data.get("request_review"),
-        "serialNumber": data.get("sn"),
-        "symptom": data.get("symptom"),
-        "unitReceivedDate": data.get("unitReceivedDate"),
-        "unitReceivedTime": data.get("unitReceivedTime")
-    }
-  
-    customer = data.get("customerAddress")
-
-    try:
-        gsx_repair = submit_repair(repair, customer, parts)
-    except Exception, e:
-        return HttpResponse(e)
-
-    po.confirmation = gsx_repair['confirmationNumber']
-    po.save()
-    
-    order = Order.objects(number=int(order_number)).first()
-    order.gsx_repairs.append(gsx_repair)
-    
-    return HttpResponse("GSX korjaus luotu")
-  
-def add_device(req, order_id, device_id=None, sn=None):
+def add_device(request, order_id, device_id=None, sn=None):
     order = Order.objects.get(pk=order_id)
 
     if device_id:
@@ -473,7 +389,7 @@ def add_device(req, order_id, device_id=None, sn=None):
     order.devices.add(device)
     order.save()
 
-    messages.add_message(req, messages.INFO,
+    messages.add_message(request, messages.INFO,
     	_(u'%s lisätty' % device.description))
     return redirect(order)
 
@@ -483,11 +399,12 @@ def remove_device(request, order_id, device_id):
     order.devices.remove(device)
     order.save()
     messages.add_message(request, messages.INFO, _(u'Laite poistettu'))
-    return redirect('/orders/%d/' % order.id)
+    
+    return redirect(order)
 
-def events(req, order_id):
+def events(request, order_id):
     order = Order.objects.get(pk=order_id)
-    return render(req, "orders/events.html", {"order": order})
+    return render(request, "orders/events.html", {"order": order})
 
 def statuses(request, queue_id):
     form = SidebarForm(instance=request.session['current_order'])
@@ -504,7 +421,7 @@ def reserve_products(request, order_id):
         
         Event.objects.create(order=order, kind="products_reserved",
             user=request.user,
-            description=_('Tilauksen tuotteet varattu'))
+            description=_(u"Tilauksen tuotteet varattu"))
 
         messages.add_message(request, messages.INFO, _(u'Tuotteet varattu'))
         return redirect(order)
@@ -523,7 +440,8 @@ def products(request, order_id, item_id=None, action='list'):
         order.add_product(product)
         messages.add_message(request, messages.INFO, 
             _(u'Tuote %d lisätty' % product.id))
-        return redirect('/orders/%d/' % order.id)
+        
+        return redirect(order)
 
     if action == 'edit':
         item = ServiceOrderItem.objects.get(pk=item_id)
@@ -535,7 +453,8 @@ def products(request, order_id, item_id=None, action='list'):
                 form.save()
                 messages.add_message(request, messages.INFO,
                     _(u'Tuote tallennettu'))
-                return redirect('/orders/%d/' % order.id)
+                
+                return redirect(order)
 
         return render(request, 'orders/edit_product.html', {'order': order,
             'form': form})
@@ -550,9 +469,11 @@ def products(request, order_id, item_id=None, action='list'):
                 product_id=product_id).delete()
             messages.add_message(request, messages.INFO, 
                 _(u'Tuote %d poistettu tilauksesta' % product_id))
-            return redirect('/orders/%d/' % order.id)
+            
+            return redirect(order)
 
-        return render(request, 'orders/remove_product.html', {'order': order,
+        return render(request, "orders/remove_product.html", {
+        	'order': order,
             'item': item})
 
     if action == 'report':
@@ -569,4 +490,5 @@ def dispatch(request, order_id=None, numbers=None):
     order = Order.objects.get(pk=order_id)
     initial = dict(customer=order.customer, customer_name=order.customer.name)
     form = InvoiceForm(initial=initial)
-    return render(request, 'orders/dispatch.html', {'order': order, 'form': form})
+    return render(request, 'orders/dispatch.html', {
+    	'order': order, 'form': form})

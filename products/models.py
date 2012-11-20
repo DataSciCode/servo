@@ -64,8 +64,8 @@ class Product(BaseProduct):
     brand = models.CharField(default='', blank=True, max_length=32,
         verbose_name=_(u'valmistaja'))
 
-    tags = models.ManyToManyField(Tag, blank=True,
-    	limit_choices_to={'type': 'product'},
+    tags = models.ManyToManyField(Tag, blank=True, null=True,
+    	limit_choices_to={'type': 'product', 'type': 'device'},
     	verbose_name=_(u'tagit'))
     group = models.ForeignKey(ProductGroup, null=True, blank=True,
         verbose_name=_(u'tuoteryhmä'))

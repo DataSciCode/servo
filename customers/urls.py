@@ -15,4 +15,5 @@ urlpatterns = patterns('customers.views',
     url(r'^(\d+)/orders/new/$', 'create_order'),
     url(r'^(\d+)/orders/(\d+)/$', 'add_order'),
     url(r'^(?P<customer_id>\d+)/notes/new/$', 'notes'),
+    url(r'^search/$', 'search'),
 )

@@ -1,12 +1,12 @@
-{% extends request.is_ajax|yesno:"empty.html,default.html" %}
+{% extends "default.html" %}
 
 {% load i18n %}
 
-{% block toolbar %}
-	<ul>
-		<li><a href="/calendar/create" class="popup">{% trans "Uusi kalenteri" %}</a></li>
+{% block navtabs %}
+	<ul class="nav nav-tabs">
+		<li class="pull-right"><a href="{% url calendars.views.create %}">{% trans "Uusi kalenteri" %}</a></li>
 	</ul>
-{% endblock toolbar %}
+{% endblock navtabs %}
 
 {% block content %}
 
@@ -21,6 +21,7 @@
 	</ul>
 </div>
 
-<div id="detailView" class="tableView"></div>
+{% block detail_view %}
+{% endblock detail_view %}
 
 {% endblock content %}

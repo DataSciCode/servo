@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, url
 
-urlpatterns = patterns('servo.views.admin',
+urlpatterns = patterns('admin.views',
     url(r'^$', 'settings'),
     url(r'^files/$', 'documents'),
     url(r'^statuses/$', 'statuses'),

@@ -1,7 +1,7 @@
 {% extends "admin/fields/index.html" %}
 
 {% block detail_block %}
-<form method="post" action="{% url servo.views.admin.edit_field field_id %}" 
+<form method="post" action="{% url admin.views.edit_field field_id %}" 
 	accept-charset="utf-8" class="form-horizontal">
 	{% csrf_token %}
 	{% include "form_snippet.html" %}

@@ -3,6 +3,10 @@
 {% recursetree nodes %}
 <address>
 	<strong>{{ node.name }}</strong><br/>
+  {{ node.email|clickable:order.id }}<br/>
+  {{ node.phone }}<br/>
+  {{ node.street_address }}<br/>
+  {{ node.zip_code }} {{ node.city }}
 	{% for k, v in node.fullprops.items %}
 		{{ v|clickable:order.id }}<br/>
 	{% endfor %}

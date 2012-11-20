@@ -10,18 +10,7 @@
   class="form-horizontal">
   {% csrf_token %}
   <legend>{% trans "Muokkaa asiakasta" %}</legend>
-  <div class="control-group">
-    <label class="control-label">{% trans 'Yritys' %}:</label>
-    <div class="controls">
-      {{ form.parent }}
-    </div>
-  </div>
-  <div class="control-group">
-    <label class="control-label">{% trans 'Nimi' %}:</label>
-    <div class="controls">
-      {{ form.name }}
-    </div>
-  </div>
+  {% include "form_snippet.html" %}
 
 {% for p in customer.contactinfo_set.all %}
   <div class="control-group">
@@ -33,7 +22,7 @@
     </div>
   </div>
 {% endfor %}
-
+  <legend>{% trans "Lisätiedot" %}</legend>
   <div class="control-group property">
     <select name="keys" class="control-label" data-value="{{ fields.0.title }}">
     {% for f in fields %}
@@ -44,25 +33,7 @@
       <input type="text" name="values"/>
     </div>
   </div>
-
-  <div class="control-group">
-    <label class="control-label">{% trans "Tagit" %}:</label>
-    <div class="controls">
-      {{ form.tags }}
-    </div>
-  </div>
-  <div class="control-group">
-    <div class="controls">
-      <label class="checkbox">
-        {{ form.is_company }} {% trans "yritys" %}
-      </label>
-    </div>
-  </div>
-  <div class="control-group">
-    <div class="controls">
-      <button class="btn btn-primary" type="submit">{% trans "Tallenna" %}</button>
-    </div>
-  </div>
+  {% include "form_buttons.html" %}
 </form>
 
 {% endblock detail_block %}

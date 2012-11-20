@@ -4,22 +4,37 @@ from django.db import models
 from mptt.models import MPTTModel, TreeForeignKey
 from django.utils.translation import ugettext as _
 
-from servo.models import Tag, Device
+from servo.models import Tag
+from devices.models import Device
 
 class Customer(MPTTModel):
-    name = models.CharField(default=_(u'Uusi asiakas'), max_length=255,
-    	verbose_name=_(u'nimi'))
-    tags = models.ManyToManyField(Tag, blank=True, null=True,
-    	limit_choices_to = {'type': 'customer'},
-    	verbose_name=_(u'tagit'))
     parent = TreeForeignKey('self', null=True, blank=True, 
-    	related_name='contacts',
-    	limit_choices_to={'is_company': True})
-    notes = models.TextField(blank=True, null=True, verbose_name=_(u'merkinnät'))
-    devices = models.ManyToManyField(Device, null=True, blank=True,
-        verbose_name=_(u'laitteet'))
+        related_name='contacts',
+        limit_choices_to={'is_company': True},
+        verbose_name=_(u'yritys'))
+    name = models.CharField(default=_(u'Uusi asiakas'), max_length=255,
+        verbose_name=_(u'nimi'))
+
+    email = models.EmailField(null=True, blank=True, 
+        verbose_name=_(u'sähköposti'))
+    phone = models.CharField(max_length=32, null=True, blank=True, 
+        verbose_name=_(u'puhelin'))
+    street_address = models.CharField(max_length=128, null=True, blank=True, 
+        verbose_name=_(u'katuosoite'))
+    zip_code = models.CharField(max_length=32, null=True, blank=True, 
+        verbose_name=_(u'postinumero'))
+    city = models.CharField(max_length=32, null=True, blank=True,
+        verbose_name=_(u'toimipaikka'))
+    tags = models.ManyToManyField(Tag, blank=True, null=True,
+        limit_choices_to = {'type': 'customer'},
+        verbose_name=_(u'tagit'))
+    devices = models.ManyToManyField(Device, null=True, blank=True, 
+        verbose_name=_(u'laitteet'), editable=False)
+
+    photo = models.ImageField(upload_to="photos", null=True, blank=True,
+        verbose_name=_(u'kuva'))
     
-    is_company = models.BooleanField(default=False)
+    is_company = models.BooleanField(default=False, verbose_name=_(u'yritys'))
 
     class Meta:
         ordering = ['id']
@@ -30,7 +45,7 @@ class Customer(MPTTModel):
         return self.name
 
     def get_absolute_url(self):
-    	return "/customers/%d/" % self.id
+        return "/customers/%d/" % self.pk
 
     def gsx_address(self):
         """
@@ -91,9 +106,6 @@ class Customer(MPTTModel):
             props[r.key] = r.value
 
         return props
-
-    def phone(self):
-        pass
 
 class ContactInfo(models.Model):
     customer = models.ForeignKey(Customer)

@@ -46,20 +46,6 @@
       {{ form.body }}
     </div>
   </div>
-  {% if note.kind == 'message' %}
-  <div class="control-group">
-    <label class="control-label">{% trans 'Sähköposti' %}</label>
-    <div class="controls">
-      {{ form.mailto }}
-    </div>
-  </div>
-  <div class="control-group">
-    <label class="control-label">{% trans 'Puhelin' %}</label>
-    <div class="controls">
-      {{ form.smsto }}
-    </div>
-  </div>
-  {% endif %}
   <div class="control-group">
     <label class="control-label">{% trans 'Liite' %}</label>
     <div class="controls">

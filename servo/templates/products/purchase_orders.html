@@ -2,7 +2,7 @@
 {% load i18n %}
 {% block products_content %}
 <ul class="nav nav-tabs" id="navtabs">
-  <li><a href="{% url servo.views.products.index_po %}">{% blocktrans with count=orders.count %} {{ count }} tilausta{% endblocktrans %}</a></li>
+  <li><a href="{% url products.views.index_po %}">{% blocktrans with count=orders.count %} {{ count }} tilausta{% endblocktrans %}</a></li>
   <li class="pull-right">
     <a href="/products/purchase_orders/new/">{% trans "Luo tilaus" %}</a>
   </li>
@@ -22,7 +22,7 @@
     </tr>
   </thead>
   <tbody>
-{% for po in orders %}
+  {% for po in orders %}
     <tr>
       <td><a href="{{ po.get_absolute_url }}">{{ po.id }}</a></td>
       <td>{{ po.date_created }}</td>
@@ -38,15 +38,15 @@
             <i class="icon-cog"></i> <span class="caret"></span>
           </a>
           <ul class="dropdown-menu">
-            <li><a href="{% url servo.views.products.order_stock po.id %}">{% trans "GSX stock" %}</a></li>
+            <li><a href="{% url products.views.order_stock po.id %}">{% trans "GSX stock" %}</a></li>
             <li class="divider"></li>
             <li><a href="{{ po.get_absolute_url }}">{% trans "Muokkaa" %}</a></li>
-            <li><a href="{% url servo.views.products.remove_po po.id %}">{% trans "Poista" %}</a></li>
+            <li><a href="{% url products.views.remove_po po.id %}">{% trans "Poista" %}</a></li>
           </ul>
           </div>
         </td>
     </tr>
-{% endfor %}
-    </tbody>
+  {% endfor %}
+  </tbody>
 </table>
 {% endblock products_content %}

@@ -11,14 +11,14 @@ from orders.models import Order
 from servo.models import Template, Attachment
 from django.views.decorators.http import require_POST
 
-def edit(req, id=0, kind='note', order_id=None, parent=None,
-    smsto='', mailto=''):
+def edit(request, id=0, kind='note', order_id=None, parent=None,
+    recipient=''):
     
-    if smsto or mailto:
+    if recipient:
         kind = 'message'
         
-    note = Note(order_id=order_id, smsto=smsto, mailto=mailto, kind=kind)
-    form = NoteForm(initial={'kind': kind, 'smsto': smsto, 'mailto': mailto})
+    note = Note(order_id=order_id, kind=kind)
+    form = NoteForm(initial={'kind': kind, 'recipient': recipient})
 
     if int(id) > 0:
         note = Note.objects.get(pk=id)
@@ -35,12 +35,12 @@ def edit(req, id=0, kind='note', order_id=None, parent=None,
             'report': parent.report
         })
 
-        if parent.mailfrom:
-            form.initial['mailto'] = parent.sender
+        if parent.sent_at:
+            form.initial['recipient'] = parent.sender
     
     templates = Template.objects.all()
 
-    return render(req, 'notes/form.html', {'note': note,
+    return render(request, 'notes/form.html', {'note': note,
         'templates': templates, 'form': form})
 
 def remove(request, id=None):
@@ -65,7 +65,6 @@ def save(request, kind='note', note_id="new"):
     data = request.POST.copy()
 
     data['created_by'] = request.user.id
-    data['recipient'] = request.user.id
     data['sender'] = request.user.email
 
     # editing an instance
@@ -95,7 +94,7 @@ def save(request, kind='note', note_id="new"):
     else:
         msg = _(u'Viesti lähetetty') if note.mailto else msg
         messages.add_message(request, messages.INFO, msg)
-        return redirect('/home/messages/%d/' % note.id)
+        return redirect('/accounts/messages/%d/' % note.id)
 
 def template(request, id):
     tpl = Template.objects.get(pk=id)

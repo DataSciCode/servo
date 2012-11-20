@@ -2,7 +2,7 @@
 {% load i18n %}
 
 {% block admin_content %}
-<form method="post" accept-charset="utf-8" action="{% url servo.views.admin.settings %}" class="form-horizontal">
+<form method="post" accept-charset="utf-8" action="{% url admin.views.settings %}" class="form-horizontal">
 	<fieldset>
 		<legend>{% trans "Asetukset" %}</legend>
 		{% csrf_token %}

@@ -7,10 +7,12 @@ urlpatterns = patterns('',
     url(r'^orders/', include('orders.urls')),
     url(r'^accounts/', include('accounts.urls')),
     url(r'^customers/', include('customers.urls')),
-
+    url(r'^devices/', include('devices.urls')),
+    url(r'^admin/', include('admin.urls')),
+    
     url(r'^notes/', include('notes.urls')),
     url(r'^products/', include('products.urls')),
-
+    url(r'^calendars/', include('calendars.urls')),
     url(r'^messages/new/$', 'notes.views.edit', {'kind': 'message'}),
 
     url(r'^document/save$', 'servo.views.documents.save'),
@@ -36,8 +38,5 @@ urlpatterns = patterns('',
     url(r'^orders/(\d+)/notes/save/$', 'notes.views.save'),
 
     url(r'^api/', include('servo.urls.api')),
-    url(r'^admin/', include('servo.urls.admin')),
-
-    url(r'^devices/', include('servo.urls.devices')),
 
 )

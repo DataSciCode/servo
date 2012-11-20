@@ -11,7 +11,7 @@
 <table class="table">
 	{% for a in accounts %}
 		<tr>
-			<td><a href="{% url servo.views.admin.gsx_form a.id %}">{{ a.title }}</a></td>
+			<td><a href="{% url admin.views.gsx_form a.id %}">{{ a.title }}</a></td>
 			<td>{{ a.username }}</td>
 			<td>{{ a.environment }}</td>
 			<td>{{ a.sold_to }}</td>
@@ -22,7 +22,7 @@
 				    <span class="caret"></span>
 				  </a>
 				  <ul class="dropdown-menu">
-				    <li><a href="{% url servo.views.admin.gsx_form a.id %}">{% trans "Muokkaa" %}</a></li>
+				    <li><a href="{% url admin.views.gsx_form a.id %}">{% trans "Muokkaa" %}</a></li>
 				    <li><a href="/admin/gsx/accounts/{{ a.id }}/delete/">{% trans "Poista" %}</a></li>
 				  </ul>
 				</div>

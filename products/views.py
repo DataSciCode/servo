@@ -10,8 +10,8 @@ from django.utils.translation import ugettext as _
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from servo.models import *
-from orders.models import PurchaseOrder, Invoice
 from products.models import *
+from orders.models import PurchaseOrder, PurchaseOrderItem, Invoice
 
 class PurchaseOrderForm(forms.ModelForm):
     class Meta:
@@ -38,7 +38,7 @@ def index(request, group_id=None, tag_id=None, spec_id=None):
         all_products = Product.objects.filter(specs=spec_id)
 
     if tag_id:
-        all_products = Product.objects.filter(tags__contains=tag_id)
+        all_products = Product.objects.filter(tags__pk=tag_id)
 
     tags = Tag.objects.filter(type='product')
     groups = ProductGroup.objects.all()
@@ -53,7 +53,7 @@ def index(request, group_id=None, tag_id=None, spec_id=None):
     except EmptyPage:
         products = paginator.page(paginator.num_pages)
 
-    return render(request, 'products/index.html', {
+    return render(request, "products/index.html", {
         'products': products,
         'tags': tags,
         'groups': groups,
@@ -156,7 +156,7 @@ def create_po(request, product_id=None, order_id=None):
     """
     Create a new Purchase Order
     """
-    po = PurchaseOrder.objects.create()
+    po = PurchaseOrder.objects.create(created_by=request.user)
 
     if order_id:
         po.sales_order = order_id

@@ -3,7 +3,7 @@
 <table class="table">
 {% for device in devices %}
   <tr>
-    <td><a href="{% url servo.views.devices.edit device.id %}">{{ device.sn }}</a></td>
+    <td><a href="{% url devices.views.edit device.id %}">{{ device.sn }}</a></td>
     <td>{{ device.description }}</td>
     <td>{{ device.purchased_on }}</td>
     <td>
@@ -19,7 +19,7 @@
           <li><a href="/devices/{{ device.id }}/orders/new/">{% trans "Luo tilaus" %}</a></li>
           <li><a href="/orders/device/{{ device.id }}">{% trans "Tilaukset" %}</a></li>
           <li class="divider"></li>
-          <li><a href="{% url servo.views.devices.remove device.id %}">{% trans "Poista" %}</a></li>
+          <li><a href="{% url devices.views.remove device.id %}">{% trans "Poista" %}</a></li>
         </ul>
       </div>
     </td>

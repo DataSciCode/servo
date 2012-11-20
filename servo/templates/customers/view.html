@@ -1,10 +1,17 @@
 {% extends "customers/index.html" %}
 {% load i18n %}
-
 {% load extras %}
+
 {% block detail_block %}
 	<legend>{{ customer.name }}</legend>
 	<dl class="dl-horizontal">
+		<dt>{% trans "Sähköposti" %}</dt>
+		<dd>{{ customer.email|clickable }}</dd>
+		<dt>{% trans "Puhelin" %}</dt>
+		<dd>{{ customer.phone|clickable }}</dd>
+		<dt>{% trans "Osoite" %}</dt>
+		<dd>{{ customer.street_address }}<br/>{{ customer.zip_code }} {{ customer.city }}</dd>
+
 	{% for ci in customer.contactinfo_set.all %}
 		<dt>{{ ci.key }}</dt>
 		<dd>{{ ci.value }}</dd>

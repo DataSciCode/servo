@@ -12,9 +12,11 @@ from django.core.cache import cache
 from lib.shorturl import encode_url
 
 from django.contrib.auth.models import User, Group
+
 from servo.models import *
 from products.models import *
 from customers.models import Customer
+from devices.models import Device
 
 class Order(models.Model):
     code = models.CharField(max_length=5, null=True, blank=True)
@@ -27,12 +29,12 @@ class Order(models.Model):
     closed_at = models.DateTimeField(null=True)
     followed_by = models.ManyToManyField(User, related_name='followed_by')
 
-    user = models.ForeignKey(User, null=True, verbose_name=u'käsittelijä')
     tags = models.ManyToManyField(Tag, verbose_name=u'tagit')
+    user = models.ForeignKey(User, null=True, verbose_name=u'käsittelijä')
 
-    devices = models.ManyToManyField(Device)
     customer = models.ForeignKey(Customer, null=True)
     products = models.ManyToManyField(Product, through='ServiceOrderItem')
+    devices = models.ManyToManyField(Device, null=True, blank=True)
 
     queue = models.ForeignKey(Queue, null=True, verbose_name=_(u'jono'))
     status = models.ForeignKey(Status, null=True, verbose_name=_(u'status'))
@@ -123,8 +125,7 @@ class Order(models.Model):
     def set_queue(self, queue_id, user):
         queue = Queue.objects.get(pk=queue_id)
         self.queue = queue
-        event = Event.objects.create(description=queue.title,
-            order=self,
+        event = Event.objects.create(description=queue.title, order=self,
             kind='set_queue',
             user=user)
 
@@ -344,6 +345,20 @@ class PurchaseOrderItem(OrderItem):
     date_ordered = models.DateTimeField(null=True, editable=False)
     date_arrived = models.DateTimeField(null=True, blank=True, editable=False,
         verbose_name=_(u'saapunut'))
+
+class CheckList(models.Model):
+    pass
+
+class CheckListItem(models.Model):
+    pass
+
+class GsxRepair(models.Model):
+    #customer_data = DictField()
+    firstname = models.CharField(max_length=64)
+    lastname = models.CharField(max_length=64)
+
+    symptom = models.TextField()
+    diagnosis = models.TextField()
 
 @receiver(post_save, sender=Order)
 def trigger_event(sender, instance, created, **kwargs):

@@ -1,10 +1,10 @@
 # coding=utf-8
 import logging, hashlib
+
 from datetime import datetime
 from django.template import RequestContext
 from django.shortcuts import get_object_or_404, render, redirect
 from django.http import HttpResponse
-from django import forms
 
 from django.core.cache import cache
 from django.contrib import messages
@@ -15,54 +15,8 @@ from django.utils.translation import ugettext as _
 
 from accounts.models import UserProfile
 from servo.models import *
+from admin.forms import *
 from products.models import ProductGroup, Product
-
-class QueueForm(forms.ModelForm):
-    class Meta:
-        model = Queue
-        exclude = ['statuses']
-
-class ProductGroupForm(forms.ModelForm):
-    class Meta:
-        model = ProductGroup
-
-class TagForm(forms.ModelForm):
-    class Meta:
-        model = Tag
-
-class FieldForm(forms.ModelForm):
-    class Meta:
-        model = Property
-
-class StatusForm(forms.ModelForm):
-    class Meta:
-        model = Status
-
-class UserForm(forms.ModelForm):
-    class Meta:
-        model = User
-        exclude = ['last_login', 'date_joined', 'user_permissions']
-
-    location = forms.ModelChoiceField(queryset=Location.objects.all())
-    locale = forms.ChoiceField(UserProfile.LOCALES)
-
-class GroupForm(forms.ModelForm):
-    class Meta:
-        model = Group
-
-class LocationForm(forms.ModelForm):
-    class Meta:
-        model = Location
-
-class GsxAccountForm(forms.ModelForm):
-    class Meta:
-        model = GsxAccount
-    
-    password = forms.CharField(widget=forms.PasswordInput)
-
-class TemplateForm(forms.ModelForm):
-    class Meta:
-        model = Template
 
 def index(request):
     return render(request, 'admin/index.html')
@@ -114,11 +68,11 @@ def settings(request):
         return redirect('/admin/settings/')
     
     config = Configuration.conf()
-    return render(request, 'admin/settings.html', {'config': config})
+    return render(request, "admin/settings.html", {'config': config})
 
 def statuses(request):
     statuses = Status.objects.all()
-    return render(request, 'admin/statuses.html', {'statuses': statuses})
+    return render(request, "admin/statuses.html", {'statuses': statuses})
 
 def status_form(request, status_id=0):
     form = StatusForm()
@@ -142,7 +96,8 @@ def gsx_form(request, id=0):
         act = GsxAccount.objects.get(pk=id)
         form = GsxAccountForm(instance=act)
         
-    return render(request, 'admin/gsx_form.html', {'form': form, 'account_id': id})
+    return render(request, 'admin/gsx_form.html', {'form': form,
+    	'account_id': id})
 
 def gsx_save(request, account_id):
     cache.delete('gsx_session')

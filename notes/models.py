@@ -1,10 +1,10 @@
 #coding=utf-8
-
+import re
 from django.db import models
 from datetime import datetime
 from django.utils.translation import ugettext as _
 from mptt.models import MPTTModel, TreeForeignKey
-from django.db.models.signals import pre_save, post_save
+from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.core.cache import cache
 
@@ -12,7 +12,7 @@ from lib.shorturl import encode_url, from_time
 
 from django.contrib.auth.models import User, Group
 from orders.models import Order
-from servo.models import Attachment
+from servo.models import Attachment, Configuration
 
 class Note(MPTTModel):
     subject = models.CharField(max_length=255, blank=True, 
@@ -20,6 +20,9 @@ class Note(MPTTModel):
     body = models.TextField(verbose_name=_(u'viesti'))
     code = models.CharField(max_length=8, editable=False, default=from_time())
     
+    sender = models.CharField(max_length=64, null=True, blank=True)
+    recipient = models.CharField(max_length=64, null=True, blank=True)
+
     KINDS = (
         ('note', _(u'Merkintä')),
         ('problem', _(u'Ongelma')),
@@ -29,19 +32,11 @@ class Note(MPTTModel):
     )
 
     kind = models.CharField(max_length=10, choices=KINDS, default=KINDS[0])
-
     parent = TreeForeignKey('self', null=True, blank=True, related_name='replies')
-    mailfrom = models.EmailField(default='', blank=True)
-    smsfrom = models.CharField(default='', max_length=32, blank=True)
-
-    mailto = models.EmailField(default='', blank=True)
-    smsto = models.CharField(default='', max_length=32, blank=True)
-
-    sender = models.CharField(max_length=64, null=True, blank=True)
-    recipient = models.CharField(max_length=64, null=True, blank=True)
     
     created_by = models.ForeignKey(User)
-    created_at = models.DateTimeField(default = datetime.now(), editable=False)
+    created_at = models.DateTimeField(default=datetime.now(), editable=False)
+    sent_at = models.DateTimeField(null=True, editable=False)
 
     order = models.ForeignKey(Order, null=True, blank=True)
     flags = models.CharField(max_length=2, default='01', blank=True)
@@ -51,6 +46,18 @@ class Note(MPTTModel):
     
     def __str__(self):
         return str(self.pk)
+
+    def smsto(self):
+        """Return the recipient's SMS address"""
+        match = re.search("<([\+\d+])>$", self.recipient)
+        if match:
+            return match.group(1)
+
+    def mailto(self):
+        """Return the recipient's email address"""
+        match = re.search("<(.+@.+)>$", self.recipient)
+        if match:
+            return match.group(1)
 
     def diagnosis(self):
         """
@@ -72,19 +79,19 @@ class Note(MPTTModel):
         from email.mime.text import MIMEText
         from email.mime.multipart import MIMEMultipart
 
-        conf = cache.get('config')
+        conf = Configuration.conf()
         server = smtplib.SMTP(conf['smtp_host'])
 
         if conf['smtp_user']:
             server.login(conf['smtp_user'], conf['smtp_password'])
         
-        subject = 'Huoltoviesti SRV#%d' %(self.id)
+        subject = 'Huoltoviesti SRV#%s' %(self.code)
 
         msg = MIMEMultipart()
-        msg['To'] = self.mailto
+        msg['To'] = self.mailto()
         msg['Subject'] = subject
         msg['From'] = conf['mail_from']
-        msg['In-Reply-To'] = str(self.id)
+        msg['In-Reply-To'] = str(self.code)
         
         txt = MIMEText(self.body, 'plain', 'utf-8')
         msg.attach(txt)
@@ -97,32 +104,38 @@ class Note(MPTTModel):
             msg.add_header('Content-Disposition', 'attachment', filename=f.name)
             msg.attach(a)
 
-        server.sendmail(msg['From'], msg['To'], msg.as_string())
-
-        self.mail_sent = True
+        self.sent_at = datetime.now()
         self.save()
+
+        server.sendmail(msg['From'], msg['To'], msg.as_string())
         server.quit()
     
     def send_sms(self):
         import urllib
-        conf = Configuration.objects.get(pk=1)
+        conf = Configuration.conf()
         params = urllib.urlencode({
-            'username': conf.sms_user,
-            'password': conf.sms_password,
+            'username': conf['sms_user'],
+            'password': conf['sms_password'],
             'text': self.body,
             'to': self.smsto
         })
 
         f = urllib.urlopen('%s?%s' %(conf.sms_url, params))
-        self.sms_sent = True
+        self.sent_at = datetime.now()
         self.save()
 
         print f.read()
 
 @receiver(post_save, sender=Note)
 def send_message(sender, instance, created, **kwargs):
-    if created:
-        if instance.mailto:
+    if instance.mailto() and not instance.sent_at:
+        print instance.sent_at
+        from django.core.validators import validate_email, ValidationError
+        try:
+            validate_email(instance.mailto())
             instance.send_mail()
-        if instance.smsto:
+        except ValidationError:
+            print "Invalid recipient: %s" %instance.recipient
+            
+        if instance.smsto():
             instance.send_sms()

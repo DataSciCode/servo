@@ -6,8 +6,8 @@ from django.shortcuts import render, redirect
 from django.utils.translation import ugettext as _
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
-from servo.models import Property, Tag
 from orders.models import Order
+from servo.models import Property, Tag
 from customers.models import Customer, ContactInfo
 
 class CustomerForm(forms.ModelForm):
@@ -101,12 +101,14 @@ def edit(request, customer_id=0, parent_id=0):
         })
 
 def save(request, customer_id):
-    tags = request.POST.getlist('tags')
-    keys = request.POST.getlist('keys')
-    values = request.POST.getlist('values')
+    keys = request.POST.getlist("keys")
+    values = request.POST.getlist("values")
     props = dict()
 
-    form = CustomerForm(request.POST)
+    form = CustomerForm(request.POST, request.FILES)
+
+    if not form.is_valid():
+        return render(request, "customers/form.html", {'form': form})
 
     for k, v in enumerate(values):
         if v != '':
@@ -118,16 +120,14 @@ def save(request, customer_id):
         # clear out old contact info
         ContactInfo.objects.filter(customer=c).delete()
         form = CustomerForm(request.POST, instance=c)
-    print form.errors
+    
     if form.is_valid():
         c = form.save()
         for k, v in props.items():
             if v != '':
                 ContactInfo.objects.create(key=k, value=v, customer=c)
-
-        #c.save()
+                
         messages.add_message(request, messages.INFO, _(u'Asiakas tallennettu'))
-
         return redirect(c)
 
 def delete(request, customer_id=None):
@@ -139,7 +139,7 @@ def delete(request, customer_id=None):
         c = Customer.objects.get(pk=customer_id)
         return render(request, 'customers/remove.html', {'customer': c})
 
-def move(req, id=None, target=None):
+def move(request, id=None, target=None):
     """
     Move a customer under another customer
     """
@@ -147,11 +147,24 @@ def move(req, id=None, target=None):
         customer = Customer.objects.get(pk=id)
         target = Customer.objects.get(pk=target)
         customer.move_to(target)
-        messages.add_message(req, messages.INFO, _(u'Asiakas siirretty'))
+        messages.add_message(request, messages.INFO, _(u'Asiakas siirretty'))
 
         return redirect(customer)
 
     if id:
         customer = Customer.objects.get(pk=id)
 
-    return render(req, 'customers/move.html', {'customer': customer})
+    return render(request, 'customers/move.html', {'customer': customer})
+
+def search(request):
+    import json
+    from django.http import HttpResponse
+    results = list()
+    query = request.GET.get("query")
+    customers = Customer.objects.filter(name__icontains=query)
+
+    for c in customers:
+        results.append("%s <%s>" %(c.name, c.email))
+        results.append("%s <%s>" %(c.name, c.phone))
+
+    return HttpResponse(json.dumps(results), content_type="application/json")
