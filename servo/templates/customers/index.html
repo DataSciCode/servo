@@ -3,11 +3,11 @@
 
 {% block navtabs %}
 <ul class="breadcrumb">
-  <li><a href="{% url customers.views.index %}">{% trans "Asiakkaat" %}</a> <span class="divider">/</span></li>
+  <li><a href="{% url customers.views.index %}">{% trans "Asiakkaat" %}</a></li>
 </ul>
 <ul class="nav nav-tabs">
   <li class="dropdown active">
-    <a href="#" class="dropdown-toggle" data-toggle="dropdown">{% trans "Kaikki" %} <span class="badge">{{ customers.paginator.count }}</span> <b class="caret"></b></a>
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown">{% trans "Kaikki" %} <b class="caret"></b></a>
     <ul class="dropdown-menu">
       <li><a href="{% url customers.views.index %}">{% trans "Kaikki" %}</a></li>
       {% for t in  tags %}
@@ -28,6 +28,7 @@
   </div>
   <div class="span9">
     {% block detail_block %}
+    {% trans "Valitse asiakas..." %}
     {% endblock detail_block %}
   </div>
 </div>

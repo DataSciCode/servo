@@ -34,7 +34,7 @@ def login(request):
         if user is not None and user.is_active:
             auth.login(request, user)
             msgs.add_message(request, msgs.INFO, _('Moi, %s!' % user.username))
-            return redirect('/orders/index/user/%s/' % user.username)
+            return redirect('/orders/')
         else:
             msgs.add_message(request, msgs.INFO,
             	_(u'Väärä käyttäjätunnus tai salasana'))

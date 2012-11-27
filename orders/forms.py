@@ -2,6 +2,7 @@
 
 from django import forms
 from orders.models import *
+from servo.models import QueueStatus
 
 class InvoiceForm(forms.ModelForm):
     class Meta:

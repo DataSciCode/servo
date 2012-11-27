@@ -37,6 +37,4 @@ urlpatterns = patterns('',
     url(r'^orders/(?P<order_id>\d+)/mailto/(?P<mailto>.+)/$', 'notes.views.edit'),
     url(r'^orders/(\d+)/notes/save/$', 'notes.views.save'),
 
-    url(r'^api/', include('servo.urls.api')),
-
 )

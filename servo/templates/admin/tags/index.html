@@ -10,7 +10,7 @@
 <table class="table">
 	<tbody>
 	{% for t in tags %}
-		<tr data-url="/tag/edit/{{ t.id }}"><td>{{ t.title }}</td></tr>
+		<tr><td><a href="{{ t.get_absolute_url }}">{{ t.title }}</a></td></tr>
 	{% endfor %}
 	</tbody>
 </table>

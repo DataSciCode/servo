@@ -8,7 +8,7 @@ from servo.models import Tag
 from devices.models import Device
 
 class Customer(MPTTModel):
-    parent = TreeForeignKey('self', null=True, blank=True, 
+    parent = TreeForeignKey('self', null=True, blank=True,
         related_name='contacts',
         limit_choices_to={'is_company': True},
         verbose_name=_(u'yritys'))
@@ -30,7 +30,6 @@ class Customer(MPTTModel):
         verbose_name=_(u'tagit'))
     devices = models.ManyToManyField(Device, null=True, blank=True, 
         verbose_name=_(u'laitteet'), editable=False)
-
     photo = models.ImageField(upload_to="photos", null=True, blank=True,
         verbose_name=_(u'kuva'))
     
@@ -86,14 +85,11 @@ class Customer(MPTTModel):
         """
         Get the entire info tree for this customer, upwards
         """
-        return self.name
-        title = []
-        for c in self.path.split('.'):
-            if c.isdigit():
-                customer = Customer.objects.get(pk=c)
-                title.append(customer.name)
+        title = list()
+        for a in self.get_ancestors(include_self=True):
+            title.append(a.name)
 
-        title.reverse()
+        #title.reverse()
 
         return str(', ').join(title)
 

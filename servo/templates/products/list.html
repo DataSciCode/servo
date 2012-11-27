@@ -17,14 +17,14 @@
     <tr>
       <td><a href="{{ p.get_absolute_url }}">{{ p.id }}</a></td>
       <td>{{ p.code }}</td>
-      <td>{{ p.title|truncatechars:36 }}</td>
+      <td>{{ p.title|truncatechars:40 }}</td>
       <td>{{ p.price_sales }}</td>
       <td>{{ p.amount_stocked }}</td>
       <td>{{ p.amount_ordered }}</td>
       <td>{{ p.amount_reserved }}</td>
       <td>
-        <div class="btn-group">
-          <a class="btn dropdown-toggle btn-small" data-toggle="dropdown" href="#">
+        <div class="btn-group pull-right">
+          <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
             <i class="icon-cog"></i> <span class="caret"></span>
           </a>
           <ul class="dropdown-menu">
@@ -49,6 +49,8 @@
           </div>
         </td>
       </tr>
+      {% empty %}
+      <tr><td colspan="8" style="text-align:center"><span class="muted">{% trans "Ei yhtään tuotetta" %}</span></td></tr>
   {% endfor %}
   </tbody>
 </table>

@@ -4,21 +4,21 @@
 {% block admin_content %}
 
 <ul class="nav nav-tabs" id="navtabs">
-	<li><a href="/admin/gsx/accounts/">{% trans "Kaikki" %}</a></li>
+	<li><a href="{% url admin.views.gsx_accounts %}">{% trans "Kaikki" %}</a></li>
 	<li class="pull-right"><a href="/admin/gsx/accounts/new/">{% trans "Luo tili" %}</a></li>
 </ul>
 
 <table class="table">
 	{% for a in accounts %}
 		<tr>
-			<td><a href="{% url admin.views.gsx_form a.id %}">{{ a.title }}</a></td>
+			<td><a href="{{ a.get_absolute_url }}">{{ a.title }}</a></td>
 			<td>{{ a.username }}</td>
 			<td>{{ a.environment }}</td>
 			<td>{{ a.sold_to }}</td>
 			<td>{{ a.ship_to }}</td>
 			<td>
-				<div class="btn-group">
-				  <a class="btn dropdown-toggle" data-toggle="dropdown" href="#"> <i class="icon-cog"></i>
+				<div class="btn-group pull-right">
+				  <a class="btn dropdown-toggle btn-small" data-toggle="dropdown" href="#"> <i class="icon-cog"></i>
 				    <span class="caret"></span>
 				  </a>
 				  <ul class="dropdown-menu">

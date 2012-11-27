@@ -12,30 +12,38 @@
 <ul class="nav nav-tabs" id="navtabs">
   <li class="dropdown active">
     <a href="{% url products.views.index %}" data-toggle="dropdown">{{ title }} <b class="caret"></b></a>
-      <ul class="dropdown-menu">
-        <li><a href="{% url products.views.index %}">{% trans "Kaikki" %}</a></li>
-        {% recursetree groups %}
-        <li>
-          <a href="{% url products.views.index group_id=node.id %}">{{ node.name }}</a>
-          {% if not node.is_leaf_node %}
-          <ul class="unstyled">{{ children }}</ul>
-          {% endif %}
-        </li>
-      {% endrecursetree %}
-      </ul>
+    <ul class="dropdown-menu">
+      <li><a href="{% url products.views.index %}">{% trans "Kaikki" %}</a></li>
+      {% recursetree groups %}
+      <li>
+        <a href="{% url products.views.index group_id=node.id %}">{{ node.name }}</a>
+        {% if not node.is_leaf_node %}
+        <ul class="unstyled">{{ children }}</ul>
+        {% endif %}
+      </li>
+    {% endrecursetree %}
+    </ul>
   </li>
-
   <li class="dropdown">
     <a href="#" class="dropdown-toggle" data-toggle="dropdown">{% trans "Tagi" %} <b class="caret"></b></a>
-      <ul class="dropdown-menu">
-        {% for t in  tags %}
-          <li><a href="{% url products.views.index tag_id=t.id %}">{{ t.title }}</a></li>
-        {% endfor %}
-        </ul>
-      </li>
-      <li class="pull-right"><a href="/products/new/">{% trans "Luo tuote" %}</a></li>
+    <ul class="dropdown-menu">
+    {% for t in  tags %}
+      <li><a href="{% url products.views.index tag_id=t.id %}">{{ t.title }}</a></li>
+    {% endfor %}
     </ul>
-    {% include "products/list.html" %}    
-    {% include "pagination.html" with items=products %}
-    {% endblock products_content %}
+  </li>
+  <li class="dropdown">
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown">{% trans "Malli" %} <b class="caret"></b></a>
+    <ul class="dropdown-menu">
+    {% for s in  specs %}
+      <li><a href="{% url products.views.index tag_id=s.id %}">{{ s.title }}</a></li>
+    {% endfor %}
+    </ul>
+  </li>
+  <li class="pull-right"><a href="/products/new/">{% trans "Luo tuote" %}</a></li>
+</ul>
+{% include "products/list.html" %}    
+{% include "pagination.html" with items=products %}
+
+{% endblock products_content %}
 {% endblock  %}

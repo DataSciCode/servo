@@ -6,26 +6,8 @@
 	<fieldset>
 		<legend>{% trans "Asetukset" %}</legend>
 		{% csrf_token %}
-		<div class="control-group">
-			<label class="control-label">{% trans "Yritys" %}</label>
-			<div class="controls">
-				<input type="text" name="company_name" value="{{ config.company_name }}"/>
-	    </div>
-		</div>
-		<div class="control-group">
-			<label class="control-label">{% trans "Kate %" %}</label>
-			<div class="controls">
-				<input type="text" name="pct_margin" value="{{ config.pct_margin }}"/>
-	    </div>
-		</div>
-		<div class="control-group">
-			<label class="control-label">{% trans "ALV %" %}</label>
-			<div class="controls">
-				<input type="text" name="pct_vat" value="{{ config.pct_vat }}"/>
-	    </div>
-		</div>
+		{% include "form_snippet.html" %}
 	</fieldset>
-
 	<fieldset>
 		<legend>{% trans "Saapuva posti" %}</legend>
 		<div class="control-group">
@@ -88,7 +70,6 @@
 	    </div>
 		</div>
 	</fieldset>
-
 	<fieldset>
 		<legend>{% trans "Tekstiviestit" %}</legend>
 		<div class="control-group">

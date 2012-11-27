@@ -11,28 +11,7 @@ from django.core.cache import cache
 from lib.shorturl import encode_url
 
 from django.contrib.auth.models import User, Group
-
-class GsxObject(object):
-    def __init__(self, *args, **kwargs):
-        for k, v in args[0].items():
-            self.__setattr__(k, v)
-
-class GsxDevice(GsxObject):
-    def title(self):
-        pass
-
-    def description(self):
-        pass
-
-class ServicePart(GsxObject):
-    def title(self):
-        return self.partDescription
-
-    def description(self):
-        return self.partDescription
-
-    def code(self):
-        return self.partNumber
+from gsx.models import Account as GsxAccount
 
 class Tag(MPTTModel):
     """
@@ -51,13 +30,17 @@ class Tag(MPTTModel):
         ('device', _(u'Laite')),
     )
 
-    title = models.CharField(default=_('Uusi tagi'), max_length=255, unique=True,
+    title = models.CharField(default=_('Uusi tagi'), max_length=255,
+        unique=True,
         verbose_name=_(u'nimi'))
     type = models.CharField(max_length=32, choices=TYPES, 
         verbose_name=_(u'tyyppi'))
     times_used = models.IntegerField(default=0, editable=False)
     parent = TreeForeignKey('self', null=True, blank=True,
         related_name='children')
+
+    def get_absolute_url(self):
+        return "/admin/tags/%s/" % self.pk
 
     def __unicode__(self):
         return self.title
@@ -87,8 +70,6 @@ class Attachment(models.Model):
 class Location(models.Model):
     title = models.CharField(max_length=255, default=_('Uusi sijainti'),
         verbose_name=_(u'nimi'))
-    description = models.TextField(blank=True, null=True, 
-        verbose_name=_(u'kuvaus'))
     phone = models.CharField(max_length=32, blank=True, null=True,
         verbose_name=_(u'puhelin'))
     email = models.EmailField(blank=True, null=True, 
@@ -100,47 +81,13 @@ class Location(models.Model):
         verbose_name=_(u'postinumero'))
     city = models.CharField(max_length=16, null=True, blank=True,
         verbose_name=_(u'toimipaikka'))
+    office_hours = models.CharField(max_length=16, null=True, blank=True,
+        verbose_name=_(u'aukioloajat'), default='9:00 - 18:00')
+    description = models.TextField(blank=True, null=True, 
+        verbose_name=_(u'kuvaus'))
 
     def __unicode__(self):
         return self.title
-
-class GsxAccount(models.Model):
-    title = models.CharField(max_length=128, default=_('Uusi tili'),
-        verbose_name=_(u'nimi'))
-
-    sold_to = models.CharField(max_length=32, verbose_name=_(u'Sold-To'))
-    ship_to = models.CharField(max_length=32, verbose_name=_(u'Ship-To'))
-    username = models.CharField(max_length=64, verbose_name=_(u'tunnus'))
-    password = models.CharField(max_length=64, verbose_name=_(u'salasana'))
-
-    ENVIRONMENTS = (
-        ('pr', _('Tuotanto')), 
-        ('ut', _('Kehitys')),
-        ('it', _('Testaus')),
-    )
-
-    environment = models.CharField(max_length=3, choices=ENVIRONMENTS,
-        default=ENVIRONMENTS[0], 
-        verbose_name=_(u'ympäristö'))
-
-    is_default = models.BooleanField(default=True, verbose_name=_(u'oletus'))
-
-    def __unicode__(self):
-        return self.title
-
-    @classmethod
-    def default(self):
-        """
-        Return default GSX account and connect to it
-        """
-        from lib.gsxlib.gsxlib import Gsx
-
-        act = GsxAccount.objects.get(is_default=True)
-        gsx = Gsx(sold_to=act.sold_to, user_id=act.username, 
-            password=act.password, environment=act.environment)
-
-        cache.set('gsx', gsx, 60*25)
-        return gsx
 
 class Configuration(models.Model):
     key = models.CharField(max_length=255)
@@ -233,7 +180,8 @@ class Status(models.Model):
         return self.title
 
 class Queue(models.Model):
-    title = models.CharField(unique=True, max_length=255, default=_('Uusi jono'),
+    title = models.CharField(unique=True, max_length=255, 
+        default=_('Uusi jono'),
         verbose_name=_('nimi'))
     
     description = models.TextField(blank=True, verbose_name=_('kuvaus'))
@@ -242,10 +190,12 @@ class Queue(models.Model):
 
     statuses = models.ManyToManyField(Status, through='QueueStatus')
 
-    order_template = models.FileField(blank=True, null=True, upload_to='queues',
+    order_template = models.FileField(blank=True, null=True, 
+        upload_to='queues',
         verbose_name=_(u'tilauspohja'))
 
-    receipt_template = models.FileField(null=True, blank=True, upload_to='queues',
+    receipt_template = models.FileField(null=True, blank=True, 
+        upload_to='queues',
         verbose_name=_(u'kuittipohja'))
 
     dispatch_template = models.FileField(null=True, blank=True,
@@ -256,8 +206,14 @@ class Queue(models.Model):
         return self.title
 
 class QueueStatus(models.Model):
+    """
+    This allows us to set time limits for each status per indiviudal queue
+    """
     limit_green = models.IntegerField()
     limit_yellow = models.IntegerField()
     limit_factor = models.IntegerField()
     queue = models.ForeignKey(Queue)
     status = models.ForeignKey(Status)
+
+    def __str__(self):
+        return self.status.title

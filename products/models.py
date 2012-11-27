@@ -91,10 +91,10 @@ class Product(BaseProduct):
         ordering = ['-id']
 
     def get_absolute_url(self):
-        return "/products/%d/view/" % self.id
+        return "/products/%d/view/" % self.pk
 
     @classmethod
-    def from_gsx(self, gsx_data):
+    def from_gsx(cls, gsx_data):
     	conf = Configuration.conf()
         getcontext().rounding = ROUND_UP
 
@@ -115,7 +115,7 @@ class Product(BaseProduct):
             pct_vat=vat,
             price_notax=sp,
             warranty_period=3,
-            brand='Apple',
+            brand="Apple",
             component_code=gsx_data.get('componentCode'),
             is_serialized=(gsx_data['isSerialized'] == "Y"),
             price_sales=sp+(sp/100*vat).quantize(Decimal('1.'))
@@ -173,6 +173,7 @@ class Inventory(models.Model):
     The reserved amount of a given item is determined 
     by the number of rows with the order id as slot
     """
+
     slot = models.IntegerField()
     product = models.ForeignKey(Product)
     sn = models.CharField(max_length=32, null=True)
@@ -181,4 +182,5 @@ class Inventory(models.Model):
     kind = models.CharField(max_length=32, choices=KINDS)
 
     def purchase_order(self):
+        from orders.models import PurchaseOrder
         return PurchaseOrder.objects.get(pk=self.slot)

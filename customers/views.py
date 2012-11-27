@@ -70,7 +70,9 @@ def view(request, id):
     customers = Customer.objects.all()
     paginator = Paginator(customers, 25)
     customers = paginator.page(1)
-    orders = Order.objects.filter(customer__tree_id=c.tree_id)
+
+    orders = Order.objects.filter(customer__lft__gte=c.lft, 
+        customer__rght__lte=c.rght, customer__tree_id=c.tree_id)
     tags = Tag.objects.filter(type='customer')
 
     return render(request, 'customers/view.html', {
@@ -82,8 +84,8 @@ def view(request, id):
 
 def edit(request, customer_id=0, parent_id=0):
     form = CustomerForm()
-    fields = Property.objects.filter(type='customer')
     customer = Customer()
+    fields = Property.objects.filter(type='customer')
 
     if int(customer_id) > 0:
         customer = Customer.objects.get(pk=customer_id)
@@ -159,12 +161,18 @@ def move(request, id=None, target=None):
 def search(request):
     import json
     from django.http import HttpResponse
-    results = list()
-    query = request.GET.get("query")
-    customers = Customer.objects.filter(name__icontains=query)
+    if request.method == "GET":
+        results = list()
+        query = request.GET.get("query")
+        customers = Customer.objects.filter(name__icontains=query)
 
-    for c in customers:
-        results.append("%s <%s>" %(c.name, c.email))
-        results.append("%s <%s>" %(c.name, c.phone))
+        for c in customers:
+            results.append("%s <%s>" %(c.name, c.email))
+            results.append("%s <%s>" %(c.name, c.phone))
+    else:
+        query = request.POST.get("name")
+        results = Customer.objects.filter(name__icontains=query)
+        return render(request, "customers/search-results.html",
+            {'results': results, 'id': request.POST['id']})
 
     return HttpResponse(json.dumps(results), content_type="application/json")

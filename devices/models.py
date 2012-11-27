@@ -1,11 +1,10 @@
 #coding=utf-8
 from django.db import models
-
-from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
 from django.utils.translation import ugettext as _
+from django.db.models.signals import pre_save, post_save
 
-from servo.models import Tag
+from servo.models import Tag, Attachment
 
 class Device(models.Model):
     sn = models.CharField(max_length=32, blank=True, 
@@ -22,6 +21,7 @@ class Device(models.Model):
         verbose_name=_(u'merkinnät'))
     tags = models.ManyToManyField(Tag, null=True, blank=True, 
         verbose_name=_(u'tagit'))
+    files = models.ManyToManyField(Attachment)
 
     def get_absolute_url(self):
         return "/devices/%d/view/" % self.pk

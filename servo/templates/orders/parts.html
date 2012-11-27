@@ -1,0 +1,16 @@
+{% extends "default.html" %}
+{% load i18n %}
+{% block navtabs %}
+<ul class="breadcrumb">
+  <li><a href="{% url orders.views.index %}">{% trans "Tilaukset" %}</a><span class="divider">/</span></li>
+  <li><a href="{% url orders.views.edit order.id %}">{{ order.code }}</a></li><span class="divider">/</span>
+	<li><a href="#">{{ device.description }}</a></li><span class="divider">/</span>
+	<li class="active"><a href="#">{% trans "Varaosat" %}</a></li>
+</ul>
+{% endblock navtabs %}
+{% block content %}
+<h4>{% trans "Tuotteet" %}</h4>
+{% include "products/list.html" %}
+<h4>GSX</h4>
+{% include "search/table-parts.html" %}
+{% endblock content %}

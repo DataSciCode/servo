@@ -1,0 +1,20 @@
+{% extends "admin/index.html" %}
+{% load i18n %}
+
+{% block admin_content %}
+<ul class="nav nav-tabs">
+	<li class="active"><a href="/admin/templates/">{% trans "Kaikki" %}</a></li>
+	<li class="pull-right"><a href="/admin/templates/new/">{% trans "Luo pohja" %}</a></li>
+</ul>
+<table class="table">
+{% for t in templates %}
+	<tr>
+		<td>{{ t.title }}</td>
+		<td>{{ t.body }}</td>
+		<td><a href="/admin/templates/{{ t.id }}/edit/" class="btn"><i class="icon-edit"></i> Muokkaa</a></td>
+		<td><a href="/admin/templates/{{ t.id }}/delete/" class="btn"><i class="icon-minus"></i> Poista</a></td>
+	</tr>
+{% endfor %}
+</table>
+
+{% endblock admin_content %}

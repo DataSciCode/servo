@@ -1,9 +1,10 @@
 {% extends "default.html" %}
 {% load i18n %}
 {% block content %}
-<ul class="nav nav-tabs">
-  <li class="active"><a href="{% url devices.views.view device.id %}">{% trans "Laite" %}</a></li>
-  <li><a href="{% url products.views.index tag_id=device.spec_id %}">{% trans "Varaosat" %}</a></li>
- </ul>
 <h3>{{ device.description }}</h3>
+<ul class="nav nav-tabs">
+  <li class="active"><a href="{% url devices.views.view device.id %}">{% trans "Tilaukset" %}</a></li>
+  <li><a href="{% url devices.views.parts device.id %}">{% trans "Varaosat" %}</a></li>
+</ul>
+{% include "orders/list.html" with orders=device.order_set.all %}
 {% endblock content %}

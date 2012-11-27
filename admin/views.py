@@ -3,7 +3,7 @@ import logging, hashlib
 
 from datetime import datetime
 from django.template import RequestContext
-from django.shortcuts import get_object_or_404, render, redirect
+from django.shortcuts import render_to_response, render, redirect
 from django.http import HttpResponse
 
 from django.core.cache import cache
@@ -18,9 +18,6 @@ from servo.models import *
 from admin.forms import *
 from products.models import ProductGroup, Product
 
-def index(request):
-    return render(request, 'admin/index.html')
-
 def documents(request):
     files = Attachment.objects.all()
     return render(request, 'admin/files.html', {'files': files})
@@ -28,11 +25,11 @@ def documents(request):
 def edit_document(request, id):
     doc = Attachment.objects.get(pk=id)
     form = DocumentForm(instance=doc)
-    return render(request, 'documents/form.html', {'form': form})
+    return render(request, "documents/form.html", {'form': form})
 
 def tags(request):
     tags = Tag.objects.all()
-    return render(request, 'admin/tags.html', {'tags': tags})
+    return render(request, "admin/tags/index.html", {'tags': tags})
 
 def edit_tag(request, tag_id='new'):
     if request.method == 'POST':
@@ -49,7 +46,7 @@ def edit_tag(request, tag_id='new'):
     else:
         form = TagForm()
 
-    return render(request, 'admin/tag_form.html', {'form': form,
+    return render(request, 'admin/tags/form.html', {'form': form,
         'tag_id': tag_id})
 
 def settings(request):
@@ -68,26 +65,27 @@ def settings(request):
         return redirect('/admin/settings/')
     
     config = Configuration.conf()
-    return render(request, "admin/settings.html", {'config': config})
+    form = SettingsForm(initial=config)
+    return render(request, "admin/settings.html", {'config': config, 'form': form})
 
 def statuses(request):
     statuses = Status.objects.all()
-    return render(request, "admin/statuses.html", {'statuses': statuses})
+    return render(request, "admin/statuses/index.html", {'statuses': statuses})
 
-def status_form(request, status_id=0):
+def edit_status(request, status_id=0):
     form = StatusForm()
 
     if int(status_id) > 0:
         status = Status.objects.get(pk=status_id)
         form = StatusForm(instance=status)
 
-    return render(request, 'admin/status_form.html', {
+    return render(request, 'admin/statuses/form.html', {
         'form': form, 'status_id': status_id
         })
 
 def gsx_accounts(request):
     accounts = GsxAccount.objects.all()
-    return render(request, 'admin/gsx_accounts.html', {'accounts': accounts})
+    return render(request, "admin/gsx/index.html", {'accounts': accounts})
 
 def gsx_form(request, id=0):
     form = GsxAccountForm()
@@ -96,8 +94,8 @@ def gsx_form(request, id=0):
         act = GsxAccount.objects.get(pk=id)
         form = GsxAccountForm(instance=act)
         
-    return render(request, 'admin/gsx_form.html', {'form': form,
-    	'account_id': id})
+    return render(request, "admin/gsx/form.html", {'form': form,
+        'account_id': id})
 
 def gsx_save(request, account_id):
     cache.delete('gsx_session')
@@ -113,7 +111,7 @@ def gsx_save(request, account_id):
         messages.add_message(request, messages.INFO, _(u'GSX tili tallennettu'))
         return redirect('/admin/gsx/accounts/')
 
-    return render(request, 'admin/gsx_form.html', {'form': form,
+    return render(request, "admin/gsx_form.html", {'form': form,
         'account_id': account_id})
 
 def gsx_remove(request, id=None):
@@ -127,9 +125,9 @@ def gsx_remove(request, id=None):
     
     return render(request, 'admin/gsx_remove.html', {'account': act})
 
-def fields(req):
+def fields(request):
     fields = Property.objects.all()
-    return render(req, 'admin/fields/index.html', {'fields' : fields})
+    return render(request, 'admin/fields/index.html', {'fields' : fields})
 
 def edit_field(request, field_id='new'):
     form = FieldForm()
@@ -153,50 +151,50 @@ def edit_field(request, field_id='new'):
     return render(request, 'admin/fields/form.html', {'form': form,
         'field_id': field_id})
 
-def remove_field(req, id=None):
-    if 'id' in req.POST:
-        field = Field(id=ObjectId(req.POST['id']))
+def remove_field(request, id=None):
+    if 'id' in request.POST:
+        field = Field(id=ObjectId(request.POST['id']))
         field.delete()
         return HttpResponse("Kenttä poistettu")
     else:
         field = Field.objects(pk=ObjectId(id))[0]
     
-    return render(req, 'admin/fields/remove.html', field)
+    return render(request, 'admin/fields/remove.html', field)
 
-def templates(req):
+def templates(request):
     templates = Template.objects.all()
-    return render(req, 'admin/templates.html', {'templates': templates})
+    return render(request, "admin/templates/index.html", {'templates': templates})
 
-def edit_template(req, template_id=None):
+def edit_template(request, template_id=None):
     form = TemplateForm()
 
-    if req.method == 'POST':
-        form = TemplateForm(req.POST)
-        if 'id' in req.POST:
-            template = Template.objects.get(pk=req.POST['id'])
-            form = TemplateForm(req.POST, instance=template)
+    if request.method == 'POST':
+        form = TemplateForm(request.POST)
+        if 'id' in request.POST:
+            template = Template.objects.get(pk=request.POST['id'])
+            form = TemplateForm(request.POST, instance=template)
 
         if form.is_valid():
             form.save()
-            messages.add_message(req, messages.INFO, _(u'Pohja tallennettu'))
+            messages.add_message(request, messages.INFO, _(u'Pohja tallennettu'))
             return redirect('/admin/templates/')
     else:
         if template_id:
             template = Template.objects.get(pk=template_id)
             form = TemplateForm(instance=template)
     
-    return render(req, 'admin/template_form.html', {'form': form})
+    return render(request, 'admin/templates/form.html', {'form': form})
   
 def remove_template(req, id):
     pass
 
 def users(request):
     users = User.objects.all()
-    return render(request, 'admin/users.html', {'users': users})
+    return render(request, "admin/users/index.html", {'users': users})
 
 def groups(request):
     groups = Group.objects.all()
-    return render(request, 'admin/groups.html', {'groups': groups})
+    return render(request, "admin/users/groups.html", {'groups': groups})
 
 def edit_group(request, id=None):
     form = GroupForm()
@@ -211,9 +209,9 @@ def edit_group(request, id=None):
         group = Group.objects.get(pk=id)
         form = GroupForm(instance=group)
 
-    return render(request, 'admin/group_form.html', {'form': form})
+    return render(request, "admin/users/group_form.html", {'form': form})
 
-def edit_user(req, id=None):
+def edit_user(request, id=None):
     user = User()
     locations = Location.objects.all()
 
@@ -223,33 +221,10 @@ def edit_user(req, id=None):
     else:
         form = UserForm()
 
-    return render(req, 'admin/user_form.html', {
+    return render(request, "admin/users/form.html", {
         'user': user, 'locations': locations, 'form': form
         })
-  
-def locations(req):
-    locations = Location.objects.all()
-    return render(req, 'admin/locations.html', {'locations': locations})
 
-def edit_location(req, id=None):
-    if req.method == 'POST':
-        form = LocationForm(req.POST)
-        if 'id' in req.POST:
-            location = Location.objects.get(pk=req.POST['id'])
-            form = LocationForm(req.POST, instance=location)
-        if form.is_valid():
-            form.save()
-            messages.add_message(req, messages.INFO, _(u'Sijainti tallennettu'))
-            return redirect('/admin/locations/')
-    else:
-        if id:
-            location = Location.objects.get(pk=id)
-            form = LocationForm(instance=location)
-        else:
-            form = LocationForm()
-    
-    return render(req, 'admin/location_form.html', {'form': form})
-  
 def save_user(request):
     if 'id' in request.POST:
         user = User.objects.get(pk=request.POST['id'])
@@ -264,23 +239,49 @@ def save_user(request):
     else:
         return render(request, 'admin/user_form.html', {'form': form})
 
-def save_status(req, status_id):
+def locations(request):
+    locations = Location.objects.all()
+    return render(request, "admin/locations/index.html", {'locations': locations})
+
+def edit_location(request, id=0):
+    if request.method == "POST":
+        form = LocationForm(request.POST)
+
+        if int(id) > 0:
+            location = Location.objects.get(pk=id)
+            form = LocationForm(request.POST, instance=location)
+        if form.is_valid():
+            form.save()
+            messages.add_message(request, messages.INFO, _(u"Sijainti tallennettu"))
+            return redirect("admin.views.locations")
+
+    if id:
+        location = Location.objects.get(pk=id)
+        form = LocationForm(instance=location)
+    else:
+        location = Location()
+        form = LocationForm()
+    
+    form.pk = id
+    return render(request, "admin/locations/form.html", {'form': form})
+
+def save_status(request, status_id):
     if int(status_id) > 0:
         status = Status.objects.get(pk=status_id)
-        form = StatusForm(req.POST, instance=status)
+        form = StatusForm(request.POST, instance=status)
     else:
-        form = StatusForm(req.POST)
+        form = StatusForm(request.POST)
 
     if form.is_valid():
         form.save()
-        messages.add_message(req, messages.INFO, _(u'Status tallennettu'))
+        messages.add_message(request, messages.INFO, _(u'Status tallennettu'))
         return redirect('/admin/statuses/')
 
-    return render(req, 'admin/status_form.html', {'form': form})
+    return render(request, 'admin/status_form.html', {'form': form})
 
-def queues(req):
+def queues(request):
     queues = Queue.objects.all()
-    return render(req, 'admin/queues.html', {'queues': queues})
+    return render(request, "admin/queues/index.html", {'queues': queues})
 
 def edit_queue(request, id=None):
     statuses = Status.objects.all()
@@ -292,24 +293,24 @@ def edit_queue(request, id=None):
         form = QueueForm()
         queue = Queue()
 
-    return render(request, 'admin/queue-form.html', {
-    	'queue': queue,
-    	'form': form,
+    return render(request, "admin/queues/form.html", {
+        'queue': queue,
+        'form': form,
         'statuses': statuses
     })
 
-def save_queue(request):
-    if 'id' in request.POST:
-        q = Queue.objects.get(pk=request.POST['id'])
-        form = QueueForm(request.POST, request.FILES, instance=q)
-    else:
+def save_queue(request, queue_id):
+    if queue_id == "None":
         q = Queue()
         form = QueueForm(request.POST, request.FILES)
+    else:
+        q = Queue.objects.get(pk=queue_id)
+        form = QueueForm(request.POST, request.FILES, instance=q)
 
     if form.is_valid():
         q = form.save()
     else:
-        return render(request, 'admin/queue-form.html', {'form': form})
+        return render(request, "admin/queues/form.html", {'form': form})
 
     d = DotExpandedDict(request.POST)
 
@@ -323,23 +324,23 @@ def save_queue(request):
                     limit_factor=s['limit_factor'])
     
     messages.add_message(request, messages.INFO, _(u'Jono tallennettu'))
-    return redirect('/admin/queues/')
+    return redirect("admin.views.queues")
 
-def remove_queue(req, id=None):
-    if 'id' in req.POST:
-        queue = Queue.objects.get(pk=req.POST['id'])
+def remove_queue(request, id=None):
+    if 'id' in request.POST:
+        queue = Queue.objects.get(pk=request.POST['id'])
         queue.delete()
         return HttpResponse('Jono poistettu')
     else:
         queue = Queue.objects.get(pk=id)
     
-    return render(req, 'admin/remove-queue.html', queue)
+    return render(request, 'admin/remove-queue.html', queue)
 
-def product_groups(req):
+def product_groups(request):
     groups = ProductGroup.objects.all()
-    return render(req, 'admin/products/groups.html', {'groups': groups})
+    return render(request, 'admin/products/groups.html', {'groups': groups})
 
-def edit_product_group(req, group_id=0):
+def edit_product_group(request, group_id=0):
     group = ProductGroup()
     
     if int(group_id) > 0:
@@ -348,18 +349,18 @@ def edit_product_group(req, group_id=0):
     else:
         form = ProductGroupForm()
 
-    if req.method == 'POST':
+    if request.method == 'POST':
         if group:
-            form = ProductGroupForm(req.POST, instance=group)
+            form = ProductGroupForm(request.POST, instance=group)
         else:
-            form = ProductGroupForm(req.POST)
+            form = ProductGroupForm(request.POST)
 
         if form.is_valid():
             form.save()
-            messages.add_message(req, messages.INFO, _(u'Ryhmä tallennettu'))
+            messages.add_message(request, messages.INFO, _(u'Ryhmä tallennettu'))
             return redirect('/admin/products/groups/')
 
-    return render(req, 'admin/products/group_form.html', {
+    return render(request, 'admin/products/group_form.html', {
         'form': form,
         'group_id': group_id
         })

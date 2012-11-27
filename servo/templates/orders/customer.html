@@ -2,9 +2,9 @@
 {% load mptt_tags %}
 {% recursetree nodes %}
 <address>
-	<strong>{{ node.name }}</strong><br/>
+	<strong><a href="{% url customers.views.view node.id %}">{{ node.name }}</a></strong><br/>
   {{ node.email|clickable:order.id }}<br/>
-  {{ node.phone }}<br/>
+  {{ node.phone|clickable:order.id }}<br/>
   {{ node.street_address }}<br/>
   {{ node.zip_code }} {{ node.city }}
 	{% for k, v in node.fullprops.items %}

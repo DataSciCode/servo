@@ -1,5 +1,5 @@
 <ul class="nav nav-pills nav-stacked">
 {% for c in results %}
-	<li><a href="{% url servo.views.customers.move id c.id %}">{{ c.name }}</a></li>
+	<li><a href="{% url customers.views.move id c.id %}">{{ c.name }}</a></li>
 {% endfor %}
 </ul>

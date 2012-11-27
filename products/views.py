@@ -5,17 +5,31 @@ from django import forms
 from django.contrib import messages
 from django.http import HttpResponse
 from django.core.cache import cache
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, render_to_response
 from django.utils.translation import ugettext as _
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from servo.models import *
+from orders.models import *
 from products.models import *
-from orders.models import PurchaseOrder, PurchaseOrderItem, Invoice
+
+class LocalizedModelForm(forms.ModelForm):
+    def __new__(cls, *args, **kwargs):
+        new_class = super(LocalizedModelForm, cls).__new__(cls, *args, **kwargs)
+        for field in new_class.base_fields.values():
+            if isinstance(field, forms.DecimalField):
+                field.localize = True
+                field.widget.is_localized = True
+
+        return new_class
 
 class PurchaseOrderForm(forms.ModelForm):
     class Meta:
         model = PurchaseOrder
+
+class PurchaseOrderItemForm(LocalizedModelForm):
+    class Meta:
+        model = PurchaseOrderItem
 
 class ProductForm(forms.ModelForm):
     class Meta:
@@ -26,7 +40,7 @@ class ProductForm(forms.ModelForm):
     amount_stocked = forms.CharField(max_length=3, required=False)
 
 def index(request, group_id=None, tag_id=None, spec_id=None):
-    title = _('Kaikki')
+    title = _(u'Ryhmä')
     all_products = Product.objects.all()
 
     if group_id:
@@ -40,7 +54,8 @@ def index(request, group_id=None, tag_id=None, spec_id=None):
     if tag_id:
         all_products = Product.objects.filter(tags__pk=tag_id)
 
-    tags = Tag.objects.filter(type='product')
+    tags = Tag.objects.filter(type="product")
+    specs = Tag.objects.filter(type="device")
     groups = ProductGroup.objects.all()
 
     page = request.GET.get('page')
@@ -57,7 +72,8 @@ def index(request, group_id=None, tag_id=None, spec_id=None):
         'products': products,
         'tags': tags,
         'groups': groups,
-        'title': title
+        'title': title,
+        'specs': specs,
         })
 
 def edit(request, product_id=0, code=None):
@@ -76,7 +92,7 @@ def edit(request, product_id=0, code=None):
         product = Product.from_gsx(result[0])
         form = ProductForm(instance=product)
     
-    return render(request, 'products/form.html', {'form': form,
+    return render_to_response("products/form.html", {'form': form,
         'product_id': product_id,
         'gsx_data': result
         })
@@ -87,11 +103,11 @@ def remove(request, id):
         Inventory.objects.filter(product=product).delete()
         product.delete()
         messages.add_message(request, messages.INFO, _(u'Tuote poistettu'))
-        return redirect('/products/')
+        return redirect("products.views.index")
     else:
         product = Product.objects.get(pk=id)
 
-    return render(request, 'products/remove.html', {'product': product})
+    return render(request, "products/remove.html", {'product': product})
 
 def save(request, product_id):
     """
@@ -150,7 +166,7 @@ def view(request, product_id=None, code=None):
 
 def invoices(request):
     data = Invoice.objects.all()
-    return render(request, 'store/invoices.html', {'invoices': data})
+    return render(request, "products/invoices.html", {'invoices': data})
   
 def create_po(request, product_id=None, order_id=None):
     """
@@ -175,7 +191,7 @@ def create_po(request, product_id=None, order_id=None):
             price=product.price_purchase)
 
     messages.add_message(request, messages.INFO,
-        _(u'Ostotilaus %d luotu' % po.id))
+        _(u'Ostotilaus %d luotu' % po.pk))
 
     return redirect(po)
 
@@ -184,7 +200,9 @@ def edit_po(request, id, item_id=None, action='add'):
     form = PurchaseOrderForm(instance=po)
 
     if request.method == 'POST':
-        form = PurchaseOrderForm(request.POST, instance=po)
+    	data = request.POST.copy()
+    	data['created_by'] = request.user.id
+        form = PurchaseOrderForm(data, instance=po)
 
         if form.is_valid():
             form.save()
@@ -196,12 +214,24 @@ def edit_po(request, id, item_id=None, action='add'):
             amounts = request.POST.getlist('amounts')
             
             for k, v in enumerate(items):
-                d = dict(amount=amounts[k], price=prices[k])
-                item = PurchaseOrderItem.objects.get(pk=v)
+            	item = PurchaseOrderItem.objects.get(pk=v)
+            	item.quantity = int(amounts[k])
+            	item.price = prices[k]
+                d = dict(quantity=amounts[k], price=prices[k], 
+                	product=item.product.id,
+                	title=item.product.title,
+                	code=item.product.code)
+                
                 f = PurchaseOrderItemForm(d, instance=item)
+                if not f.is_valid():
+                	print f.errors
+                	messages.add_message(request, messages.ERROR,
+                		_("Tarkista tuote %s" % item.product.code))
+                	break
+
                 f.save()
 
-            return redirect('servo.views.products.index_po')
+            return redirect('products.views.index_po')
 
     if item_id and action == 'add':
         product = Product.objects.get(pk=item_id)
@@ -235,7 +265,7 @@ def submit_po(request, id):
     po = PurchaseOrder.objects.get(pk=id)
     po.submit()
     messages.add_message(request, messages.INFO, _(u'Ostotilaus lähetetty'))
-    return redirect('servo.views.products.index_po')
+    return redirect('products.views.index_po')
   
 def index_po(request):
     data = PurchaseOrder.objects.all()
@@ -263,10 +293,10 @@ def index_incoming(request, shipment=None, date=None):
         for i in request.POST.getlist('items'):
             inv = Inventory.objects.get(pk=i)
 
-
     inventory = Inventory.objects.filter(kind="po")
-    return render(request, 'products/index_incoming.html',
+
+    return render(request, "products/index_incoming.html",
         {'inventory': inventory})
   
 def index_outgoing(request, shipment=None, date=None):
-    pass
+    return render(request, "products/index_outgoing.html")

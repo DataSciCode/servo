@@ -1,0 +1,37 @@
+{% extends "default.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Lähtevät tuotteet" %}{% endblock title %}
+
+{% block content %}
+<form method="post">
+  {% csrf_token %}
+  <table class="table">
+    <thead>
+      <tr>
+        <th></th>
+        <th>{% trans "Koodi" %}</th>
+        <th>{% trans "Nimike" %}</th>
+        <th>{% trans "Tilaus" %}</th>
+        <th>{% trans "Tilaaja" %}</th>
+        <th>{% trans "Vahvistus" %}</th>
+        <th>{% trans "Sarjanumero" %}</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for i in inventory %}
+      <tr>
+        <td><input type="checkbox" name="items" value="{{ i.pk }}"/></td>
+        <td>{{ i.product.code }}</td>
+        <td>{{ i.product.title }}</td>
+        <td>{{ i.purchase_order.sales_order }}</td>
+        <td>{{ i.purchase_order.created_by }}</td>
+        <td>{{ i.purchase_order.reference }}</td>
+        <td>{{ i.sn }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  <button type="submit" class="btn btn-primary pull-right">{% trans "Saavuta" %}</button>
+</form>
+{% endblock content %}

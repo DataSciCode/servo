@@ -2,6 +2,24 @@
  * servo.js
  */
 $(function() {
+    if($('.progress .bar').length) {
+        window.setInterval(function() {
+            var p = parseInt($('.progress .bar').data('progress')) + 10;
+            if(p < 100) {
+                $('.progress .bar').data('progress', p).css('width', p+'%')
+            }
+        }, 500);
+    }
+
+    $('a.nofollow').click(function(e) {
+        e.preventDefault();
+        var that = $(this);
+        $.get($(that).attr('href'), function(r) {
+            $(that).text(r);
+        });
+        return false;
+    });
+
 	$('input.filter').keyup(function() {
 		var rex = new RegExp($(this).val(), 'i');
 		$('.searchable tr').hide();

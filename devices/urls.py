@@ -11,4 +11,5 @@ urlpatterns = patterns('devices.views',
     url(r'^remove/$', 'remove'),
     url(r'^(\d+)/remove/$', 'remove'),
     url(r'^(\d+)?/save/$', 'save'),
+    url(r'^(\d+)/parts/$', 'parts'),
 )

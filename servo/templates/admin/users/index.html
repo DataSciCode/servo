@@ -8,11 +8,12 @@
 	<li class="pull-right"><a href="/admin/users/new">{% trans "Luo käyttäjä" %}</a></li>
 </ul>
 
-<table>
+<table class="table">
 {% for user in users %}
 	<tr>
-		<td><a href="/admin/users/{{ user.id }}/edit/">{{ user.username }}</a></td>
-		<td>{{ user.fullname }}</td>
+		<td><a href="{% url admin.views.edit_user user.id %}">{{ user.username }}</a></td>
+		<td>{{ user.firstname }}</td>
+		<td>{{ user.lastname }}</td>
 		<td>{{ user.email }}</td>
 	</tr>
 {% endfor %}

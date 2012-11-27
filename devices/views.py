@@ -12,11 +12,12 @@ from django.core.cache import cache
 
 from servo.models import Tag
 from devices.models import Device
+from products.models import Product
 
 class DeviceForm(forms.ModelForm):
     class Meta:
         model = Device
-        exclude = ('spec', 'customers', )
+        exclude = ('spec', 'customers', 'files', )
     
     tags = forms.ModelMultipleChoiceField(queryset=Tag.objects.filter(type='device'),
         required=False)
@@ -40,8 +41,8 @@ def index(request, *args, **kwargs):
     except EmptyPage:
         devices = paginator.page(paginator.num_pages)
 
-    tags = Tag.objects.filter(type='device')
-
+    tags = Tag.objects.filter(type="device")
+    
     return render(request, "devices/index.html", {
         'devices': devices,
         'tags': tags
@@ -58,7 +59,7 @@ def remove(req, id):
         return redirect('/devices/')
     else:
         dev = Device.objects.get(pk=id)
-        return render(req, 'devices/remove.html', {'device': dev})
+        return render(req, "devices/remove.html", {'device': dev})
 
 def edit(req, id):
     gsx_data = {}
@@ -74,8 +75,8 @@ def edit(req, id):
     dev = Device.objects.get(pk=id)
     
     form = DeviceForm(instance=dev)
-    return render(req, 'devices/form.html', {'device': dev,
-        'form': form, 'gsx_data': gsx_data})
+    return render(req, 'devices/form.html', {'device': dev, 'form': form, 
+    	'gsx_data': gsx_data})
 
 def view(request, id):
     device = Device.objects.get(pk=id)
@@ -92,40 +93,18 @@ def save(request, id):
     
     if form.is_valid():
         device = form.save()
-        messages.add_message(request, messages.INFO, _(u'Laite tallennettu'))
+        messages.add_message(request, messages.INFO, _(u"Laite tallennettu"))
         return redirect('/devices/')
 
-    return render(request, 'devices/form.html', {'form': form, 'device': device})
+    return render(request, "devices/form.html", {'form': form, 'device': device})
 
-def search(req, query):
+def search(request, query):
     if query:
-        return render(req, 'search_results.html')
+        return render(request, "search_results.html")
 
-    return render(req, 'devices/earch.html')
+    return render(request, "devices/search.html")
 
-def edit_spec(req, spec_id=None):
-    if req.method == 'POST':
-        form = SpecForm(req.POST)
-        if 'id' in req.POST:
-            spec = Spec.objects.get(pk=req.POST['id'])
-            form = SpecForm(req.POST, instance=spec)
-        if form.is_valid():
-            form.save()
-            messages.add_message(req, messages.INFO, u'Malli tallennettu')
-            return redirect('/devices/specs/')
-    else:
-        form = SpecForm()
-        if spec_id:
-            spec = Spec.objects.get(pk=spec_id)
-            form = SpecForm(instance=spec)
-
-    specs = Spec.objects.all()
-
-    return render(req, 'devices/spec_form.html', {
-        'form': form,
-        'specs': specs
-        })
-
-def view_spec(req, spec_id):
-    specs = Spec.objects.all()
-    return render(req, 'devices/view_spec.html', {'specs': specs})
+def parts(request, device_id):
+	device = Device.objects.get(pk=device_id)
+	device.parts = Product.objects.filter(tags__pk=device.spec_id)
+	return render(request, "devices/parts.html", {'device': device})

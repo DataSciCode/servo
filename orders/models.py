@@ -339,7 +339,8 @@ class PurchaseOrderItem(OrderItem):
     price = models.DecimalField(decimal_places=2, max_digits=6,
         verbose_name=_(u'ostohinta'))
 
-    purchase_order = models.ForeignKey(PurchaseOrder, editable=False)
+    purchase_order = models.ForeignKey(PurchaseOrder, editable=False,
+        verbose_name=_(u'ostotilaus'))
     order_item = models.ForeignKey(ServiceOrderItem, null=True, editable=False)
 
     date_ordered = models.DateTimeField(null=True, editable=False)
