@@ -6,6 +6,5 @@ urlpatterns = patterns('notes.views',
     url(r'^(?P<id>\d+)/remove/$', 'remove'),
     url(r'^mailto/(?P<recipient>.+)/$', 'edit'),
     url(r'^smsto/(?P<recipient>\d+)/$', 'edit'),
-    url(r'^save/$', 'save'),
-    url(r'^template/(\d+)/$', 'template'),
+    url(r'^(\d+)/template/$', 'template'),
 )

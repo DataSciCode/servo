@@ -6,12 +6,9 @@ from django.utils.translation import ugettext as _
 from django.dispatch import receiver
 from django.core.cache import cache
 
-from django.contrib.auth.models import User as DjangoUser, Group
+from django.contrib.auth.models import User, Group
 from servo.models import Location, Queue
 
-class User(DjangoUser):
-    def fullname(self):
-        return ""
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User)

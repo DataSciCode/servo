@@ -84,10 +84,6 @@ $(function() {
             $.get('/customers/search/', {'query': query}, function(r) {
                 process(r);
             });
-        },
-        updater: function(item) {
-            console.log(item);
-            return item;
         }
     });
 });

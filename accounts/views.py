@@ -42,17 +42,17 @@ def login(request):
     return render(request, 'accounts/login.html')
 
 def settings(request):
-    if request.method == "POST":
+    if request.method == 'POST':
     	data = request.POST.copy()
     	data['user'] = request.user.id
-        profile = UserProfile.objects.get_or_create(user=request.user)[0]
+        profile = request.user.get_profile()
         form = ProfileForm(data, instance=profile)
 
         if form.is_valid():
         	profile = form.save()
         else:
         	print form.errors
-        	return render(request, "accounts/settings.html", {'form': form})
+        	return render(request, 'accounts/settings.html', {'form': form})
         
         if request.POST.get('password'):
             request.user.set_password(request.POST['password'])
@@ -61,7 +61,7 @@ def settings(request):
         msgs.add_message(request, msgs.INFO, _(u'Asetukset tallennettu'))
         return redirect('accounts.views.settings')
     else:
-        form = ProfileForm(instance=request.session.get('user_profile'))
+        form = ProfileForm(instance=request.user.get_profile())
         return render(request, 'accounts/settings.html', {'form': form})
 
 def home(request):

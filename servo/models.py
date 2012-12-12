@@ -11,6 +11,8 @@ from django.core.cache import cache
 from lib.shorturl import encode_url
 
 from django.contrib.auth.models import User, Group
+
+from countries.models import Country
 from gsx.models import Account as GsxAccount
 
 class Tag(MPTTModel):
@@ -80,10 +82,9 @@ class Location(models.Model):
         verbose_name=_(u'postinumero'))
     city = models.CharField(max_length=16, null=True, blank=True,
         verbose_name=_(u'toimipaikka'))
+    country = models.ForeignKey(Country, verbose_name=_(u'maa'))
     office_hours = models.CharField(max_length=16, null=True, blank=True,
         verbose_name=_(u'aukioloajat'), default='9:00 - 18:00')
-    description = models.TextField(blank=True, null=True, 
-        verbose_name=_(u'kuvaus'))
 
     def __unicode__(self):
         return self.title

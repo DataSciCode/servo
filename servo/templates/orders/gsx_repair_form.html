@@ -28,12 +28,12 @@
         </div>
       </div>
       <div class="tab-pane" id="tab2">
-        {% for part in parts %}
+      {% for part in parts %}
         <div class="control-group">
-          <input type="checkbox" name="ids" value="{{ part.number }}" checked="checked"/>
+          <input type="checkbox" name="ids" value="{{ part.number }}" checked="checked" readonly="readonly"/>
           <input type="text" readonly="readonly" value="{{ part.code }}" name="part_numbers" class="input-medium"/>
           <input type="text" readonly="readonly" value="{{ part.title }}" class="input-xlarge"/>
-          <select name="part_codes" class="input-small">
+          <select name="part_codes" class="input-medium">
             <option value="">{% trans "CompTIA code" %}...</option>
             {% for k, v in part.symptoms.items %}
             <option value="{{ k }}">{{ k }} - {{ v }}</option>
@@ -50,7 +50,7 @@
             <option value="Y">{% trans "Vahinko" %}</option>
           </select>
         </div>
-        {% endfor %}
+      {% endfor %}
       </div>
       <div class="tab-pane" id="tab3">
         {% include "form_snippet.html" with form=customer_form %}

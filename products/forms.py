@@ -27,3 +27,8 @@ class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
         exclude = ('files')
+        widgets = {
+            'code': forms.TextInput(attrs={'class': 'input-small'}),
+            'title': forms.TextInput(attrs={'class': 'input-xlarge'}),
+            'description': forms.Textarea(attrs={'class': 'input-xlarge', 'rows': 6})
+        }

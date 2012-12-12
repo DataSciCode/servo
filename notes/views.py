@@ -10,9 +10,12 @@ from notes.forms import NoteForm
 from orders.models import Order
 from servo.models import Template, Attachment
 
-def edit(request, id=0, kind='note', order_id=None, parent=None,
+def edit(request, note_id='new', kind='note', order_id=None, parent=None,
     recipient=''):
     
+    if request.method == 'POST':
+        return save(request, kind, note_id)
+
     if recipient:
         kind = 'message'
         
@@ -25,8 +28,8 @@ def edit(request, id=0, kind='note', order_id=None, parent=None,
 
     form = NoteForm(initial={'kind': kind, 'recipient': recipient})
 
-    if int(id) > 0:
-        note = Note.objects.get(pk=id)
+    if note_id != 'new':
+        note = Note.objects.get(pk=note_id)
         form = NoteForm(instance=note)
 
     if parent:
@@ -37,7 +40,7 @@ def edit(request, id=0, kind='note', order_id=None, parent=None,
             'order_id': parent.order_id,
             'parent': parent.id,
             'kind': parent.kind,
-            'report': parent.report
+            'should_report': parent.should_report
         })
 
         if parent.sent_at:
@@ -64,7 +67,7 @@ def remove(request, id=None):
         note = Note.objects.get(pk=id)
         return render(request, 'notes/remove.html', {'note': note})
 
-def save(request, kind='note', note_id="new"):
+def save(request, kind='note', note_id='new'):
     # note is being saved
     data = request.POST.copy()
 

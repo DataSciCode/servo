@@ -16,7 +16,7 @@
       {% endfor %}
       <li class="nav-header">{% trans "Käsittelijä" %}</li>
       {% for u in  users %}
-      <li><a href="{% url orders.views.index user=u.id %}">{{ u.username }} <span class="badge pull-right counter"></span></a></li>
+      <li><a href="{% url orders.views.index user=u.id %}">{{ u.get_full_name|default:u.username }} <span class="badge pull-right counter"></span></a></li>
       {% endfor %}
     </ul>
   </div>

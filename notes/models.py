@@ -43,7 +43,7 @@ class Note(MPTTModel):
     order = models.ForeignKey(Order, null=True, blank=True)
     flags = models.CharField(max_length=2, default='01', blank=True)
 
-    report = models.BooleanField(default=True)
+    should_report = models.BooleanField(default=True, verbose_name=_(u'raportoi'))
     attachments = models.ManyToManyField(Attachment, null=True, blank=True)
     
     def __str__(self):

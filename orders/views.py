@@ -19,6 +19,7 @@ from orders.forms import *
 from devices.models import Device
 from customers.models import Customer
 from servo.models import Queue, Status, Tag
+from notes.models import Note
 from gsx.models import Lookup
 
 def close(request, id):
@@ -29,11 +30,11 @@ def close(request, id):
         messages.add_message(request, messages.INFO, _(u"Tilaus suljettu"))
         return redirect(order)
 
-    return render(request, "orders/close.html", {'order': order})
+    return render(request, 'orders/close.html', {'order': order})
 
 @login_required
 def create(request, sn=None, product_id=None, note_id=None):
-    o = Order.objects.create(created_by=request.user)
+    order = Order.objects.create(created_by=request.user)
 
     if sn:
         try:
@@ -44,28 +45,28 @@ def create(request, sn=None, product_id=None, note_id=None):
                 description=cached.get('productDescription'),
                 purchased_on=cached.get('estimatedPurchaseDate'))
             
-        o.devices.add(device)
-        o.save()
+        order.devices.add(device)
+        order.save()
 
     # creating an order from a product
     if product_id:
         product = Product.objects.get(pk=product_id)
-        o.add_product(product)
+        order.add_product(product)
 
     if note_id:
         note = Note.objects.get(pk=note_id)
-        note.order = o
+        note.order = order
         note.save()
         # try to match a customer
-        if note.mailfrom:
+        if note.sender:
             try:
-                customer = Customer.objects.get(contactinfo_value=note.mailfrom)
+                customer = Customer.objects.get(email=note.sender)
                 order.customer = customer
                 order.save()
-            except Exception, e:
-                print e
+            except Customer.DoesNotExist:
+                pass
 
-    return redirect(o)
+    return redirect(order)
 
 def search(request):
     queues = Queue.objects.all()
@@ -256,7 +257,9 @@ def create_gsx_repair(request, order_id):
         try:
             comp = p.product.component_code
             symptoms = comptia[comp]
-            parts.append({'number': p.id, 'title': p.title,
+            parts.append({
+                'number': p.id,
+                'title': p.title,
                 'code': p.product.code,
                 'symptoms': symptoms
             })
@@ -267,7 +270,7 @@ def create_gsx_repair(request, order_id):
 
     profile = request.user.get_profile()
     customer = {}
-    
+
     if order.customer:
         customer = order.customer.gsx_address()
     else:
@@ -289,7 +292,6 @@ def create_gsx_repair(request, order_id):
         if not repair_form.is_valid():
             print repair_form.errors
 
-        profile = request.user.get_profile()
         repair = repair_form.cleaned_data
 
         repair['serialNumber'] = repair['device'].sn
@@ -299,8 +301,8 @@ def create_gsx_repair(request, order_id):
         customer_address['country'] = customer_address['country'].iso3
 
         # @todo: where should we put these?
-        customer_address['state'] = "ZZ"
-        customer_address['regionCode'] = "004"
+        customer_address['state'] = 'ZZ'
+        customer_address['regionCode'] = '004'
         repair['customerAddress'] = customer_address
 
         if not request.FILES:
@@ -318,7 +320,7 @@ def create_gsx_repair(request, order_id):
             part = {'partNumber': v, 'comptiaCode': comptia_codes[k],
                 'comptiaModifier': comptia_modifiers[k],
                 'abused': abused[k]}
-            
+
             f = GsxPartForm(part)
 
             if not f.is_valid():
@@ -338,9 +340,16 @@ def create_gsx_repair(request, order_id):
 
         # ... and add the parts to the PO
         # @todo: link part to ServiceOrderItem
-        for p in order_lines:
-            PurchaseOrderItem.objects.create(code=p['partNumber'], 
+        ids = request.POST.getlist('ids')
+
+        for p in ids:
+            soi = ServiceOrderItem.objects.get(pk=p)
+            PurchaseOrderItem.objects.create(
+                code=soi.code, 
+                order_item=soi,
+                price=soi.price,
                 purchase_order=po,
+                product=soi.product,
                 date_ordered=datetime.now())
 
         repair['poNumber'] = str(po.id)
@@ -358,17 +367,20 @@ def create_gsx_repair(request, order_id):
         
         try:
             result = gsx.create_carryin_repair(repair)
-            description =  _(u'Huolto %s luotu' % result[0]['confirmationNumber'])
+            confirmation = result[0]['confirmationNumber']
+            po.confirmation = confirmation
+            po.save()
+            description =  _(u'GSX huolto %s luotu' % confirmation)
+            order.notify('gsx_repair_created', description, request.user)
             messages.add_message(request, messages.INFO, description)
-            Event.objects.create(description=description, 
-                triggered_by=request.user,
-                ref='order', ref_id=order.id, action='gsx_repair_created')
             return redirect(order)
         except gsxlib.GsxError, e:
             messages.add_message(request, messages.ERROR, e)
     
     repair_form = GsxRepairForm(order=order)
-    customer_form = GsxCustomerForm(profile=profile, customer=customer)
+    customer_form = GsxCustomerForm(profile=profile, 
+        customer=customer,
+        initial={'country': profile.location.country})
 
     return render(request, 'orders/gsx_repair_form.html', {
         'parts': parts,
@@ -458,7 +470,7 @@ def reserve_products(request, order_id):
 def products(request, order_id, item_id=None, action='list'):
     order = Order.objects.get(pk=order_id)
 
-    if action == "list":
+    if action == 'list':
         return render(request, 'orders/products.html', {"order": order})
 
     if action == 'add':

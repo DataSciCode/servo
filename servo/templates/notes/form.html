@@ -10,8 +10,7 @@
 </ul>
 {% endif %}
 
-<form action="{% url notes.views.save %}" method="post" accept-charset="utf-8" 
-  class="form-horizontal" enctype="multipart/form-data">
+<form action="" method="post" accept-charset="utf-8" class="form-horizontal" enctype="multipart/form-data">
   {% csrf_token %}
   <input type="hidden" name="kind" value="{{ note.kind }}">
   {% if note.id %}
@@ -43,11 +42,7 @@
       <input type="file" name="content"/>
     </div>
   </div>
-  <div class="control-group">
-    <div class="controls">
-      <label class="checkbox">{{ form.report }}{% trans 'raportoi' %}</label>
-    </div>
-  </div>
+  {% include "form_field_snippet.html" with field=form.should_report %}
   <div class="form-actions">
     <input type="submit" class="btn btn-primary" value="{% trans "Tallenna" %}"/>
   </div>

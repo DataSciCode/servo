@@ -210,7 +210,10 @@ class Order(models.Model):
             Inventory.objects.create(slot=self.pk, product=product, kind='order')
             i = i + 1
 
-        oi = ServiceOrderItem.objects.create(order=self, product=product,
+        oi = ServiceOrderItem.objects.create(
+            order=self,
+            product=product,
+            code=product.code,
             title=product.title,
             price=product.price_sales)
 
