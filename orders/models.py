@@ -57,7 +57,10 @@ class Order(models.Model):
         self.save()
 
         Event.objects.create(description=_(u'Tilaus %d suljettu' %self.id),
-            order=self, kind='close_order', user=user)
+            ref='order', 
+            ref_id=self.id, 
+            action='close_order', 
+            triggered_by=user)
 
     def notes(self):
         return self.note_set.all()
@@ -66,14 +69,7 @@ class Order(models.Model):
         return self.note_set.filter(report=True)
 
     def events(self):
-        return Event.objects.filter(order=self)
-
-    def total(self):
-        total = 0
-        for p in self.products:
-            total += p.amount*p.price
-
-        return total
+        return Event.objects.filter(ref="order", ref_id=self.pk)
 
     def can_gsx(self):
         return True
@@ -106,6 +102,14 @@ class Order(models.Model):
     def set_property(self, key, value):
         pass
 
+    def notify(self, action, message, user):
+        Event.objects.create(
+            description=message,
+            ref='order',
+            ref_id=self.pk,
+            action='set_status',
+            triggered_by=user)
+
     def set_status(self, status_id, user):
         from time import time
         status = Status.objects.get(pk=status_id)
@@ -117,18 +121,12 @@ class Order(models.Model):
         self.status = status
         self.save()
 
-        Event.objects.create(description=status.title,
-            order=self,
-            kind='set_status',
-            user=user)
+        self.notify('set_status', status.title, user)
 
     def set_queue(self, queue_id, user):
         queue = Queue.objects.get(pk=queue_id)
         self.queue = queue
-        event = Event.objects.create(description=queue.title, order=self,
-            kind='set_queue',
-            user=user)
-
+        self.notify('set_queue', queue.title, user)
         self.save()
 
     def set_user(self, user_id, current_user):
@@ -145,8 +143,10 @@ class Order(models.Model):
         self.state = state
         self.save()
 
-        Event.objects.create(description=event, order=self, kind='set_user',
-            user=current_user)
+        Event.objects.create(description=event, ref='order',
+            ref_id=self.id,
+            action='set_user',
+            triggered_by=current_user)
 
     def customer_id(self):
         return self.customer.id
@@ -187,9 +187,20 @@ class Order(models.Model):
         total = 0
 
         for p in self.serviceorderitem_set.filter(reported=True):
-            total += (p.price * p.amount())
+            total += p.product.price_notax * p.amount
 
         return total
+
+    def gross_total(self):
+        total = 0
+
+        for p in self.serviceorderitem_set.filter(reported=True):
+            total += p.price * p.amount
+
+        return total
+
+    def total_tax(self):
+        return self.gross_total() - self.net_total()
 
     def add_product(self, product, amount=1):
         Inventory.objects.filter(slot=self.pk, product=product).delete()
@@ -205,41 +216,47 @@ class Order(models.Model):
 
         self.save()
 
+    def dispatch(self, products):
+        print products
+
+    def total_margin(self):
+        total_purchase_price = 0
+        for p in self.serviceorderitem_set.filter(reported=True):
+            total_purchase_price += p.product.price_purchase * p.amount
+
+        return (self.net_total() - total_purchase_price)
+
+
 class OrderItem(models.Model):
     product = models.ForeignKey(Product)
+    code = models.CharField(max_length=128, blank=True, null=True)
     title = models.CharField(max_length=128, verbose_name=_(u'nimi'))
     description = models.TextField(blank=True, null=True,
         verbose_name=_(u'kuvaus'))
+    amount = models.IntegerField(default=1, verbose_name=_(u'määrä'))
+    sn = models.CharField(max_length=32, null=True, blank=True,
+        verbose_name=_(u'sarjanumero'))
 
     class Meta:
         abstract = True
 
 class ServiceOrderItem(OrderItem):
+    """
+    A product that has been added to a Service Order
+    """
     order = models.ForeignKey(Order)
-    dispatched = models.BooleanField(default=False, verbose_name=_(u'toimitettu'))
-    sn = models.CharField(max_length=32, null=True, blank=True,
-        verbose_name=_(u'sarjanumero'))
-    reported = models.BooleanField(default=True, verbose_name=_(u'raportoi'))
+    dispatched = models.BooleanField(default=False, 
+        verbose_name=_(u'toimitettu'))
+    reported = models.BooleanField(default=True, 
+        verbose_name=_(u'raportoi'))
     price = models.DecimalField(decimal_places=2, max_digits=6,
         verbose_name=_(u'myyntihinta'))
-
-    def amount(self):
-        i = Inventory.objects.filter(slot=self.order.pk, product=self.product)
-        return i.count()
-
-class Event(models.Model):
-    description = models.CharField(max_length=255)
-    created_at = models.DateTimeField(default=datetime.now())
-    handled_at = models.DateTimeField(null=True)
-    order = models.ForeignKey(Order)
-    user = models.ForeignKey(User)
-    kind = models.CharField(max_length=32)
-
-    class Meta:
-        ordering = ['-id']
+    should_return = models.BooleanField(default=False, 
+        verbose_name=_(u'palautetaan'))
+    #returned_at = models.DateTimeField(null=True)
 
 class Invoice(models.Model):
-    PAYMENT_METHOS = (
+    PAYMENT_METHODS = (
         (0, _(u'Ei veloitusta')),
         (1, _(u'Käteinen')),
         (2, _(u'Lasku')),
@@ -250,8 +267,8 @@ class Invoice(models.Model):
 
     created_by = models.ForeignKey(User)
     created_at = models.DateTimeField(default=datetime.now())
-    payment_method = models.IntegerField(choices=PAYMENT_METHOS,
-        default=PAYMENT_METHOS[0], verbose_name=_(u'maksutapa'))
+    payment_method = models.IntegerField(choices=PAYMENT_METHODS,
+        default=PAYMENT_METHODS[0], verbose_name=_(u'maksutapa'))
 
     order = models.ForeignKey(Order)
     customer = models.ForeignKey(Customer, null=True, on_delete=models.SET_NULL)
@@ -265,15 +282,19 @@ class Invoice(models.Model):
     customer_address = models.CharField(max_length=128, blank=True, null=True,
         verbose_name=_(u'osoite'))
 
-    total_tax = models.DecimalField(max_digits=6, decimal_places=2,
-        editable=False)
-    total_sum = models.DecimalField(max_digits=6, decimal_places=2,
-        editable=False)
-    total_margin = models.DecimalField(max_digits=6, decimal_places=2,
-        editable=False)
+    total_net = models.DecimalField(max_digits=6, decimal_places=2)     # total w/o taxes
+    total_gross = models.DecimalField(max_digits=6, decimal_places=2)   # total with taxes
+    total_tax = models.DecimalField(max_digits=6, decimal_places=2)     # total taxes
+    total_margin = models.DecimalField(max_digits=6, decimal_places=2)  # total margin
 
     is_paid = models.BooleanField(default=False, verbose_name=_(u'maksettu'))
-    paid_at = models.DateTimeField()
+    paid_at = models.DateTimeField(null=True, blank=True)
+
+    def get_payment_method(self):
+        return self.PAYMENT_METHODS[self.payment_method][1]
+
+    class Meta:
+        ordering = ['-id']
 
 class InvoiceItem(OrderItem):
     invoice = models.ForeignKey(Invoice)
@@ -281,12 +302,21 @@ class InvoiceItem(OrderItem):
         verbose_name=_(u'myyntihinta'))
 
 class PurchaseOrder(models.Model):
-    sales_order = models.CharField(max_length=32,
+    """
+    A purchase order(PO) consists of different purchase order items 
+    all of which may reference individual Service Orders. 
+    When a PO is submitted, the included items are registered 
+    to the /products/incoming/ list (items that have not yet arrived). 
+    A PO cannot be edited after it's been submitted.
+    
+    Creating a PO from an SO only creates the PO, it does not submit it.
+    """
+    sales_order = models.ForeignKey(Order, null=True, blank=True,
         verbose_name=_(u'huoltotilaus'))
-    reference = models.CharField(max_length=32,
-        verbose_name=_(u'viite'))
-    confirmation = models.CharField(max_length=32,
-        verbose_name=_(u'vahvistus'))
+    reference = models.CharField(max_length=32, verbose_name=_(u'viite'),
+        null=True, blank=True)
+    confirmation = models.CharField(max_length=32, verbose_name=_(u'vahvistus'),
+        null=True, blank=True)
 
     created_by = models.ForeignKey(User)
     date_created = models.DateTimeField(default=datetime.now(), editable=False)
@@ -307,13 +337,13 @@ class PurchaseOrder(models.Model):
     def sum(self):
         total = 0
         for p in self.purchaseorderitem_set.all():
-            total += float(p.price*p.quantity)
+            total += float(p.price*p.amount)
         return total
 
     def amount(self):
         amount = 0
         for p in self.purchaseorderitem_set.all():
-            amount += p.quantity
+            amount += p.amount
         
         return amount
 
@@ -323,29 +353,45 @@ class PurchaseOrder(models.Model):
         for i in self.purchaseorderitem_set.all():
             Inventory.objects.create(kind='po', product=i.product, slot=self.id)
 
-    def add_product(self, product, quantity=1):
+    def add_product(self, product, amount=1):
+        poi = PurchaseOrderItem(amount=amount, purchase_order=self)
+        
+        if isinstance(product, OrderItem):
+            poi.code = product.product.code
+            poi.order_item = product
+            poi.price = product.price
+            poi.product_id = product.product.id
+        
+        if isinstance(product, Product):
+            poi.code = product.code
+            poi.product_id = product.id
+            poi.price = product.price_purchase
+
+        poi.save()
+
+        """
         PurchaseOrderItem.objects.create(code=product.code,
-            quantity=quantity,
+            amount=amount,
             purchase_order=self,
             product_id=product.id, 
             price=product.price_purchase)
-        
-        for i in xrange(0, quantity):
-            Inventory.objects.create(product=product, slot=self.id, kind="po")
+        for i in xrange(0, amount):
+            Inventory.objects.create(product=product, slot=self.id, kind='po')
+        """
+
+    class Meta:
+        ordering = ['-id']
 
 class PurchaseOrderItem(OrderItem):
-    code = models.CharField(max_length=128)
-    quantity = models.IntegerField(default=1)
     price = models.DecimalField(decimal_places=2, max_digits=6,
         verbose_name=_(u'ostohinta'))
-
     purchase_order = models.ForeignKey(PurchaseOrder, editable=False,
         verbose_name=_(u'ostotilaus'))
     order_item = models.ForeignKey(ServiceOrderItem, null=True, editable=False)
-
     date_ordered = models.DateTimeField(null=True, editable=False)
-    date_arrived = models.DateTimeField(null=True, blank=True, editable=False,
+    date_received = models.DateTimeField(null=True, blank=True, editable=False,
         verbose_name=_(u'saapunut'))
+    received_by = models.ForeignKey(User, null=True)
 
 class CheckList(models.Model):
     pass
@@ -354,7 +400,6 @@ class CheckListItem(models.Model):
     pass
 
 class GsxRepair(models.Model):
-    #customer_data = DictField()
     firstname = models.CharField(max_length=64)
     lastname = models.CharField(max_length=64)
 
@@ -365,9 +410,45 @@ class GsxRepair(models.Model):
 def trigger_event(sender, instance, created, **kwargs):
     if created:
     	instance.code = encode_url(instance.id).upper()
-        Event.objects.create(description=_('Tilaus luotu'),
-        	order=instance, 
-        	kind='create_order',
-            user=instance.created_by)
-
+        description = _('Tilaus %s luotu' % instance.code)
+        instance.notify('created', description, instance.created_by)
         instance.save()
+
+@receiver(post_save, sender=Invoice)
+def trigger_order_dispatched(sender, instance, created, **kwargs):
+    if created:
+        description = _('Tilaus %s toimitettu' % instance.order.code)
+        instance.order.notify('dispatched', description, instance.created_by)
+    
+        if instance.is_paid and not instance.paid_at:
+            instance.paid_at = datetime.now()
+            instance.save()
+
+@receiver(post_save, sender=PurchaseOrderItem)
+def trigger_product_ordered(sender, instance, created, **kwargs):
+    product = instance.product
+    
+    if created:
+        product.amount_ordered = product.amount_ordered + 1
+        
+    if instance.date_received:
+        product.amount_ordered = product.amount_ordered - 1
+        product.amount_stocked = product.amount_stocked + 1
+        description = _('Tuote %s saapunut' % instance.code)
+        Event.objects.create(description=description,
+            ref='order',
+            action='arrived',
+            ref_id=instance.purchase_order.sales_order.id,
+            triggered_by=instance.received_by)
+
+    product.save()
+
+@receiver(post_save, sender=PurchaseOrder)
+def trigger_purchase_order_created(sender, instance, created, **kwargs):
+    if created and instance.sales_order:
+        description = _(u'Ostotilaus %d luotu' % instance.id)
+        Event.objects.create(description=description,
+            ref='order',
+            action='po_created',
+            ref_id=instance.sales_order.id, 
+            triggered_by=instance.created_by)

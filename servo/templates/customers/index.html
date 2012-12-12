@@ -2,21 +2,6 @@
 {% load i18n %}
 
 {% block navtabs %}
-<ul class="breadcrumb">
-  <li><a href="{% url customers.views.index %}">{% trans "Asiakkaat" %}</a></li>
-</ul>
-<ul class="nav nav-tabs">
-  <li class="dropdown active">
-    <a href="#" class="dropdown-toggle" data-toggle="dropdown">{% trans "Kaikki" %} <b class="caret"></b></a>
-    <ul class="dropdown-menu">
-      <li><a href="{% url customers.views.index %}">{% trans "Kaikki" %}</a></li>
-      {% for t in  tags %}
-      <li><a href="{% url customers.views.index tag=t.id %}">{{ t.title }}</a></li>
-      {% endfor %}
-    </ul>
-  </li>
-  <li class="pull-right"><a href="/customers/new/">{% trans "Luo asiakas" %}</a></li>
-</ul>
 {% endblock navtabs %}
 
 {% block content %}
@@ -27,9 +12,22 @@
   {% endblock sidebar %}
   </div>
   <div class="span9">
+    <ul class="nav nav-tabs">
+      <li class="dropdown active">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">{% trans "Kaikki" %} <b class="caret"></b></a>
+        <ul class="dropdown-menu">
+          <li><a href="{% url customers.views.index %}">{% trans "Kaikki" %}</a></li>
+          {% for t in  tags %}
+          <li><a href="{% url customers.views.index tag=t.id %}">{{ t.title }}</a></li>
+          {% endfor %}
+        </ul>
+      </li>
+      <li class="pull-right"><a href="/customers/new/">{% trans "Luo asiakas" %}</a></li>
+    </ul>
     {% block detail_block %}
     {% trans "Valitse asiakas..." %}
     {% endblock detail_block %}
   </div>
 </div>
+
 {% endblock content %}

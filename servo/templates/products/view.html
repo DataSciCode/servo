@@ -1,11 +1,14 @@
 {% extends "products/index.html" %}
 {% load i18n %}
 {% block products_content %}
-	<h2>{{ product.code }}</h2>
-	<h3>{{ product.title }}</h3>
-	<dl class="dl-horizontal">
-  	<dt>{% trans "Viimeksi myyty" %}</dt><dd></dd>
-  	<dt>{% trans "Viimeksi saapunut" %}</dt><dd></dd>
-	</dl>
-	<a href="javascript:history.back()" class="btn">{% trans "Takaisin" %}</a>
+<h2>{{ product.code }}</h2>
+<h3>{{ product.title }}</h3>
+<dl class="dl-horizontal">
+  <dt>{% trans "Viimeksi myyty" %}</dt><dd>{{ product.latest_date_sold }}</dd>
+  <dt>{% trans "Viimeksi tilattu" %}</dt><dd>{{ product.latest_date_ordered }}</dd>
+  <dt>{% trans "Viimeksi saapunut" %}</dt><dd>{{ product.latest_date_arrived }}</dd>
+  <dt>{% trans "Tilattu" %}</dt><dd>{{ product.amount_ordered }}</dd>
+  <dt>{% trans "Varattu" %}</dt><dd>{{ product.amount_reserved }}</dd>
+</dl>
+<a href="javascript:history.back()" class="btn">{% trans "Takaisin" %}</a>
 {% endblock products_content %}

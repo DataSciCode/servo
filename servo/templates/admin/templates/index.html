@@ -7,14 +7,23 @@
 		<li class="pull-right"><a href="/admin/templates/new/">{% trans "Luo pohja" %}</a></li>
 	</ul>
 	<table class="table">
-{% for t in templates %}
+	{% for t in templates %}
 		<tr>
 			<td>{{ t.title }}</td>
 			<td>{{ t.body }}</td>
-			<td><a href="/admin/templates/{{ t.id }}/edit/" class="btn"><i class="icon-edit"></i> Muokkaa</a></td>
-			<td><a href="/admin/templates/{{ t.id }}/delete/" class="btn"><i class="icon-minus"></i> Poista</a></td>
+			<td>
+      <div class="btn-group pull-right">
+        <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+          <i class="icon-cog"></i> <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu">
+          <li><a href="{% url admin.views.edit_template t.id %}">{% trans "Muokkaa" %}</a></li>
+          <li><a href="{% url admin.views.remove_template t.id %}">{% trans "Poista" %}</a></li>
+        </ul>
+      </div>
+    </td>
 		</tr>
-{% endfor %}
+	{% endfor %}
 	</table>
 
 {% endblock admin_content %}

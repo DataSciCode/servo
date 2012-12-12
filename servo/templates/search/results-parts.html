@@ -5,8 +5,13 @@
 	<li class="active"><a href="/search/parts/?q={{ query }}">{% trans "Varaosat" %}</a></li>
 	<li><a href="/search/repairs/?q={{ query }}">{% trans "Huollot" %}</a></li>
 </ul>
-
 <table class="table table-hover searchable">
+	<thead>
+		<tr>
+			<th colspan="2"></th>
+			<th colspan="3"><input type="text" class="input-medium search-query pull-right"/></th>
+		</tr>
+	</thead>
 	<tbody>
 	{% for p in results %}
 		<tr>

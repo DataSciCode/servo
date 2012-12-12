@@ -1,15 +1,15 @@
 <div class="pagination pagination-centered">
   <ul>
     {% if items.has_previous %}
-    <li><a href="?page={{ items.previous_page_number }}">«</a></li>
+    <li><a href="?page={{ items.previous_page_number }}"><span>&laquo;</span></a></li>
     {% else %}
-    <li class="disabled"><a href="#">«</a></li>
+    <li class="disabled"><a href="#"><span>&laquo;</span></a></li>
     {% endif %}
-    <a href="#"><li class="active">Sivu {{ items.number }}/{{ items.paginator.num_pages }}</a>
+    <li class="active"><a href="#"><span>Sivu {{ items.number }}/{{ items.paginator.num_pages }}</span></a></li>
     {% if items.has_next %}
-    <li><a href="?page={{ items.next_page_number }}">»</a></li>
+    <li><a href="?page={{ items.next_page_number }}"><span>&raquo;</span></a></li>
     {% else %}
-    <li class="disabled"><a href="#">»</a></li>
+    <li class="disabled"><a href="#"><span>&raquo;</span></a></li>
     {% endif %}
   </ul>
 </div>

@@ -2,34 +2,38 @@
 {% load i18n %}
 
 {% block admin_content %}
-<form method="post" action="{% url admin.views.save_queue queue.id %}" 
-  accept-charset="utf-8" 
+<form method="post" 
+  accept-charset="utf-8"
+  class="form-horizontal"
   enctype="multipart/form-data" 
-  class="form-horizontal">
-{% csrf_token %}
-  <legend>{% trans "Muokkaa jonoa" %}</legend>
-  {% include "form_snippet.html" %}
-  
-  <h4>{% trans "Statukset" %}</h4>
-  <table class="table">
-  {% for status in statuses %}
-    <tr>
-      <td style="width:20px">
-        <input type="checkbox" class="toggle_row" value="{{ status.id }}" name="status.{{ status.id }}.id"/>
-      </td>
-      <td>{{ status.title }}</td>
-      <td><input type="text" class="input-mini" value="" name="status.{{ status.id }}.limit_green"/></td>
-      <td><input type="text" class="input-mini" value="" name="status.{{ status.id }}.limit_yellow"/></td>
-      <td>
-        <select name="status.{{ status.id }}.limit_factor">
-        {% for k, v in status.FACTORS %}
-          <option value="{{ k }}">{{ v }}</option>
-        {% endfor %}
-        </select>
-      </td>
-    </tr>
-  {% endfor %}
-  </table>
+  action="{% url admin.views.save_queue queue.id %}" >
+  {% csrf_token %}
+  <ul class="nav nav-tabs">
+    <li class="active"><a href="#tab1" data-toggle="tab">{% trans "Perustiedot" %}</a></li>
+    <li><a href="#tab2" data-toggle="tab">{% trans "Statukset" %}</a></li>
+  </ul>
+
+  <div class="tab-content">
+    <div class="tab-pane active" id="tab1">
+      {% include "form_field_snippet.html" with field=form.title %}
+      {% include "form_field_snippet.html" with field=form.description %}
+      {% include "form_field_snippet.html" with field=form.gsx_account %}
+      {% include "form_field_snippet.html" with field=form.order_template %}
+      {% include "form_field_snippet.html" with field=form.receipt_template %}
+      {% include "form_field_snippet.html" with field=form.dispatch_template %}
+    </div>
+    <div class="tab-pane" id="tab2">
+    {% for f in status_forms %}
+      <div class="control-group">
+        {{ f.enabled }}
+        {{ f.title }}
+        {{ f.limit_green }}
+        {{ f.limit_yellow }}
+        {{ f.limit_factor }}
+      </div>
+    {% endfor %}
+    </div>
+  </div>
   {% include "form_buttons.html" %}
 </form>
 

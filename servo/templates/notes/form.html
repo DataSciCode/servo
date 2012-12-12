@@ -10,9 +10,7 @@
 </ul>
 {% endif %}
 
-<form action="{% url notes.views.save %}" 
-  method="post" 
-  accept-charset="utf-8" 
+<form action="{% url notes.views.save %}" method="post" accept-charset="utf-8" 
   class="form-horizontal" enctype="multipart/form-data">
   {% csrf_token %}
   <input type="hidden" name="kind" value="{{ note.kind }}">
@@ -25,20 +23,13 @@
   {% if note.parent %}
   <input name="parent" type="hidden" value="{{ note.parent }}"/>
   {% endif %}
-
-  <div class="control-group">
-    <label class="control-label">{% trans 'Saaja' %}</label>
-    <div class="controls">
-      {{ form.recipient }}
-    </div>
-  </div>
-
+  {% include "form_field_snippet.html" with field=form.recipient %}
   <div class="control-group">
     <div class="dropdown control-label">
       <a class="dropdown-toggle btn" data-toggle="dropdown" href="#">{% trans "Pohja" %} <b class="caret"></b></a>
       <ul class="dropdown-menu" id="template-select">
       {% for t in templates %}
-        <li><a href="{% url servo.views. %}">{{ t.title }}</a></li>
+        <li><a href="{{ t.get_absolute_url }}">{{ t.title }}</a></li>
       {% endfor %}
       </ul>
     </div>
@@ -55,8 +46,10 @@
   <div class="control-group">
     <div class="controls">
       <label class="checkbox">{{ form.report }}{% trans 'raportoi' %}</label>
-      <input type="submit" class="btn btn-primary" value="{% trans "Tallenna" %}"/>
     </div>
+  </div>
+  <div class="form-actions">
+    <input type="submit" class="btn btn-primary" value="{% trans "Tallenna" %}"/>
   </div>
 </form>
 {% endblock content %}

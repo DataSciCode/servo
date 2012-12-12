@@ -1,6 +1,7 @@
 {% load mptt_tags %}
-
-<ul class="nav nav-pills nav-stacked">
+{% load i18n %}
+<ul id="navtabs" class="nav nav-list well well-small">
+  <li class="nav-header">{% trans "Asiakkaat" %}</li>
   {% recursetree customers %}
   <li><a href="{{ node.get_absolute_url }}">{{ node.name }}</a>
     {% if not node.is_leaf_node %}

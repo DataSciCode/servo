@@ -9,7 +9,6 @@ from notes.models import Note
 from notes.forms import NoteForm
 from orders.models import Order
 from servo.models import Template, Attachment
-from django.views.decorators.http import require_POST
 
 def edit(request, id=0, kind='note', order_id=None, parent=None,
     recipient=''):
@@ -18,6 +17,12 @@ def edit(request, id=0, kind='note', order_id=None, parent=None,
         kind = 'message'
         
     note = Note(order_id=order_id, kind=kind)
+
+    if order_id:
+        order = Order.objects.get(pk=order_id)
+        if order.user is not request.user:
+            recipient = order.user
+
     form = NoteForm(initial={'kind': kind, 'recipient': recipient})
 
     if int(id) > 0:
@@ -59,7 +64,6 @@ def remove(request, id=None):
         note = Note.objects.get(pk=id)
         return render(request, 'notes/remove.html', {'note': note})
 
-@require_POST
 def save(request, kind='note', note_id="new"):
     # note is being saved
     data = request.POST.copy()
@@ -78,7 +82,11 @@ def save(request, kind='note', note_id="new"):
         print form.errors
         return render(request, 'notes/form.html', {'form': form})
 
-    note = form.save()
+    try:
+        note = form.save()
+    except Exception, e:
+        messages.add_message(request, messages.ERROR, e)
+        return render(request, 'notes/form.html', {'form': form})
 
     if 'content' in request.FILES:
         a = Attachment(uploaded_by=request.user)

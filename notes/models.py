@@ -1,4 +1,5 @@
 #coding=utf-8
+
 import re
 from django.db import models
 from datetime import datetime
@@ -19,9 +20,10 @@ class Note(MPTTModel):
         verbose_name=_(u'otsikko'))
     body = models.TextField(verbose_name=_(u'viesti'))
     code = models.CharField(max_length=8, editable=False, default=from_time())
-    
-    sender = models.CharField(max_length=64, null=True, blank=True)
-    recipient = models.CharField(max_length=64, null=True, blank=True)
+    sender = models.CharField(max_length=64, null=True, blank=True,
+        verbose_name=_(u'lähettäjä'))
+    recipient = models.CharField(max_length=255, null=True, blank=True, 
+        verbose_name=_(u'saaja'))
 
     KINDS = (
         ('note', _(u'Merkintä')),

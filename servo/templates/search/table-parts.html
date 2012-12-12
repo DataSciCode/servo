@@ -1,24 +1,24 @@
 {% load extras %}
 {% load i18n %}
 <table class="table table-hover searchable">
-	<tbody>
-	{% for p in results %}
-		<tr>
-			<td><a href="{% url products.views.view code=p.partNumber %}">{{ p.partNumber }}</a></td>
-			<td>{{ p.partDescription }}</td>
-			<td>{{ p.exchangePrice|price }}</td>
-			<td>{{ p.stockPrice|price }}</td>
-			<td>
-				<div class="btn-group pull-right">
-		      <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-		        <i class="icon-cog"></i> <span class="caret"></span>
-		      </a>
-		    	<ul class="dropdown-menu">
-						<li><a href="{% url products.views.edit code=p.partNumber %}">{% trans "Luo tuote" %}</a></li>
-					</ul>
-				</div>
-			</td>
-		</tr>
-	{% endfor %}
-	</tbody>
+  <tbody>
+  {% for p in results.values %}
+    <tr>
+      <td><a href="{% url products.views.view code=p.partNumber %}">{{ p.partNumber }}</a></td>
+      <td>{{ p.partDescription }}</td>
+      <td>{{ p.exchangePrice|price }}</td>
+      <td>{{ p.stockPrice|price }}</td>
+      <td>
+        <div class="btn-group pull-right">
+          <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+            <i class="icon-cog"></i> <span class="caret"></span>
+          </a>
+          <ul class="dropdown-menu">
+            <li><a href="{% url products.views.edit code=p.partNumber %}">{% trans "Luo tuote" %}</a></li>
+          </ul>
+        </div>
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
 </table>

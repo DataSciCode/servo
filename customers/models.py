@@ -36,7 +36,7 @@ class Customer(MPTTModel):
     is_company = models.BooleanField(default=False, verbose_name=_(u'yritys'))
 
     class Meta:
-        ordering = ['id']
+        ordering = ['name']
     class MPTTMeta:
         order_insertion_by = ['name']
 
@@ -50,20 +50,13 @@ class Customer(MPTTModel):
         """
         Return a dictionary that's compatibly with GSX's Address datatype
         """
-        import re
         out = dict()
-        for p in self.contactinfo_set.all():
-            v = p.value
-            if re.search('@', v):
-                out['emailAddress'] = v
-            if re.search('^\d{5}$', v):
-                out['zipCode'] = v
-            if re.search('^\d{6,}$', v):
-                out['primaryPhone'] = v
-            if re.search('^\w+\s\d+', v):
-                out['adressLine1'] = v
-            if re.search('^[A-Za-z]+$', v):
-                out['city'] = v
+
+        out['emailAddress'] = self.email
+        out['zipCode'] = self.zip_code
+        out['primaryPhone'] = self.phone
+        out['addressLine1'] = self.street_address
+        out['city'] = self.city
 
         (out['firstName'], out['lastName']) = self.name.split(" ", 1)
 
@@ -89,8 +82,7 @@ class Customer(MPTTModel):
         for a in self.get_ancestors(include_self=True):
             title.append(a.name)
 
-        #title.reverse()
-
+        title.reverse()
         return str(', ').join(title)
 
     def fullprops(self):

@@ -1,8 +1,7 @@
 {% extends "admin/users/index.html" %}
 {% load i18n %}
 {% block admin_content %}
-<form action="{% url admin.views.save_user user.id %}" method="post" accept-charset="utf-8" 
-  class="form-horizontal">
+<form action="#" method="post" accept-charset="utf-8" class="form-horizontal">
 {% csrf_token %}
 {% include "form_snippet.html" %}
 {% include "form_buttons.html" %}

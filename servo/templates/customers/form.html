@@ -9,30 +9,47 @@
   accept-charset="utf-8" 
   class="form-horizontal">
   {% csrf_token %}
-  <legend>{% trans "Muokkaa asiakasta" %}</legend>
-  {% include "form_snippet.html" %}
+  <ul class="nav nav-tabs">
+      <li class="active"><a href="#tab1" data-toggle="tab">{% trans "Perustiedot" %}</a></li>
+      <li><a href="#tab2" data-toggle="tab">{% trans "Lisätiedot" %}</a></li>
+  </ul>
 
-{% for p in customer.contactinfo_set.all %}
-  <div class="control-group">
-    <select name="keys" class="control-label">
-      <option>{{ p.key }}</option>
-    </select>
-    <div class="controls">
-      <input type="text" name="values" value="{{ p.value }}"/>
+  <div class="tab-content">
+    <div class="tab-pane active" id="tab1">
+      {% include "form_field_snippet.html" with field=form.name %}
+      {% include "form_field_snippet.html" with field=form.email %}
+      {% include "form_field_snippet.html" with field=form.phone %}
+      {% include "form_field_snippet.html" with field=form.street_address %}
+      {% include "form_field_snippet.html" with field=form.zip_code %}
+      {% include "form_field_snippet.html" with field=form.city %}
+      {% include "form_field_snippet.html" with field=form.is_company %}
     </div>
-  </div>
-{% endfor %}
-  <legend>{% trans "Lisätiedot" %}</legend>
-  <div class="control-group property">
-    <select name="keys" class="control-label" data-value="{{ fields.0.title }}">
-    {% for f in fields %}
-      <option>{{ f.title }}</option>
+    <div class="tab-pane" id="tab2">
+      {% include "form_field_snippet.html" with field=form.parent %}
+    {% for p in customer.contactinfo_set.all %}
+      <div class="control-group">
+        <select name="keys" class="control-label">
+          <option>{{ p.key }}</option>
+        </select>
+        <div class="controls">
+          <input type="text" name="values" value="{{ p.value }}"/>
+        </div>
+      </div>
     {% endfor %}
-    </select>
-    <div class="controls">
-      <input type="text" name="values"/>
+    <div class="control-group property">
+      <select name="keys" class="control-label" data-value="{{ fields.0.title }}">
+      {% for f in fields %}
+        <option>{{ f.title }}</option>
+      {% endfor %}
+      </select>
+      <div class="controls">
+        <input type="text" name="values"/>
+      </div>
     </div>
+    {% include "form_field_snippet.html" with field=form.photo %}
+    {% include "form_field_snippet.html" with field=form.tags %}
   </div>
+</div>
   {% include "form_buttons.html" %}
 </form>
 

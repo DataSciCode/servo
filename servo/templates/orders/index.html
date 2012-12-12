@@ -3,52 +3,50 @@
 {% load extras %}
 
 {% block navtabs %}
-<ul class="breadcrumb">
-  <li><a href="{% url orders.views.index %}">{% trans "Tilaukset" %}</a></li>
-</ul>
-<ul class="nav nav-tabs">
-  <li><a href="{% url orders.views.index %}">{% trans "Kaikki" %}</a></li>
-  <li><a href="{% url orders.views.index state=0 %}">{% trans "Jonossa" %}</span></a></li>
-  {% if queues %}
-  <li class="dropdown">
-		<a href="#" class="dropdown-toggle" data-toggle="dropdown">{% trans "Jono" %} <b class="caret"></b></a>
-		<ul class="dropdown-menu">
-		{% for q in  queues %}
-			<li><a href="{% url orders.views.index queue=q.id %}">{{ q.title }}</a></li>
-    {% endfor %}
-		</ul>
-  </li>
-  {% endif %}
- 	{% if statuses %}
-	<li class="dropdown">
-		<a href="#" class="dropdown-toggle" data-toggle="dropdown">{% trans "Status" %} <b class="caret"></b></a>
-		<ul class="dropdown-menu">
-	  {% for s in  statuses %}
-			<li><a href="{% url orders.views.index status=s.id %}">{{ s.title }}</a></li>
-		{% endfor %}
-		</ul>
-	</li>
-	{% endif %}
-	<li class="dropdown">
-		<a href="#" class="dropdown-toggle" data-toggle="dropdown">{% trans "Tagi" %} <b class="caret"></b></a>
-		<ul class="dropdown-menu">
-	  {% for t in  tags %}
-			<li><a href="{% url orders.views.index tag=t.id %}">{{ t.title }}</a></li>
-		{% endfor %}
-		</ul>
-	</li>
-	<li class="dropdown">
-		<a href="#" class="dropdown-toggle" data-toggle="dropdown">{% trans "Käsittelijä" %} <b class="caret"></b></a>
-		<ul class="dropdown-menu">
-	  {% for u in  users %}
-			<li><a href="{% url orders.views.index user=u.id %}">{{ u.username }}</a></li>
-		{% endfor %}
-		</ul>
-	</li>
-	<li class="pull-right"><a href="{% url orders.views.create %}">{% trans "Luo tilaus" %}</a></li>
-</ul>
+
 {% endblock navtabs %}
 
 {% block content %}
-{% include "orders/list.html" %}
+<div class="row">
+  <div class="span3">
+    <ul id="navtabs" class="nav nav-list well well-small">
+      <li class="nav-header">{% trans "Tilaukset" %}</li>
+      {% for q in  queues %}
+      <li><a href="{% url orders.views.index queue=q.id %}">{{ q.title }} <span class="badge pull-right counter"></span></a></li>
+      {% endfor %}
+      <li class="nav-header">{% trans "Käsittelijä" %}</li>
+      {% for u in  users %}
+      <li><a href="{% url orders.views.index user=u.id %}">{{ u.username }} <span class="badge pull-right counter"></span></a></li>
+      {% endfor %}
+    </ul>
+  </div>
+  <div class="span9">
+    <ul class="nav nav-tabs">
+    {% if statuses %}
+      <li class="dropdown active">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ status_title }} <b class="caret"></b></a>
+        <ul class="dropdown-menu">
+          <li><a href="{% url orders.views.index state=0 %}">{% trans "Kaikki" %}</span></a></li>
+          <li><a href="{% url orders.views.index state=0 %}">{% trans "Jonossa" %}</span></a></li>
+          {% for s in  statuses %}
+          <li><a href="?status={{ s.id }}">{{ s.title }}</a></li>
+          {% endfor %}
+          </ul>
+      </li>
+    {% endif %}
+      <li class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">{% trans "Tagi" %} <b class="caret"></b></a>
+        <ul class="dropdown-menu">
+        {% for t in  tags %}
+          <li><a href="?tag={{ t.id }}">{{ t.title }}</a></li>
+        {% endfor %}
+        </ul>
+      </li>
+      <li class="pull-right"><a href="{% url orders.views.create %}">{% trans "Luo tilaus" %}</a></li>
+    </ul>
+    {% include "orders/list.html" %}
 {% endblock %}
+  </div>
+</div>
+{% block footer %}
+{% endblock footer %}

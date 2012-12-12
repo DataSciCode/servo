@@ -2,13 +2,5 @@
 	{{ hidden }}
 {% endfor %}
 {% for field in form.visible_fields %}
-	<div class="control-group">
-	{% for e in field.errors %}
-		<div class="alert alert-error">{{ e }}</div>
-	{% endfor %}
-		<label class="control-label">{{ field.label }}</label>
-		<div class="controls">
-			{{ field }}
-		</div>
-	</div>
+	{% include "form_field_snippet.html" with field=field %}
 {% endfor %}

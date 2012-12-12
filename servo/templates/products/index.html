@@ -3,47 +3,64 @@
 {% load mptt_tags %}
 
 {% block title %}Tuotteet{% endblock title %}
+
 {% block content %}
-<ul class="breadcrumb">
-  <li><a href="{% url products.views.index %}">{% trans "Tuotteet" %}</a></li>
-  <li class="pull-right"><a href="/products/new/"><i class="icon-plus"></i> {% trans "Luo tuote" %}</a></li>
-</ul>
-{% block products_content %}
-<ul class="nav nav-tabs" id="navtabs">
-  <li class="dropdown active">
-    <a href="{% url products.views.index %}" data-toggle="dropdown">{{ title }} <b class="caret"></b></a>
-    <ul class="dropdown-menu">
-      <li><a href="{% url products.views.index %}">{% trans "Kaikki" %}</a></li>
-      {% recursetree groups %}
-      <li>
-        <a href="{% url products.views.index group_id=node.id %}">{{ node.name }}</a>
-        {% if not node.is_leaf_node %}
-        <ul class="unstyled">{{ children }}</ul>
-        {% endif %}
+
+<div class="row">
+  <div class="span3">
+    <ul id="navtabs" class="nav nav-list well well-small">
+      <li class="nav-header">{% trans "Varasto" %}</li>
+      <li><a href="{% url products.views.index %}">{% trans "Tuotteet" %} <span class="badge pull-right counter"></span></a></li>
+      <li><a href="{% url products.views.index_incoming %}">{% trans "Saapuvat" %} <span class="badge pull-right counter"></span></a></li>
+      <li><a href="{% url products.views.index_outgoing %}">{% trans "Lähtevät" %} <span class="badge pull-right counter"></span></a></li>
+      <li><a href="{% url products.views.index_po %}">{% trans "Ostotilaukset" %} <span class="badge pull-right counter"></span></a></li>
+      <li><a href="{% url products.views.invoices %}">{% trans "Laskut" %} <span class="badge pull-right counter"></span></a></li>
+    </ul>
+  </div>
+  <div class="span9">
+  {% block products_content %}
+    <ul class="nav nav-tabs" id="navtabs">
+      <li class="dropdown active"><a href="{% url products.views.index %}" data-toggle="dropdown">{{ title }} <b class="caret"></b></a>
+        <ul class="dropdown-menu">
+          <li><a href="{% url products.views.index %}">{% trans "Kaikki" %}</a></li>
+          {% recursetree groups %}
+          <li><a href="{% url products.views.index group_id=node.id %}">{{ node.name }}</a>
+            {% if not node.is_leaf_node %}
+            <ul class="unstyled">{{ children }}</ul>
+            {% endif %}
+          </li>
+        {% endrecursetree %}
+        </ul>
       </li>
-    {% endrecursetree %}
+      <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown">{% trans "Tagi" %} <b class="caret"></b></a>
+        <ul class="dropdown-menu">
+        {% for t in  tags %}
+          <li><a href="{% url products.views.index tag_id=t.id %}">{{ t.title }}</a></li>
+        {% endfor %}
+        </ul>
+      </li>
+      <li class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">{% trans "Malli" %} <b class="caret"></b></a>
+        <ul class="dropdown-menu">
+        {% for s in  specs %}
+          <li><a href="{% url products.views.index tag_id=s.id %}">{{ s.title }}</a></li>
+        {% endfor %}
+        </ul>
+      </li>
     </ul>
-  </li>
-  <li class="dropdown">
-    <a href="#" class="dropdown-toggle" data-toggle="dropdown">{% trans "Tagi" %} <b class="caret"></b></a>
-    <ul class="dropdown-menu">
-    {% for t in  tags %}
-      <li><a href="{% url products.views.index tag_id=t.id %}">{{ t.title }}</a></li>
-    {% endfor %}
-    </ul>
-  </li>
-  <li class="dropdown">
-    <a href="#" class="dropdown-toggle" data-toggle="dropdown">{% trans "Malli" %} <b class="caret"></b></a>
-    <ul class="dropdown-menu">
-    {% for s in  specs %}
-      <li><a href="{% url products.views.index tag_id=s.id %}">{{ s.title }}</a></li>
-    {% endfor %}
-    </ul>
-  </li>
-  <li class="pull-right"><a href="/products/new/">{% trans "Luo tuote" %}</a></li>
-</ul>
-{% include "products/list.html" %}    
+{% include "products/list.html" %}
+<div class="btn-group pull-right">
+  <button class="btn">Action</button>
+  <button class="btn dropdown-toggle" data-toggle="dropdown">
+    <span class="caret"></span>
+  </button>
+  <ul class="dropdown-menu">
+    <li><a href="/products/new/">{% trans "Luo tuote" %}</a></li>
+  </ul>
+</div>
 {% include "pagination.html" with items=products %}
 
 {% endblock products_content %}
 {% endblock  %}
+</div>
+</div>

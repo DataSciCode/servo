@@ -1,0 +1,10 @@
+{% extends "admin/templates/index.html" %}
+{% load i18n %}
+
+{% block admin_content %}
+<form method="post" action="/admin/template/save/" accept-charset="utf-8" class="form-horizontal">
+  {% csrf_token %}
+  {% include "form_snippet.html" %}
+  {% include "form_buttons.html" %}
+</form>
+{% endblock admin_content %}

@@ -23,6 +23,8 @@ class DeviceForm(forms.ModelForm):
         required=False)
 
 def index(request, *args, **kwargs):
+    title = _(u'Kaikki')
+    
     if 'query' in kwargs:
         all_devices = Device.objects.filter(sn=kwargs['query'])
     else:
@@ -45,7 +47,8 @@ def index(request, *args, **kwargs):
     
     return render(request, "devices/index.html", {
         'devices': devices,
-        'tags': tags
+        'tags': tags,
+        'title': title,
         })
 
 def create(request):

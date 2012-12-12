@@ -27,7 +27,7 @@ class Device(models.Model):
         return "/devices/%d/view/" % self.pk
 
     def __unicode__(self):
-        return self.description
+        return '%s (%s)' %(self.description, self.sn)
 
     def spec_id(self):
         return self.tags.all()[0].id

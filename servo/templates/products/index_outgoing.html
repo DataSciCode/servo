@@ -1,9 +1,13 @@
-{% extends "default.html" %}
+{% extends "products/index.html" %}
 {% load i18n %}
 
 {% block title %}{% trans "Lähtevät tuotteet" %}{% endblock title %}
 
-{% block content %}
+{% block products_content %}
+<ul class="nav nav-tabs">
+  <li class="active"><a href="#tab1" data-toggle="tab">{% trans "Lähdössä" %}</a></li>
+  <li><a href="#tab2" data-toggle="tab">{% trans "Lähetetyt" %}</a></li>
+</ul>
 <form method="post">
   {% csrf_token %}
   <table class="table">
@@ -29,9 +33,13 @@
         <td>{{ i.purchase_order.reference }}</td>
         <td>{{ i.sn }}</td>
       </tr>
+      {% empty %}
+      <tr>
+        <td colspan="7" class="muted" style="text-align:center">{% trans "Ei yhtään lähtevää tuotetta" %}</td>
+      </tr>
     {% endfor %}
     </tbody>
   </table>
   <button type="submit" class="btn btn-primary pull-right">{% trans "Saavuta" %}</button>
 </form>
-{% endblock content %}
+{% endblock products_content %}

@@ -6,21 +6,9 @@
   <form method="post" accept-charset="utf-8" action="{% url products.views.edit_po order.pk %}">
     <div class="span3">
       {% csrf_token %}
-      <label>{{ form.sales_order.label }}</label>
-      {% for e in form.sales_order.errors %}
-      <div class="alert alert-error">{{ e }}</div>
-      {% endfor %}
-      {{ form.sales_order }}
-      <label>{{ form.reference.label }}</label>
-      {% for e in form.reference.errors %}
-      <div class="alert alert-error">{{ e }}</div>
-      {% endfor %}
-      {{ form.reference }}
-      <label>{{ form.confirmation.label }}</label>
-      {% for e in form.confirmation.errors %}
-      <div class="alert alert-error">{{ e }}</div>
-      {% endfor %}
-      {{ form.confirmation }}
+      {% include "form_field_snippet.html" with field=form.sales_order %}
+      {% include "form_field_snippet.html" with field=form.reference %}
+      {% include "form_field_snippet.html" with field=form.confirmation %}
     </div>
     <div class="span9">
       <ul class="nav nav-tabs">
@@ -47,10 +35,10 @@
                 <td>{{ item.product.id }}</td>
                 <td>{{ item.code }}</td>
                 <td>{{ item.product.title }}</td>
-                <td><input type="text" class="input-mini" name="amounts" value="{{ item.quantity }}"/></td>
+                <td><input type="text" class="input-mini" name="amounts" value="{{ item.amount }}"/></td>
                 <td><input type="text" class="input-mini" name="prices" value="{{ item.price }}"/></td>
                 <td>
-                  <div class="btn-group">
+                  <div class="btn-group pull-right">
                     <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">
                       <i class="icon-cog"></i> <span class="caret"></span>
                     </a>
@@ -77,14 +65,10 @@
             </table>
           </div>
           <div class="tab-pane" id="tab2">
-            <label>{{ form.carrier.label }}</label>
-            {{ form.carrier }}
-            <label>{{ form.supplier.label }}</label>
-            {{ form.supplier }}
-            <label>{{ form.tracking_id.label }}</label>
-            {{ form.tracking_id }}
-            <label>{{ form.days_delivered.label }}</label>
-            {{ form.days_delivered }}
+            {% include "form_field_snippet.html" with field=form.carrier %}
+            {% include "form_field_snippet.html" with field=form.supplier %}
+            {% include "form_field_snippet.html" with field=form.tracking_id %}
+            {% include "form_field_snippet.html" with field=form.days_delivered %}
           </div>
         </div>
         {% if not order.date_submitted %}

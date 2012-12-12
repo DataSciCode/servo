@@ -1,38 +1,43 @@
-{% extends request.is_ajax|yesno:"empty.html,default.html" %}
-
-{% block secondary %}
-    <li><a href="/document/4fbdd0470008934de8000004/print/invoice/4fbdcf9c0008934de8000000" class="print window"></a></li>
-{% endblock secondary %}
-
+{% extends "products/index.html" %}
 {% load i18n %}
-{% block content %}
-<div class="tableView" data-url="/store/invoices" id="invoices">
-  <table class="sortable">
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>{% trans "Tilaus" %}</th>
-        <th>{% trans "Asiakas" %}</th>
-        <th>{% trans "Summa" %}</th>
-        <th>{% trans "Luotu" %}</th>
-        <th>{% trans "Maksettu" %}</th>
-        <th>{% trans "Maksutapa" %}</th>
-      </tr>
-    </thead>
-    <tbody>
-{% for i in invoices %}
-      <tr data-url="/store/invoice/{{ i.id }}" class="{% cycle "odd" "even" %}">
-        <td>{{ i.number }}</td>
-        <td><a href="/orders/edit/{{ i.order.id }}">{{ i.order.number }}</a></td>
-        <td>{{ i.customer.name }}</td>
-        <td>{{ i.total_payable }}</td>
-        <td>{{ i.created_at }}</td>
-        <td>{{ i.paid_at }}</td>
-        <td>{{ i.payment_method }}</td>
-      </tr>
-{% endfor %}
-    </tbody>
-  </table>
-</div>
 
-{% endblock content %}
+{% block products_content %}
+<table class="table">
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>{% trans "Tilaus" %}</th>
+      <th>{% trans "Asiakas" %}</th>
+      <th>{% trans "Summa" %}</th>
+      <th>{% trans "Luotu" %}</th>
+      <th>{% trans "Maksettu" %}</th>
+      <th>{% trans "Maksutapa" %}</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for i in invoices %}
+    <tr>
+      <td>{{ i.pk }}</td>
+      <td><a href="{{ i.order.get_absolute_url }}">{{ i.order.code }}</a></td>
+      <td>{{ i.customer_name }}</td>
+      <td>{{ i.total_gross }}</td>
+      <td>{{ i.created_at }}</td>
+      <td>{{ i.paid_at }}</td>
+      <td>{{ i.get_payment_method }}</td>
+      <td>
+        <div class="btn-group pull-right">
+          <a class="btn dropdown-toggle btn-small" data-toggle="dropdown" href="#">
+            <i class="icon-cog"></i> <span class="caret"></span>
+          </a>
+          <ul class="dropdown-menu">
+            <li><a href="#">{% trans "Tulosta" %}</a></li>
+          </ul>
+        </div>
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% include "pagination.html" with items=invoices %}
+{% endblock products_content %}

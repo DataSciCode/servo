@@ -50,7 +50,6 @@ class Attachment(models.Model):
         verbose_name=_(u'nimi'))
     uploaded_by = models.CharField(max_length=32, editable=False)
     uploaded_at = models.DateTimeField(default=datetime.now(), editable=False)
-
     content = models.FileField(upload_to='attachments', 
         verbose_name=_(u'tiedosto'))
     content_type = models.CharField(max_length=64, editable=False)
@@ -94,25 +93,25 @@ class Configuration(models.Model):
     value = models.CharField(max_length=255, null=True, blank=True)
 
     @classmethod
-    def conf(key=None):
+    def conf(cls, key=None):
         if cache.get('config'):
             return cache.get('config')
 
-        conf = dict()
+        config = dict()
         
         for r in Configuration.objects.all():
-            conf[r.key] = r.value
+            config[r.key] = r.value
 
-        cache.set('config', conf)
+        cache.set('config', config)
 
-        return conf.get("key") if key else conf
+        return config.get(key) if key else config
 
 class Property(models.Model):
     TYPES = (
         ('customer', _(u'Asiakas')),
         ('order', _(u'Tilaus')),
         ('product', _(u'Tuote'))
-        )
+    )
 
     title = models.CharField(max_length=255, verbose_name=_(u'otsikko'),
         default=_(u'Uusi kenttä'))
@@ -150,11 +149,44 @@ class Search(models.Model):
     model = models.CharField(max_length=32)
     title = models.CharField(max_length=128)
     shared = models.BooleanField(default=True)
+
+class Event(models.Model):
+    """
+    An event is something that happens.
+    """
+    description = models.CharField(max_length=255)
+    triggered_by = models.ForeignKey(User)
+    triggered_at = models.DateTimeField(default=datetime.now())
+    handled_at = models.DateTimeField(null=True)
     
+    ref = models.CharField(max_length=32)       # name of table the event references
+    ref_id = models.CharField(max_length=32)    # id
+    action = models.CharField(max_length=32)
+
+    class Meta:
+        ordering = ('-id',)
+
+    def get_icon(self):
+        return "event-%s-%s" %(self.ref, self.action)
+
+class Notification(models.Model):
+    """
+    A notification is a user-configurable response to an event
+    """
+    KINDS = (('order', 'Tilaus'), ('note', 'Merkintä'))
+    ACTIONS = (('created', 'Luotu'), ('edited', 'Muokattu'))
+
+    kind = models.CharField(max_length=16)
+    action = models.CharField(max_length=16)
+    message = models.TextField()
+
 class Template(models.Model):
     title = models.CharField(max_length=128, blank=False,
-        verbose_name=_(u'otsikko'))
+        verbose_name=_(u'otsikko'), default=_(u'Uusi pohja'))
     content = models.TextField(blank=False, verbose_name=_(u'teksti'))
+
+    def get_absolute_url(self):
+        return "/notes/%d/template/" % self.pk
 
 class Status(models.Model):
     FACTORS = (
@@ -175,6 +207,16 @@ class Status(models.Model):
         verbose_name=_(u'keltainen raja'))
     limit_factor = models.IntegerField(default=FACTORS[0], choices=FACTORS,
         verbose_name=_(u'aikayksikkö'))
+
+    def as_dict(self, queue):
+        print queue.queuestatus_set
+        result = dict()
+        result['enabled'] = False
+        result['title'] = self.title
+        result['limit_green'] = self.limit_green
+        result['limit_yellow'] = self.limit_yellow
+        result['limit_factor'] = self.limit_factor
+        return result
 
     def __unicode__(self):
         return self.title
@@ -204,6 +246,9 @@ class Queue(models.Model):
 
     def __unicode__(self):
         return self.title
+
+    class Meta:
+        ordering = ['title']            
 
 class QueueStatus(models.Model):
     """

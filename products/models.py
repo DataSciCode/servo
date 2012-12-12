@@ -22,6 +22,7 @@ class ProductGroup(MPTTModel):
 class BaseProduct(models.Model):
     def default_vat():
         conf = Configuration.conf()
+        print conf
         return conf.get('pct_vat', 0.0)
 
     def default_margin():
@@ -31,24 +32,27 @@ class BaseProduct(models.Model):
     title = models.CharField(max_length=255, default=_(u'Uusi tuote'),
         verbose_name=_(u'nimi'))
     code = models.CharField(max_length=32, unique=True,
-        verbose_name = _(u'koodi'))
+        verbose_name = _(u'koodi'), blank=True, null=True)
     description = models.TextField(blank=True, null=True,
         verbose_name=_(u'kuvaus'))
+
     pct_vat = models.DecimalField(decimal_places=2, max_digits=4,
         default=default_vat,
         verbose_name = _(u'verokanta'))
     pct_margin = models.DecimalField(decimal_places=2, max_digits=4, 
         default=default_margin,
         verbose_name=_(u'kate %'))
-    price_notax = models.DecimalField(default=0, max_digits=6, decimal_places=2, 
+    price_notax = models.DecimalField(default=0, max_digits=6, 
+        decimal_places=2, 
         verbose_name=_(u'veroton hinta'))
-    price_sales = models.DecimalField(default=0, max_digits=6, decimal_places=2,
+    price_sales = models.DecimalField(default=0, max_digits=6, 
+        decimal_places=2,
         verbose_name=_(u'myyntihinta'))
-    price_purchase = models.DecimalField(default=0, decimal_places=2,
-        max_digits=6,
+    price_purchase = models.DecimalField(default=0, max_digits=6,
+        decimal_places=2,
         verbose_name=_(u'ostohinta'))
-    price_exchange = models.DecimalField(default=0, decimal_places=2,
-        max_digits=6,
+    price_exchange = models.DecimalField(default=0, max_digits=6,
+        decimal_places=2,
         verbose_name=_(u'vaihtohinta'))
     is_serialized = models.BooleanField(default=False,
         verbose_name=_(u'sarjanumeroseuranta'))
@@ -63,27 +67,24 @@ class Product(BaseProduct):
         verbose_name=_(u'hyllykoodi'))
     brand = models.CharField(default='', blank=True, max_length=32,
         verbose_name=_(u'valmistaja'))
-
     tags = models.ManyToManyField(Tag, blank=True, null=True,
     	limit_choices_to={'type': 'product', 'type': 'device'},
     	verbose_name=_(u'tagit'))
     group = models.ForeignKey(ProductGroup, null=True, blank=True,
         verbose_name=_(u'tuoteryhmä'))
-
     files = models.ManyToManyField(Attachment, blank=True, null=True,
         verbose_name=_(u'liitteet'))
 
     # component code is used to identify Apple parts
     component_code = models.CharField(max_length=1, blank=True, null=True,
         verbose_name=_(u'komponentti'))
-
-    quantity_minimum = models.IntegerField(default=0,
+    amount_minimum = models.IntegerField(default=0,
         verbose_name=_(u'minimimäärä'))
-    quantity_reserved = models.IntegerField(default=0,
+    amount_reserved = models.IntegerField(default=0,
         verbose_name=_(u'varattu'))
-    quantity_stocked = models.IntegerField(default=0,
+    amount_stocked = models.IntegerField(default=0,
         verbose_name=_(u'varastossa'))
-    quantity_ordered = models.IntegerField(default=0,
+    amount_ordered = models.IntegerField(default=0,
         verbose_name=_(u'tilattu'))
 
     class Meta:
@@ -117,51 +118,31 @@ class Product(BaseProduct):
             warranty_period=3,
             brand="Apple",
             component_code=gsx_data.get('componentCode'),
-            is_serialized=(gsx_data['isSerialized'] == "Y"),
+            is_serialized=(gsx_data['isSerialized'] == 'Y'),
             price_sales=sp+(sp/100*vat).quantize(Decimal('1.'))
         )
 
         return product
 
     def save(self, *args, **kwargs):
-        super(Product, self).save(*args, **kwargs)
         self.code = self.code.upper()
         super(Product, self).save(*args, **kwargs)
 
     def tax(self):
         return self.price_sales - self.price_notax
 
-    def amount_stocked(self, amount=0):
-        """
-        Get or set the stocked amount of this product
-        """
-        if amount:
-            amount = int(amount)
-            Inventory.objects.filter(slot=self.id).delete()
-            for _ in xrange(amount):
-                i = Inventory.objects.create(slot=self.id, product=self)
-        try:
-            return Inventory.objects.filter(slot=self.id).count()
-        except Exception, e:
-            return 0
+    def latest_date_sold(self):
+        return '-'
 
-    def amount_ordered(self):
-        """
-        Get or set the ordered amount of this product
-        """
-        try:
-            return Inventory.objects.filter(product=self.id, kind='po').count()
-        except Exception, e:
-            return 0
+    def latest_date_ordered(self):
+        return '-'
 
-    def amount_reserved(self):
-        """
-        Get or set the reserved amount of this product
-        """
-        try:
-            return Inventory.objects.filter(product=self.id, kind='order').count()
-        except Exception, e:
-            return 0
+    def latest_date_ordered(self):
+        return '-'
+
+    def sell(self, amount=1):
+        self.amount_stocked = self.amount_stocked - amount
+        self.save()
 
 class Inventory(models.Model):
     """
@@ -173,7 +154,6 @@ class Inventory(models.Model):
     The reserved amount of a given item is determined 
     by the number of rows with the order id as slot
     """
-
     slot = models.IntegerField()
     product = models.ForeignKey(Product)
     sn = models.CharField(max_length=32, null=True)

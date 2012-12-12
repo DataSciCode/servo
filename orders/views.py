@@ -4,7 +4,7 @@ from django import forms
 from datetime import date, datetime
 from django.http import HttpResponse
 from django.template import RequestContext
-from django.shortcuts import render, render_to_response, redirect
+from django.shortcuts import render, redirect
 from django.utils.translation import ugettext as _
 from django.contrib import messages
 from django.core.cache import cache
@@ -19,6 +19,7 @@ from orders.forms import *
 from devices.models import Device
 from customers.models import Customer
 from servo.models import Queue, Status, Tag
+from gsx.models import Lookup
 
 def close(request, id):
     order = Order.objects.get(pk=id)
@@ -66,7 +67,6 @@ def create(request, sn=None, product_id=None, note_id=None):
 
     return redirect(o)
 
-@login_required
 def search(request):
     queues = Queue.objects.all()
     statuses = Status.objects.all()
@@ -78,15 +78,9 @@ def search(request):
         'users': users,
         'locations': locations})
 
-@login_required
 def index(request, *args, **kwargs):
     orders = Order.objects.all()
-
-    if kwargs.get('status'):
-        if kwargs['status'] == 'None':
-            orders = Order.objects.filter(status__pk=None)
-        else:
-            orders = Order.objects.filter(status__pk=kwargs['status'])
+    status_title = _('Status')
 
     if kwargs.get('date'):
         (year, month, day) = kwargs['date'].split('-')
@@ -95,6 +89,8 @@ def index(request, *args, **kwargs):
 
     if kwargs.get('user'):
         orders = Order.objects.filter(user__pk=kwargs['user'])
+        if request.is_ajax():
+            return HttpResponse(orders.filter(state=1).count())
 
     if kwargs.get('customer'):
         if kwargs['customer'] == '0':
@@ -132,6 +128,19 @@ def index(request, *args, **kwargs):
         if color == 'red':
             orders = Order.objects.filter(status_limit_yellow__lte=time())
 
+    if request.GET.get('status'):
+        status = int(request.GET.get('status'))
+        if status == 'None':
+            orders = Order.objects.filter(status__pk=None)
+        else:
+            status = Status.objects.get(pk=status)
+            status_title = status.title
+            print status_title
+            orders = Order.objects.filter(status=status)
+
+    if request.is_ajax():
+        return HttpResponse(orders.filter(state=0).count())
+
     paginator = Paginator(orders, 50)
     page = request.GET.get('page')
 
@@ -152,7 +161,8 @@ def index(request, *args, **kwargs):
         'users': users,
         'orders': orders,
         'queues': queues,
-        'statuses': statuses
+        'statuses': statuses,
+        'status_title': status_title
         })
 
 def toggle_tag(request, order_id, tag_id):
@@ -229,140 +239,141 @@ def update(request, id):
         request.session['current_order'].save()
 
     return render(request, "orders/events.html", {'order': order})
-  
+
+
+def submit_gsx_repair(request):
+    pass    
+
 def create_gsx_repair(request, order_id):
     from lib.gsxlib import gsxlib
 
+    parts = list()
     order = Order.objects.get(pk=order_id)
+    comptia = gsxlib.CompTia().symptoms()
 
-    class RepairForm(forms.Form):
-        langs = gsxlib.langs("en_XXX")
-        symptom_text = order.issues()[0].body
-        diagnosis_text = order.issues()[0].replies.all()[0].body
-        device = forms.ModelChoiceField(queryset=order.devices.all(), 
-            label=_(u'Laite'))
+    for p in order.serviceorderitem_set.all():
+        # find the corresponding compnent code from coptia
+        try:
+            comp = p.product.component_code
+            symptoms = comptia[comp]
+            parts.append({'number': p.id, 'title': p.title,
+                'code': p.product.code,
+                'symptoms': symptoms
+            })
+        except Exception, e:
+            print e
+            # skip products with no GSX data
+            continue
 
-        symptom = forms.CharField(widget=forms.Textarea(attrs={
-            'class': 'input-xxlarge', 'rows': 6}), initial=symptom_text)
-        diagnosis = forms.CharField(widget=forms.Textarea(attrs={
-            'class': 'input-xxlarge', 'rows': 6}), initial=diagnosis_text)
+    profile = request.user.get_profile()
+    customer = {}
+    
+    if order.customer:
+        customer = order.customer.gsx_address()
+    else:
+        messages.add_message(request, messages.ERROR,
+            _('Tilauksesta puuttuu asiakastiedot'))
+        return redirect(order)
 
-        unitReceivedDate = forms.DateField(initial=order.created_at,
-            widget=forms.DateInput(format=langs["df"]),
-            input_formats=[langs["df"]])
-        unitReceivedTime = forms.TimeField(initial=order.created_at,
-            widget=forms.TimeInput(format=langs["tf"]),
-            input_formats=[langs["tf"]])
+    if request.method == 'POST':
+        customer_form = GsxCustomerForm(request.POST, profile=profile, 
+            customer=customer)
 
-        fileData = forms.FileField(required=False)
-
-    if request.method == "POST":
-        customer_form = CustomerForm(request.POST)
         if not customer_form.is_valid():
-            messages.add_message(request, messages.ERROR,
-                    _(u"Virhe asiakkaan tiedoissa"))
             print customer_form.errors
+            messages.add_message(request, messages.ERROR,
+                    _(u'Virhe asiakkaan tiedoissa'))
 
-        repair_form = RepairForm(request.POST)
+        repair_form = GsxRepairForm(request.POST, order=order)
         
         if not repair_form.is_valid():
             print repair_form.errors
 
         profile = request.user.get_profile()
         repair = repair_form.cleaned_data
-        
-        repair['shipTo'] = profile.location.ship_to
+
         repair['serialNumber'] = repair['device'].sn
+        repair['diagnosedByTechId'] = profile.tech_id
 
         customer_address = customer_form.cleaned_data
+        customer_address['country'] = customer_address['country'].iso3
+
+        # @todo: where should we put these?
         customer_address['state'] = "ZZ"
-        customer_address['country'] = "FIN"
         customer_address['regionCode'] = "004"
+        repair['customerAddress'] = customer_address
 
         if not request.FILES:
             del(repair['fileData'])
+        else:
+            pass
 
-        parts = request.POST.getlist("part_numbers")
-        comptia_codes = request.POST.getlist("part_codes")
-        comptia_modifiers = request.POST.getlist("part_modifiers")
+        abused = request.POST.getlist('abused')
+        parts = request.POST.getlist('part_numbers')
+        comptia_codes = request.POST.getlist('part_codes')
+        comptia_modifiers = request.POST.getlist('part_modifiers')
         order_lines = []
 
         for k, v in enumerate(parts):
-            part = dict(partNumber=v, comptiaCode=comptia_codes[k],
-                comptiaModifier=comptia_modifiers[k])
-            f = PartForm(part)
+            part = {'partNumber': v, 'comptiaCode': comptia_codes[k],
+                'comptiaModifier': comptia_modifiers[k],
+                'abused': abused[k]}
+            
+            f = GsxPartForm(part)
+
             if not f.is_valid():
+                print f.errors
                 messages.add_message(request, messages.ERROR,
-                    _(u"Tarkista varaosa %s" %v))
+                    _(u'Tarkista varaosa %s' % v))
                 break
-
-            order_lines.append(part)
-
+            else:
+                order_lines.append(f.cleaned_data)
+ 
         repair['orderLines'] = order_lines
-        repair['customerAddress'] = customer_address
-        print repair
 
         # data looks good, create Purchase Order...
-        po = PurchaseOrder.objects.create(supplier="Apple",
-            sales_order=order.id,
+        po = PurchaseOrder.objects.create(supplier='Apple',
+            sales_order=order,
             created_by=request.user)
 
-        repair['poNumber'] = str(po.id)
+        # ... and add the parts to the PO
+        # @todo: link part to ServiceOrderItem
+        for p in order_lines:
+            PurchaseOrderItem.objects.create(code=p['partNumber'], 
+                purchase_order=po,
+                date_ordered=datetime.now())
 
-        gsx = GsxAccount.default()
+        repair['poNumber'] = str(po.id)
+        del(repair['device'])
+
+        try:
+            act = order.queue.gsx_account
+            gsx = act.connect()
+            repair['shipTo'] = act.ship_to
+        except Exception, e:
+            print e
+            print "Using default GSX account..."
+            repair['shipTo'] = profile.location.ship_to
+            gsx = GsxAccount.default()
         
         try:
             result = gsx.create_carryin_repair(repair)
-            messages.add_message(request, messages.INFO, 
-                _(u'Huolto %s luotu' % result[0]['confirmationNumber']))
+            description =  _(u'Huolto %s luotu' % result[0]['confirmationNumber'])
+            messages.add_message(request, messages.INFO, description)
+            Event.objects.create(description=description, 
+                triggered_by=request.user,
+                ref='order', ref_id=order.id, action='gsx_repair_created')
             return redirect(order)
-        except gsxlib.GsxError,e:
+        except gsxlib.GsxError, e:
             messages.add_message(request, messages.ERROR, e)
-
-    customer = {}
-    comptia = gsxlib.symptoms()
-
-    if order.customer:
-        customer = order.customer.gsx_address()
     
-    profile = request.user.get_profile()
+    repair_form = GsxRepairForm(order=order)
+    customer_form = GsxCustomerForm(profile=profile, customer=customer)
 
-    if not "primaryPhone" in customer:
-        customer['primaryPhone'] = profile.location.phone
-  
-    if not "city" in customer:
-        customer['city'] = profile.location.city
-  
-    if not "addressLine1" in customer:
-        customer['addressLine1'] = profile.location.address
-  
-    if not "zip" in customer:
-        customer['zipCode'] = profile.location.zip_code
-
-    if not "emailAddress" in customer:
-        customer['emailAddress'] = profile.location.email
-        
-    parts = []
-  
-    for p in order.products.all():
-        # find the corresponding compnent code from coptia
-        try:
-            comp = p.component_code
-            symptoms = comptia['symptoms'][comp]
-            parts.append({"number": p.id, "title": p.title, "code": p.code,
-                "symptoms": symptoms})
-        except Exception, e:
-            # skip products with no GSX data
-            continue
-
-    repair_form = RepairForm()
-    customer_form = CustomerForm(initial=customer)
-
-    return render_to_response("orders/gsx_repair_form.html", {
-        "parts": parts,
-        "modifiers": comptia['modifiers'],
-        "customer": customer,
-        "order": order,
+    return render(request, 'orders/gsx_repair_form.html', {
+        'parts': parts,
+        'modifiers': gsxlib.CompTia().modifiers,
+        'order': order,
         'customer_form': customer_form,
         'repair_form': repair_form
     })
@@ -428,22 +439,27 @@ def reserve_products(request, order_id):
         for p in order.serviceorderitem_set.all():
             i = Inventory.objects.create(slot=order_id, product=p.product, 
                 kind='order')
+            p.product.amount_reserved = p.product.amount_reserved + p.amount
+            p.product.save()
         
-        Event.objects.create(order=order, kind="products_reserved",
-            user=request.user,
-            description=_(u"Tilauksen tuotteet varattu"))
+        description = _(u'Tilauksen %s tuotteet varattu' % order.code)
 
-        messages.add_message(request, messages.INFO, _(u"Tuotteet varattu"))
+        Event.objects.create(ref='order', ref_id=order.id,
+            action='products_reserved',
+            triggered_by=request.user,
+            description=description)
+
+        messages.add_message(request, messages.INFO, _(u'Tuotteet varattu'))
         return redirect(order)
     else:
         order = Order.objects.get(pk=order_id)
-        return render_to_response("orders/reserve_products.html", {'order': order})
+        return render(request, 'orders/reserve_products.html', {'order': order})
 
 def products(request, order_id, item_id=None, action='list'):
     order = Order.objects.get(pk=order_id)
 
     if action == "list":
-        return render_to_response("orders/products.html", {"order": order})
+        return render(request, 'orders/products.html', {"order": order})
 
     if action == 'add':
         product = Product.objects.get(pk=item_id)
@@ -466,7 +482,7 @@ def products(request, order_id, item_id=None, action='list'):
                 
                 return redirect(order)
 
-        return render_to_response("orders/edit_product.html", {'order': order,
+        return render(request, "orders/edit_product.html", {'order': order,
             'form': form})
 
     if action == 'remove':
@@ -482,27 +498,63 @@ def products(request, order_id, item_id=None, action='list'):
             
             return redirect(order)
 
-        return render_to_response("orders/remove_product.html", {
+        return render(request, "orders/remove_product.html", {
             'order': order, 'item': item})
 
     if action == 'report':
         pass
 
 def dispatch(request, order_id=None, numbers=None):
-    if request.method == 'POST':
-        data = request.POST.copy()
-        data.update({'created_by': request.user.pk})
-        print data
-        form = InvoiceForm(data)
-        print form.errors
-
     order = Order.objects.get(pk=order_id)
-    initial = dict(customer=order.customer, customer_name=order.customer.name)
+    products = order.serviceorderitem_set.filter(dispatched=False)
+
+    if request.method == 'POST':
+        total_margin = order.total_margin()
+        invoice = Invoice(created_by=request.user, order=order, 
+            customer=order.customer, total_margin=total_margin)
+        
+        form = InvoiceForm(request.POST, instance=invoice)
+        
+        if not form.is_valid():
+            return render(request, "orders/dispatch.html", {
+                'form': form, 'order': order, 'products': products
+                })
+        
+        invoice = form.save()
+        products = request.POST.getlist('items')
+
+        for p in products:
+            soi = ServiceOrderItem.objects.get(pk=p)
+            InvoiceItem.objects.create(invoice=invoice, price=soi.price, 
+                product=soi.product)
+            
+            soi.product.sell(soi.amount)
+
+        messages.add_message(request, messages.INFO, _(u'Tilaus toimitettu'))
+        return redirect(order)
+
+    initial = dict(order=order,
+        total_notax=order.net_total(),
+        total_sum=order.gross_total(),
+        total_tax=order.total_tax())
+
+    if order.customer:
+        initial['customer'] = order.customer, 
+        initial['customer_name'] = order.customer.name,
+        initial['customer_phone'] = order.customer.phone,
+        initial['customer_email'] = order.customer.email,
+        initial['customer_address'] = order.customer.street_address,
+    else:
+        initial['customer_name'] = _(u'Käteisasiakas')
+
     form = InvoiceForm(initial=initial)
-    return render_to_response("orders/dispatch.html", {
-        'order': order, 'form': form})
+
+    return render(request, 'orders/dispatch.html', {
+        'order': order, 'form': form, 'products': products})
 
 def parts(request, order_id, device_id):
+    # List available parts for this device/order
+    # taking into account the order's queues GSX account...
     order = Order.objects.get(pk=order_id)
     device = Device.objects.get(pk=device_id)
 
@@ -510,13 +562,13 @@ def parts(request, order_id, device_id):
         act = order.queue.gsx_account
         gsx = act.connect()
     except Exception, e:
+        print "Using default GSX account..."
         gsx = GsxAccount.default()
     
-    results = gsx.parts_lookup(device.sn)
-    cache.set("gsx-results", results)
+    results = Lookup(gsx).lookup(device.sn)
     products = Product.objects.filter(tags__pk=device.spec_id)
 
-    return render_to_response("orders/parts.html", {
+    return render(request, "orders/parts.html", {
         'results': results,
         'order': order,
         'device': device,

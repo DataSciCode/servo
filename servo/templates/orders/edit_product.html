@@ -9,9 +9,9 @@
 {% endblock navtabs %}
 
 {% block content %}
-	<form method="post" action="#">
-		{% csrf_token %}
-		{% include "form_snippet.html" %}
-		{% include "form_buttons.html" %}
-	</form>
+<form method="post" action="#" class="form-horizontal">
+	{% csrf_token %}
+	{% include "form_snippet.html" %}
+	{% include "form_buttons.html" %}
+</form>
 {% endblock content %}

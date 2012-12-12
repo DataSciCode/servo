@@ -30,15 +30,16 @@
 		{% endwith %}
 		{% endif %}
 		</dl>
-		<div class="btn-group">
-      <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+		<div class="btn-group pull-right">
+      <a class="btn dropdown-toggle btn-small" data-toggle="dropdown" href="#">
         <i class="icon-cog"></i> <span class="caret"></span>
       </a>
     	<ul class="dropdown-menu">
   		{% if request.session.current_order %}
-  			<li><a href="{% url orders.views.add_device order_id=request.session.current_order.id sn=d.serialNumber %}">{% trans "Vie tilaukselle"  %} #{{ request.session.current_order.id }}</a></li>
+  			<li><a href="{% url orders.views.add_device order_id=request.session.current_order.id sn=d.serialNumber %}">{% trans "Vie tilaukselle"  %} #{{ request.session.current_order.code }}</a></li>
   		{% endif %}
 				<li><a href="{{ d.manualURL }}">{% trans "Lataa ohjeet" %}</a></li>
+				<li class="divider"></li>
 				<li><a href="{% url orders.views.create sn=d.serialNumber %}">{% trans "Luo huoltotilaus" %}</a></li>
 			</ul>
 		</div>

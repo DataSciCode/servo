@@ -8,30 +8,31 @@ register = template.Library()
 
 @register.filter
 def relative_date(value):
-    result = ""
-    if type(value) != datetime.datetime:
+    result = ''
+    if not isinstance(value, datetime.datetime):
         return result
 
     current = timezone.now()
     delta =  current - value
+    time_format = {'time': value.strftime('%k:%M')}
 
     if delta <= datetime.timedelta(minutes=3):
-        result = 'Hetki sitten'
+        result = _(u'Hetki sitten')
     elif current.day == value.day:
-        result = 'Tänään klo %s' % value.strftime("%k:%M")
+        result = _(u'Tänään klo %(time)s') % time_format
     else:
-        result = 'Eilen klo %s' % value.strftime("%k:%M")
+        result = _(u'Eilen klo %(time)s') % time_format
 
     if delta > datetime.timedelta(days=2):
-        result = value.strftime("%a, %d.%m.%y klo %k:%M")
-
+        result = value.strftime(_('%a, %d.%m klo %k:%M'))
+    
     return result
   
 @register.filter
 def clickable(value, order=None):
     result = value
     if not isinstance(value, basestring):
-        return ""
+        return ''
         
     if re.search('^[\w\.\-_]+@[\w\.\-_]+\.[a-z]{2,4}$', value):
         if order:

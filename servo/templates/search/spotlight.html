@@ -7,6 +7,7 @@
 <h3>{% trans "Asiakkaat" %}</h3>
 {% include "customers/list.html" %}
 {% endif %}
+<a href="/customers/create/{{ query }}/">{% trans "Uusi asiakas" %}</a>
 
 {% if products %}
 <h3>{% trans "Tuotteet" %}</h3>

@@ -82,8 +82,11 @@ def view(request, id):
         'orders': orders
         })
 
-def edit(request, customer_id=0, parent_id=0):
-    form = CustomerForm()
+def edit(request, customer_id=0, parent_id=0, name=None):
+    if name:
+        name = name.capitalize()
+
+    form = CustomerForm(initial={'name': name})
     customer = Customer()
     fields = Property.objects.filter(type='customer')
 

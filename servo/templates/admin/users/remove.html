@@ -1,0 +1,15 @@
+{% extends "default.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="alert alert-block alert-error">
+	<form action="{% url admin.views.remove_user user.id %}" method="post" accept-charset="utf-8">
+	  {% csrf_token %}
+		<h4 class="alert-heading">{% trans "Poistetaanko käyttäjä" %}?</h4>
+		<p>{% trans 'Tätä toimintoa ei voida peruuttaa.' %}</p>
+		<p>
+	  	<button class="btn btn-danger" type="submit">{% trans "Poista" %}</button> <a class="btn" href="#">{% trans "Peruuta" %}</a>
+		</p>
+	</form>
+</div>
+{% endblock content %}

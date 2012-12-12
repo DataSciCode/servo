@@ -2,11 +2,11 @@ from django.conf.urls import patterns, url
 
 urlpatterns = patterns('admin.views',
     url(r'^$', 'settings'),
+    url(r'^queues/$', 'queues'),
     url(r'^files/$', 'documents'),
     url(r'^statuses/$', 'statuses'),
     url(r'^statuses/(\d+)/save/$', 'save_status'),
     url(r'^statuses/(\d+)/edit/$', 'edit_status'),
-    url(r'^queues/$', 'queues'),
     url(r'^status/new/$', 'edit_status'),
     url(r'^settings/$', 'settings'),
 
@@ -14,6 +14,7 @@ urlpatterns = patterns('admin.views',
     url(r'^users/new/$', 'edit_user'),
     url(r'^users/(\d+)/edit/$', 'edit_user'),
     url(r'^users/(\d+)/save/$', 'save_user'),
+    url(r'^users/(\d+)/delete/$', 'remove_user'),
 
     url(r'^groups/$', 'groups'),
     url(r'^groups/new/$', 'edit_group'),
@@ -54,4 +55,8 @@ urlpatterns = patterns('admin.views',
     url(r'^products/groups/new/$', 'edit_product_group'),
     url(r'^products/groups/(\d+)/$', 'edit_product_group'),
     url(r'^products/groups/(\d+)/save/$', 'edit_product_group'),
+
+    url(r'^notifications/$', 'notifications'),
+    url(r'^notifications/(\w+)/$', 'edit_notification'),
+
 )

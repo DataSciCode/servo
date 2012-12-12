@@ -1,4 +1,5 @@
 {% load i18n %}
+
 <table class="table table-hover">
   <thead>
     <tr>
@@ -7,8 +8,6 @@
       <th>{% trans "Nimike" %}</th>
       <th>{% trans "Myyntihinta" %}</th>
       <th>{% trans "Saldo" %}</th>
-      <th>{% trans "Tilattu" %}</th>
-      <th>{% trans "Varattu" %}</th>
       <th></th>
     </tr>
   </thead>
@@ -20,26 +19,24 @@
       <td>{{ p.title|truncatechars:40 }}</td>
       <td>{{ p.price_sales }}</td>
       <td>{{ p.amount_stocked }}</td>
-      <td>{{ p.amount_ordered }}</td>
-      <td>{{ p.amount_reserved }}</td>
       <td>
         <div class="btn-group pull-right">
-          <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+          <a class="btn dropdown-toggle btn-small" data-toggle="dropdown" href="#">
             <i class="icon-cog"></i> <span class="caret"></span>
           </a>
           <ul class="dropdown-menu">
             {% with request.session.current_order as co %}
             {% if co %}
-            <li><a href="{% url orders.views.products order_id=co.id item_id=p.id action='add'%}">{% trans "Vie tilaukselle" %} #{{ co.id }}</a></li>
+            <li><a href="{% url orders.views.products order_id=co.id item_id=p.id action='add'%}">{% trans "Vie tilaukselle" %} #{{ co.code }}</a></li>
             <li class="divider"></li>
             {% endif %}
             {% with request.session.current_po as po %}
               {% if po %}
                 <li><a href="{% url products.views.edit_po id=po.id item_id=p.id action='add' %}">{% trans "Vie ostotilaukselle" %}</a></li>
+                <li class="divider"></li>
               {% endif %}
             {% endwith %}
             {% endwith %}
-            <li class="divider"></li>
             <li><a href="{% url orders.views.create product_id=p.id %}">{% trans "Luo myyntitilaus" %}</a></li>
             <li><a href="{% url products.views.create_po product_id=p.id %}">{% trans "Luo ostotilaus" %}</a></li>
             <li class="divider"></li>

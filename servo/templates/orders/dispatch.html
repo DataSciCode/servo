@@ -3,24 +3,27 @@
 
 {% block content %}
 <ul class="breadcrumb">
-  <li><a href="{% url servo.views.orders.index %}">{% trans "Tilaukset" %}</a> <span class="divider">/</span></li>
-  <li><a href="{% url servo.views.orders.edit order.id %}">#{{ order.code }}</a> <span class="divider">/</span></li>
+  <li><a href="{% url orders.views.index %}">{% trans "Tilaukset" %}</a> <span class="divider">/</span></li>
+  <li><a href="{% url orders.views.edit order.id %}">#{{ order.code }}</a> <span class="divider">/</span></li>
   <li class="active">{% trans "Toimitus" %}</li>
 </ul>
 
 <div class="row">
-  <form method="post" action="{% url servo.views.orders.dispatch order.id %}" accept-charset="utf8">
+  <form method="post" action="{% url orders.views.dispatch order.id %}" accept-charset="utf8">
     {% csrf_token %}
     <div class="span3">
-      {{ form.customer }}
-      {% include "form_snippet.html" %}
+      {% include "form_field_snippet.html" with field=form.payment_method %}
+      {% include "form_field_snippet.html" with field=form.customer_name %}
+      {% include "form_field_snippet.html" with field=form.customer_email %}
+      {% include "form_field_snippet.html" with field=form.customer_phone %}
+      {% include "form_field_snippet.html" with field=form.customer_address %}
+      {% include "form_field_snippet.html" with field=form.is_paid %}
     </div>
     <div class="span9">
       <table class="table">
         <thead>
           <tr>
             <th></th>
-            <th>{% trans "Numero" %}</th>
             <th>{% trans "Tuote" %}</th>
             <th>{% trans "Määrä" %}</th>
             <th>{% trans "ALV 0%" %}</th>
@@ -29,10 +32,9 @@
           </tr>
         </thead>
         <tbody>
-        {% for p in order.serviceorderitem_set.all %}
+        {% for p in products %}
           <tr>
             <td><input type="checkbox" name="items" value="{{ p.id }}" checked="checked"/></td>
-            <td>{{ p.product.id }}</td>
             <td>{{ p.product.title }}</td>
             <td>{{ p.amount }}</td>
             <td>{{ p.product.price_notax }}</td>
@@ -52,16 +54,17 @@
         {% endfor %}
         <tr>
           <td></td>
-          <td></td>
           <td style="text-align:right">{% trans "Yhteensä" %}:</td>
-          <td>{{ totals.amount}} </td>
-          <td>{{ order.net_total }}</td>
-          <td>{{ totals.tax }}</td>
-          <td>{{ order.gross_total }}</td>
+          <td>{{ totals.amount  }}</td>
+          <td><input type="text" readonly="readonly" class="input-mini" value="{{ order.net_total }}" name="total_net"/></td>
+          <td><input type="text" readonly="readonly" class="input-mini" value="{{ order.total_tax }}" name="total_tax"/></td>
+          <td><input type="text" readonly="readonly" class="input-mini" value="{{ order.gross_total }}" name="total_gross"/></td>
         </tr>
       </tbody>
     </table>
-    <button type="submit" class="btn btn-primary pull-right">{% trans "Toimita" %}</button>
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary pull-right">{% trans "Toimita" %}</button>
+    </div>
   </div>
   </form>
 </div>

@@ -3,96 +3,43 @@
 
 {% block admin_content %}
 <form method="post" accept-charset="utf-8" action="{% url admin.views.settings %}" class="form-horizontal">
-	<fieldset>
-		<legend>{% trans "Asetukset" %}</legend>
-		{% csrf_token %}
-		{% include "form_snippet.html" %}
-	</fieldset>
-	<fieldset>
-		<legend>{% trans "Saapuva posti" %}</legend>
-		<div class="control-group">
-			<label class="control-label">{% trans "Palvelin" %}</label>
-			<div class="controls">
-				<input type="text" name="imap_host" value="{{ config.imap_host }}"/>
-	    </div>
-		</div>
-		<div class="control-group">
-			<label class="control-label">{% trans "Käyttäjä" %}</label>
-			<div class="controls">
-				<input type="text" name="imap_user" value="{{ config.imap_user }}"/>
-	    </div>
-		</div>
-		<div class="control-group">
-			<label class="control-label">{% trans "Salasana" %}</label>
-			<div class="controls">
-				<input type="password" name="imap_password" value="{{ config.imap_password }}"/>
-	    </div>
-		</div>
-		<div class="control-group">
-			<label class="control-label">{% trans "Käytä salausta" %}</label>
-			<div class="controls">
-				<input type="hidden" name="imap_ssl" value="0"/>
-				<input type="checkbox" name="imap_ssl" value="1" {% if config.imap_ssl == '1'%}checked="checked"{% endif %}/>
-	    </div>
-		</div>
-	</fieldset>
-	<fieldset>
-		<legend>{% trans "Lähtevä posti" %}</legend>
-		<div class="control-group">
-			<label class="control-label">{% trans "Sähköpostiosoite" %}</label>
-			<div class="controls">
-				<input type="text" name="mail_from" value="{{ config.mail_from }}"/>
-	    </div>
-		</div>
-		<div class="control-group">
-			<label class="control-label">{% trans "Palvelin" %}</label>
-			<div class="controls">
-				<input type="text" name="smtp_host" value="{{ config.smtp_host }}"/>
-	    </div>
-		</div>
-		<div class="control-group">
-			<label class="control-label">{% trans "Käyttäjä" %}</label>
-			<div class="controls">
-				<input type="text" name="smtp_user" value="{{ config.smtp_user }}"/>
-	    </div>
-		</div>
-		<div class="control-group">
-			<label class="control-label">{% trans "Salasana" %}</label>
-			<div class="controls">
-				<input type="password" name="smtp_password" value="{{ config.smtp_password }}"/>
-	    </div>
-		</div>
-		<div class="control-group">
-			<label class="control-label">{% trans "Käytä salausta" %}</label>
-			<div class="controls">
-				<input type="hidden" name="smtp_ssl" value="0"/>
-				<input type="checkbox" name="smtp_ssl" value="1" {% if config.smtp_ssl == '1' %}checked="checked"{% endif %}/>
-	    </div>
-		</div>
-	</fieldset>
-	<fieldset>
-		<legend>{% trans "Tekstiviestit" %}</legend>
-		<div class="control-group">
-			<label class="control-label">{% trans "URL" %}</label>
-			<div class="controls">
-				<input type="text" name="sms_url" value="{{ config.sms_url }}"/>
-	    </div>
-		</div>
-		<div class="control-group">
-			<label class="control-label">{% trans "Käyttäjä" %}</label>
-			<div class="controls">
-				<input type="text" name="sms_user" value="{{ config.sms_user }}"/>
-	    </div>
-		</div>
-		<div class="control-group">
-			<label class="control-label">{% trans "Salasana" %}</label>
-			<div class="controls">
-				<input type="password" name="sms_password" value="{{ config.sms_password }}"/>
-	    </div>
-		</div>
-	</fieldset>
-	<div class="form-actions">
-		<button type="submit" class="btn btn-primary">{% trans "Tallenna" %}</button>
-	</div>
+  {% csrf_token %}
+  <ul class="nav nav-tabs">
+    <li class="active"><a href="#general" data-toggle="tab">{% trans "Yleiset" %}</a></li>
+    <li><a href="#imap" data-toggle="tab">{% trans "Tuleva posti" %}</a></li>
+    <li><a href="#smtp" data-toggle="tab">{% trans "Lähtevä posti" %}</a></li>
+    <li><a href="#sms" data-toggle="tab">{% trans "SMS" %}</a></li>
+  </ul>
+
+  <div class="tab-content">
+    <div class="tab-pane active" id="general">
+      {% include "form_field_snippet.html" with field=form.company_name %}
+      {% include "form_field_snippet.html" with field=form.pct_margin %}
+      {% include "form_field_snippet.html" with field=form.pct_vat %}
+    </div>
+    <div class="tab-pane" id="imap">
+      {% include "form_field_snippet.html" with field=form.mail_from %}
+      {% include "form_field_snippet.html" with field=form.imap_host %}
+      {% include "form_field_snippet.html" with field=form.imap_user %}
+      {% include "form_field_snippet.html" with field=form.imap_password %}
+      {% include "form_field_snippet.html" with field=form.imap_ssl %}
+    </div>
+    <div class="tab-pane" id="smtp">
+      {% include "form_field_snippet.html" with field=form.smtp_host %}
+      {% include "form_field_snippet.html" with field=form.smtp_user %}
+      {% include "form_field_snippet.html" with field=form.smtp_password %}
+      {% include "form_field_snippet.html" with field=form.smtp_ssl %}
+    </div>
+    <div class="tab-pane" id="sms">
+      {% include "form_field_snippet.html" with field=form.sms_url %}
+      {% include "form_field_snippet.html" with field=form.sms_user %}
+      {% include "form_field_snippet.html" with field=form.sms_password %}
+      {% include "form_field_snippet.html" with field=form.sms_ssl %}
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <button type="submit" class="btn btn-primary">{% trans "Tallenna" %}</button>
+  </div>
 </form>
 {% endblock admin_content %}
