@@ -2,7 +2,7 @@
 {% load i18n %}
 
 {% block admin_content %}
-<form method="post" accept-charset="utf-8" action="{% url admin.views.settings %}" class="form-horizontal">
+<form method="post" accept-charset="utf-8" action="" class="form-horizontal" enctype="multipart/form-data">
   {% csrf_token %}
   <ul class="nav nav-tabs">
     <li class="active"><a href="#general" data-toggle="tab">{% trans "Yleiset" %}</a></li>
@@ -16,6 +16,7 @@
       {% include "form_field_snippet.html" with field=form.company_name %}
       {% include "form_field_snippet.html" with field=form.pct_margin %}
       {% include "form_field_snippet.html" with field=form.pct_vat %}
+      {% include "form_field_snippet.html" with field=form.logo %}
     </div>
     <div class="tab-pane" id="imap">
       {% include "form_field_snippet.html" with field=form.mail_from %}
@@ -37,7 +38,6 @@
       {% include "form_field_snippet.html" with field=form.sms_ssl %}
     </div>
   </div>
-
   <div class="form-actions">
     <button type="submit" class="btn btn-primary">{% trans "Tallenna" %}</button>
   </div>

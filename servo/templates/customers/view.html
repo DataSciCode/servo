@@ -6,9 +6,9 @@
 <legend>{{ customer.fullname }}</legend>
   <dl class="dl-horizontal">
     <dt>{% trans "Sähköposti" %}</dt>
-    <dd>{{ customer.email|clickable }}</dd>
+    <dd>{{ customer.email|clickable|default:"-" }}</dd>
     <dt>{% trans "Puhelin" %}</dt>
-    <dd>{{ customer.phone|clickable }}</dd>
+    <dd>{{ customer.phone|clickable|default:"-" }}</dd>
     <dt>{% trans "Osoite" %}</dt>
     <dd>{{ customer.street_address }}<br/>{{ customer.zip_code }} {{ customer.city }}</dd>
     {% for ci in customer.contactinfo_set.all %}

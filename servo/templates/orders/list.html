@@ -9,7 +9,7 @@
       <td><a href="{% url orders.views.index customer=order.customer_tree %}">{{ order.customer_name }}</a></td>
       <td><a href="{% url orders.views.index spec=order.device_tag %}">{{ order.device_name }}</a></td>
       <td><a href="{% url orders.views.index status=order.status_id %}">{{ order.status_name }}</a></td>
-      <td><a href="{% url orders.views.index color=order.status_img %}"><img src="/static/images/status_{{ order.status_img }}_16.png"/></a></td>
+      <td><a href="{% url orders.views.index color=order.status_img %}"><img src="/static/images/status_{{ order.status_img }}_16.png" title="{{ order.status_title }}" alt="{{ order.status_title }}"/></a></td>
     </tr>
   {% endfor %}
   </tbody>

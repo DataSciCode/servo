@@ -19,6 +19,7 @@
           </a>
           <ul class="dropdown-menu">
             <li><a href="{% url orders.views.parts order.id device.id %}">{% trans "Näytä varaosat" %}</a></li>
+            <li><a href="{% url orders.views.create_gsx_repair order.id %}">{% trans "Luo GSX korjaus" %}</a></li>
             <li class="divider"></li>
           	<li><a href="{% url devices.views.edit device.id %}">{% trans "Muokkaa" %}</a></li>
             <li><a href="{% url orders.views.remove_device order.id device.id %}">{% trans "Poista" %}</a></li>

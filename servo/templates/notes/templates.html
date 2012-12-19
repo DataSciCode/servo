@@ -1,0 +1,8 @@
+<div class="dropdown control-label">
+    <a class="dropdown-toggle" data-toggle="dropdown" href="#"><%= title %> <b class="caret"></b></a>
+      <ul class="dropdown-menu template-select">
+      {% for t in templates %}
+        <li><a href="{{ t.get_absolute_url }}">{{ t.title }}</a></li>
+      {% endfor %}
+    </ul>
+</div>

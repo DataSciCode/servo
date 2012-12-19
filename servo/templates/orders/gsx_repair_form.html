@@ -5,8 +5,8 @@
 {% block content %}
 <ul class="breadcrumb">
   <li><a href="{% url orders.views.index %}">{% trans "Tilaukset" %}</a> <span class="divider">/</span></li>
-  <li><a href="{{ order.get_absolute_url }}">#{{ order.code }}</a></li>
-  <span class="divider">/</span> <li class="active">{% trans "GSX korjaus" %}</li>
+  <li><a href="{{ order.get_absolute_url }}">{{ order.code }}</a></li> <span class="divider">/</span> 
+  <li class="active">{% trans "GSX korjaus" %}</li>
 </ul>
 
 <form method="post" accept-charset="utf-8" action="" class="form-horizontal">
@@ -22,7 +22,7 @@
         <div class="control-group">
           <div class="controls">
             <label class="checkbox">
-              <input type="checkbox" name="requestReview"/> request review
+              <input type="checkbox" name="requestReview"/> {% trans "request review" %}
             </label>
           </div>
         </div>
@@ -31,18 +31,18 @@
       {% for part in parts %}
         <div class="control-group">
           <input type="checkbox" name="ids" value="{{ part.number }}" checked="checked" readonly="readonly"/>
-          <input type="text" readonly="readonly" value="{{ part.code }}" name="part_numbers" class="input-medium"/>
-          <input type="text" readonly="readonly" value="{{ part.title }}" class="input-xlarge"/>
-          <select name="part_codes" class="input-medium">
+          <input type="text" readonly="readonly" value="{{ part.code }}" name="part_numbers" class="input-small"/>
+          <input type="text" readonly="readonly" value="{{ part.title }}" class="input-large"/>
+          <select name="part_codes">
             <option value="">{% trans "CompTIA code" %}...</option>
             {% for k, v in part.symptoms.items %}
-            <option value="{{ k }}">{{ k }} - {{ v }}</option>
+            <option value="{{ k }}">{{ v }}</option>
             {% endfor %}
           </select>
-          <select name="part_modifiers" class="input-medium">
+          <select name="part_modifiers">
             <option value="">{% trans "CompTIA modifier" %}...</option>
             {% for k, v in modifiers.items %}
-            <option value="{{ k }}">{{ k }} - {{ v }}</option>
+            <option value="{{ k }}">{{ v }}</option>
             {% endfor %}
           </select>
           <select name="abused" class="input-small">
@@ -57,7 +57,7 @@
       </div>
     </div>
     <div class="form-actions">
-      <button type="submit" class="btn btn-primary" data-loading-text="Loading...">{% trans "Lähetä" %}</button>
+      <button type="submit" class="btn btn-primary" data-loading-text="{% trans "Ladataan" %}...">{% trans "Lähetä" %}</button>
     </div>
 </form>
 {% endblock content %}

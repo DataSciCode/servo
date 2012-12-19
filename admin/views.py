@@ -57,13 +57,13 @@ def edit_tag(request, tag_id='new'):
 
 def settings(request):
     if request.method == 'POST':
-        form = SettingsForm(request.POST)
+        form = SettingsForm(request.POST, request.FILES)
         if not form.is_valid():
             messages.add_message(request, messages.ERROR, _(u'Tarkista asetukset'))
             return render(request, 'admin/settings.html', {'form': form})
 
         config = form.save()
-
+        print type(config['logo'])
         # must use cache and not session since it's shared among
         # all the users of the system
         cache.set('config', config, 60*60*24*1)
@@ -73,14 +73,14 @@ def settings(request):
     config = Configuration.conf()
     form = SettingsForm(initial=config)
 
-    return render(request, "admin/settings.html", {'form': form})
+    return render(request, 'admin/settings.html', {'form': form})
 
 def statuses(request):
     statuses = Status.objects.all()
     if request.is_ajax():
         return HttpResponse(statuses.count())
 
-    return render(request, "admin/statuses/index.html", {'statuses': statuses})
+    return render(request, 'admin/statuses/index.html', {'statuses': statuses})
 
 def edit_status(request, status_id=0):
     form = StatusForm()
@@ -98,7 +98,7 @@ def gsx_accounts(request):
     if request.is_ajax():
         return HttpResponse(accounts.count())
 
-    return render(request, "admin/gsx/index.html", {'accounts': accounts})
+    return render(request, 'admin/gsx/index.html', {'accounts': accounts})
 
 def gsx_form(request, id=0):
     form = GsxAccountForm()
@@ -107,7 +107,7 @@ def gsx_form(request, id=0):
         act = GsxAccount.objects.get(pk=id)
         form = GsxAccountForm(instance=act)
         
-    return render(request, "admin/gsx/form.html", {'form': form,
+    return render(request, 'admin/gsx/form.html', {'form': form,
         'account_id': id})
 
 def gsx_save(request, account_id):
@@ -126,8 +126,10 @@ def gsx_save(request, account_id):
         messages.add_message(request, messages.INFO, _(u'GSX tili tallennettu'))
         return redirect('/admin/gsx/accounts/')
 
-    return render(request, "admin/gsx/form.html", {'form': form,
-        'account_id': account_id})
+    return render(request, 'admin/gsx/form.html', {
+        'form': form,
+        'account_id': account_id
+        })
 
 def gsx_remove(request, id=None):
     if 'id' in request.POST:
@@ -177,14 +179,14 @@ def remove_field(request, id=None):
     else:
         field = Field.objects(pk=ObjectId(id))[0]
     
-    return render(request, "admin/fields/remove.html", field)
+    return render(request, 'admin/fields/remove.html', field)
 
 def templates(request):
     templates = Template.objects.all()
     if request.is_ajax():
         return HttpResponse(templates.count())
 
-    return render(request, "admin/templates/index.html", {'templates': templates})
+    return render(request, 'admin/templates/index.html', {'templates': templates})
 
 def edit_template(request, template_id=None):
     form = TemplateForm()
@@ -214,14 +216,14 @@ def users(request):
     if request.is_ajax():
         return HttpResponse(users.count())
 
-    return render(request, "admin/users/index.html", {'users': users})
+    return render(request, 'admin/users/index.html', {'users': users})
 
 def groups(request):
     groups = Group.objects.all()
     if request.is_ajax():
         return HttpResponse(groups.count())
 
-    return render(request, "admin/users/groups.html", {'groups': groups})
+    return render(request, 'admin/users/groups.html', {'groups': groups})
 
 def edit_group(request, id=None):
     form = GroupForm()
@@ -236,7 +238,7 @@ def edit_group(request, id=None):
         group = Group.objects.get(pk=id)
         form = GroupForm(instance=group)
 
-    return render(request, "admin/users/group_form.html", {'form': form})
+    return render(request, 'admin/users/group_form.html', {'form': form})
 
 def remove_user(request, user_id):
     if request.method == "POST":

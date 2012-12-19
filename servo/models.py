@@ -187,7 +187,7 @@ class Template(models.Model):
     content = models.TextField(blank=False, verbose_name=_(u'teksti'))
 
     def get_absolute_url(self):
-        return "/notes/%d/template/" % self.pk
+        return "/notes/templates/%d/" % self.pk
 
 class Status(models.Model):
     FACTORS = (

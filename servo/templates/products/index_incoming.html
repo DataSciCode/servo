@@ -5,15 +5,15 @@
 
 {% block products_content %}
 <ul class="nav nav-tabs">
-  <li class="active"><a href="#tab1" data-toggle="tab">{% trans "Tulossa" %}</a></li>
-  <li><a href="#tab2" data-toggle="tab">{% trans "Saavutetut" %}</a></li>
+  <li class="active"><a href="{% url products.views.index_incoming %}">{% trans "Tulossa" %}</a></li>
+  <li><a href="#">{% trans "Saavutetut" %}</a></li>
 </ul>
-<form method="post">
+<form method="post" action="">
   {% csrf_token %}
   <table class="table">
     <thead>
       <tr>
-        <th></th>
+        <th><input type="checkbox" class="toggle_column"/></th>
         <th>{% trans "Koodi" %}</th>
         <th>{% trans "Nimike" %}</th>
         <th>{% trans "Tilaaja" %}</th>
@@ -24,16 +24,19 @@
     <tbody>
     {% for i in inventory %}
       <tr>
-        <td><a href="?i={{ i.pk }}">{{ i.pk }}</a></td>
-        <td>{{ i.product.code }}</td>
+        <td><input type="checkbox" name="id" value="{{ i.pk }}"/></td>
+        <td><a href="?i={{ i.pk }}">{{ i.product.code }}</a></td>
         <td>{{ i.product.title }}</td>
         <td>{{ i.purchase_order.created_by }}</td>
         <td>{{ i.purchase_order.reference }}</td>
         <td>{{ i.sn }}</td>
       </tr>
+      {% empty %}
+      <tr><td colspan="6" class="muted empty">{% trans "Ei yhtään saapuvaa tuotetta" %}</td></tr>
     {% endfor %}
     </tbody>
   </table>
-  <a href="?i={{ inventory.0.id }}" class="btn btn-primary pull-right">{% trans "Jatka..." %}</a>
+  <button type="submit" class="btn" disabled="disabled">{% trans "Saavuta" %}</button>
+  <a href="?i={{ inventory.0.id }}" class="btn btn-primary">{% trans "Jatka..." %}</a>
 </form>
 {% endblock products_content %}

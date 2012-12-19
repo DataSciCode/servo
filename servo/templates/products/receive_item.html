@@ -4,14 +4,35 @@
 <form method="post" action="" class="form-horizontal">
     {% csrf_token %}
     <h2>{{ item.code }}</h2>
-    <p>Huoltotilaus: {{ item.purchase_order.sales_order.code }}</p>
-    <p>Tilattu: {{ item.purchase_order.date_created }}</p>
-    <p>Tilaaja: {{ item.purchase_order.created_by.username }}</p>
-    <p>Tilausvahvistus: {{ item.purchase_order.confirmation }}</p>
+    <div class="control-group">
+        <label class="control-label">{% trans "Huoltotilaus" %}</label>
+        <div class="controls">
+            <input type="text" value="{{ item.purchase_order.sales_order.code }}" readonly="readonly"/>
+        </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label">{% trans "Tilattu" %}</label>
+        <div class="controls">
+            <input type="text" value="{{ item.purchase_order.date_created }}" readonly="readonly"/>
+        </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label">{% trans "Tilaaja" %}</label>
+        <div class="controls">
+            <input type="text" value="{{ item.purchase_order.created_by.username }}" readonly="readonly"/>
+        </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label">{% trans "Tilausvahvistus" %}</label>
+        <div class="controls">
+            <input type="text" value="{{ item.purchase_order.confirmation }}" readonly="readonly"/>
+        </div>
+    </div>
     {% include "form_field_snippet.html" with field=form.amount %}
     {% if item.product.is_serialized %}
     {% include "form_field_snippet.html" with field=form.sn %}
     {% endif %}
+    {% include "form_field_snippet.html" with field=form.price %}
     <div class="form-actions">
         <a href="?i={{ item.id|add:1 }}" class="btn">{% trans "Ohita" %}</a>
         <button type="submit" class="btn btn-primary">{% trans "Saavuta" %}</button>

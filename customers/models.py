@@ -14,7 +14,6 @@ class Customer(MPTTModel):
         verbose_name=_(u'yritys'))
     name = models.CharField(default=_(u'Uusi asiakas'), max_length=255,
         verbose_name=_(u'nimi'))
-
     email = models.EmailField(null=True, blank=True, 
         verbose_name=_(u'sähköposti'))
     phone = models.CharField(max_length=32, null=True, blank=True, 
@@ -36,9 +35,10 @@ class Customer(MPTTModel):
     is_company = models.BooleanField(default=False, verbose_name=_(u'yritys'))
 
     class Meta:
-        ordering = ['name']
+        ordering = ('name',)
+
     class MPTTMeta:
-        order_insertion_by = ['name']
+        order_insertion_by = ('name',)
 
     def __unicode__(self):
         return self.name

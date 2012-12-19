@@ -10,13 +10,14 @@
   <div class="span3">
     <ul id="navtabs" class="nav nav-list well well-small">
       <li class="nav-header">{% trans "Varasto" %}</li>
-      <li><a href="{% url products.views.index %}">{% trans "Tuotteet" %} <span class="badge pull-right counter"></span></a></li>
+      <li><a href="{% url products.views.index %}">{% trans "Tuotteet" %}</a></li>
       <li><a href="{% url products.views.index_incoming %}">{% trans "Saapuvat" %} <span class="badge pull-right counter"></span></a></li>
       <li><a href="{% url products.views.index_outgoing %}">{% trans "Lähtevät" %} <span class="badge pull-right counter"></span></a></li>
-      <li><a href="{% url products.views.index_po %}">{% trans "Ostotilaukset" %} <span class="badge pull-right counter"></span></a></li>
-      <li><a href="{% url products.views.invoices %}">{% trans "Laskut" %} <span class="badge pull-right counter"></span></a></li>
+      <li><a href="{% url products.views.index_po %}">{% trans "Ostotilaukset" %}</a></li>
+      <li><a href="{% url products.views.invoices %}">{% trans "Laskut" %}</a></li>
     </ul>
   </div>
+
   <div class="span9">
   {% block products_content %}
     <ul class="nav nav-tabs" id="navtabs">

@@ -9,7 +9,7 @@
 </ul>
 
 <div class="row">
-  <form method="post" action="{% url orders.views.dispatch order.id %}" accept-charset="utf8">
+  <form method="post" action="" accept-charset="utf8">
     {% csrf_token %}
     <div class="span3">
       {% include "form_field_snippet.html" with field=form.payment_method %}
@@ -34,33 +34,52 @@
         <tbody>
         {% for p in products %}
           <tr>
-            <td><input type="checkbox" name="items" value="{{ p.id }}" checked="checked"/></td>
+            <td><input type="checkbox" name="items" value="{{ p.id }}" checked="checked" class="toggle_row"/></td>
             <td>{{ p.product.title }}</td>
-            <td>{{ p.amount }}</td>
-            <td>{{ p.product.price_notax }}</td>
-            <td>{{ p.product.tax }}</td>
-            <td>{{ p.price }} </td>
+            <td class="amount">{{ p.amount }}</td>
+            <td class="net">{{ p.total_net }}</td>
+            <td class="tax">{{ p.total_tax }}</td>
+            <td class="gross">{{ p.total_gross }} </td>
           </tr>
           {% if p.product.is_serialized %}
           <tr>
             <td></td>
-            <td style="text-align:right">{% trans "SN" %}:</td>
-            <td>
+            <td style="text-align:right">{% trans "Sarjanumero" %}:</td>
+            <td colspan="4">
               <input type="text" value="{{ p.sn }}" name="products.{{ forloop.counter0 }}.sn"/>
             </td>
-            <td colspan="4"></td>
           </tr>
           {% endif %}
         {% endfor %}
+      </tbody>
+      <tfoot>
         <tr>
           <td></td>
           <td style="text-align:right">{% trans "Yhteensä" %}:</td>
           <td>{{ totals.amount  }}</td>
-          <td><input type="text" readonly="readonly" class="input-mini" value="{{ order.net_total }}" name="total_net"/></td>
-          <td><input type="text" readonly="readonly" class="input-mini" value="{{ order.total_tax }}" name="total_tax"/></td>
-          <td><input type="text" readonly="readonly" class="input-mini" value="{{ order.gross_total }}" name="total_gross"/></td>
+          <td><input 
+            type="text" 
+            id="total_net"
+            name="total_net"
+            readonly="readonly" 
+            class="input-mini" 
+            value="{{ order.net_total }}"/></td>
+          <td><input 
+            type="text" 
+            id="total_tax"
+            name="total_tax"
+            readonly="readonly" 
+            class="input-mini" 
+            value="{{ order.total_tax }}" /></td>
+          <td><input 
+            type="text" 
+            id="total_gross"
+            name="total_gross"
+            readonly="readonly" 
+            class="input-mini" 
+            value="{{ order.gross_total }}" /></td>
         </tr>
-      </tbody>
+      </tfoot>
     </table>
     <div class="form-actions">
       <button type="submit" class="btn btn-primary pull-right">{% trans "Toimita" %}</button>

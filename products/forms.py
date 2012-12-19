@@ -21,7 +21,7 @@ class PurchaseOrderForm(forms.ModelForm):
 class PurchaseOrderItemForm(LocalizedModelForm):
     class Meta:
         model = PurchaseOrderItem
-        fields = ('sn', 'amount')
+        fields = ('sn', 'amount', 'price')
 
 class ProductForm(forms.ModelForm):
     class Meta:

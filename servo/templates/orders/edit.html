@@ -29,15 +29,19 @@
       </select>
       {% endfor %}
     </form>
-
   </div>
   <div class="span9">
-    <div class="btn-group pull-right">
-      <a class="btn" href="{% url notes.views.edit order_id=order.id kind='problem' %}">{% trans "Uusi ongelma" %}</a>
-      <a class="btn" href="{% url notes.views.edit order_id=order.id kind='note' %}">{% trans "Uusi merkintä" %}</a>
-      <a class="btn" href="{% url notes.views.edit order_id=order.id kind='message' %}">{% trans "Uusi viesti" %}</a>
+    <div class="btn-group">
+      <a class="btn" href="{% url notes.views.edit order_id=order.id kind='problem' %}"><i class="icon-comment"></i> {% trans "Lisää ongelma" %}</a>
+      <button class="btn dropdown-toggle" data-toggle="dropdown">
+        <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu">
+        <li><a href="{% url notes.views.edit order_id=order.id kind='note' %}">{% trans "Lisää merkintä" %}</a></li>
+        <li><a href="{% url notes.views.edit order_id=order.id kind='message' %}">{% trans "Lisää viesti" %}</a></li>
+      </ul>
     </div>
-    <div class="btn-group pull-right">
+    <div class="btn-group">
       <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
         <i class="icon-cog"></i> <span class="caret"></span>
       </a>
@@ -59,9 +63,6 @@
         <li><a href="{% url products.views.create_po order_id=order.id %}">{% trans "Tilaa tuotteet" %}...</a></li>
         <li><a href="{% url orders.views.reserve_products order.id %}">{% trans "Varaa tuotteet" %}...</a></li>
         <li><a href="{% url orders.views.dispatch order.id %}">{% trans "Toimita tilaus" %}...</a></li>
-      {% if order.issues %}
-        <li><a href="{% url orders.views.create_gsx_repair order.id %}">{% trans "Luo GSX korjaus" %}...</a></li>
-      {% endif %}
         <li class="divider"></li>
       {% endif %}
         <li><a href="{% url orders.views.remove order.id %}">{% trans "Poista tilaus" %}</a></li>
@@ -70,16 +71,16 @@
         <li><a href="{% url orders.views.follow order.id %}" class="nofollow">{% trans "Seuraa" %}</a></li>
       </ul>
     </div>
-    <div id="devices">
+    <div id="devices" class="well well-small">
       {% include "orders/devices.html" %}
     </div>
-    <div id="notes">
+    <div id="notes" class="well well-small">
       {% include "orders/notes.html" with notes=order.notes %}
     </div>
-    <div id="products">
+    <div id="products" class="well well-small">
       {% include "orders/products.html" %}
     </div><!-- //#products -->
-    <div id="events">
+    <div id="events" class="well well-small">
       {% include "orders/events.html" %}
     </div>
     <ul class="breadcrumb">

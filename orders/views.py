@@ -268,6 +268,11 @@ def create_gsx_repair(request, order_id):
             # skip products with no GSX data
             continue
 
+    if len(parts) < 1:
+        messages.add_message(request, messages.ERROR, 
+            _(u'Tilauksessa ei ole yhtään tilattavaa osaa'))
+        return redirect(order)
+
     profile = request.user.get_profile()
     customer = {}
 
@@ -317,9 +322,12 @@ def create_gsx_repair(request, order_id):
         order_lines = []
 
         for k, v in enumerate(parts):
-            part = {'partNumber': v, 'comptiaCode': comptia_codes[k],
+            part = {
+                'partNumber': v,
+                'comptiaCode': comptia_codes[k],
                 'comptiaModifier': comptia_modifiers[k],
-                'abused': abused[k]}
+                'abused': abused[k]
+                }
 
             f = GsxPartForm(part)
 
@@ -361,7 +369,6 @@ def create_gsx_repair(request, order_id):
             repair['shipTo'] = act.ship_to
         except Exception, e:
             print e
-            print "Using default GSX account..."
             repair['shipTo'] = profile.location.ship_to
             gsx = GsxAccount.default()
         
@@ -369,6 +376,7 @@ def create_gsx_repair(request, order_id):
             result = gsx.create_carryin_repair(repair)
             confirmation = result[0]['confirmationNumber']
             po.confirmation = confirmation
+            po.date_submitted = datetime.now()
             po.save()
             description =  _(u'GSX huolto %s luotu' % confirmation)
             order.notify('gsx_repair_created', description, request.user)
@@ -471,15 +479,21 @@ def products(request, order_id, item_id=None, action='list'):
     order = Order.objects.get(pk=order_id)
 
     if action == 'list':
-        return render(request, 'orders/products.html', {"order": order})
+        return render(request, 'orders/products.html', {'order': order})
+
+    if action == 'report':
+        product = ServiceOrderItem.objects.get(pk=item_id)
+        product.should_report = not product.should_report
+        product.save()
+        return HttpResponse('OK')
 
     if action == 'add':
         product = Product.objects.get(pk=item_id)
-        order.add_product(product)
+        oi = order.add_product(product)
         messages.add_message(request, messages.INFO, 
             _(u'Tuote %d lisätty' % product.id))
         
-        return redirect(order)
+        return redirect('/orders/%d/products/%d/edit/' %(order.id, oi.id))
 
     if action == 'edit':
         item = ServiceOrderItem.objects.get(pk=item_id)
@@ -494,7 +508,8 @@ def products(request, order_id, item_id=None, action='list'):
                 
                 return redirect(order)
 
-        return render(request, "orders/edit_product.html", {'order': order,
+        return render(request, 'orders/edit_product.html', {
+            'order': order,
             'form': form})
 
     if action == 'remove':
@@ -510,7 +525,7 @@ def products(request, order_id, item_id=None, action='list'):
             
             return redirect(order)
 
-        return render(request, "orders/remove_product.html", {
+        return render(request, 'orders/remove_product.html', {
             'order': order, 'item': item})
 
     if action == 'report':
@@ -522,13 +537,16 @@ def dispatch(request, order_id=None, numbers=None):
 
     if request.method == 'POST':
         total_margin = order.total_margin()
-        invoice = Invoice(created_by=request.user, order=order, 
-            customer=order.customer, total_margin=total_margin)
+        invoice = Invoice(
+            created_by=request.user,
+            order=order, 
+            customer=order.customer,
+            total_margin=total_margin)
         
         form = InvoiceForm(request.POST, instance=invoice)
         
         if not form.is_valid():
-            return render(request, "orders/dispatch.html", {
+            return render(request, 'orders/dispatch.html', {
                 'form': form, 'order': order, 'products': products
                 })
         
@@ -541,6 +559,8 @@ def dispatch(request, order_id=None, numbers=None):
                 product=soi.product)
             
             soi.product.sell(soi.amount)
+            soi.dispatched = True
+            soi.save()
 
         messages.add_message(request, messages.INFO, _(u'Tilaus toimitettu'))
         return redirect(order)
@@ -551,11 +571,11 @@ def dispatch(request, order_id=None, numbers=None):
         total_tax=order.total_tax())
 
     if order.customer:
-        initial['customer'] = order.customer, 
-        initial['customer_name'] = order.customer.name,
-        initial['customer_phone'] = order.customer.phone,
-        initial['customer_email'] = order.customer.email,
-        initial['customer_address'] = order.customer.street_address,
+        customer = order.customer
+        initial['customer_name'] = customer.name,
+        initial['customer_phone'] = customer.phone,
+        initial['customer_email'] = customer.email,
+        initial['customer_address'] = customer.street_address,
     else:
         initial['customer_name'] = _(u'Käteisasiakas')
 

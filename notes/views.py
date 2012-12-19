@@ -107,9 +107,13 @@ def save(request, kind='note', note_id='new'):
         messages.add_message(request, messages.INFO, msg)
         return redirect('/accounts/messages/%d/' % note.id)
 
-def template(request, id):
-    tpl = Template.objects.get(pk=id)
-    return HttpResponse(tpl.content)
+def templates(request, template_id=None):
+    if template_id:
+        tpl = Template.objects.get(pk=template_id)
+        return HttpResponse(tpl.content)
+
+    templates = Template.objects.all()
+    return render(request, 'notes/templates.html', {'templates': templates})
 
 def view(req, id):
     pass

@@ -29,10 +29,11 @@ class BaseProduct(models.Model):
         conf = Configuration.conf()
         return conf.get('pct_margin', 0.0)
     
-    title = models.CharField(max_length=255, default=_(u'Uusi tuote'),
-        verbose_name=_(u'nimi'))
     code = models.CharField(max_length=32, unique=True,
         verbose_name = _(u'koodi'), blank=True, null=True)
+    title = models.CharField(max_length=255, default=_(u'Uusi tuote'),
+        verbose_name=_(u'nimi'))
+    
     description = models.TextField(blank=True, null=True,
         verbose_name=_(u'kuvaus'))
 
@@ -116,7 +117,7 @@ class Product(BaseProduct):
             pct_vat=vat,
             price_notax=sp,
             warranty_period=3,
-            brand="Apple",
+            brand='Apple',
             component_code=gsx_data.get('componentCode'),
             is_serialized=(gsx_data['isSerialized'] == 'Y'),
             price_sales=sp+(sp/100*vat).quantize(Decimal('1.'))
@@ -137,7 +138,7 @@ class Product(BaseProduct):
     def latest_date_ordered(self):
         return '-'
 
-    def latest_date_ordered(self):
+    def latest_date_arrived(self):
         return '-'
 
     def sell(self, amount=1):

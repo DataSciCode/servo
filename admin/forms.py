@@ -76,6 +76,7 @@ class SettingsForm(forms.Form):
     company_name = forms.CharField(max_length=128, label=_('Yritys'))
     pct_margin = forms.DecimalField(max_digits=4, label=_('Kate %'))
     pct_vat = forms.DecimalField(max_digits=4, label=_('ALV %'))
+    logo = forms.FileField(label=_('Logo'), required=False)
 
     mail_from = forms.CharField(max_length=128, label=_('Osoite'))
     imap_host = forms.CharField(max_length=128, label=_('Palvelin'))
@@ -109,4 +110,3 @@ class SettingsForm(forms.Form):
             config[k] = v
 
         return config
-        

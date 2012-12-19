@@ -9,5 +9,5 @@ class NoteForm(forms.ModelForm):
                 'class': 'input-xxlarge typeahead',
                 'data-source': 'customers'}),
             'body': forms.Textarea(attrs={
-                'class': 'input-xxlarge', 'rows': 15})
+                'class': 'input-xxlarge template', 'rows': 15})
         }

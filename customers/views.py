@@ -83,9 +83,6 @@ def view(request, id):
         })
 
 def edit(request, customer_id=0, parent_id=0, name=None):
-    if name:
-        name = name.capitalize()
-
     form = CustomerForm(initial={'name': name})
     customer = Customer()
     fields = Property.objects.filter(type='customer')
@@ -175,7 +172,7 @@ def search(request):
     else:
         query = request.POST.get("name")
         results = Customer.objects.filter(name__icontains=query)
-        return render(request, "customers/search-results.html",
+        return render(request, 'customers/search-results.html',
             {'results': results, 'id': request.POST['id']})
 
     return HttpResponse(json.dumps(results), content_type="application/json")

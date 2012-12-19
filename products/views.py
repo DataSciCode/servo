@@ -9,7 +9,7 @@ from django.shortcuts import render, redirect, render_to_response
 from django.utils.translation import ugettext as _
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
-from gsx.models import Lookup
+from gsx.models import Lookup, Account
 from servo.models import *
 from orders.models import *
 from products.models import *
@@ -33,8 +33,8 @@ def index(request, group_id=None, tag_id=None, spec_id=None):
     if tag_id:
         all_products = Product.objects.filter(tags__pk=tag_id)
 
-    tags = Tag.objects.filter(type="product")
-    specs = Tag.objects.filter(type="device")
+    tags = Tag.objects.filter(type='product')
+    specs = Tag.objects.filter(type='device')
     groups = ProductGroup.objects.all()
 
     page = request.GET.get('page')
@@ -65,18 +65,12 @@ def edit(request, product_id=0, code=None):
         product_id = product.id
     
     if code:
-        try:
-            result = cache.get(code)
-            product = Product.from_gsx(result)
-            print product
-        except Exception, e:
-            print e
-            gsx = GsxAccount.default()
-            product = Product.from_gsx(result[0])
-
+        result = Lookup(Account.default()).lookup(code)
+        product = Product.from_gsx(result)
         form = ProductForm(instance=product)
     
-    return render(request, 'products/form.html', {'form': form,
+    return render(request, 'products/form.html', {
+        'form': form,
         'product_id': product_id,
         'gsx_data': result
         })
@@ -104,7 +98,7 @@ def save(request, product_id):
         form = ProductForm(request.POST, instance=product)
         
     if not form.is_valid():
-        print form.errors
+        messages.add_message(request, messages.ERROR, _(u'Tuotten tiedoissa on virhe'))
         return render(request, 'products/form.html', {
             'form': form, 'product_id': product_id
             })
@@ -177,7 +171,7 @@ def create_po(request, product_id=None, order_id=None):
     if product_id:
         product = Product.objects.get(pk=product_id)
         PurchaseOrderItem.objects.create(code=product.code,
-            quantity=1,
+            amount=1,
             purchase_order=po,
             product_id=product.id, 
             price=product.price_purchase)
@@ -248,6 +242,7 @@ def edit_po(request, id, item_id=None, action='add'):
         Inventory.objects.filter(slot=poi.purchase_order_id, 
             product_id=pid).delete()
         poi.delete()
+
         messages.add_message(request, messages.INFO, 
             _(u'Tuote #%d poistettu' % pid))
 
@@ -265,24 +260,38 @@ def submit_po(request, id):
     return redirect('products.views.index_po')
   
 def index_po(request):
-    orders = PurchaseOrder.objects.all()
-    if request.is_ajax():
-        return HttpResponse(orders.count())
+    all_orders = PurchaseOrder.objects.all()
+
+    page = request.GET.get('page')
+    paginator = Paginator(all_orders, 50)
+
+    try:
+        orders = paginator.page(page)
+    except PageNotAnInteger:
+        orders = paginator.page(1)
+    except EmptyPage:
+        orders = paginator.page(paginator.num_pages)
 
     return render(request, 'products/purchase_orders.html', {'orders': orders})
 
 def order_stock(request, po_id):
+    from lib.gsxlib import gsxlib
     po = PurchaseOrder.objects.get(pk=po_id)
     gsx = GsxAccount.default()
     items = []
     for i in po.purchaseorderitem_set.all():
-        items.append({'partNumber': i.code, 'quantity': "1"})
+        items.append({'partNumber': i.code, 'quantity': str(i.amount)})
 
-    so = gsx.create_stocking_order(purchaseOrderNumber=str(po.id),
-        shipToCode="677592",
+    try:
+        profile = request.user.get_profile()
+        ship_to = profile.location.ship_to
+        so = gsx.create_stocking_order(purchaseOrderNumber=str(po.id),
+        shipToCode=ship_to,
         orderLines=items)
+    except gsxlib.GsxError, e:
+        messages.add_message(request, messages.ERROR, e)
 
-    return HttpResponse(po)
+    return redirect('products.views.index_po')
 
 def remove_po(request, po_id):
     PurchaseOrder.objects.filter(pk=po_id).delete()
@@ -291,7 +300,7 @@ def remove_po(request, po_id):
 
     return redirect('products.views.index_po')
 
-def index_incoming(request, shipment=None, date=None):
+def index_incoming(request, shipment=None, date=None, status=''):
     """
     Index purchase order items that have not arrived yet
     """
@@ -300,6 +309,20 @@ def index_incoming(request, shipment=None, date=None):
 
     if request.is_ajax():
         return HttpResponse(inventory.count())
+
+    if request.POST.getlist('id'):
+        count = len(request.POST.getlist('id'))
+        
+        for i in request.POST.getlist('id'):
+            item = PurchaseOrderItem.objects.get(pk=i)
+            item.date_received = datetime.now()
+            item.received_by = request.user
+            item.save()
+        
+        messages.add_message(request, messages.INFO, 
+            _(u'%d tuotetta saavutettu' % count))
+
+        return redirect('products.views.index_incoming')
 
     if request.GET.get('i'):
         item = PurchaseOrderItem.objects.get(pk=request.GET['i'])
@@ -310,7 +333,11 @@ def index_incoming(request, shipment=None, date=None):
             form = PurchaseOrderItemForm(request.POST, instance=item)
             if form.is_valid():
                 item = form.save()
-            print form.errors
+                if item.order_item: # copy SN from POI to SOI
+                    item.order_item.sn = item.sn
+                    item.order_item.save()
+                messages.add_message(request, messages.INFO, 
+                    _(u'Tuote %s saavutettu' % item.code))
         else:
             form = PurchaseOrderItemForm(instance=item)
 
@@ -326,4 +353,4 @@ def index_outgoing(request, shipment=None, date=None):
     if request.is_ajax():
         return HttpResponse('5')
 
-    return render(request, "products/index_outgoing.html")
+    return render(request, 'products/index_outgoing.html')

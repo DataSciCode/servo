@@ -11,13 +11,13 @@ from countries.models import Country
 class InvoiceForm(LocalizedModelForm):
     class Meta:
         model = Invoice
-        exclude = ['created_at', 'paid_at', 'created_by',
-        'customer', 'order', 'total_margin']
+        exclude = ('created_at', 'paid_at', 'created_by',
+        'customer', 'order', 'total_margin',)
 
 class SidebarForm(forms.ModelForm):
     class Meta:
         model = Order
-        fields = ['user', 'queue', 'status', 'priority']
+        fields = ('user', 'queue', 'status', 'priority',)
 
 class FieldsForm(forms.Form):
     pass
@@ -25,10 +25,16 @@ class FieldsForm(forms.Form):
 class OrderItemForm(forms.ModelForm):
     class Meta:
         model = ServiceOrderItem
-        fields = ['title', 'sn', 'amount', 'should_return', 'price', 'reported']
+        fields = ('title', 'sn', 'amount', 'price_category',
+            'price', 'should_report', 'should_return', )
+        widgets = {
+            'amount': forms.TextInput(attrs={'class': 'input-mini'}),
+            'price': forms.TextInput(attrs={'class': 'input-mini'})
+        }
 
 class GsxPartForm(forms.Form):
-    partNumber = forms.CharField(max_length=18)
+    partNumber = forms.CharField(max_length=18, widget=forms.TextInput(
+        attrs={'class': 'input-small'}))
     comptiaCode = forms.CharField(max_length=3)
     abused = forms.CharField(max_length=1)
     comptiaModifier = forms.CharField(max_length=1)
@@ -90,31 +96,37 @@ class GsxRepairForm(forms.Form):
         try:
             diagnosis_text = order.issues()[0].replies.all()[0].body
         except IndexError:
-            diagnosis_text = ""
+            diagnosis_text = ''
         
         self.fields['device'] = forms.ModelChoiceField(queryset=order.devices.all(), 
             label=_(u'Laite'))
 
         self.fields['symptom'] = forms.CharField(widget=forms.Textarea(attrs={
-            'class': 'input-xxlarge', 'rows': 6}), initial=symptom_text,
+            'class': 'input-xxlarge copy-source template', 'rows': 6}),
+            initial=symptom_text,
             label=_(u'Vikakuvaus'))
 
         self.fields['diagnosis'] = forms.CharField(widget=forms.Textarea(attrs={
-            'class': 'input-xxlarge', 'rows': 6}), initial=diagnosis_text,
+            'class': 'input-xxlarge copy-target template', 'rows': 6}), 
+            initial=diagnosis_text,
             label=_(u'Diagnoosi'))
 
         self.fields['notes'] = forms.CharField(widget=forms.Textarea(attrs={
             'class': 'input-xxlarge', 'rows': 6}), label=_(u'Merkinnät'),
             required=False)
 
-        self.fields['unitReceivedDate'] = forms.DateField(initial=order.created_at,
-            widget=forms.DateInput(format=langs['df'], attrs={'class': 'input-small'}),
+        self.fields['unitReceivedDate'] = forms.DateField(
+            initial=order.created_at,
+            widget=forms.DateInput(format=langs['df'],
+                attrs={'class': 'input-small'}),
             input_formats=[langs['df']],
             label=_(u'Päivämäärä'))
 
         self.fields['unitReceivedTime'] = forms.TimeField(initial=order.created_at,
-            widget=forms.TimeInput(format=langs["tf"], attrs={'class': 'input-small'}),
+            widget=forms.TimeInput(format=langs["tf"], 
+                attrs={'class': 'input-small'}),
             input_formats=[langs["tf"]],
             label=_(u'Aika'))
 
-        self.fields['fileData'] = forms.FileField(required=False, label=_(u'Liite'))
+        self.fields['fileData'] = forms.FileField(required=False, 
+            label=_(u'Liite'))

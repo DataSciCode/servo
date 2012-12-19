@@ -7,6 +7,7 @@
       <th>{% trans "Koodi" %}</th>
       <th>{% trans "Nimike" %}</th>
       <th>{% trans "Myyntihinta" %}</th>
+      <th>{% trans "Vaihtohinta" %}</th>
       <th>{% trans "Saldo" %}</th>
       <th></th>
     </tr>
@@ -16,8 +17,9 @@
     <tr>
       <td><a href="{{ p.get_absolute_url }}">{{ p.id }}</a></td>
       <td>{{ p.code }}</td>
-      <td>{{ p.title|truncatechars:40 }}</td>
+      <td>{{ p.title|truncatechars:30 }}</td>
       <td>{{ p.price_sales }}</td>
+      <td>{{ p.price_exchange }}</td>
       <td>{{ p.amount_stocked }}</td>
       <td>
         <div class="btn-group pull-right">

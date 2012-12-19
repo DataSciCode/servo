@@ -186,7 +186,7 @@ class Order(models.Model):
     def net_total(self):
         total = 0
 
-        for p in self.serviceorderitem_set.filter(reported=True):
+        for p in self.serviceorderitem_set.filter(should_report=True):
             total += p.product.price_notax * p.amount
 
         return total
@@ -194,7 +194,7 @@ class Order(models.Model):
     def gross_total(self):
         total = 0
 
-        for p in self.serviceorderitem_set.filter(reported=True):
+        for p in self.serviceorderitem_set.filter(should_report=True):
             total += p.price * p.amount
 
         return total
@@ -218,13 +218,14 @@ class Order(models.Model):
             price=product.price_sales)
 
         self.save()
+        return oi
 
     def dispatch(self, products):
         print products
 
     def total_margin(self):
         total_purchase_price = 0
-        for p in self.serviceorderitem_set.filter(reported=True):
+        for p in self.serviceorderitem_set.filter(should_report=True):
             total_purchase_price += p.product.price_purchase * p.amount
 
         return (self.net_total() - total_purchase_price)
@@ -250,13 +251,30 @@ class ServiceOrderItem(OrderItem):
     order = models.ForeignKey(Order)
     dispatched = models.BooleanField(default=False, 
         verbose_name=_(u'toimitettu'))
-    reported = models.BooleanField(default=True, 
+    should_report = models.BooleanField(default=True, 
         verbose_name=_(u'raportoi'))
-    price = models.DecimalField(decimal_places=2, max_digits=6,
-        verbose_name=_(u'myyntihinta'))
     should_return = models.BooleanField(default=False, 
         verbose_name=_(u'palautetaan'))
-    #returned_at = models.DateTimeField(null=True)
+    price = models.DecimalField(decimal_places=2, max_digits=6,
+        verbose_name=_(u'myyntihinta'))
+
+    PRICE_CATEGORIES = (
+        ('warranty', _(u'Takuu')),
+        ('exchange', _(u'Vaihto')),
+        ('stock', _(u'Stock')),
+        )
+    
+    price_category = models.CharField(max_length=32, choices=PRICE_CATEGORIES,
+        default=PRICE_CATEGORIES[0])
+
+    def total_net(self):
+        return self.product.price_notax * self.amount
+
+    def total_tax(self):
+        return (self.price - self.product.price_notax) * self.amount
+
+    def total_gross(self):
+        return self.price * self.amount
 
 class Invoice(models.Model):
     PAYMENT_METHODS = (
@@ -272,10 +290,14 @@ class Invoice(models.Model):
     created_at = models.DateTimeField(default=datetime.now())
     payment_method = models.IntegerField(choices=PAYMENT_METHODS,
         default=PAYMENT_METHODS[0], verbose_name=_(u'maksutapa'))
+    is_paid = models.BooleanField(default=False, verbose_name=_(u'maksettu'))
+    paid_at = models.DateTimeField(null=True, blank=True)
 
     order = models.ForeignKey(Order)
     customer = models.ForeignKey(Customer, null=True, on_delete=models.SET_NULL)
 
+    # We remember the following the following so that the customer info
+    # on the invoice doesn't change if the customer is modified or deleted
     customer_name = models.CharField(max_length=128, default=_(u'Käteisasiakas'),
         verbose_name=_(u'asiakas'))
     customer_phone = models.CharField(max_length=128, blank=True, null=True,
@@ -290,14 +312,12 @@ class Invoice(models.Model):
     total_tax = models.DecimalField(max_digits=6, decimal_places=2)     # total taxes
     total_margin = models.DecimalField(max_digits=6, decimal_places=2)  # total margin
 
-    is_paid = models.BooleanField(default=False, verbose_name=_(u'maksettu'))
-    paid_at = models.DateTimeField(null=True, blank=True)
 
     def get_payment_method(self):
         return self.PAYMENT_METHODS[self.payment_method][1]
 
     class Meta:
-        ordering = ['-id']
+        ordering = ('-id', )
 
 class InvoiceItem(OrderItem):
     invoice = models.ForeignKey(Invoice)
@@ -383,7 +403,7 @@ class PurchaseOrder(models.Model):
         """
 
     class Meta:
-        ordering = ['-id']
+        ordering = ('-id',)
 
 class PurchaseOrderItem(OrderItem):
     price = models.DecimalField(decimal_places=2, max_digits=6,
@@ -437,12 +457,10 @@ def trigger_product_ordered(sender, instance, created, **kwargs):
     if instance.date_received:
         product.amount_ordered = product.amount_ordered - 1
         product.amount_stocked = product.amount_stocked + 1
-        description = _('Tuote %s saapunut' % instance.code)
-        Event.objects.create(description=description,
-            ref='order',
-            action='arrived',
-            ref_id=instance.purchase_order.sales_order.id,
-            triggered_by=instance.received_by)
+        if instance.purchase_order.sales_order:
+            message = _('Tuote %s saapunut' % instance.code)
+            instance.purchase_order.sales_order.notify('arrived', message, 
+                instance.received_by)
 
     product.save()
 

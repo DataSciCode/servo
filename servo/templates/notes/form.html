@@ -23,19 +23,7 @@
   <input name="parent" type="hidden" value="{{ note.parent }}"/>
   {% endif %}
   {% include "form_field_snippet.html" with field=form.recipient %}
-  <div class="control-group">
-    <div class="dropdown control-label">
-      <a class="dropdown-toggle btn" data-toggle="dropdown" href="#">{% trans "Pohja" %} <b class="caret"></b></a>
-      <ul class="dropdown-menu" id="template-select">
-      {% for t in templates %}
-        <li><a href="{{ t.get_absolute_url }}">{{ t.title }}</a></li>
-      {% endfor %}
-      </ul>
-    </div>
-    <div class="controls">
-      {{ form.body }}
-    </div>
-  </div>
+  {% include "form_field_snippet.html" with field=form.body %}
   <div class="control-group">
     <label class="control-label">{% trans 'Liite' %}</label>
     <div class="controls">

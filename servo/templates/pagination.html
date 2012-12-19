@@ -1,3 +1,4 @@
+{% load i18n %}
 <div class="pagination pagination-centered">
   <ul>
     {% if items.has_previous %}
@@ -5,7 +6,7 @@
     {% else %}
     <li class="disabled"><a href="#"><span>&laquo;</span></a></li>
     {% endif %}
-    <li class="active"><a href="#"><span>Sivu {{ items.number }}/{{ items.paginator.num_pages }}</span></a></li>
+    <li class="active"><a href="#"><span>{% trans "Sivu" %} {{ items.number }}/{{ items.paginator.num_pages }}</span></a></li>
     {% if items.has_next %}
     <li><a href="?page={{ items.next_page_number }}"><span>&raquo;</span></a></li>
     {% else %}
