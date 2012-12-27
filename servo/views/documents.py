@@ -11,8 +11,8 @@ from reportlab.graphics.barcode import createBarcodeDrawing
 from reportlab.graphics.charts.barcharts import HorizontalBarChart
 from django.utils.translation import ugettext as _
 
-from servo.models import Attachment, Configuration
-from orders.models import Invoice
+from servo.models.common import Attachment, Configuration
+from servo.models.order import Invoice
 
 class DocumentForm(forms.ModelForm):
     class Meta:

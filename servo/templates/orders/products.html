@@ -8,10 +8,12 @@
       {% for item in products %}
     <tr>
       <td><a href="{{ item.product.get_absolute_url }}">{{ item.product.code }}</a></td>
-      <td>{{ item.title }}</td>
+      <td>{{ item.title|truncatechars:32 }}</td>
       <td>{{ item.amount }}</td>
       <td>{{ item.price }}</td>
-      <td><a class="btn btn-small btn-primary nofollow" href="{% url orders.views.products order_id=order.id item_id=item.id action='report' %}" data-toggle="button">{% trans "Raportoi" %}</a></td>
+      <td><a class="btn btn-small btn-primary nofollow {% if item.should_report %} active{% endif %}" 
+        href="{% url orders.views.products order_id=order.id item_id=item.id action='report' %}" 
+        data-toggle="button">{% trans "Raportoi" %}</a></td>
       <td>
         <div class="btn-group pull-right">
           <a class="btn dropdown-toggle btn-small" data-toggle="dropdown" href="#">

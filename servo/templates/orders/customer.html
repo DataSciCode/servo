@@ -2,14 +2,18 @@
 {% load mptt_tags %}
 {% recursetree nodes %}
 <address>
-	<strong><a href="{% url customers.views.view node.id %}">{{ node.name }}</a></strong><br/>
-  {{ node.email|clickable:order.id }}<br/>
-  {{ node.phone|clickable:order.id }}<br/>
-  {{ node.street_address }}<br/>
-  {{ node.zip_code }} {{ node.city }}
-	{% for k, v in node.fullprops.items %}
-		{{ v|clickable:order.id }}<br/>
-	{% endfor %}
+    <strong><a href="{% url customers.views.view node.id %}">{{ node.name }}</a></strong><br/>
+{% if node.email %}
+    <a href="{% url notes.views.edit recipient=node.email, order_id=order.id %}">{{ node.email|truncatechars:26 }}</a><br/>
+{% endif %}
+{% if node.phone %}
+    <a href="{% url notes.views.edit recipient=node.phone, order_id=order.id %}">{{ node.phone|truncatechars:26 }}</a><br/>
+{% endif %}
+    {{ node.street_address }}<br/>
+    {{ node.zip_code }} {{ node.city }}
+    {% for k, v in node.fullprops.items %}
+        {{ k }}: {{ v }}<br/>
+    {% endfor %}
 </address>
 {{ children }}
 {% endrecursetree %}

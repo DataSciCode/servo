@@ -10,30 +10,18 @@
   <div class="span3">
     <ul id="navtabs" class="nav nav-list well well-small">
       <li class="nav-header">{% trans "Varasto" %}</li>
-      <li><a href="{% url products.views.index %}">{% trans "Tuotteet" %}</a></li>
-      <li><a href="{% url products.views.index_incoming %}">{% trans "Saapuvat" %} <span class="badge pull-right counter"></span></a></li>
-      <li><a href="{% url products.views.index_outgoing %}">{% trans "Lähtevät" %} <span class="badge pull-right counter"></span></a></li>
-      <li><a href="{% url products.views.index_po %}">{% trans "Ostotilaukset" %}</a></li>
-      <li><a href="{% url products.views.invoices %}">{% trans "Laskut" %}</a></li>
+      <li><a href="/products/">{% trans "Tuotteet" %}</a></li>
+      <li><a href="/products/incoming" class="counter">{% trans "Saapuvat" %}</a></li>
+      <li><a href="/products/outgoing/" class="counter">{% trans "Lähtevät" %}</a></li>
+      <li><a href="/products/purchase_orders/" class="counter">{% trans "Ostotilaukset" %}</a></li>
+      <li><a href="/products/invoices/">{% trans "Laskut" %}</a></li>
     </ul>
   </div>
 
   <div class="span9">
   {% block products_content %}
     <ul class="nav nav-tabs" id="navtabs">
-      <li class="dropdown active"><a href="{% url products.views.index %}" data-toggle="dropdown">{{ title }} <b class="caret"></b></a>
-        <ul class="dropdown-menu">
-          <li><a href="{% url products.views.index %}">{% trans "Kaikki" %}</a></li>
-          {% recursetree groups %}
-          <li><a href="{% url products.views.index group_id=node.id %}">{{ node.name }}</a>
-            {% if not node.is_leaf_node %}
-            <ul class="unstyled">{{ children }}</ul>
-            {% endif %}
-          </li>
-        {% endrecursetree %}
-        </ul>
-      </li>
-      <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown">{% trans "Tagi" %} <b class="caret"></b></a>
+      <li class="dropdown active"><a href="#" class="dropdown-toggle" data-toggle="dropdown">{% trans "Tagi" %} <b class="caret"></b></a>
         <ul class="dropdown-menu">
         {% for t in  tags %}
           <li><a href="{% url products.views.index tag_id=t.id %}">{{ t.title }}</a></li>
@@ -56,7 +44,7 @@
     <span class="caret"></span>
   </button>
   <ul class="dropdown-menu">
-    <li><a href="/products/new/">{% trans "Luo tuote" %}</a></li>
+    <li><a href="new/">{% trans "Luo tuote" %}</a></li>
   </ul>
 </div>
 {% include "pagination.html" with items=products %}

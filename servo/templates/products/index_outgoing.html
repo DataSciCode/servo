@@ -8,12 +8,12 @@
   <li class="active"><a href="#tab1" data-toggle="tab">{% trans "Lähdössä" %}</a></li>
   <li><a href="#tab2" data-toggle="tab">{% trans "Lähetetyt" %}</a></li>
 </ul>
-<form method="post">
+<form method="post" action="">
   {% csrf_token %}
   <table class="table">
     <thead>
       <tr>
-        <th></th>
+        <th><input type="checkbox" class="toggle_column"/></th>
         <th>{% trans "Koodi" %}</th>
         <th>{% trans "Nimike" %}</th>
         <th>{% trans "Tilaus" %}</th>
@@ -27,7 +27,7 @@
       <tr>
         <td><input type="checkbox" name="items" value="{{ i.pk }}"/></td>
         <td>{{ i.product.code }}</td>
-        <td>{{ i.product.title }}</td>
+        <td>{{ i.product.title|truncatechars:32 }}</td>
         <td>{{ i.purchase_order.sales_order }}</td>
         <td>{{ i.purchase_order.created_by }}</td>
         <td>{{ i.purchase_order.reference }}</td>
@@ -40,6 +40,6 @@
     {% endfor %}
     </tbody>
   </table>
-  <button type="submit" class="btn btn-primary pull-right">{% trans "Lähetä" %}</button>
+  <button type="submit" class="btn btn-primary pull-right" disabled="disabled">{% trans "Lähetä" %}</button>
 </form>
 {% endblock products_content %}

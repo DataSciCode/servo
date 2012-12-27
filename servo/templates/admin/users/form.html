@@ -3,7 +3,41 @@
 {% block admin_content %}
 <form action="#" method="post" accept-charset="utf-8" class="form-horizontal">
 {% csrf_token %}
-{% include "form_snippet.html" %}
-{% include "form_buttons.html" %}
+    <ul class="nav nav-tabs">
+      <li class="active"><a href="#tab1" data-toggle="tab">{% trans "Yleiset" %}</a></li>
+      <li><a href="#tab2" data-toggle="tab">{% trans "Oikeudet" %}</a></li>
+      <li><a href="#tab3" data-toggle="tab">{% trans "Lisätiedot" %}</a></li>
+    </ul>
+    <div class="tab-content">
+      <div class="tab-pane active" id="tab1">
+        {% include "form_field_snippet.html" with field=form.username %}
+        {% include "form_field_snippet.html" with field=form.first_name %}
+        {% include "form_field_snippet.html" with field=form.last_name %}
+        {% include "form_field_snippet.html" with field=form.email %}
+        {% include "form_field_snippet.html" with field=form.password %}
+        {% include "form_field_snippet.html" with field=form.is_active %}
+      </div>
+      <div class="tab-pane" id="tab2">
+        {% include "form_field_snippet.html" with field=form.is_staff %}
+        {% include "form_field_snippet.html" with field=form.is_superuser %}
+        {% include "form_field_snippet.html" with field=form.groups %}
+    </div>
+        <div class="tab-pane" id="tab3">
+            {% include "form_field_snippet.html" with field=form.phone %}
+            {% include "form_field_snippet.html" with field=form.tech_id %}
+            {% include "form_field_snippet.html" with field=form.location %}
+            {% include "form_field_snippet.html" with field=form.locale %}
+            <div class="control-group">
+                <label class="control-label">{% trans "Asiakas" %}</label>
+                <div class="controls">
+                    <div class="input-append">
+                        <input class="input-small" name="customer" id="customer_id" type="text"/>
+                        <button class="btn" type="button">{% trans "Valitse" %}</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% include "form_buttons.html" %}
 </form>
 {% endblock admin_content %}

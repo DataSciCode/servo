@@ -1,9 +1,7 @@
 {% extends "admin/locations/index.html" %}
 {% load i18n %}
 {% block detail_block %}
-<form method="post" accept-charset="utf-8" 
-	action="{% url admin.views.edit_location form.pk %}"
-	class="form-horizontal">
+<form method="post" accept-charset="utf-8" action="" class="form-horizontal">
   {% csrf_token %}
   {% include "form_snippet.html" %}
   {% include "form_buttons.html" %}

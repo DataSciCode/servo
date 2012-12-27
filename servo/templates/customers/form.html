@@ -5,9 +5,7 @@
 {% endblock sidebar %}
 
 {% block detail_block %}
-<form method="post" action="{% url customers.views.save id %}"
-  accept-charset="utf-8" 
-  class="form-horizontal">
+<form method="post" action="" accept-charset="utf-8" class="form-horizontal">
   {% csrf_token %}
   <ul class="nav nav-tabs">
       <li class="active"><a href="#tab1" data-toggle="tab">{% trans "Perustiedot" %}</a></li>

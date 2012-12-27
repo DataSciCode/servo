@@ -16,7 +16,7 @@
       <li class="dropdown active">
         <a href="#" class="dropdown-toggle" data-toggle="dropdown">{% trans "Kaikki" %} <b class="caret"></b></a>
         <ul class="dropdown-menu">
-          <li><a href="{% url customers.views.index %}">{% trans "Kaikki" %}</a></li>
+          <li><a href="/customers/">{% trans "Kaikki" %}</a></li>
           {% for t in  tags %}
           <li><a href="{% url customers.views.index tag=t.id %}">{{ t.title }}</a></li>
           {% endfor %}

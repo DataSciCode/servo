@@ -1,7 +1,6 @@
 #coding=utf-8
 
 import re
-from lib.gsxlib.gsxlib import Gsx, looks_like
 from django.shortcuts import render, redirect
 from django.core.cache import cache
 from django.http import HttpResponse
@@ -10,9 +9,10 @@ from django.utils.datastructures import DotExpandedDict
 
 import json, cPickle as pickle
 
-from servo.models import *
-from orders.models import *
-from notes.models import *
+from servo.lib.gsxlib.gsxlib import Gsx, looks_like
+from servo.models.common import *
+from servo.models.order import *
+from servo.models.note import *
 
 def gsx(request, what):
     results = []

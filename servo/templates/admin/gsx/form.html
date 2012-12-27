@@ -1,8 +1,7 @@
 {% extends "admin/gsx/index.html" %}
 {% load i18n %}
 {% block admin_content %}
-<form method="post" action="/admin/gsx/accounts/{{ account_id }}/save/" 
-	accept-charset="utf-8" class="form-horizontal">
+<form method="post" action="" accept-charset="utf-8" class="form-horizontal">
   {% csrf_token %}
   {% include "form_snippet.html" %}
   {% include "form_buttons.html" %}

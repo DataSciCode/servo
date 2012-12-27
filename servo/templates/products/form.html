@@ -5,7 +5,7 @@
 {% endblock products_sidebar %}
 
 {% block products_content %}
-  <form method="post" action="{% url products.views.save product_id %}" class="form-horizontal">
+  <form method="post" action="" class="form-horizontal">
     {% csrf_token %}
     <ul class="nav nav-tabs">
       <li class="active"><a href="#tab1" data-toggle="tab">{% trans "Yleiset" %}</a></li>

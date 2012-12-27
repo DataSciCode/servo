@@ -1,6 +1,6 @@
 {% extends "default.html" %}
 {% load i18n %}
-{% load extras %}
+{% load servo_extras %}
 
 {% block title %}{% trans "Huoltotilaus #" %}{{ order.code }}{% endblock title %}
 
@@ -10,38 +10,15 @@
 
 {% block content %}
 
-<div class="row">
-  <div class="span3" id="order-sidebar">
-    <h4>{% trans "Tilaus" %} #{{ order.code }}</h4>
-    <div class="well">
-    {% if order.customer %}
-      {% include "orders/customer.html" with nodes=customer %}
-    {% endif %}
-    </div>
-    <form action="{% url orders.views.update order.id %}" method="post">
-      {{ form.as_p }}
-      {% for f in fields %}
-      <label>{{ f.title }}:</label>
-      <select name="{{ f.title }}">
-      {% for v in f.values %}
-        <option>{{ v }}</option>
-      {% endfor %}
-      </select>
-      {% endfor %}
-    </form>
-  </div>
-  <div class="span9">
-    <div class="btn-group">
-      <a class="btn" href="{% url notes.views.edit order_id=order.id kind='problem' %}"><i class="icon-comment"></i> {% trans "Lisää ongelma" %}</a>
-      <button class="btn dropdown-toggle" data-toggle="dropdown">
-        <span class="caret"></span>
-      </button>
-      <ul class="dropdown-menu">
-        <li><a href="{% url notes.views.edit order_id=order.id kind='note' %}">{% trans "Lisää merkintä" %}</a></li>
-        <li><a href="{% url notes.views.edit order_id=order.id kind='message' %}">{% trans "Lisää viesti" %}</a></li>
-      </ul>
-    </div>
-    <div class="btn-group">
+<div class="navbar">
+  <div class="navbar-inner">
+    <a class="brand" href="#">#{{ order.code }}</a>
+    <ul class="nav">
+      <li class="dropdown">
+        {% include "dropdown_snippet.html" with title="blaa" items=users %}
+      </li>
+    </ul>
+    <div class="btn-group pull-right">
       <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
         <i class="icon-cog"></i> <span class="caret"></span>
       </a>
@@ -65,12 +42,49 @@
         <li><a href="{% url orders.views.dispatch order.id %}">{% trans "Toimita tilaus" %}...</a></li>
         <li class="divider"></li>
       {% endif %}
-        <li><a href="{% url orders.views.remove order.id %}">{% trans "Poista tilaus" %}</a></li>
-        <li><a href="{% url orders.views.close order.id %}">{% trans "Sulje tilaus" %}</a></li>
+        <li><a href="remove/">{% trans "Poista tilaus" %}</a></li>
+        <li><a href="close/">{% trans "Sulje tilaus" %}</a></li>
         <li class="divider"></li>
-        <li><a href="{% url orders.views.follow order.id %}" class="nofollow">{% trans "Seuraa" %}</a></li>
+        <li><a href="follow/" class="nofollow">{% trans "Seuraa" %}</a></li>
       </ul>
     </div>
+    <div class="btn-group">
+      <a class="btn" href="issues/new/"><i class="icon-comment"></i> {% trans "Lisää ongelma" %}</a>
+      <button class="btn dropdown-toggle" data-toggle="dropdown">
+        <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu">
+        <li><a href="notes/new">{% trans "Lisää merkintä" %}</a></li>
+        <li><a href="messages/new/">{% trans "Lisää viesti" %}</a></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="span3" id="order-sidebar">
+    <div class="well">
+    {% if order.customer %}
+      {% include "orders/customer.html" with nodes=customer %}
+    {% endif %}
+    </div>
+    <form action="update/" method="post">
+      {{ form.as_p }}
+      {% for f in fields %}
+      <label>{{ f.title }}:</label>
+      <select name="{{ f.title }}">
+      {% for v in f.values %}
+        <option>{{ v }}</option>
+      {% endfor %}
+      </select>
+      {% endfor %}
+    </form>
+    {% for t in tags %}
+      <a href="{% url orders.views.toggle_tag order.id t.id %}" class="btn btn-small btn-info nofollow {% if t in order.tags.all %} active{% endif %}" data-toggle="button">{{ t.title }}</a>
+    {% endfor %}
+  </div>
+
+  <div class="span9">
     <div id="devices" class="well well-small">
       {% include "orders/devices.html" %}
     </div>
@@ -84,8 +98,8 @@
       {% include "orders/events.html" %}
     </div>
     <ul class="breadcrumb">
-      <li><a href="{% url orders.views.index %}">{% trans "Tilaukset" %}</a> <span class="divider">/</span></li>
-      <li class="active"><a href="{% url orders.views.edit order.id %}">{{ order.code }}</a></li>
+      <li><a href="/orders/">{% trans "Tilaukset" %}</a> <span class="divider">/</span></li>
+      <li class="active"><a href="{{ order.get_absolute_url }}">{{ order.code }}</a></li>
     </ul>
   </div>
 </div>

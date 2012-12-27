@@ -8,8 +8,12 @@
       <td><a href="{% url orders.views.index date=order.created_at|date:"Y-m-d" %}">{{ order.created_at|relative_date }}</a></td>
       <td><a href="{% url orders.views.index customer=order.customer_tree %}">{{ order.customer_name }}</a></td>
       <td><a href="{% url orders.views.index spec=order.device_tag %}">{{ order.device_name }}</a></td>
-      <td><a href="{% url orders.views.index status=order.status_id %}">{{ order.status_name }}</a></td>
+      <td><a href="?status={{ order.status_id }}">{{ order.status_name }}</a></td>
       <td><a href="{% url orders.views.index color=order.status_img %}"><img src="/static/images/status_{{ order.status_img }}_16.png" title="{{ order.status_title }}" alt="{{ order.status_title }}"/></a></td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="6" class="empty muted">{% trans "Ei yhtään tilausta" %}</td>
     </tr>
   {% endfor %}
   </tbody>
@@ -17,4 +21,6 @@
 <ul class="breadcrumb">
   <li><a href="{% url orders.views.index %}">{% trans "Tilaukset" %}</a></li>
 </ul>
-{% include "pagination.html" with items=orders %}
+{% if orders.paginator %}
+  {% include "pagination.html" with items=orders %}
+{% endif %}

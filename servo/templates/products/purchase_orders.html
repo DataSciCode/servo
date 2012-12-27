@@ -1,11 +1,7 @@
 {% extends "products/index.html" %}
 {% load i18n %}
 {% block products_content %}
-<ul class="nav nav-tabs" id="navtabs">
-  <li class="pull-right">
-    <a href="/products/po/new/">{% trans "Luo tilaus" %}</a>
-  </li>
-</ul>
+<a class="btn btn-success pull-right" href="/products/po/new/"><i class="icon-plus"></i> {% trans "Luo tilaus" %}</a>
 <table class="table">
   <thead>
     <tr>

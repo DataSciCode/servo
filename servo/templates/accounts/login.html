@@ -2,14 +2,14 @@
 {% load i18n %}
 
 {% block content %}
-<form action="{% url accounts.views.login %}" method="post" accept-charset="utf-8" class="form-signin">
-	<h2 class="form-signin-heading">{% trans "Kirjaudu sisään" %}</h2>
-	{% csrf_token %}
-	<input type="text" name="username" placeholder="{% trans "Tunnus" %}" class="input-block-level"/>
-	<input type="password" name="password" placeholder="{% trans "Salasana" %}" class="input-block-level"/>
-	<label class="checkbox">
-		<input type="checkbox" value="remember-me"> {% trans "Muista minut" %}
-	</label>
-	<button class="btn btn-primary" type="submit">{% trans "Kirjaudu" %}</button>
+<form action="{% url servo.views.account.login %}" method="post" accept-charset="utf-8" class="form-signin">
+    <h2 class="form-signin-heading">{% trans "Kirjaudu sisään" %}</h2>
+    {% csrf_token %}
+    <input type="text" name="username" placeholder="{% trans "Tunnus" %}" class="input-block-level"/>
+    <input type="password" name="password" placeholder="{% trans "Salasana" %}" class="input-block-level"/>
+    <label class="checkbox">
+        <input type="checkbox" value="remember-me"> {% trans "Muista minut" %}
+    </label>
+    <button class="btn btn-primary" type="submit">{% trans "Kirjaudu" %}</button>
 </form>
 {% endblock content %}

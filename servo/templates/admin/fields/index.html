@@ -3,15 +3,15 @@
 
 {% block admin_content %}
 <ul class="nav nav-tabs">
-	<li><a href="{% url admin.views.fields %}">{% trans "Kaikki" %}</a></li>
-	<li class="pull-right"><a href="{% url admin.views.edit_field field_id='new' %}">{% trans "Luo kenttä" %}</a></li>
+	<li><a href="/admin/fields/">{% trans "Kaikki" %}</a></li>
+	<li class="pull-right"><a href="new/">{% trans "Luo kenttä" %}</a></li>
 </ul>
 
 {% block detail_block %}
 <table>
 {% for f in fields %}
 	<tr>
-		<td><a href="{% url admin.views.edit_field f.id %}">{{ f.title }}</a></td>
+		<td><a href="{{ f.id }}/">{{ f.title }}</a></td>
 		<td></td>
 	</tr>
 {% endfor %}

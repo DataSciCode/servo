@@ -4,8 +4,8 @@
 {% block content %}
 {% if note.order_id %}
 <ul class="breadcrumb">
-  <li><a href="{% url orders.views.index %}">{% trans "Tilaukset" %}</a> <span class="divider">/</span></li>
-  <li><a href="{% url orders.views.edit note.order_id %}">#{{ note.order_id }}</a> <span class="divider">/</span></li>
+  <li><a href="/orders/index/">{% trans "Tilaukset" %}</a> <span class="divider">/</span></li>
+  <li><a href="{{ order.get_absolute_url }}">#{{ note.order_id }}</a> <span class="divider">/</span></li>
   <li class="active">{% trans "Uusi merkintä" %}</li>
 </ul>
 {% endif %}

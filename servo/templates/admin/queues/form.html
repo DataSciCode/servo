@@ -6,7 +6,7 @@
   accept-charset="utf-8"
   class="form-horizontal"
   enctype="multipart/form-data" 
-  action="{% url admin.views.save_queue queue.id %}" >
+  action="">
   {% csrf_token %}
   <ul class="nav nav-tabs">
     <li class="active"><a href="#tab1" data-toggle="tab">{% trans "Perustiedot" %}</a></li>

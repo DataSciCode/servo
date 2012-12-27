@@ -3,15 +3,15 @@
 
 {% block admin_content %}
 <ul class="nav nav-tabs" id="navtabs">
-  <li><a href="{% url admin.views.users %}">{% trans "Käyttäjät" %}</a></li>
-  <li><a href="{% url admin.views.groups %}">{% trans "Ryhmät" %}</a></li>
-  <li class="pull-right"><a href="/admin/users/new">{% trans "Luo käyttäjä" %}</a></li>
+  <li><a href="/admin/users/">{% trans "Käyttäjät" %}</a></li>
+  <li><a href="/admin/groups/">{% trans "Ryhmät" %}</a></li>
+  <li class="pull-right"><a href="new">{% trans "Luo käyttäjä" %}</a></li>
 </ul>
 
 <table class="table">
 {% for user in users %}
   <tr>
-    <td><a href="{% url admin.views.edit_user user.id %}">{{ user.username }}</a></td>
+    <td><a href="{{ user.pk }}/view/">{{ user.username }}</a></td>
     <td>{{ user.first_name }}</td>
     <td>{{ user.last_name }}</td>
     <td>{{ user.email }}</td>
@@ -21,8 +21,8 @@
           <i class="icon-cog"></i> <span class="caret"></span>
         </a>
         <ul class="dropdown-menu">
-          <li><a href="{% url admin.views.edit_user user.id %}">{% trans "Muokkaa" %}</a></li>
-          <li><a href="{% url admin.views.remove_user user.id %}">{% trans "Poista" %}</a></li>
+          <li><a href="{{ user.pk }}/edit/">{% trans "Muokkaa" %}</a></li>
+          <li><a href="{{ user.pk }}/delete/">{% trans "Poista" %}</a></li>
         </ul>
       </div>
     </td>

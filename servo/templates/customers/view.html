@@ -1,14 +1,18 @@
 {% extends "customers/index.html" %}
 {% load i18n %}
-{% load extras %}
+{% load servo_extras %}
 
 {% block detail_block %}
 <legend>{{ customer.fullname }}</legend>
   <dl class="dl-horizontal">
-    <dt>{% trans "Sähköposti" %}</dt>
-    <dd>{{ customer.email|clickable|default:"-" }}</dd>
+  {% if customer.email %}
+      <dt>{% trans "Sähköposti" %}</dt>
+      <dd><a href="{% url notes.views.edit recipient=customer.email %}">{{ customer.email }}</a></dd>
+  {% endif %}
+  {% if customer.email %}
     <dt>{% trans "Puhelin" %}</dt>
-    <dd>{{ customer.phone|clickable|default:"-" }}</dd>
+    <dd><a href="{% url notes.views.edit recipient=customer.phone %}">{{ customer.phone }}</a></dd>
+  {% endif %}
     <dt>{% trans "Osoite" %}</dt>
     <dd>{{ customer.street_address }}<br/>{{ customer.zip_code }} {{ customer.city }}</dd>
     {% for ci in customer.contactinfo_set.all %}
@@ -22,19 +26,18 @@
     </a>
     <ul class="dropdown-menu">
     {% if request.session.current_order %}
-        <li><a href="{% url customers.views.add_order customer.id request.session.current_order.id %}">{% trans "Vie tilaukselle" %} #{{ request.session.current_order.code }}</a></li>
+      <li><a href="{% url customers.views.add_order customer.id request.session.current_order.id %}">{% trans "Vie tilaukselle" %} #{{ request.session.current_order.code }}</a></li>
     {% endif %}
-        <li><a href="{% url customers.views.create_order customer.id %}">{% trans "Luo tilaus" %}</a></li>
-        <li class="divider"></li>
-        <li><a href="{% url customers.views.notes customer_id=customer.id %}">{% trans "Lähetä viesti" %}</a></li>
-        <li><a href="{% url customers.views.edit parent_id=customer.id %}">{% trans "Luo kontakti" %}</a></li>
-        <li class="divider"></li>
-        <li><a href="{% url customers.views.edit customer_id=customer.id %}">{% trans "Muokkaa" %}</a></li>
-        <li><a href="{% url customers.views.move customer.id %}">{% trans "Siirrä" %}</a></li>
-        <li><a href="{% url customers.views.delete customer.id %}">{% trans "Poista" %}</a></li>
+      <li><a href="{% url customers.views.create_order customer.id %}">{% trans "Luo tilaus" %}</a></li>
+      <li class="divider"></li>
+      <li><a href="{% url customers.views.notes customer_id=customer.id %}">{% trans "Lähetä viesti" %}</a></li>
+      <li><a href="{% url customers.views.edit parent_id=customer.id %}">{% trans "Luo kontakti" %}</a></li>
+      <li class="divider"></li>
+      <li><a href="{% url customers.views.edit customer_id=customer.id %}">{% trans "Muokkaa" %}</a></li>
+      <li><a href="{% url customers.views.move customer.id %}">{% trans "Siirrä" %}</a></li>
+      <li><a href="{% url customers.views.delete customer.id %}">{% trans "Poista" %}</a></li>
     </ul>
   </div>
-  </dl>
   <legend>{% trans "Tilaukset" %}</legend>
   {% include "orders/list.html" %}
 {% endblock detail_block %}

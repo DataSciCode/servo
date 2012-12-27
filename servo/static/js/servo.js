@@ -29,8 +29,11 @@ $(function() {
 
     });
 
-    _.each($('span.counter'), function(i, e) {
-        $(i).load($(i).parent().attr('href'));
+    _.each($('a.counter'), function(i, e) {
+        $.get($(i).attr('href'), function(count) {
+            $('<span class="badge pull-right"/>').text(count).appendTo(i);
+            $('#topnav a.counter span.badge').addClass('badge-inverse');
+        });
     });
 
     $('.copy-target').focus(function() {
@@ -43,7 +46,6 @@ $(function() {
         $.get('/notes/templates/', function(r) {
             _.each($('.template'), function(e) {
                 var label = $(e).parents('.control-group').children('.control-label');
-                // grab the old label
                 var text = label.text();
                 label.replaceWith(_.template(r, {'title': text}));
             });
@@ -60,12 +62,11 @@ $(function() {
     }
 
     $('a.nofollow').click(function(e) {
-        e.preventDefault();
         var that = $(this);
         $.get($(that).attr('href'), function(r) {
             $(that).text(r);
         });
-        return false;
+        e.preventDefault();
     });
 
     $('input.filter').keyup(function() {

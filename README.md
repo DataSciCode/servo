@@ -1,10 +1,13 @@
 Requirements:
 - Django
 - PostgreSQL
+- psycopg2
 - pybarcode
 - pystache
 - memcached
 - python-memcached
+- reportlab
+- PIL
 
 TODO:
 - products/outgoing
@@ -23,6 +26,8 @@ TODO:
 - Request Review/file uploads (GSX)
 [OK] template chooser
 - modals for GSX submits (so that users don't interrupt the long requests)
+- simplify products inventory. Remove product groups and specs - just use recursive tags.
+[OK] adding tags to orders
 
 Service Order
 =============
