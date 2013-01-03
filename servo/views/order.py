@@ -40,10 +40,13 @@ def create(request, sn=None, product_id=None, note_id=None):
         try:
             device = Device.objects.get(sn=sn)
         except Device.DoesNotExist:
-            cached = cache.get('warranty-%s' % sn)[0]
-            device = Device.objects.create(sn=sn, 
-                description=cached.get('productDescription'),
-                purchased_on=cached.get('estimatedPurchaseDate'))
+            try:
+                cached = cache.get('warranty-%s' % sn)[0]
+                device = Device.objects.create(sn=sn, 
+                    description=cached.get('productDescription'),
+                    purchased_on=cached.get('estimatedPurchaseDate'))
+            except TypeError:
+                device = Device.objects.create(description=_(u'Tuntematon laite'))
             
         order.devices.add(device)
         order.save()
@@ -80,6 +83,9 @@ def search(request):
         'locations': locations})
 
 def index(request, *args, **kwargs):
+    """
+    Lists service orders matching specified criteria
+    """
     queue_title = _(u'Jono')
     status_title = _(u'Status')
     user_title = _(u'Käsittelijä')
@@ -217,9 +223,10 @@ def edit(request, id):
 
 def remove(request, id):
     if request.method == 'POST':
-        order = Order.objects.filter(pk=id).delete()
+        order = Order.objects.get(pk=id)
+        order.delete()
         messages.add_message(request, messages.INFO, 
-            _(u'Tilaus %s poistettu' % id))
+            _(u'Tilaus %s poistettu' % order.code))
         return redirect('/orders/')
     else :
         order = Order.objects.get(pk=id)
@@ -250,14 +257,14 @@ def update(request, id):
         request.session['current_order'].priority = request.POST['priority']
         request.session['current_order'].save()
 
-    return render(request, "orders/events.html", {'order': order})
+    return render(request, 'orders/events.html', {'order': order})
 
 
 def submit_gsx_repair(request):
     pass    
 
 def create_gsx_repair(request, order_id):
-    from lib.gsxlib import gsxlib
+    from servo.lib.gsxlib import gsxlib
 
     parts = list()
     order = Order.objects.get(pk=order_id)
@@ -278,7 +285,7 @@ def create_gsx_repair(request, order_id):
             print e
             # skip products with no GSX data
             continue
-
+    
     if len(parts) < 1:
         messages.add_message(request, messages.ERROR, 
             _(u'Tilauksessa ei ole yhtään tilattavaa osaa'))
@@ -314,7 +321,6 @@ def create_gsx_repair(request, order_id):
         repair['diagnosedByTechId'] = profile.tech_id
 
         customer_address = customer_form.cleaned_data
-        customer_address['country'] = customer_address['country'].iso3
 
         # @todo: where should we put these?
         customer_address['state'] = 'ZZ'
@@ -504,7 +510,7 @@ def products(request, order_id, item_id=None, action='list'):
         messages.add_message(request, messages.INFO, 
             _(u'Tuote %d lisätty' % product.id))
         
-        return redirect('/orders/%d/products/%d/edit/' %(order.id, oi.id))
+        return redirect('%s/products/%d/edit/' %(order.get_absolute_url(), oi.id))
 
     if action == 'edit':
         item = ServiceOrderItem.objects.get(pk=item_id)

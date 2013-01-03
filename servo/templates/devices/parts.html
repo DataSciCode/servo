@@ -3,10 +3,11 @@
 {% block content %}
 <h3>{{ device.description }}</h3>
 <ul class="nav nav-tabs">
-  <li><a href="{% url devices.views.view device.id %}">{% trans "Tilaukset" %}</a></li>
-  <li class="active"><a href="{% url devices.views.parts device.id %}">{% trans "Varaosat" %}</a></li>
+  <li><a href="{% url servo.views.device.view device.id %}">{% trans "Tilaukset" %}</a></li>
+  <li class="active"><a href="{% url servo.views.device.parts device.id %}">{% trans "Varaosat" %}</a></li>
 </ul>
 {% include "products/list.html" with products=device.parts %}
+
 <h3>GSX</h3>
 <div id="gsx-container" data-source="/search/gsx/parts/?serialNumber={{ device.sn }}">
 	<div class="progress active">

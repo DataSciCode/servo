@@ -1,13 +1,13 @@
-{% load extras %}
+{% load servo_extras %}
 {% load mptt_tags %}
 {% recursetree nodes %}
 <address>
-    <strong><a href="{% url customers.views.view node.id %}">{{ node.name }}</a></strong><br/>
+    <strong><a href="{% url servo.views.customer.view node.id %}">{{ node.name }}</a></strong><br/>
 {% if node.email %}
-    <a href="{% url notes.views.edit recipient=node.email, order_id=order.id %}">{{ node.email|truncatechars:26 }}</a><br/>
+    <a href="{% url servo.views.note.edit recipient=node.email, order_id=order.id %}">{{ node.email|truncatechars:26 }}</a><br/>
 {% endif %}
 {% if node.phone %}
-    <a href="{% url notes.views.edit recipient=node.phone, order_id=order.id %}">{{ node.phone|truncatechars:26 }}</a><br/>
+    <a href="{% url servo.views.note.edit recipient=node.phone, order_id=order.id %}">{{ node.phone|truncatechars:26 }}</a><br/>
 {% endif %}
     {{ node.street_address }}<br/>
     {{ node.zip_code }} {{ node.city }}

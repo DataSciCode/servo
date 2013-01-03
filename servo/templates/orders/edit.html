@@ -37,11 +37,14 @@
         <li class="divider"></li>
       {% endif %}
       {% if order.serviceorderitem_set.count %}
-        <li><a href="{% url products.views.create_po order_id=order.id %}">{% trans "Tilaa tuotteet" %}...</a></li>
-        <li><a href="{% url orders.views.reserve_products order.id %}">{% trans "Varaa tuotteet" %}...</a></li>
-        <li><a href="{% url orders.views.dispatch order.id %}">{% trans "Toimita tilaus" %}...</a></li>
+        <li><a href="{% url servo.views.product.create_po order_id=order.id %}">{% trans "Tilaa tuotteet" %}...</a></li>
+        <li><a href="{% url servo.views.order.reserve_products order.id %}">{% trans "Varaa tuotteet" %}...</a></li>
+        <li><a href="{% url servo.views.order.dispatch order.id %}">{% trans "Toimita tilaus" %}...</a></li>
         <li class="divider"></li>
       {% endif %}
+        <li><a href="/devices/choose/order/{{ order.id }}/">{% trans "Lisää laite" %}</a></li>
+        <li><a href="/customers/">{% trans "Valitse asiakas" %}</a></li>
+        <li class="divider"></li>
         <li><a href="remove/">{% trans "Poista tilaus" %}</a></li>
         <li><a href="close/">{% trans "Sulje tilaus" %}</a></li>
         <li class="divider"></li>

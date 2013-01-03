@@ -61,7 +61,7 @@ def edit(request, product_id=0, code=None):
         product_id = product.id
     
     if code:
-        result = Lookup(Account.default()).lookup(code)
+        result = Lookup(GsxAccount.default()).lookup(code)
         product = Product.from_gsx(result)
         form = ProductForm(instance=product)
     
@@ -126,6 +126,7 @@ def search(request):
     return render(request, 'products/search.html')
 
 def view(request, product_id=None, code=None):
+
     product = Product()
     try:
         product = Product.objects.get(pk=product_id)
@@ -297,13 +298,12 @@ def remove_po(request, po_id):
     messages.add_message(request, messages.INFO, 
         _(u'Ostotilaus %s poistettu' % po_id))
 
-    return redirect('products.views.index_po')
+    return redirect('/products/po/')
 
 def index_incoming(request, shipment=None, date=None, status=''):
     """
-    Index purchase order items that have not arrived yet
+    Lists purchase order items that have not arrived yet
     """
-
     inventory = PurchaseOrderItem.objects.filter(date_received=None)
 
     if request.is_ajax():

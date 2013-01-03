@@ -43,26 +43,26 @@ def index(request, *args, **kwargs):
     except EmptyPage:
         devices = paginator.page(paginator.num_pages)
 
-    tags = Tag.objects.filter(type="device")
+    tags = Tag.objects.filter(type='device')
     
-    return render(request, "devices/index.html", {
+    return render(request, 'devices/index.html', {
         'devices': devices,
         'tags': tags,
         'title': title,
         })
 
 def create(request):
-	return render(request, "devices/form.html", {'form': DeviceForm()})
+	return render(request, 'devices/form.html', {'form': DeviceForm()})
 
-def remove(req, id):
-    if 'id' in req.POST:
-        dev = Device.objects.get(pk=req.POST['id'])
+def remove(request, id):
+    if 'id' in request.POST:
+        dev = Device.objects.get(pk=request.POST['id'])
         dev.delete()
-        messages.add_message(req, messages.INFO, _(u'Laite poistettu'))
+        messages.add_message(request, messages.INFO, _(u'Laite poistettu'))
         return redirect('/devices/')
     else:
         dev = Device.objects.get(pk=id)
-        return render(req, "devices/remove.html", {'device': dev})
+        return render(request, "devices/remove.html", {'device': dev})
 
 def edit(req, id):
     gsx_data = {}
@@ -111,3 +111,8 @@ def parts(request, device_id):
 	device = Device.objects.get(pk=device_id)
 	device.parts = Product.objects.filter(tags__pk=device.spec_id)
 	return render(request, "devices/parts.html", {'device': device})
+
+def choose(request, order_id):
+    #request.session['current_order'] = Order.objects
+    messages.add_message(request, message.INFO, _(u'Valitse laite'))
+    return index(request)

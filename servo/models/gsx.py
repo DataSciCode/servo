@@ -59,7 +59,7 @@ class GsxAccount(models.Model):
         """
         Return default GSX account and connect to it
         """
-        act = Account.objects.get(is_default=True)
+        act = GsxAccount.objects.get(is_default=True)
         return act.connect()
 
     def connect(self):

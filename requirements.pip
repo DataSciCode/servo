@@ -6,4 +6,10 @@
 
 django==1.4.1
 django-countries=1.5
+markdown
 #south==0.7.6
+python-memcached
+django-mptt
+psycopg2
+pil
+reportlab

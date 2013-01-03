@@ -41,7 +41,7 @@ class Tag(MPTTModel):
         related_name='children')
 
     def get_absolute_url(self):
-        return "/admin/tags/%s/" % self.pk
+        return '/admin/tags/%s/' % self.pk
 
     def __unicode__(self):
         return self.title
@@ -151,15 +151,23 @@ class Article(models.Model):
     """
     Wiki stuff...
     """
-    title = models.CharField(default=_(u'Uusi artikkeli'), max_length=255)
-    content = models.TextField()
-    created_by = models.CharField(max_length=32)
-    updated_at = models.DateTimeField()
-    tags = models.ManyToManyField(Tag)
-    created_at = models.DateTimeField(default=datetime.now())
-    attachments = models.ManyToManyField(Attachment)
+    title = models.CharField(default=_(u'Uusi artikkeli'), max_length=255, unique=True, verbose_name=_(u'otsikko'))
+    content = models.TextField(verbose_name=_(u'sisältö'))
+    updated_by = models.ForeignKey(User, editable=False)
+    created_at = models.DateTimeField(default=datetime.now(), editable=False)
+    updated_at = models.DateTimeField(default=datetime.now(), editable=False)
+    attachments = models.ManyToManyField(Attachment, null=True, blank=True)
+    tags = models.ManyToManyField(Tag, null=True, blank=True)
+
+    def save(self, *wargs, **kwargs):
+        self.updated_at = datetime.now()
+        super(Article, self).save()
+        
+    def get_absolute_url(self):
+        return '/wiki/articles/%d/' % self.pk
 
     class Meta:
+        ordering = ['-updated_at']
         app_label = 'servo'
 
 class Search(models.Model):

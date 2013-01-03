@@ -50,11 +50,8 @@ class Order(models.Model):
         app_label = 'servo'
 
     def get_absolute_url(self):
-        return "/orders/%d/" % self.pk
+        return '/orders/order/%d' % self.pk
 
-    def get_product_url(self, product):
-        return '/orders/%d/products/%d/add/' %(self.pk, product.pk)
-        
     def close(self, user):
         self.closed_at = datetime.now()
         self.state = 2
@@ -234,6 +231,8 @@ class Order(models.Model):
 
         return (self.net_total() - total_purchase_price)
 
+    def __str__(self):
+        return 'Order #%d' % self.pk
 
 class OrderItem(models.Model):
     product = models.ForeignKey(Product)
@@ -428,6 +427,9 @@ class PurchaseOrderItem(OrderItem):
     date_received = models.DateTimeField(null=True, blank=True, editable=False,
         verbose_name=_(u'saapunut'))
     received_by = models.ForeignKey(User, null=True)
+
+    class Meta:
+        app_label = 'servo'
 
 class CheckList(models.Model):
     pass

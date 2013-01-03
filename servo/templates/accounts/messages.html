@@ -2,9 +2,9 @@
 {% load i18n %}
 {% block navtabs %}
 <ul class="nav nav-tabs" id="navtabs">
-  <li><a href="{% url accounts.views.messages %}">{% trans "Kaikki" %}</a></li>
-  <li><a href="/home/messages/unread/">{% trans "Uudet" %}</a></li>
-  <li><a href="/home/messages/sent/">{% trans "Lähetetyt" %}</a></li>
+	<li><a href="/home/messages/">{% trans "Kaikki" %}</a></li>
+	<li><a href="/home/messages/unread/">{% trans "Uudet" %}</a></li>
+	<li><a href="/home/messages/sent/">{% trans "Lähetetyt" %}</a></li>
 	<li class="pull-right"><a href="/messages/new/">{% trans "Luo viesti" %}</a></li>
 </ul>
 {% endblock navtabs %}

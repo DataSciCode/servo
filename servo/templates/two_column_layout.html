@@ -1,0 +1,15 @@
+{% extends "default.html" %}
+{% block content %}
+<div class="row">
+    <div class="span4">
+        {% block col1 %}
+        
+        {% endblock col1 %}
+    </div>
+    <div class="span8">
+        {% block col2 %}
+            
+        {% endblock col2 %}
+    </div>
+</div>
+{% endblock content %}

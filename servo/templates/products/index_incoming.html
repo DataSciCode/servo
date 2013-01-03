@@ -5,7 +5,7 @@
 
 {% block products_content %}
 <ul class="nav nav-tabs">
-  <li class="active"><a href="{% url products.views.index_incoming %}">{% trans "Tulossa" %}</a></li>
+  <li class="active"><a href="{% url servo.views.product.index_incoming %}">{% trans "Tulossa" %}</a></li>
   <li><a href="#">{% trans "Saavutetut" %}</a></li>
 </ul>
 <form method="post" action="">

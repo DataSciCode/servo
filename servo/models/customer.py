@@ -14,10 +14,10 @@ class Customer(MPTTModel):
         verbose_name=_(u'yritys'))
     name = models.CharField(default=_(u'Uusi asiakas'), max_length=255,
         verbose_name=_(u'nimi'))
-    email = models.EmailField(null=True, blank=True, 
-        verbose_name=_(u'sähköposti'))
     phone = models.CharField(max_length=32, null=True, blank=True, 
         verbose_name=_(u'puhelin'))
+    email = models.EmailField(null=True, blank=True, 
+        verbose_name=_(u'sähköposti'))
     street_address = models.CharField(max_length=128, null=True, blank=True, 
         verbose_name=_(u'katuosoite'))
     zip_code = models.CharField(max_length=32, null=True, blank=True, 
@@ -103,4 +103,3 @@ class ContactInfo(models.Model):
 
     class Meta:
         app_label = 'servo'
-        

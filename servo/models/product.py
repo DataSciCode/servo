@@ -11,7 +11,6 @@ from servo.models.common import Tag, Attachment, Configuration
 class BaseProduct(models.Model):
     def default_vat():
         conf = Configuration.conf()
-        print conf
         return conf.get('pct_vat', 0.0)
 
     def default_margin():
@@ -81,7 +80,7 @@ class Product(BaseProduct):
         app_label = 'servo'
 
     def get_absolute_url(self):
-        return "/products/%d/view/" % self.pk
+        return '/products/product/%d/' % self.pk
 
     @classmethod
     def from_gsx(cls, gsx_data):

@@ -1,5 +1,6 @@
 {% load i18n %}
-{% load extras %}
+{% load servo_extras %}
+
 <table class="table">
 	<thead>
 		<tr><th colspan="6">{% trans "Laitteet" %}</th></tr>
@@ -7,7 +8,7 @@
 	<tbody>
 	{% for device in order.devices.all %}
   	<tr>
-    	<td><a href="{% url devices.views.view device.id %}">{{ device.sn }}</a></td>
+    	<td><a href="{% url servo.views.device.view device.id %}">{{ device.sn }}</a></td>
     	<td>{{ device.description }}</td>
     	<td>{{ device.username }}</td>
     	<td>{{ device.password }}</td>
@@ -18,11 +19,11 @@
             <i class="icon-cog"></i> <span class="caret"></span>
           </a>
           <ul class="dropdown-menu">
-            <li><a href="{% url orders.views.parts order.id device.id %}">{% trans "Näytä varaosat" %}</a></li>
-            <li><a href="{% url orders.views.create_gsx_repair order.id %}">{% trans "Luo GSX korjaus" %}</a></li>
+            <li><a href="{% url servo.views.order.parts order.id device.id %}">{% trans "Näytä varaosat" %}</a></li>
+            <li><a href="{% url servo.views.order.create_gsx_repair order.id %}">{% trans "Luo GSX korjaus" %}</a></li>
             <li class="divider"></li>
-          	<li><a href="{% url devices.views.edit device.id %}">{% trans "Muokkaa" %}</a></li>
-            <li><a href="{% url orders.views.remove_device order.id device.id %}">{% trans "Poista" %}</a></li>
+          	<li><a href="{% url servo.views.device.edit device.id %}">{% trans "Muokkaa" %}</a></li>
+            <li><a href="{% url servo.views.order.remove_device order.id device.id %}">{% trans "Poista" %}</a></li>
           </ul>
         </div>
       </td>

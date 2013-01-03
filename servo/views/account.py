@@ -59,7 +59,7 @@ def settings(request):
 
         request.session['user_profile'] = profile
         msgs.add_message(request, msgs.INFO, _(u'Asetukset tallennettu'))
-        return redirect('servo.apps.accounts.views.settings')
+        return redirect('servo.views.account.settings')
     else:
         form = ProfileForm(instance=request.user.get_profile())
         return render(request, 'accounts/settings.html', {'form': form})

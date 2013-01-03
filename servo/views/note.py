@@ -98,7 +98,7 @@ def save(request, kind='note', note_id='new'):
 
     if 'order' in data:
         messages.add_message(request, messages.INFO, msg)
-        return redirect('/orders/%s/' % data['order'])
+        return redirect(note.order)
     else:
         msg = _(u'Viesti lähetetty') if note.mailto else msg
         messages.add_message(request, messages.INFO, msg)

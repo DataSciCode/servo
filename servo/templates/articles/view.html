@@ -1,4 +1,12 @@
-<div class="detailView">
-	<h1><?php print $this->article['title'] ?></h1>
-	<?php print Markdown($this->article['body']) ?>
-</div>
+{% extends "articles/index.html" %}
+{% load i18n %}
+{% load markup %}
+{% block col2 %}
+    <h2>{{ object.title }}</h2>
+    <small>{{ object.updated_by.get_full_name }} @ {{ object.updated_at }}</small>
+    <p>{{ object.content|markdown }}</p>
+    <hr/>
+    <a href="/wiki/articles/new/" class="btn btn-primary">{% trans "Uusi" %}</a>
+    <a href="edit/" class="btn btn-warning">{% trans "Muokkaa" %}</a>
+    <a href="delete/" class="btn btn-danger">{% trans "Poista" %}</a>
+{% endblock col2 %}
