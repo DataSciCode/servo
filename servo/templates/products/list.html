@@ -29,7 +29,7 @@
           <ul class="dropdown-menu">
             {% with request.session.current_order as co %}
             {% if co %}
-            <li><a href="{{ co.get_product_url p">{% trans "Vie tilaukselle" %} #{{ co.code }}</a></li>
+            <li><a href="{{ co.get_product_url }}">{% trans "Vie tilaukselle" %} #{{ co.code }}</a></li>
             <li class="divider"></li>
             {% endif %}
             {% with request.session.current_po as po %}
