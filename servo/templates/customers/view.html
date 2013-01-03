@@ -7,11 +7,11 @@
   <dl class="dl-horizontal">
   {% if customer.email %}
       <dt>{% trans "Sähköposti" %}</dt>
-      <dd><a href="{% url notes.views.edit recipient=customer.email %}">{{ customer.email }}</a></dd>
+      <dd><a href="{% url servo.views.note.edit recipient=customer.email %}">{{ customer.email }}</a></dd>
   {% endif %}
   {% if customer.email %}
     <dt>{% trans "Puhelin" %}</dt>
-    <dd><a href="{% url notes.views.edit recipient=customer.phone %}">{{ customer.phone }}</a></dd>
+    <dd><a href="{% url servo.views.note.edit recipient=customer.phone %}">{{ customer.phone }}</a></dd>
   {% endif %}
     <dt>{% trans "Osoite" %}</dt>
     <dd>{{ customer.street_address }}<br/>{{ customer.zip_code }} {{ customer.city }}</dd>
@@ -26,16 +26,16 @@
     </a>
     <ul class="dropdown-menu">
     {% if request.session.current_order %}
-      <li><a href="{% url customers.views.add_order customer.id request.session.current_order.id %}">{% trans "Vie tilaukselle" %} #{{ request.session.current_order.code }}</a></li>
+      <li><a href="{% url servo.views.customer.add_order customer.id request.session.current_order.id %}">{% trans "Vie tilaukselle" %} #{{ request.session.current_order.code }}</a></li>
     {% endif %}
-      <li><a href="{% url customers.views.create_order customer.id %}">{% trans "Luo tilaus" %}</a></li>
+      <li><a href="{% url servo.views.customer.create_order customer.id %}">{% trans "Luo tilaus" %}</a></li>
       <li class="divider"></li>
-      <li><a href="{% url customers.views.notes customer_id=customer.id %}">{% trans "Lähetä viesti" %}</a></li>
-      <li><a href="{% url customers.views.edit parent_id=customer.id %}">{% trans "Luo kontakti" %}</a></li>
+      <li><a href="{% url servo.views.customer.notes customer_id=customer.id %}">{% trans "Lähetä viesti" %}</a></li>
+      <li><a href="{% url servo.views.customer.edit parent_id=customer.id %}">{% trans "Luo kontakti" %}</a></li>
       <li class="divider"></li>
-      <li><a href="{% url customers.views.edit customer_id=customer.id %}">{% trans "Muokkaa" %}</a></li>
-      <li><a href="{% url customers.views.move customer.id %}">{% trans "Siirrä" %}</a></li>
-      <li><a href="{% url customers.views.delete customer.id %}">{% trans "Poista" %}</a></li>
+      <li><a href="{% url servo.views.customer.edit customer_id=customer.id %}">{% trans "Muokkaa" %}</a></li>
+      <li><a href="{% url servo.views.customer.move customer.id %}">{% trans "Siirrä" %}</a></li>
+      <li><a href="{% url servo.views.customer.delete customer.id %}">{% trans "Poista" %}</a></li>
     </ul>
   </div>
   <legend>{% trans "Tilaukset" %}</legend>

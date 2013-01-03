@@ -1,7 +1,7 @@
 {% extends "default.html" %}
 {% load i18n %}
 {% block content %}
-<form action="{% url orders.views.reserve_products order.id %}" method="post" 
+<form action="{% url servo.views.order.reserve_products order.id %}" method="post" 
 	accept-charset="utf-8">
 	{% csrf_token %}
 	<h4>{% blocktrans with id=order.code %}Varataanko tilausen {{ id }} kaikki tuotteet?{% endblocktrans %}</h4>

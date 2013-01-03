@@ -18,7 +18,7 @@
         <ul class="dropdown-menu">
           <li><a href="/customers/">{% trans "Kaikki" %}</a></li>
           {% for t in  tags %}
-          <li><a href="{% url customers.views.index tag=t.id %}">{{ t.title }}</a></li>
+          <li><a href="{% url servo.views.customer.index tag=t.id %}">{{ t.title }}</a></li>
           {% endfor %}
         </ul>
       </li>

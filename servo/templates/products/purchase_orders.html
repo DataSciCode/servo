@@ -33,10 +33,10 @@
             <i class="icon-cog"></i> <span class="caret"></span>
           </a>
           <ul class="dropdown-menu">
-            <li><a href="{% url products.views.order_stock po.id %}">{% trans "GSX stock" %}</a></li>
+            <li><a href="{% url servo.views.product.order_stock po.id %}">{% trans "GSX stock" %}</a></li>
             <li class="divider"></li>
             <li><a href="{{ po.get_absolute_url }}">{% trans "Muokkaa" %}</a></li>
-            <li><a href="{% url products.views.remove_po po.id %}">{% trans "Poista" %}</a></li>
+            <li><a href="{% url servo.views.product.remove_po po.id %}">{% trans "Poista" %}</a></li>
           </ul>
           </div>
         </td>

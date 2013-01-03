@@ -2,7 +2,7 @@
 {% load i18n %}
 {% block content %}
 <div class="alert alert-block alert-error">
-	<form action="{% url notes.views.remove note.id %}" method="post" accept-charset="utf-8">
+	<form action="{% url servo.views.note.remove note.id %}" method="post" accept-charset="utf-8">
 		{% csrf_token %}
 		<h4>{% trans "Haluatko varmasti poistaa tämän merkinnän?" %}</h4>
 		<p>{% trans "Tämä poistaa myös viestille lisätyt vastaukset." %}</p>

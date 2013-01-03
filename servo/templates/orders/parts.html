@@ -2,8 +2,8 @@
 {% load i18n %}
 {% block navtabs %}
 <ul class="breadcrumb">
-    <li><a href="{% url orders.views.index %}">{% trans "Tilaukset" %}</a> <span class="divider">/</span></li>
-    <li><a href="{% url orders.views.edit order.id %}">{{ order.code }}</a> <span class="divider">/</span></li>
+    <li><a href="{% url servo.views.order.index %}">{% trans "Tilaukset" %}</a> <span class="divider">/</span></li>
+    <li><a href="{% url servo.views.order.edit order.id %}">{{ order.code }}</a> <span class="divider">/</span></li>
     <li><a href="#">{{ device.description }}</a> <span class="divider">/</span></li>
     <li class="active"><a href="#">{% trans "Varaosat" %}</a></li>
 </ul>

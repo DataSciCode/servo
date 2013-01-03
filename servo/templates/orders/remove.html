@@ -2,7 +2,7 @@
 {% load i18n %}
 {% block content %}
 <div class="alert alert-block alert-error">
-	<form action="{% url orders.views.remove order.id %}" method="post" accept-charset="utf-8">
+	<form action="{% url servo.views.order.remove order.id %}" method="post" accept-charset="utf-8">
 	  {% csrf_token %}
 	  <h4>{% blocktrans with id=order.code%} Haluatko poistaa tilauksen {{ id }}? {% endblocktrans %}</h4>
 	  <p>{% trans 'Tämä poistaa myös tilaukseen lisätyt tehtävät ja tapahtumat. Toimintoa ei voi peruuttaa.' %}</p>

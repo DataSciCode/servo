@@ -4,7 +4,7 @@
 
 <div class="modal">
   <div class="modal-header">
-    <form action="{% url customers.views.search %}" method="post" accept-charset="utf-8" style="margin-bottom:0" id="search-form" data-target="#search-results">
+    <form action="{% url servo.views.customer.search %}" method="post" accept-charset="utf-8" style="margin-bottom:0" id="search-form" data-target="#search-results">
 			{% csrf_token %}
 			<input type="hidden" name="id" value="{{ customer.id }}"/>
 			<input type="text" style="width:500px" class="search-query" name="name"/>
