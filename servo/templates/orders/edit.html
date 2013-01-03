@@ -83,7 +83,7 @@
       {% endfor %}
     </form>
     {% for t in tags %}
-      <a href="{% url orders.views.toggle_tag order.id t.id %}" class="btn btn-small btn-info nofollow {% if t in order.tags.all %} active{% endif %}" data-toggle="button">{{ t.title }}</a>
+      <a href="{% url servo.views.order.toggle_tag order.id t.id %}" class="btn btn-small btn-info nofollow {% if t in order.tags.all %} active{% endif %}" data-toggle="button">{{ t.title }}</a>
     {% endfor %}
   </div>
 

@@ -3,7 +3,7 @@
 
 {% block content %}
 <div class="alert alert-block alert-error">
-	<form action="{% url admin.views.remove_user user.id %}" method="post" accept-charset="utf-8">
+	<form action="{% url servo.views.admin.remove_user user.id %}" method="post" accept-charset="utf-8">
 	  {% csrf_token %}
 		<h4 class="alert-heading">{% trans "Poistetaanko käyttäjä" %}?</h4>
 		<p>{% trans 'Tätä toimintoa ei voida peruuttaa.' %}</p>

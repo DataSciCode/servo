@@ -17,8 +17,8 @@
           <i class="icon-cog"></i> <span class="caret"></span>
         </a>
         <ul class="dropdown-menu">
-          <li><a href="{% url admin.views.edit_template t.id %}">{% trans "Muokkaa" %}</a></li>
-          <li><a href="{% url admin.views.remove_template t.id %}">{% trans "Poista" %}</a></li>
+          <li><a href="{% url servo.views.admin.edit_template t.id %}">{% trans "Muokkaa" %}</a></li>
+          <li><a href="{% url servo.views.admin.remove_template t.id %}">{% trans "Poista" %}</a></li>
         </ul>
       </div>
     </td>

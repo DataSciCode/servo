@@ -3,8 +3,8 @@
 {% block content %}
 <h3>{{ device.description }}</h3>
 <ul class="nav nav-tabs">
-  <li class="active"><a href="{% url devices.views.view device.id %}">{% trans "Tilaukset" %}</a></li>
-  <li><a href="{% url devices.views.parts device.id %}">{% trans "Varaosat" %}</a></li>
+  <li class="active"><a href="{% url servo.views.device.view device.id %}">{% trans "Tilaukset" %}</a></li>
+  <li><a href="{% url servo.views.device.parts device.id %}">{% trans "Varaosat" %}</a></li>
 </ul>
 {% include "orders/list.html" with orders=device.order_set.all %}
 {% endblock content %}
