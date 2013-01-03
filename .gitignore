@@ -4,3 +4,4 @@
 initial_data.json
 uploads
 settings/local.py
+*.sqlite

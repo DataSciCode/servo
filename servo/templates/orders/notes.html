@@ -23,7 +23,7 @@
           </a>
           <ul class="dropdown-menu">
             <li><a href="/notes/{{ note.id }}/reply/">{% trans "Vastaa" %}</a></li>
-            <li><a href="{% url notes.views.edit note.id %}">{% trans "Muokkaa" %}</a></li>
+            <li><a href="{% url servo.views.note.edit note.id %}">{% trans "Muokkaa" %}</a></li>
             <li><a href="/notes/{{ note.id }}/report/">{% trans "Raportoi" %}</a></li>
             <li class="divider"></li>
             <li><a href="/notes/{{ note.id }}/remove/">{% trans "Poista" %}</a></li>

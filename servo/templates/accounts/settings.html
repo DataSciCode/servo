@@ -2,7 +2,7 @@
 {% load i18n %}
 
 {% block content %}
-<form action="{% url accounts.views.settings %}" method="post" accept-charset="utf-8" class="form-horizontal">
+<form action="{% url servo.views.account.settings %}" method="post" accept-charset="utf-8" class="form-horizontal">
   {% csrf_token %}
   {% include "form_snippet.html" %}
   {% include "form_buttons.html" %}

@@ -10,10 +10,10 @@
   <div class="span4">
     <ul id="navtabs" class="nav nav-list well well-small">
       <li class="nav-header">{% trans "Mallit" %}</li>
-      <li><a href="{% url devices.views.index %}">{% trans "Kaikki" %}</a></li>
+      <li><a href="{% url servo.views.device.index %}">{% trans "Kaikki" %}</a></li>
       {% recursetree tags %}
       <li>
-        <a href="{% url devices.views.index tag=node.id %}">{{ node.title }}</a>
+        <a href="{% url servo.views.device.index tag=node.id %}">{{ node.title }}</a>
         {% if not node.is_leaf_node %}
         <ul>{{ children }}</ul>
         {% endif %}

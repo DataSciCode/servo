@@ -24,7 +24,7 @@
       <li class="dropdown active"><a href="#" class="dropdown-toggle" data-toggle="dropdown">{% trans "Tagi" %} <b class="caret"></b></a>
         <ul class="dropdown-menu">
         {% for t in  tags %}
-          <li><a href="{% url products.views.index tag_id=t.id %}">{{ t.title }}</a></li>
+          <li><a href="{% url servo.views.product.index tag_id=t.id %}">{{ t.title }}</a></li>
         {% endfor %}
         </ul>
       </li>
@@ -32,7 +32,7 @@
         <a href="#" class="dropdown-toggle" data-toggle="dropdown">{% trans "Malli" %} <b class="caret"></b></a>
         <ul class="dropdown-menu">
         {% for s in  specs %}
-          <li><a href="{% url products.views.index tag_id=s.id %}">{{ s.title }}</a></li>
+          <li><a href="{% url servo.views.product.index tag_id=s.id %}">{{ s.title }}</a></li>
         {% endfor %}
         </ul>
       </li>

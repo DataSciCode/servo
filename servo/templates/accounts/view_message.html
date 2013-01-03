@@ -13,8 +13,8 @@
 		{{ msg.body }}
 	</p>
 	{% if not msg.order.id %}
-	<a href="{% url orders.views.create note_id=msg.id %}" class="btn">{% trans "Luo tilaus" %}</a>	
+	<a href="{% url servo.views.order.create note_id=msg.id %}" class="btn">{% trans "Luo tilaus" %}</a>	
 	{% endif %}
-	<a href="{% url notes.views.remove msg.id %}" class="btn">{% trans "Poista" %}</a>
-	<a href="{% url notes.views.edit parent=msg.id %}" class="btn btn-primary">{% trans "Vastaa" %}</a>
+	<a href="{% url servo.views.note.remove msg.id %}" class="btn">{% trans "Poista" %}</a>
+	<a href="{% url servo.views.note.edit parent=msg.id %}" class="btn btn-primary">{% trans "Vastaa" %}</a>
 {% endblock view_message %}

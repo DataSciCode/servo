@@ -2,7 +2,7 @@
 {% load i18n %}
 {% block content %}
 <div class="alert alert-block alert-error">
-	<form action="{% url orders.views.products order_id=order.id item_id=item.id action='remove' %}" method="post">
+	<form action="{% url servo.views.order.products order_id=order.id item_id=item.id action='remove' %}" method="post">
 		{% csrf_token %}
 		<input type="hidden" name="id" value="{{ item.id }}"/>
 		<h4>{% trans "Poistetaanko tuote tilauksesta?" %}</h4>

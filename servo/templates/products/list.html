@@ -29,21 +29,21 @@
           <ul class="dropdown-menu">
             {% with request.session.current_order as co %}
             {% if co %}
-            <li><a href="{{ co.get_product_url p">{% trans "Vie tilaukselle" %} #{{ co.code }}</a></li>
+            <li><a href="{{ co.get_product_url }}">{% trans "Vie tilaukselle" %} #{{ co.code }}</a></li>
             <li class="divider"></li>
             {% endif %}
             {% with request.session.current_po as po %}
               {% if po %}
-                <li><a href="{% url products.views.edit_po id=po.id item_id=p.id action='add' %}">{% trans "Vie ostotilaukselle" %}</a></li>
+                <li><a href="{% url servo.views.product.edit_po id=po.id item_id=p.id action='add' %}">{% trans "Vie ostotilaukselle" %}</a></li>
                 <li class="divider"></li>
               {% endif %}
             {% endwith %}
             {% endwith %}
-            <li><a href="{% url orders.views.create product_id=p.id %}">{% trans "Luo myyntitilaus" %}</a></li>
-            <li><a href="{% url products.views.create_po product_id=p.id %}">{% trans "Luo ostotilaus" %}</a></li>
+            <li><a href="{% url servo.views.order.create product_id=p.id %}">{% trans "Luo myyntitilaus" %}</a></li>
+            <li><a href="{% url servo.views.product.create_po product_id=p.id %}">{% trans "Luo ostotilaus" %}</a></li>
             <li class="divider"></li>
-            <li><a href="{% url products.views.edit p.id %}">{% trans "Muokkaa" %}</a></li>
-            <li><a href="{% url products.views.remove p.id %}">{% trans "Poista" %}</a></li>
+            <li><a href="{% url servo.views.product.edit p.id %}">{% trans "Muokkaa" %}</a></li>
+            <li><a href="{% url servo.views.product.remove p.id %}">{% trans "Poista" %}</a></li>
           </ul>
           </div>
         </td>

@@ -2,7 +2,7 @@
 {% load i18n %}
 {% block admin_content %}
 
-<form method="post" accept-charset="utf-8" action="{% url admin.views.save_status status_id %}" class="form-horizontal">
+<form method="post" accept-charset="utf-8" action="{% url servo.views.admin.save_status status_id %}" class="form-horizontal">
   <legend>{% trans "Muokkaa statusta" %}</legend>
   {% csrf_token %}
   {% include "form_snippet.html" %}

@@ -12,7 +12,7 @@
       <td>{{ item.amount }}</td>
       <td>{{ item.price }}</td>
       <td><a class="btn btn-small btn-primary nofollow {% if item.should_report %} active{% endif %}" 
-        href="{% url orders.views.products order_id=order.id item_id=item.id action='report' %}" 
+        href="{% url servo.views.order.products order_id=order.id item_id=item.id action='report' %}" 
         data-toggle="button">{% trans "Raportoi" %}</a></td>
       <td>
         <div class="btn-group pull-right">
@@ -20,9 +20,9 @@
             <i class="icon-cog"></i> <span class="caret"></span>
           </a>
           <ul class="dropdown-menu">
-            <li><a href="{% url orders.views.products order_id=order.id item_id=item.id action='edit' %}">{% trans "Muokkaa" %}</a></li>
+            <li><a href="{% url servo.views.order.products order_id=order.id item_id=item.id action='edit' %}">{% trans "Muokkaa" %}</a></li>
             <li class="divider"></li>
-            <li><a href="{% url orders.views.products order_id=order.id item_id=item.id action='remove' %}">{% trans "Poista" %}</a></li>
+            <li><a href="{% url servo.views.order.products order_id=order.id item_id=item.id action='remove' %}">{% trans "Poista" %}</a></li>
           </ul>
         </div>
       </td>

@@ -15,7 +15,7 @@
 	<tbody>
 	{% for p in results %}
 		<tr>
-			<td><a href="{% url products.views.view code=p.partNumber %}">{{ p.partNumber }}</a></td>
+			<td><a href="{% url servo.views.product.view code=p.partNumber %}">{{ p.partNumber }}</a></td>
 			<td>{{ p.partDescription }}<br/><span class="muted small" title="{{ p.eeeCode }}">{{ p.eeeCode|truncatechars:60 }}</td>
 			<td>{{ p.exchangePrice|price }}</td>
 			<td>{{ p.stockPrice|price }}</td>
@@ -25,7 +25,7 @@
 		        <i class="icon-cog"></i> <span class="caret"></span>
 		      </a>
 		    	<ul class="dropdown-menu">
-						<li><a href="{% url products.views.edit code=p.partNumber %}">{% trans "Luo tuote" %}</a></li>
+						<li><a href="{% url servo.views.product.edit code=p.partNumber %}">{% trans "Luo tuote" %}</a></li>
 					</ul>
 				</div>
 			</td>
