@@ -4,10 +4,9 @@ urlpatterns = patterns('servo.views.admin',
     url(r'^$', 'settings'),
     url(r'^queues/$', 'queues'),
     url(r'^files/$', 'documents'),
+    
     url(r'^statuses/$', 'statuses'),
-    url(r'^statuses/(\d+)/save/$', 'save_status'),
-    url(r'^statuses/(\d+)/edit/$', 'edit_status'),
-    url(r'^status/new/$', 'edit_status'),
+    url(r'^statuses/(\w+)/$', 'edit_status'),
     url(r'^settings/$', 'settings'),
 
     url(r'^users/$', 'users'),

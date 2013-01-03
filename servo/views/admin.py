@@ -81,10 +81,27 @@ def statuses(request):
 
     return render(request, 'admin/statuses/index.html', {'statuses': statuses})
 
-def edit_status(request, status_id=0):
+def save_status(request, status_id):
+    if not status_id == 'new':
+        status = Status.objects.get(pk=status_id)
+        form = StatusForm(request.POST, instance=status)
+    else:
+        form = StatusForm(request.POST)
+
+    if form.is_valid():
+        form.save()
+        messages.add_message(request, messages.INFO, _(u'Status tallennettu'))
+        return redirect('/admin/statuses/')
+
+    return render(request, 'admin/status_form.html', {'form': form})
+
+def edit_status(request, status_id):
     form = StatusForm()
 
-    if int(status_id) > 0:
+    if request.method == 'POST':
+        return save_status(request, status_id)
+
+    if not status_id == 'new':
         status = Status.objects.get(pk=status_id)
         form = StatusForm(instance=status)
 
@@ -315,20 +332,6 @@ def edit_location(request, id=0):
     
     form.pk = id
     return render(request, "admin/locations/form.html", {'form': form})
-
-def save_status(request, status_id):
-    if int(status_id) > 0:
-        status = Status.objects.get(pk=status_id)
-        form = StatusForm(request.POST, instance=status)
-    else:
-        form = StatusForm(request.POST)
-
-    if form.is_valid():
-        form.save()
-        messages.add_message(request, messages.INFO, _(u'Status tallennettu'))
-        return redirect('/admin/statuses/')
-
-    return render(request, 'admin/status_form.html', {'form': form})
 
 def queues(request):
     queues = Queue.objects.all()
