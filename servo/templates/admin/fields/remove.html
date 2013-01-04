@@ -1,8 +1,8 @@
-{% load i18n %}
+{% load i18n %}{% load staticfiles %}
 <form action="/fields/remove/" method="post" accept-charset="utf-8" rel="fields">
   {% csrf_token %}
   <input type="hidden" name="id" value="{{ id }}" />
-  <img src="/static/images/alert_48.png" alt="alert" class="alert" />
+  <img src="{% static "images/alert_48.png" %}" alt="alert" class="alert" />
   <h2>{% trans 'Haluatko varmasti poistaa tämän kentän?' %}</h2>
   <p>{% trans 'Tätä toimintoa ei voida peruuttaa.' %}</p>
 </form>

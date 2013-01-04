@@ -1,4 +1,4 @@
-{% load i18n %}
+{% load i18n %}{% load staticfiles %}
 {% load extras %}
 
 <table class="table">
@@ -8,7 +8,7 @@
 	<tbody>
 	{% for event in order.events %}
 		<tr>
-			<td><img src="/static/images/{{ event.get_icon }}.png" alt="{{ event.description }}" class="icon"/></td>
+			<td><img src="{% static "images/{{ event.get_icon }}.png" %}" alt="{{ event.description }}" class="icon"/></td>
 			<td style="width:55%">{{ event.description }}</td>
 			<td>{{ event.triggered_by.username }} @ {{ event.triggered_at|relative_date }}</td>
 		</tr>
