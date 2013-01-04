@@ -45,6 +45,7 @@ def gsx(request, what):
                 what = 'repair_details'
                 results = gsx.repair_details(request.GET['dispatchId'])
 
+        # Cache the results for quicker quicker access later
         cache.set('%s-%s' %(what, query), results)
 
     return render(request, 'search/results-%s.html' % what, {

@@ -86,7 +86,7 @@ class Product(BaseProduct):
     def from_gsx(cls, gsx_data):
     	conf = Configuration.conf()
         getcontext().rounding = ROUND_UP
-
+        print gsx_data
         sp = Decimal(gsx_data.get('stockPrice'))
         ep = Decimal(gsx_data.get('exchangePrice'))
         
