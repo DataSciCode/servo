@@ -72,6 +72,8 @@ class Product(BaseProduct):
         verbose_name=_(u'varastossa'))
     amount_ordered = models.IntegerField(default=0,
         verbose_name=_(u'tilattu'))
+    shipping = models.IntegerField(default=0,
+        verbose_name=_(u'Shipping'))
 
     class Meta:
         verbose_name = _(u'tuote')
@@ -92,8 +94,9 @@ class Product(BaseProduct):
         vat = Decimal(conf['pct_vat'])
         margin = Decimal(conf['pct_margin'])
 
-        sp = (sp+(sp/100*margin)).quantize(Decimal('1.'))
-        ep = (ep+(ep/100*margin)+(ep/100*vat)).quantize(Decimal('1.'))
+        shipping = conf['shipping_cost']
+        sp = (sp+(sp/100*margin)).quantize(Decimal('1.')) + shipping
+        ep = (ep+(ep/100*margin)+(ep/100*vat)).quantize(Decimal('1.')) + shipping
 
         product = Product(code=gsx_data.get('partNumber'),
             title=gsx_data.get('partDescription'),
@@ -104,6 +107,7 @@ class Product(BaseProduct):
             price_notax=sp,
             warranty_period=3,
             brand='Apple',
+            shipping=conf['shipping_cost'],
             component_code=gsx_data.get('componentCode'),
             is_serialized=(gsx_data['isSerialized'] == 'Y'),
             price_sales=sp+(sp/100*vat).quantize(Decimal('1.'))

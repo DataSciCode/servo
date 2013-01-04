@@ -70,8 +70,13 @@ class TemplateForm(forms.ModelForm):
 
 class SettingsForm(forms.Form):
     company_name = forms.CharField(max_length=128, label=_('Yritys'))
-    pct_margin = forms.DecimalField(max_digits=4, label=_('Kate %'))
-    pct_vat = forms.DecimalField(max_digits=4, label=_('ALV %'))
+    pct_margin = forms.DecimalField(max_digits=4, label=_('Kate %'),
+        help_text=_(u'Default margin for new products'))
+    pct_vat = forms.DecimalField(max_digits=4, label=_('ALV %'),
+        help_text=_(u'Default VAT for new products'))
+    shipping_cost = forms.DecimalField(max_digits=4, label=_('Shipping Cost'),
+        help_text=_(u'Default shipping cost for new products'))
+    
     logo = forms.FileField(label=_('Logo'), required=False)
 
     mail_from = forms.CharField(max_length=128, label=_('Osoite'),
