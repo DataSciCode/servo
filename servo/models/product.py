@@ -63,8 +63,7 @@ class Product(BaseProduct):
         verbose_name=_(u'liitteet'))
 
     # component code is used to identify Apple parts
-    component_code = models.CharField(max_length=1, blank=True, null=True,
-        verbose_name=_(u'komponentti'))
+    component_code = models.CharField(max_length=1, blank=True, null=True)
     amount_minimum = models.IntegerField(default=0,
         verbose_name=_(u'minimimäärä'))
     amount_reserved = models.IntegerField(default=0,
@@ -86,7 +85,7 @@ class Product(BaseProduct):
     def from_gsx(cls, gsx_data):
     	conf = Configuration.conf()
         getcontext().rounding = ROUND_UP
-        
+
         sp = Decimal(gsx_data.get('stockPrice'))
         ep = Decimal(gsx_data.get('exchangePrice'))
         

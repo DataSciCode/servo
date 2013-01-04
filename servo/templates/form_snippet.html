@@ -1,6 +1,6 @@
 {% for hidden in form.hidden_fields %}
-	{{ hidden }}
+    {{ hidden }}
 {% endfor %}
 {% for field in form.visible_fields %}
-	{% include "form_field_snippet.html" with field=field %}
+    {% include "form_field_snippet.html" with field=field %}
 {% endfor %}
