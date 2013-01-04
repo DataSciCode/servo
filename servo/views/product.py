@@ -13,7 +13,7 @@ from servo.models.common import *
 from servo.models.order import *
 from servo.models.product import *
 
-from servo.forms.product import ProductForm, PurchaseOrderForm
+from servo.forms.product import ProductForm, PurchaseOrderForm, PurchaseOrderItemForm
 
 def index(request, tag_id=None, spec_id=None):
     title = _(u'Ryhmä')
