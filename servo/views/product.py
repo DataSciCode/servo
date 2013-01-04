@@ -77,7 +77,7 @@ def remove(request, id):
         Inventory.objects.filter(product=product).delete()
         product.delete()
         messages.add_message(request, messages.INFO, _(u'Tuote poistettu'))
-        return redirect('products.views.index')
+        return redirect('/products/')
     else:
         product = Product.objects.get(pk=id)
 
