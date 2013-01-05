@@ -342,6 +342,8 @@ def queues(request):
     return render(request, 'admin/queues/index.html', {'queues': queues})
 
 def edit_queue(request, id=None):
+    from django.forms.formsets import formset_factory
+
     statuses = Status.objects.all()
 
     if request.method == 'POST':
@@ -349,9 +351,9 @@ def edit_queue(request, id=None):
 
     if id:
         queue = Queue.objects.get(pk=id)
-        form = QueueForm(instance=queue)
+        form = QueueForm(instance=queue, prefix='queue')
     else:
-        form = QueueForm()
+        form = QueueForm(prefix='queue')
         queue = Queue()
 
     status_forms = list()
@@ -369,10 +371,10 @@ def edit_queue(request, id=None):
 def save_queue(request, queue_id):
     if queue_id is None:
         q = Queue()
-        form = QueueForm(request.POST, request.FILES)
+        form = QueueForm(request.POST, request.FILES, prefix='queue')
     else:
         q = Queue.objects.get(pk=queue_id)
-        form = QueueForm(request.POST, request.FILES, instance=q)
+        form = QueueForm(request.POST, request.FILES, instance=q, prefix='queue')
 
     if form.is_valid():
         q = form.save()

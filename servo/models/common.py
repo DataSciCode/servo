@@ -245,7 +245,6 @@ class Status(models.Model):
         verbose_name=_(u'aikayksikkö'))
 
     def as_dict(self, queue):
-        print queue.queuestatus_set
         result = dict()
         result['enabled'] = False
         result['title'] = self.title
@@ -270,6 +269,9 @@ class Queue(models.Model):
         verbose_name=_(u'GSX tili'))
 
     statuses = models.ManyToManyField(Status, through='QueueStatus')
+    default_status = models.ForeignKey(Status, null=True, blank=True,
+        related_name='default_status',
+        verbose_name=_(u'Default Status'))
 
     order_template = models.FileField(blank=True, null=True, 
         upload_to='queues',
@@ -289,16 +291,19 @@ class Queue(models.Model):
     class Meta:
         ordering = ['title']
         app_label = 'servo'
+        verbose_name = _(u'Queue')
 
 class QueueStatus(models.Model):
     """
     This allows us to set time limits for each status per indiviudal queue
     """
+    queue = models.ForeignKey(Queue)
+    status = models.ForeignKey(Status)
+
+    idx = models.IntegerField() # denotes ordering of status in this queue
     limit_green = models.IntegerField()
     limit_yellow = models.IntegerField()
     limit_factor = models.IntegerField()
-    queue = models.ForeignKey(Queue)
-    status = models.ForeignKey(Status)
 
     def __str__(self):
         return self.status.title
