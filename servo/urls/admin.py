@@ -4,7 +4,7 @@ urlpatterns = patterns('servo.views.admin',
     url(r'^$', 'settings'),
     url(r'^queues/$', 'queues'),
     url(r'^files/$', 'documents'),
-    
+
     url(r'^statuses/$', 'statuses'),
     url(r'^statuses/(\w+)/$', 'edit_status'),
     url(r'^settings/$', 'settings'),
@@ -35,7 +35,6 @@ urlpatterns = patterns('servo.views.admin',
     url(r'^templates/(\d+)/delete/$', 'remove_template'),
 
     url(r'^queues/new/$', 'edit_queue'),
-    url(r'^queues/(\w+)?/save/$', 'save_queue'),
     url(r'^queues/(\d+)/remove/$', 'remove_queue'),
     url(r'^queues/(\d+)/edit/$', 'edit_queue'),
     url(r'^queues/(\d+)/remove/$', 'remove_queue'),

@@ -9,7 +9,8 @@ from servo.models.account import UserProfile
 class QueueForm(forms.ModelForm):
     class Meta:
         model = Queue
-        exclude = ['statuses']
+        exclude = ('statuses',)
+        widgets = {'description': forms.Textarea(attrs={'rows': 4})}
 
 class TagForm(forms.ModelForm):
     class Meta:
@@ -26,9 +27,6 @@ class StatusForm(forms.ModelForm):
             'limit_green': forms.TextInput(attrs={'class': 'input-mini'}),
             'limit_yellow': forms.TextInput(attrs={'class': 'input-mini'}),
         }
-
-class QueueStatusForm(StatusForm):
-    enabled = forms.IntegerField(widget=forms.CheckboxInput)
 
 class UserForm(forms.ModelForm):
     class Meta:
@@ -76,7 +74,7 @@ class SettingsForm(forms.Form):
         help_text=_(u'Default VAT for new products'))
     shipping_cost = forms.DecimalField(max_digits=4, label=_('Shipping Cost'),
         help_text=_(u'Default shipping cost for new products'))
-    
+
     logo = forms.FileField(label=_('Logo'), required=False)
 
     mail_from = forms.CharField(max_length=128, label=_('Osoite'),

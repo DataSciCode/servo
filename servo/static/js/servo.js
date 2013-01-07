@@ -3,7 +3,7 @@
  */
 $(function() {
 
-    $('.toggle_column').click(function() {
+    $('th input').click(function() {
         var checked = $(this).prop('checked');
         $('tbody input[type="checkbox"]').prop('checked', checked);
         $('button[type="submit"]').attr('disabled', !checked);
@@ -133,5 +133,12 @@ $(function() {
     });
 
     $('textarea:first').focus();
+
+    $('div.toggle_status_row input:not(:checked)').nextAll().attr('disabled', true);
+
+    $('tr.toggle_status_row input[type="checkbox"]').click(function() {
+        var checked = $(this).prop('checked');
+        $(this).nextAll('input,select').attr('disabled', !checked);
+    });
     
 });

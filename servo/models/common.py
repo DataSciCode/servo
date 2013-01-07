@@ -224,52 +224,17 @@ class Template(models.Model):
     class Meta:
         app_label = 'servo'
 
-class Status(models.Model):
-    FACTORS = (
-        (60, _(u'Minuuttia')),
-        (3600, _(u'Tuntia')),
-        (86400, _(u'Päivää')),
-        (604800, _(u'Viikkoa')),
-        (2419200, _('Kuukautta')),
-    )
-
-    title = models.CharField(unique=True, max_length=255, 
-        default=_(u'Uusi status'),
-        verbose_name=_(u'nimi'))
-    description = models.TextField(blank=True, null=True,
-        verbose_name=_(u'kuvaus'))
-    limit_green = models.IntegerField(default=1, verbose_name=_(u'vihreä raja'))
-    limit_yellow = models.IntegerField(default=15, 
-        verbose_name=_(u'keltainen raja'))
-    limit_factor = models.IntegerField(default=FACTORS[0], choices=FACTORS,
-        verbose_name=_(u'aikayksikkö'))
-
-    def as_dict(self, queue):
-        result = dict()
-        result['enabled'] = False
-        result['title'] = self.title
-        result['limit_green'] = self.limit_green
-        result['limit_yellow'] = self.limit_yellow
-        result['limit_factor'] = self.limit_factor
-        return result
-
-    def __unicode__(self):
-        return self.title
-
-    class Meta:
-        app_label = 'servo'
-
 class Queue(models.Model):
     title = models.CharField(unique=True, max_length=255, 
         default=_('Uusi jono'),
         verbose_name=_('nimi'))
     
+    statuses = models.ManyToManyField('Status', through='QueueStatus')
     description = models.TextField(blank=True, verbose_name=_('kuvaus'))
     gsx_account = models.ForeignKey(GsxAccount, null=True, blank=True,
         verbose_name=_(u'GSX tili'))
 
-    statuses = models.ManyToManyField(Status, through='QueueStatus')
-    default_status = models.ForeignKey(Status, null=True, blank=True,
+    default_status = models.ForeignKey('Status', null=True, blank=True,
         related_name='default_status',
         verbose_name=_(u'Default Status'))
 
@@ -293,19 +258,52 @@ class Queue(models.Model):
         app_label = 'servo'
         verbose_name = _(u'Queue')
 
+class Status(models.Model):
+    FACTORS = (
+        (60, _(u'Minuuttia')),
+        (3600, _(u'Tuntia')),
+        (86400, _(u'Päivää')),
+        (604800, _(u'Viikkoa')),
+        (2419200, _('Kuukautta')),
+    )
+
+    title = models.CharField(unique=True, max_length=255, 
+        default=_(u'Uusi status'),
+        verbose_name=_(u'nimi'))
+    description = models.TextField(blank=True, null=True,
+        verbose_name=_(u'kuvaus'))
+    limit_green = models.IntegerField(default=1, verbose_name=_(u'vihreä raja'))
+    limit_yellow = models.IntegerField(default=15, 
+        verbose_name=_(u'keltainen raja'))
+    limit_factor = models.IntegerField(default=FACTORS[0], choices=FACTORS,
+        verbose_name=_(u'aikayksikkö'))
+
+    def is_enabled(self, queue):
+        return self in queue.queuestatus_set.all()
+
+    def __unicode__(self):
+        return self.title
+
+    class Meta:
+        app_label = 'servo'
+
 class QueueStatus(models.Model):
     """
+    A status defined to a queue.
     This allows us to set time limits for each status per indiviudal queue
     """
     queue = models.ForeignKey(Queue)
     status = models.ForeignKey(Status)
+    idx = models.IntegerField(editable=False, null=True) # denotes ordering of status in this queue
 
-    idx = models.IntegerField() # denotes ordering of status in this queue
-    limit_green = models.IntegerField()
-    limit_yellow = models.IntegerField()
-    limit_factor = models.IntegerField()
+    limit_green = models.IntegerField(default=1, verbose_name=_(u'vihreä raja'))
+    limit_yellow = models.IntegerField(default=15, 
+        verbose_name=_(u'keltainen raja'))
+    limit_factor = models.IntegerField(default=Status().FACTORS[0], 
+        choices=Status().FACTORS,
+        verbose_name=_(u'aikayksikkö'))
 
-    def __str__(self):
+    def __unicode__(self):
         return self.status.title
 
     class Meta:
