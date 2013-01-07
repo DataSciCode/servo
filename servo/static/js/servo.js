@@ -31,6 +31,9 @@ $(function() {
 
     _.each($('a.counter'), function(i, e) {
         $.get($(i).attr('href'), function(count) {
+            if (int(count) < 1) {
+                return false;
+            }
             $('<span class="badge pull-right"/>').text(count).appendTo(i);
             $('#topnav a.counter span.badge').addClass('badge-inverse');
         });
