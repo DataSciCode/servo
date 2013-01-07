@@ -3,13 +3,25 @@
 
 {% block admin_content %}
 <ul class="nav nav-tabs">
-	<li><a href="/admin/queues/">{% trans "Kaikki" %}</a></li>
-	<li class="pull-right"><a href="/admin/queues/new">{% trans "Luo jono" %}</a></li>
+    <li><a href="/admin/queues/">{% trans "Kaikki" %}</a></li>
+    <li class="pull-right"><a href="new/">{% trans "Luo jono" %}</a></li>
 </ul>
-<table>
+<table class="table">
 {% for q in queues %}
     <tr>
-    	<td><a href="/admin/queues/{{ q.id }}/edit/">{{ q.title }}</a></td>
+        <td><a href="{{ q.id }}/edit/">{{ q.title }}</a></td>
+        <td>{{ q.order_set.count }}</td>
+        <td>
+        <div class="btn-group pull-right">
+          <a class="btn dropdown-toggle btn-small" data-toggle="dropdown" href="#">
+            <i class="icon-cog"></i> <span class="caret"></span>
+          </a>
+          <ul class="dropdown-menu">
+            <li><a href="{{ q.id }}/edit/">{% trans "Muokkaa" %}</a></li>
+            <li><a href="{{ q.id }}/remove/" data-modal="#modal">{% trans "Poista" %}</a></li>
+          </ul>
+        </div>
+      </td>
     </tr>
 {% endfor %}
 </table>

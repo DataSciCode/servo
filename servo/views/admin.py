@@ -403,14 +403,15 @@ def edit_queue(request, queue_id=None):
     })
 
 def remove_queue(request, id=None):
-    if 'id' in request.POST:
-        queue = Queue.objects.get(pk=request.POST['id'])
+
+    queue = Queue.objects.get(pk=id)
+
+    if request.method == 'POST':
         queue.delete()
-        return HttpResponse('Jono poistettu')
-    else:
-        queue = Queue.objects.get(pk=id)
-    
-    return render(request, 'admin/remove-queue.html', queue)
+        messages.add_message(request, messages.INFO, _(u'Jono poistettu'))
+        return redirect('/admin/queues/')
+        
+    return render(request, 'admin/queues/remove.html', {'queue': queue})
 
 def notifications(request):
     return render(request, 'admin/notifications/index.html')
