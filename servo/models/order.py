@@ -112,8 +112,11 @@ class Order(models.Model):
             triggered_by=user)
 
     def set_status(self, status_id, user):
+        """Sets status of this order to status_id"""
         from time import time
-        status = Status.objects.get(pk=status_id)
+
+        status = QueueStatus.objects.get(pk=status_id).status
+
         # calculate when this status will timeout
         green = (status.limit_green*status.limit_factor)+time()
         yellow = (status.limit_yellow*status.limit_factor)+time()

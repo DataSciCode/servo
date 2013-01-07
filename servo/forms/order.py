@@ -16,11 +16,6 @@ class InvoiceForm(LocalizedModelForm):
         exclude = ('created_at', 'paid_at', 'created_by',
         'customer', 'order', 'total_margin',)
 
-class SidebarForm(forms.ModelForm):
-    class Meta:
-        model = Order
-        fields = ('user', 'queue', 'status', 'priority',)
-
 class FieldsForm(forms.Form):
     pass
 

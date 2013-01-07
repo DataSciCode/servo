@@ -198,22 +198,33 @@ def toggle_tag(request, order_id, tag_id):
     return HttpResponse(tag.title)
 
 def edit(request, id):
-    o = Order.objects.get(pk=id)
+    order = Order.objects.get(pk=id)
     
-    form = SidebarForm(instance=o)
+    class SidebarForm(forms.ModelForm):
+        class Meta:
+            model = Order
+            fields = ('user', 'queue', 'status', 'priority',)
+
+    form = SidebarForm(instance=order)
+
+    if order.queue:
+        form.status = forms.ModelChoiceField(queryset=order.queue.queuestatus_set.all())
+    else:
+        status = forms.ChoiceField(widget=forms.Select(attrs={'disabled': 'disabled'}))
+
     tags = Tag.objects.filter(type='order')
     fields = Property.objects.filter(type='order')
 
     # wrap the customer in a list for easier recursetree
-    if o.customer:
-        customer = o.customer.get_ancestors(include_self=True, ascending=True)
+    if order.customer:
+        customer = order.customer.get_ancestors(include_self=True, ascending=True)
     else:
         customer = []
 
-    request.session['current_order'] = o
+    request.session['current_order'] = order
 
     return render(request, 'orders/edit.html', {
-        'order': o,
+        'order': order,
         'tags': tags,
         'form': form,
         'fields': fields,
@@ -258,7 +269,6 @@ def update(request, id):
         request.session['current_order'].save()
 
     return render(request, 'orders/events.html', {'order': order})
-
 
 def submit_gsx_repair(request):
     pass    
@@ -457,16 +467,6 @@ def remove_device(request, order_id, device_id):
 def events(request, order_id):
     order = Order.objects.get(pk=order_id)
     return render(request, "orders/events.html", {"order": order})
-
-def statuses(request, queue_id):
-    """List available statuses for this order"""
-    from django import forms
-    class StatusForm(forms.Form):
-        status = forms.ModelChoiceField(
-            queryset=QueueStatus.objects.filter(queue=queue_id))
-
-    form = StatusForm()
-    return HttpResponse(str(form['status']))
 
 def reserve_products(request, order_id):
     if request.method == 'POST':

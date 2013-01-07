@@ -38,4 +38,6 @@ urlpatterns = patterns('',
     url(r'^wiki/articles/(?P<pk>\d+)/edit/$', ArticleEditView.as_view()),
     url(r'^wiki/articles/new/$', ArticleEditView.as_view(template_name='articles/form.html')),
 
+    url(r'^queues/(\d+)/statuses/$', 'servo.views.queue.statuses'),
+
 )

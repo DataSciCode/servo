@@ -108,7 +108,7 @@ $(function() {
 
         $('#events').load(url, args, function() {
             if (arg == 'queue') {
-                $('#id_status').load('/orders/'+t.val()+'/statuses/');
+                $('#id_status').load('/queues/'+t.val()+'/statuses/');
             };
         });
     });
