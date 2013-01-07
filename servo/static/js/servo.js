@@ -31,7 +31,7 @@ $(function() {
 
     _.each($('a.counter'), function(i, e) {
         $.get($(i).attr('href'), function(count) {
-            if (int(count) < 1) {
+            if (parseInt(count) < 1) {
                 return false;
             }
             $('<span class="badge pull-right"/>').text(count).appendTo(i);

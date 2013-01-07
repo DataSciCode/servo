@@ -115,23 +115,31 @@ class Order(models.Model):
         """Sets status of this order to status_id"""
         from time import time
 
-        status = QueueStatus.objects.get(pk=status_id).status
+        if isinstance(status_id, QueueStatus):
+            status = status_id
+        else:
+            status = QueueStatus.objects.get(pk=status_id).status
 
         # calculate when this status will timeout
         green = (status.limit_green*status.limit_factor)+time()
         yellow = (status.limit_yellow*status.limit_factor)+time()
         self.status_limit_green = green
         self.status_limit_yellow = yellow
-        self.status = status
+        self.status = status.status
         self.save()
 
-        self.notify('set_status', status.title, user)
+        self.notify('set_status', status.status.title, user)
 
     def set_queue(self, queue_id, user):
         queue = Queue.objects.get(pk=queue_id)
         self.queue = queue
         self.notify('set_queue', queue.title, user)
-        self.save()
+
+        if queue.default_status:
+            status = QueueStatus.objects.get(status=queue.default_status, queue=queue)
+            self.set_status(status, user)
+        else:
+            self.save()
 
     def set_user(self, user_id, current_user):
         if user_id == '':

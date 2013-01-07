@@ -9,7 +9,7 @@ from servo.models.account import UserProfile
 class QueueForm(forms.ModelForm):
     class Meta:
         model = Queue
-        exclude = ('statuses',)
+        exclude = ('statuses', )
         widgets = {'description': forms.Textarea(attrs={'rows': 4})}
 
 class TagForm(forms.ModelForm):

@@ -14,10 +14,10 @@ TODO:
 - products/outgoing
 - products/incoming
 - notifications
-- wiki
+- [OK] wiki
 - products/invoices
 - calendars/index
-- queue statuses
+- [OK] queue statuses
 - incoming mail
 - locations/shelf codes?
 - following?

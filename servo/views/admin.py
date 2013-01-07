@@ -346,40 +346,44 @@ def edit_queue(request, queue_id=None):
 
     template = 'admin/queues/form.html'
 
-    queue = Queue()
-    queue_form = QueueForm()
+    if queue_id:
+        queue = Queue.objects.get(pk=queue_id)
+        queue_form = QueueForm(instance=queue, prefix='queue')
+    else:
+        queue = Queue()
+        queue_form = QueueForm(prefix='queue')
 
     if request.method == 'POST':
 
         if queue_id is None:
-            form = QueueForm(request.POST, request.FILES)
+            queue_form = QueueForm(request.POST, request.FILES, prefix='queue')
         else:
             queue = Queue.objects.get(pk=queue_id)
-            form = QueueForm(request.POST, request.FILES, instance=queue)
+            queue_form = QueueForm(request.POST, request.FILES, instance=queue, prefix='queue')
 
-        if not form.is_valid():
-            return render(request, template, {'queue_form': form})
+        if not queue_form.is_valid():
+            return render(request, template, {'queue_form': queue_form})
+
+        queue_form.save()
 
         # process queue's statuses
         queue.queuestatus_set.all().delete()
         data = DotExpandedDict(request.POST)
 
-        for s in data['status'].values():
-            if s.get('status_id'): # status is selected...
-                qs = s
-                qs['queue'] = queue
-                QueueStatus.objects.create(**qs)
+        if data.get('status'):
+            for s in data['status'].values():
+                if s.get('status_id'): # status is selected...
+                    qs = s
+                    qs['queue'] = queue
+                    QueueStatus.objects.create(**qs)
 
         messages.add_message(request, messages.INFO, _(u'Jono tallennettu'))
         return redirect('/admin/queues/')
 
     selected = list()
 
-    if queue_id:
-        queue = Queue.objects.get(pk=queue_id)
-        queue_form = QueueForm(instance=queue)
-        for s in queue.queuestatus_set.all():
-            selected.append(s.status.pk)
+    for s in queue.queuestatus_set.all():
+        selected.append(s.status.pk)
 
     statuses = list()
 
@@ -395,8 +399,7 @@ def edit_queue(request, queue_id=None):
     return render(request, template, {
         'queue_form': queue_form,
         'statuses': statuses,
-        'selected': selected,
-        'queue': queue
+        'selected': selected
     })
 
 def remove_queue(request, id=None):
