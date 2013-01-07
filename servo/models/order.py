@@ -108,7 +108,7 @@ class Order(models.Model):
             description=message,
             ref='order',
             ref_id=self.pk,
-            action='set_status',
+            action=action,
             triggered_by=user)
 
     def set_status(self, status_id, user):
