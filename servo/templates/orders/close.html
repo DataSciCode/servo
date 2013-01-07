@@ -3,7 +3,7 @@
 
 {% block content %}
 <div class="alert alert-block alert-error">
-	<form action="{% url servo.views.order.close order.id %}" method="post" accept-charset="utf-8">
+	<form action="" method="post" accept-charset="utf-8">
 	{% csrf_token %}
 		<h4 class="alert-heading">{% trans 'Haluatko varmasti sulkea tilauksen' %} {{ order.id }}?</h4>
 		<p>{% trans 'Tämä poistaa myös kaikki asiakkaan kontaktit. Asiakkaan tilauksia ei poisteta.' %}</p>

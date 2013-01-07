@@ -12,7 +12,8 @@ from servo.models.gsx import Lookup, GsxAccount
 from servo.models.common import *
 from servo.models.order import *
 from servo.models.product import *
-from servo.forms.product import ProductForm
+
+from servo.forms.product import ProductForm, PurchaseOrderForm, PurchaseOrderItemForm
 
 def index(request, tag_id=None, spec_id=None):
     title = _(u'Ryhmä')
@@ -61,7 +62,7 @@ def edit(request, product_id=0, code=None):
         product_id = product.id
     
     if code:
-        result = Lookup(Account.default()).lookup(code)
+        result = Lookup(GsxAccount.default()).lookup(code)
         product = Product.from_gsx(result)
         form = ProductForm(instance=product)
     
@@ -77,7 +78,7 @@ def remove(request, id):
         Inventory.objects.filter(product=product).delete()
         product.delete()
         messages.add_message(request, messages.INFO, _(u'Tuote poistettu'))
-        return redirect('products.views.index')
+        return redirect('/products/')
     else:
         product = Product.objects.get(pk=id)
 
@@ -126,6 +127,7 @@ def search(request):
     return render(request, 'products/search.html')
 
 def view(request, product_id=None, code=None):
+
     product = Product()
     try:
         product = Product.objects.get(pk=product_id)
@@ -218,7 +220,7 @@ def edit_po(request, id, item_id=None, action='add'):
 
             f.save()
 
-        return redirect('products.views.index_po')
+        return redirect('/products/po/')
 
     if item_id and action == 'add':
         product = Product.objects.get(pk=item_id)
@@ -253,7 +255,7 @@ def submit_po(request, id):
     po = PurchaseOrder.objects.get(pk=id)
     po.submit()
     messages.add_message(request, messages.INFO, _(u'Ostotilaus lähetetty'))
-    return redirect('products.views.index_po')
+    return redirect('/products/po/')
   
 def index_po(request):
     all_orders = PurchaseOrder.objects.all()
@@ -290,20 +292,19 @@ def order_stock(request, po_id):
     except gsxlib.GsxError, e:
         messages.add_message(request, messages.ERROR, e)
 
-    return redirect('products.views.index_po')
+    return redirect('/products/po/')
 
 def remove_po(request, po_id):
     PurchaseOrder.objects.filter(pk=po_id).delete()
     messages.add_message(request, messages.INFO, 
         _(u'Ostotilaus %s poistettu' % po_id))
 
-    return redirect('products.views.index_po')
+    return redirect('/products/po/')
 
 def index_incoming(request, shipment=None, date=None, status=''):
     """
-    Index purchase order items that have not arrived yet
+    Lists purchase order items that have not arrived yet
     """
-
     inventory = PurchaseOrderItem.objects.filter(date_received=None)
 
     if request.is_ajax():
@@ -321,7 +322,7 @@ def index_incoming(request, shipment=None, date=None, status=''):
         messages.add_message(request, messages.INFO, 
             _(u'%d tuotetta saavutettu' % count))
 
-        return redirect('products.views.index_incoming')
+        return redirect('/products/incoming/')
 
     if request.GET.get('i'):
         item = PurchaseOrderItem.objects.get(pk=request.GET['i'])

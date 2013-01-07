@@ -50,11 +50,8 @@ class Order(models.Model):
         app_label = 'servo'
 
     def get_absolute_url(self):
-        return "/orders/%d/" % self.pk
+        return '/orders/order/%d' % self.pk
 
-    def get_product_url(self, product):
-        return '/orders/%d/products/%d/add/' %(self.pk, product.pk)
-        
     def close(self, user):
         self.closed_at = datetime.now()
         self.state = 2
@@ -111,12 +108,15 @@ class Order(models.Model):
             description=message,
             ref='order',
             ref_id=self.pk,
-            action='set_status',
+            action=action,
             triggered_by=user)
 
     def set_status(self, status_id, user):
+        """Sets status of this order to status_id"""
         from time import time
-        status = Status.objects.get(pk=status_id)
+
+        status = QueueStatus.objects.get(pk=status_id).status
+
         # calculate when this status will timeout
         green = (status.limit_green*status.limit_factor)+time()
         yellow = (status.limit_yellow*status.limit_factor)+time()
@@ -234,6 +234,8 @@ class Order(models.Model):
 
         return (self.net_total() - total_purchase_price)
 
+    def __str__(self):
+        return 'Order #%d' % self.pk
 
 class OrderItem(models.Model):
     product = models.ForeignKey(Product)
@@ -428,6 +430,9 @@ class PurchaseOrderItem(OrderItem):
     date_received = models.DateTimeField(null=True, blank=True, editable=False,
         verbose_name=_(u'saapunut'))
     received_by = models.ForeignKey(User, null=True)
+
+    class Meta:
+        app_label = 'servo'
 
 class CheckList(models.Model):
     pass

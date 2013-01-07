@@ -4,13 +4,13 @@
 
 {% block navtabs %}
 	<ul class="nav nav-tabs">
-		<li class="pull-right"><a href="{% url servo.views.calendar.create %}">{% trans "Uusi kalenteri" %}</a></li>
+		<li class="pull-right"><a href="/calendars/new/">{% trans "Uusi kalenteri" %}</a></li>
 	</ul>
 {% endblock navtabs %}
 
 {% block content %}
 
-<div class="small_block listView" id="calendars" data-url="/calendars">
+<div class="small_block listView">
 	<div class="block_header">&nbsp;</div>
 	<ul>
 {% for cal in calendars %}

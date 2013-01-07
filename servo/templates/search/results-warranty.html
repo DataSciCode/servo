@@ -36,11 +36,11 @@
       </a>
     	<ul class="dropdown-menu">
   		{% if request.session.current_order %}
-  			<li><a href="{% url servo.views.order.add_device order_id=request.session.current_order.id sn=d.serialNumber %}">{% trans "Vie tilaukselle"  %} #{{ request.session.current_order.code }}</a></li>
+  			<li><a href="{% url servo.views.order.add_device order_id=request.session.current_order.id sn=query %}">{% trans "Vie tilaukselle"  %} #{{ request.session.current_order.code }}</a></li>
   		{% endif %}
 				<li><a href="{{ d.manualURL }}">{% trans "Lataa ohjeet" %}</a></li>
 				<li class="divider"></li>
-				<li><a href="{% url servo.views.order.create sn=d.serialNumber %}">{% trans "Luo huoltotilaus" %}</a></li>
+				<li><a href="{% url servo.views.order.create sn=query %}">{% trans "Luo huoltotilaus" %}</a></li>
 			</ul>
 		</div>
 	</div>

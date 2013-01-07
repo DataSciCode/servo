@@ -1,13 +1,9 @@
-<form action="/article/save" method="post" enctype="utf-8" rel="articles">
-{% if id %}
-	<input type="hidden" name="id" value="{{ id }}"/>
-{% endif %}
-	<input
-		type="text"
-		name="title"
-		style="width:97%;"
-		value="{{ title }}"/>
-	<textarea
-		style="width:97%;min-height:300px"
-		name="body" cols="40" rows="40">{{ content }}</textarea>
+{% extends "articles/view.html" %}
+
+{% block col2 %}
+<form action="" method="post" enctype="utf-8">
+    {% csrf_token %}
+	{{ form }}
+    {% include "form_buttons.html" %}
 </form>
+{% endblock col2 %}

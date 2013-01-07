@@ -41,7 +41,7 @@ class Tag(MPTTModel):
         related_name='children')
 
     def get_absolute_url(self):
-        return "/admin/tags/%s/" % self.pk
+        return '/admin/tags/%s/' % self.pk
 
     def __unicode__(self):
         return self.title
@@ -151,15 +151,23 @@ class Article(models.Model):
     """
     Wiki stuff...
     """
-    title = models.CharField(default=_(u'Uusi artikkeli'), max_length=255)
-    content = models.TextField()
-    created_by = models.CharField(max_length=32)
-    updated_at = models.DateTimeField()
-    tags = models.ManyToManyField(Tag)
-    created_at = models.DateTimeField(default=datetime.now())
-    attachments = models.ManyToManyField(Attachment)
+    title = models.CharField(default=_(u'Uusi artikkeli'), max_length=255, unique=True, verbose_name=_(u'otsikko'))
+    content = models.TextField(verbose_name=_(u'sisältö'))
+    updated_by = models.ForeignKey(User, editable=False)
+    created_at = models.DateTimeField(default=datetime.now(), editable=False)
+    updated_at = models.DateTimeField(default=datetime.now(), editable=False)
+    attachments = models.ManyToManyField(Attachment, null=True, blank=True)
+    tags = models.ManyToManyField(Tag, null=True, blank=True)
+
+    def save(self, *wargs, **kwargs):
+        self.updated_at = datetime.now()
+        super(Article, self).save()
+        
+    def get_absolute_url(self):
+        return '/wiki/articles/%d/' % self.pk
 
     class Meta:
+        ordering = ['-updated_at']
         app_label = 'servo'
 
 class Search(models.Model):
@@ -216,6 +224,40 @@ class Template(models.Model):
     class Meta:
         app_label = 'servo'
 
+class Queue(models.Model):
+    title = models.CharField(unique=True, max_length=255, 
+        default=_('Uusi jono'),
+        verbose_name=_('nimi'))
+    
+    statuses = models.ManyToManyField('Status', through='QueueStatus')
+    description = models.TextField(blank=True, verbose_name=_('kuvaus'))
+    gsx_account = models.ForeignKey(GsxAccount, null=True, blank=True,
+        verbose_name=_(u'GSX tili'))
+
+    default_status = models.ForeignKey('Status', null=True, blank=True,
+        related_name='default_status',
+        verbose_name=_(u'Default Status'))
+
+    order_template = models.FileField(blank=True, null=True, 
+        upload_to='queues',
+        verbose_name=_(u'tilauspohja'))
+
+    receipt_template = models.FileField(null=True, blank=True, 
+        upload_to='queues',
+        verbose_name=_(u'kuittipohja'))
+
+    dispatch_template = models.FileField(null=True, blank=True,
+        upload_to='queues',
+        verbose_name=_(u'lähetepohja'))
+
+    def __unicode__(self):
+        return self.title
+
+    class Meta:
+        ordering = ['title']
+        app_label = 'servo'
+        verbose_name = _(u'Queue')
+
 class Status(models.Model):
     FACTORS = (
         (60, _(u'Minuuttia')),
@@ -236,63 +278,32 @@ class Status(models.Model):
     limit_factor = models.IntegerField(default=FACTORS[0], choices=FACTORS,
         verbose_name=_(u'aikayksikkö'))
 
-    def as_dict(self, queue):
-        print queue.queuestatus_set
-        result = dict()
-        result['enabled'] = False
-        result['title'] = self.title
-        result['limit_green'] = self.limit_green
-        result['limit_yellow'] = self.limit_yellow
-        result['limit_factor'] = self.limit_factor
-        return result
+    def is_enabled(self, queue):
+        return self in queue.queuestatus_set.all()
 
     def __unicode__(self):
         return self.title
 
     class Meta:
-        app_label = 'servo'
-
-class Queue(models.Model):
-    title = models.CharField(unique=True, max_length=255, 
-        default=_('Uusi jono'),
-        verbose_name=_('nimi'))
-    
-    description = models.TextField(blank=True, verbose_name=_('kuvaus'))
-    gsx_account = models.ForeignKey(GsxAccount, null=True, blank=True,
-        verbose_name=_(u'GSX tili'))
-
-    statuses = models.ManyToManyField(Status, through='QueueStatus')
-
-    order_template = models.FileField(blank=True, null=True, 
-        upload_to='queues',
-        verbose_name=_(u'tilauspohja'))
-
-    receipt_template = models.FileField(null=True, blank=True, 
-        upload_to='queues',
-        verbose_name=_(u'kuittipohja'))
-
-    dispatch_template = models.FileField(null=True, blank=True,
-        upload_to='queues',
-        verbose_name=_(u'lähetepohja'))
-
-    def __unicode__(self):
-        return self.title
-
-    class Meta:
-        ordering = ['title']
         app_label = 'servo'
 
 class QueueStatus(models.Model):
     """
+    A status defined to a queue.
     This allows us to set time limits for each status per indiviudal queue
     """
-    limit_green = models.IntegerField()
-    limit_yellow = models.IntegerField()
-    limit_factor = models.IntegerField()
     queue = models.ForeignKey(Queue)
     status = models.ForeignKey(Status)
+    idx = models.IntegerField(editable=False, null=True) # denotes ordering of status in this queue
 
-    def __str__(self):
+    limit_green = models.IntegerField(default=1, verbose_name=_(u'vihreä raja'))
+    limit_yellow = models.IntegerField(default=15, 
+        verbose_name=_(u'keltainen raja'))
+    limit_factor = models.IntegerField(default=Status().FACTORS[0], 
+        choices=Status().FACTORS,
+        verbose_name=_(u'aikayksikkö'))
+
+    def __unicode__(self):
         return self.status.title
 
     class Meta:

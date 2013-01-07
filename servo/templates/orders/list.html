@@ -1,5 +1,6 @@
-{% load extras %}{% load staticfiles %}
+{% load servo_extras %}
 {% load i18n %}
+
 <table class="table table-hover">
   <tbody class="searchable">
   {% for order in orders %}
@@ -9,7 +10,7 @@
       <td><a href="{% url servo.views.order.index customer=order.customer_tree %}">{{ order.customer_name }}</a></td>
       <td><a href="{% url servo.views.order.index spec=order.device_tag %}">{{ order.device_name }}</a></td>
       <td><a href="?status={{ order.status_id }}">{{ order.status_name }}</a></td>
-      <td><a href="{% url servo.views.order.index color=order.status_img %}"><img src="{% static "images/status_{{ order.status_img }}_16.png" %}" title="{{ order.status_title }}" alt="{{ order.status_title }}"/></a></td>
+      <td><a href="{% url servo.views.order.index color=order.status_img %}"><img src="/static/images/status_{{ order.status_img }}_16.png" title="{{ order.status_title }}" alt="{{ order.status_title }}"/></a></td>
     </tr>
     {% empty %}
     <tr>

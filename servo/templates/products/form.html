@@ -7,6 +7,7 @@
 {% block products_content %}
   <form method="post" action="" class="form-horizontal">
     {% csrf_token %}
+    {{ form.component_code }}
     <ul class="nav nav-tabs">
       <li class="active"><a href="#tab1" data-toggle="tab">{% trans "Yleiset" %}</a></li>
       <li><a href="#tab2" data-toggle="tab">{% trans "Hinnat" %}</a></li>
@@ -26,6 +27,7 @@
         {% include "form_field_snippet.html" with field=form.price_notax %}
         {% include "form_field_snippet.html" with field=form.price_purchase %}
         {% include "form_field_snippet.html" with field=form.price_exchange %}
+        {% include "form_field_snippet.html" with field=form.shipping %}
         {% include "form_field_snippet.html" with field=form.price_sales %}
       </div>
       <div class="tab-pane" id="tab3">
@@ -38,7 +40,6 @@
         {% include "form_field_snippet.html" with field=form.warranty_period %}
         {% include "form_field_snippet.html" with field=form.brand %}
         {% include "form_field_snippet.html" with field=form.tags %}
-        {% include "form_field_snippet.html" with field=form.component_code %}
       </div>
     </div>
     {% include "form_buttons.html" %}

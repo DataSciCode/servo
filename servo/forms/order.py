@@ -3,7 +3,7 @@
 from django import forms
 from django.utils.translation import ugettext as _
 
-from django_countries import CountryField
+from django_countries import countries, CountryField
 
 from servo.lib.gsxlib import gsxlib
 from servo.models.order import *
@@ -15,11 +15,6 @@ class InvoiceForm(LocalizedModelForm):
         model = Invoice
         exclude = ('created_at', 'paid_at', 'created_by',
         'customer', 'order', 'total_margin',)
-
-class SidebarForm(forms.ModelForm):
-    class Meta:
-        model = Order
-        fields = ('user', 'queue', 'status', 'priority',)
 
 class FieldsForm(forms.Form):
     pass
@@ -82,9 +77,7 @@ class GsxCustomerForm(forms.Form):
         self.fields['city'] = forms.CharField(max_length=32, 
             label=_(u'Toimipaikka'),
             initial=customer['city'])
-        self.fields['country'] = forms.ModelChoiceField(
-            label=_(u'Maa'),
-            queryset=Country.objects.all())
+        self.fields['country'] = forms.ChoiceField(choices=countries.COUNTRIES)
 
 class GsxRepairForm(forms.Form):
     def __init__(self, *args, **kwargs):

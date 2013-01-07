@@ -31,5 +31,6 @@ class ProductForm(forms.ModelForm):
         widgets = {
             'code': forms.TextInput(attrs={'class': 'input-small'}),
             'title': forms.TextInput(attrs={'class': 'input-xlarge'}),
-            'description': forms.Textarea(attrs={'class': 'input-xlarge', 'rows': 6})
+            'description': forms.Textarea(attrs={'class': 'input-xlarge', 'rows': 6}),
+            'component_code': forms.HiddenInput()
         }

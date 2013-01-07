@@ -47,6 +47,9 @@ class Note(MPTTModel):
     should_report = models.BooleanField(default=True, verbose_name=_(u'raportoi'))
     attachments = models.ManyToManyField(Attachment, null=True, blank=True)
 
+    def get_absolute_url(self):
+        return '/notes/note/%d/' % self.pk
+        
     def smsto(self):
         """Return the recipient's SMS address"""
         match = re.search(r'<([\+\d+])>$', self.recipient)

@@ -11,7 +11,6 @@ from servo.models.common import Tag, Attachment, Configuration
 class BaseProduct(models.Model):
     def default_vat():
         conf = Configuration.conf()
-        print conf
         return conf.get('pct_vat', 0.0)
 
     def default_margin():
@@ -64,8 +63,7 @@ class Product(BaseProduct):
         verbose_name=_(u'liitteet'))
 
     # component code is used to identify Apple parts
-    component_code = models.CharField(max_length=1, blank=True, null=True,
-        verbose_name=_(u'komponentti'))
+    component_code = models.CharField(max_length=1, blank=True, null=True)
     amount_minimum = models.IntegerField(default=0,
         verbose_name=_(u'minimimäärä'))
     amount_reserved = models.IntegerField(default=0,
@@ -74,6 +72,8 @@ class Product(BaseProduct):
         verbose_name=_(u'varastossa'))
     amount_ordered = models.IntegerField(default=0,
         verbose_name=_(u'tilattu'))
+    shipping = models.IntegerField(default=0,
+        verbose_name=_(u'Shipping'))
 
     class Meta:
         verbose_name = _(u'tuote')
@@ -81,7 +81,7 @@ class Product(BaseProduct):
         app_label = 'servo'
 
     def get_absolute_url(self):
-        return "/products/%d/view/" % self.pk
+        return '/products/product/%d/' % self.pk
 
     @classmethod
     def from_gsx(cls, gsx_data):
@@ -94,8 +94,9 @@ class Product(BaseProduct):
         vat = Decimal(conf['pct_vat'])
         margin = Decimal(conf['pct_margin'])
 
-        sp = (sp+(sp/100*margin)).quantize(Decimal('1.'))
-        ep = (ep+(ep/100*margin)+(ep/100*vat)).quantize(Decimal('1.'))
+        shipping = conf['shipping_cost']
+        sp = (sp+(sp/100*margin)).quantize(Decimal('1.')) + shipping
+        ep = (ep+(ep/100*margin)+(ep/100*vat)).quantize(Decimal('1.')) + shipping
 
         product = Product(code=gsx_data.get('partNumber'),
             title=gsx_data.get('partDescription'),
@@ -106,6 +107,7 @@ class Product(BaseProduct):
             price_notax=sp,
             warranty_period=3,
             brand='Apple',
+            shipping=conf['shipping_cost'],
             component_code=gsx_data.get('componentCode'),
             is_serialized=(gsx_data['isSerialized'] == 'Y'),
             price_sales=sp+(sp/100*vat).quantize(Decimal('1.'))

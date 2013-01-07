@@ -42,6 +42,9 @@
         <li><a href="{% url servo.views.order.dispatch order.id %}">{% trans "Toimita tilaus" %}...</a></li>
         <li class="divider"></li>
       {% endif %}
+        <li><a href="/devices/choose/order/{{ order.id }}/">{% trans "Lisää laite" %}</a></li>
+        <li><a href="/customers/">{% trans "Valitse asiakas" %}</a></li>
+        <li class="divider"></li>
         <li><a href="remove/">{% trans "Poista tilaus" %}</a></li>
         <li><a href="close/">{% trans "Sulje tilaus" %}</a></li>
         <li class="divider"></li>

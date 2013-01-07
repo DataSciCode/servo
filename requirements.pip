@@ -4,12 +4,11 @@
 #
 #     pip install -r requirements.pip
 
-django==1.4
-django-countries==1.5
-#south==0.7.6
+django
+django-countries
+markdown
 python-memcached
 django-mptt
+psycopg2
 pil
 reportlab
-pystache
-psycopg2

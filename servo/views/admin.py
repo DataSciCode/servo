@@ -10,6 +10,7 @@ from django.core.cache import cache
 from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.utils.datastructures import DotExpandedDict
+from django.utils.datastructures import DotExpandedDict
 
 from django.utils.translation import ugettext as _
 
@@ -81,10 +82,27 @@ def statuses(request):
 
     return render(request, 'admin/statuses/index.html', {'statuses': statuses})
 
-def edit_status(request, status_id=0):
+def save_status(request, status_id):
+    if not status_id == 'new':
+        status = Status.objects.get(pk=status_id)
+        form = StatusForm(request.POST, instance=status)
+    else:
+        form = StatusForm(request.POST)
+
+    if form.is_valid():
+        form.save()
+        messages.add_message(request, messages.INFO, _(u'Status tallennettu'))
+        return redirect('/admin/statuses/')
+
+    return render(request, 'admin/status_form.html', {'form': form})
+
+def edit_status(request, status_id):
     form = StatusForm()
 
-    if int(status_id) > 0:
+    if request.method == 'POST':
+        return save_status(request, status_id)
+
+    if not status_id == 'new':
         status = Status.objects.get(pk=status_id)
         form = StatusForm(instance=status)
 
@@ -294,7 +312,7 @@ def locations(request):
     return render(request, "admin/locations/index.html", {'locations': locations})
 
 def edit_location(request, id=0):
-    if request.method == "POST":
+    if request.method == 'POST':
         form = LocationForm(request.POST)
 
         if int(id) > 0:
@@ -314,21 +332,7 @@ def edit_location(request, id=0):
         form = LocationForm()
     
     form.pk = id
-    return render(request, "admin/locations/form.html", {'form': form})
-
-def save_status(request, status_id):
-    if int(status_id) > 0:
-        status = Status.objects.get(pk=status_id)
-        form = StatusForm(request.POST, instance=status)
-    else:
-        form = StatusForm(request.POST)
-
-    if form.is_valid():
-        form.save()
-        messages.add_message(request, messages.INFO, _(u'Status tallennettu'))
-        return redirect('/admin/statuses/')
-
-    return render(request, 'admin/status_form.html', {'form': form})
+    return render(request, 'admin/locations/form.html', {'form': form})
 
 def queues(request):
     queues = Queue.objects.all()
@@ -338,57 +342,62 @@ def queues(request):
 
     return render(request, 'admin/queues/index.html', {'queues': queues})
 
-def edit_queue(request, id=None):
-    statuses = Status.objects.all()
+def edit_queue(request, queue_id=None):
+
+    template = 'admin/queues/form.html'
+
+    queue = Queue()
+    queue_form = QueueForm()
 
     if request.method == 'POST':
-        return save_queue(request, id)
 
-    if id:
-        queue = Queue.objects.get(pk=id)
-        form = QueueForm(instance=queue)
-    else:
-        form = QueueForm()
-        queue = Queue()
+        if queue_id is None:
+            form = QueueForm(request.POST, request.FILES)
+        else:
+            queue = Queue.objects.get(pk=queue_id)
+            form = QueueForm(request.POST, request.FILES, instance=queue)
 
-    status_forms = list()
+        if not form.is_valid():
+            return render(request, template, {'queue_form': form})
 
-    for s in statuses:
-        f = QueueStatusForm(initial=s.as_dict(queue))
-        status_forms.append(f)
+        # process queue's statuses
+        queue.queuestatus_set.all().delete()
+        data = DotExpandedDict(request.POST)
 
-    return render(request, 'admin/queues/form.html', {
-        'queue': queue,
-        'form': form,
-        'status_forms': status_forms
+        for s in data['status'].values():
+            if s.get('status_id'): # status is selected...
+                qs = s
+                qs['queue'] = queue
+                QueueStatus.objects.create(**qs)
+
+        messages.add_message(request, messages.INFO, _(u'Jono tallennettu'))
+        return redirect('/admin/queues/')
+
+    selected = list()
+
+    if queue_id:
+        queue = Queue.objects.get(pk=queue_id)
+        queue_form = QueueForm(instance=queue)
+        for s in queue.queuestatus_set.all():
+            selected.append(s.status.pk)
+
+    statuses = list()
+
+    for s in Status.objects.all():
+        if s.id in selected:
+            stat = queue.queuestatus_set.get(status_id=s.id)
+            s.limit_green = stat.limit_green
+            s.limit_yellow = stat.limit_yellow
+            s.limit_factor = stat.limit_factor
+
+        statuses.append(s)
+
+    return render(request, template, {
+        'queue_form': queue_form,
+        'statuses': statuses,
+        'selected': selected,
+        'queue': queue
     })
-
-def save_queue(request, queue_id):
-    if queue_id is None:
-        q = Queue()
-        form = QueueForm(request.POST, request.FILES)
-    else:
-        q = Queue.objects.get(pk=queue_id)
-        form = QueueForm(request.POST, request.FILES, instance=q)
-
-    if form.is_valid():
-        q = form.save()
-    else:
-        return render(request, 'admin/queues/form.html', {'form': form})
-
-    d = DotExpandedDict(request.POST)
-
-    if d.get('status'):
-        for k, s in d['status'].items():
-            if s.get('id'):
-                status = Status.objects.get(pk=s['id'])
-                QueueStatus.objects.create(status=status, queue=q,
-                    limit_green=s['limit_green'],
-                    limit_yellow=s['limit_yellow'],
-                    limit_factor=s['limit_factor'])
-    
-    messages.add_message(request, messages.INFO, _(u'Jono tallennettu'))
-    return redirect('/admin/queues/')
 
 def remove_queue(request, id=None):
     if 'id' in request.POST:

@@ -28,9 +28,10 @@
               </a>
               <ul class="dropdown-menu">
                 <li><a href="{% url servo.views.account.settings %}">{% trans "Asetukset" %}</a></li>
-                <li><a href="/accounts/orders/">{% trans "Tilaukset" %}</a></li>
+                <li><a href="/orders/user/{{ request.user.id }}/">{% trans "Tilaukset" %}</a></li>
                 <li><a href="/accounts/messages/unread/">{% trans "Viestit" %}</a></li>
-                <li><a href="/calendars/">{% trans "Työaika" %}</a></li>
+                <!--<li><a href="/calendars/">{% trans "Työaika" %}</a></li>-->
+                <li><a href="/wiki/">{% trans "Wiki" %}</a></li>
                 <li class="divider"></li>
                 <li><a href="{% url servo.views.account.logout %}">{% trans "Kirjaudu ulos" %}</a></li>
               </ul>

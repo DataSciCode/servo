@@ -10,6 +10,7 @@ Requirements:
 - PIL
 
 TODO:
+- fix links after last refactoring
 - products/outgoing
 - products/incoming
 - notifications
@@ -28,6 +29,7 @@ TODO:
 - modals for GSX submits (so that users don't interrupt the long requests)
 - simplify products inventory. Remove product groups and specs - just use recursive tags.
 [OK] adding tags to orders
+- MRI status?
 
 Service Order
 =============

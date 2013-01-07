@@ -3,7 +3,7 @@
  */
 $(function() {
 
-    $('.toggle_column').click(function() {
+    $('th input').click(function() {
         var checked = $(this).prop('checked');
         $('tbody input[type="checkbox"]').prop('checked', checked);
         $('button[type="submit"]').attr('disabled', !checked);
@@ -31,6 +31,9 @@ $(function() {
 
     _.each($('a.counter'), function(i, e) {
         $.get($(i).attr('href'), function(count) {
+            if (int(count) < 1) {
+                return false;
+            }
             $('<span class="badge pull-right"/>').text(count).appendTo(i);
             $('#topnav a.counter span.badge').addClass('badge-inverse');
         });
@@ -108,7 +111,7 @@ $(function() {
 
         $('#events').load(url, args, function() {
             if (arg == 'queue') {
-                $('#id_status').load('/orders/'+t.val()+'/statuses/');
+                $('#id_status').load('/queues/'+t.val()+'/statuses/');
             };
         });
     });
@@ -133,5 +136,12 @@ $(function() {
     });
 
     $('textarea:first').focus();
+
+    $('div.toggle_status_row input:not(:checked)').nextAll().attr('disabled', true);
+
+    $('tr.toggle_status_row input[type="checkbox"]').click(function() {
+        var checked = $(this).prop('checked');
+        $(this).nextAll('input,select').attr('disabled', !checked);
+    });
     
 });

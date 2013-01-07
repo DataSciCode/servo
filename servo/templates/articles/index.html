@@ -1,25 +1,22 @@
-{% extends request.is_ajax|yesno:"empty.html,default.html" %}
+{% extends "two_column_layout.html" %}
 {% load i18n %}
-{% load extras %}
+{% load servo_extras %}
 
-{% block toolbar %}
-	<ul>
-		<li><a href="/article/create" class="popup">{% trans "Uusi artikkeli" %}</a></li>
-	</ul>
-{% endblock toolbar %}
-
-{% block content %}
-
-<div class="listView small_block" id="articles" data-url="/calendar/index">
-	<ul>
-{% for article in data %}
-		<li class="{% cycle "odd" "even" %}"><a href="/article/view/{{ article.id }}">{{ article.title }}</a></li>
-{% endfor %}
+{% block col1 %}
+<div>
+    <form method="get" action="">
+        <input type="text" class="input-search" name="q" placeholder="{% trans "Hae artikkeleita..." %}"/>
+    </form>
+	<ul class="nav nav-tabs nav-stacked">
+    {% for item in object_list %}
+		<li><a href="{{ item.get_absolute_url }}">{{ item.title }}</a></li>
+    {% endfor %}
 	</ul>
 </div>
 
-<script type="text/javascript">
-	$("#create-button").attr("href", "/article/create").addClass("popup");
-</script>
+{% endblock col1 %}
 
-{% endblock content %}
+
+{% block col2 %}
+    <a href="/wiki/articles/new/" class="btn btn-primary">{% trans "Uusi artikkeli" %}</a>
+{% endblock col2 %}

@@ -2,36 +2,64 @@
 {% load i18n %}
 
 {% block admin_content %}
-<form method="post" 
-  accept-charset="utf-8"
-  class="form-horizontal"
-  enctype="multipart/form-data" 
-  action="">
+<form method="post" accept-charset="utf-8" class="form-horizontal" enctype="multipart/form-data"  action="">
   {% csrf_token %}
+  {{ status_formset.management_form }}
   <ul class="nav nav-tabs">
     <li class="active"><a href="#tab1" data-toggle="tab">{% trans "Perustiedot" %}</a></li>
     <li><a href="#tab2" data-toggle="tab">{% trans "Statukset" %}</a></li>
+    <li><a href="#tab3" data-toggle="tab">{% trans "Pohjat" %}</a></li>
   </ul>
 
   <div class="tab-content">
     <div class="tab-pane active" id="tab1">
-      {% include "form_field_snippet.html" with field=form.title %}
-      {% include "form_field_snippet.html" with field=form.description %}
-      {% include "form_field_snippet.html" with field=form.gsx_account %}
-      {% include "form_field_snippet.html" with field=form.order_template %}
-      {% include "form_field_snippet.html" with field=form.receipt_template %}
-      {% include "form_field_snippet.html" with field=form.dispatch_template %}
+      {% include "form_field_snippet.html" with field=queue_form.title %}
+      {% include "form_field_snippet.html" with field=queue_form.description %}
+      {% include "form_field_snippet.html" with field=queue_form.gsx_account %}
+      {% include "form_field_snippet.html" with field=queue_form.default_status %}
     </div>
     <div class="tab-pane" id="tab2">
-    {% for f in status_forms %}
-      <div class="control-group">
-        {{ f.enabled }}
-        {{ f.title }}
-        {{ f.limit_green }}
-        {{ f.limit_yellow }}
-        {{ f.limit_factor }}
-      </div>
+      <table class="table table-condensed">
+        <thead>
+          <tr>
+            <th></th>
+            <th>{% trans "Status" %}</th>
+            <th colspan="2">{% trans "Time limits" %}</th>
+            <th>{% trans "Time unit" %}</th>
+          </tr>
+        </thead>
+      {% for status in statuses %}
+        <tr class="toggle_status_row">
+          <td><input 
+            type="checkbox" 
+            value="{{ status.id }}"
+            name="status.{{ status.id }}.status_id"
+            {% if status.id in selected %} checked="checked" {% endif %} /></td>
+          <td>{{ status.title }}</td>
+          <td><input type="text" 
+            name="status.{{ status.id }}.limit_green" 
+            value="{{ status.limit_green }}" 
+            class="input-mini"/></td>
+          <td><input type="text" 
+            name="status.{{ status.id }}.limit_yellow" 
+            value="{{ status.limit_yellow }}" 
+            class="input-mini"/></td>
+          <td>
+            <select name="status.{{ status.id }}.limit_factor" class="input-medium">
+            {% for k, v in status.FACTORS %}
+              <option value="{{ k }}" {% if k == status.limit_factor %}
+                selected="selected"
+              {% endif %}>{{ v }}</option>
+            {% endfor %}
+          </select></td>
+        </tr>
     {% endfor %}
+      </table>
+    </div>
+    <div class="tab-pane" id="tab3">
+      {% include "form_field_snippet.html" with field=queue_form.order_template %}
+      {% include "form_field_snippet.html" with field=queue_form.receipt_template %}
+      {% include "form_field_snippet.html" with field=queue_form.dispatch_template %}
     </div>
   </div>
   {% include "form_buttons.html" %}
