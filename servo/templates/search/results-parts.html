@@ -1,35 +1,37 @@
 {% load i18n %}
 {% load servo_extras %}
 <ul class="nav nav-tabs">
-	<li><a href="/search?q={{ query }}">{% trans "Laite" %}</a></li>
-	<li class="active"><a href="/search/parts/?q={{ query }}">{% trans "Varaosat" %}</a></li>
-	<li><a href="/search/repairs/?q={{ query }}">{% trans "Huollot" %}</a></li>
+    <li><a href="/search?q={{ query }}">{% trans "Laite" %}</a></li>
+    <li class="active"><a href="/search/parts/?q={{ query }}">{% trans "Varaosat" %}</a></li>
+    <li><a href="/search/repairs/?q={{ query }}">{% trans "Huollot" %}</a></li>
 </ul>
 <table class="table table-hover searchable">
-	<thead>
-		<tr>
-			<th colspan="2"></th>
-			<th colspan="3"><input type="text" class="input-medium search-query pull-right"/></th>
-		</tr>
-	</thead>
-	<tbody>
-	{% for p in results %}
-		<tr>
-			<td><a href="{% url servo.views.product.view code=p.partNumber %}">{{ p.partNumber }}</a></td>
-			<td>{{ p.partDescription }}<br/><span class="muted small" title="{{ p.eeeCode }}">{{ p.eeeCode|truncatechars:60 }}</td>
-			<td>{{ p.exchangePrice|price }}</td>
-			<td>{{ p.stockPrice|price }}</td>
-			<td>
-				<div class="btn-group pull-right">
-		      <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-		        <i class="icon-cog"></i> <span class="caret"></span>
-		      </a>
-		    	<ul class="dropdown-menu">
-						<li><a href="{% url servo.views.product.edit code=p.partNumber %}">{% trans "Luo tuote" %}</a></li>
-					</ul>
-				</div>
-			</td>
-		</tr>
-	{% endfor %}
-	</tbody>
+    <thead>
+        <tr>
+            <th colspan="2"></th>
+            <th colspan="3"><input type="text" class="input-medium search-query pull-right"/></th>
+        </tr>
+    </thead>
+    <tbody>
+    {% autoescape on %}
+    {% for p in results %}
+        <tr>
+            <td><a href="{% url servo.views.product.view code=p.partNumber %}">{{ p.partNumber }}</a></td>
+            <td>{{ p.partDescription }}<br/><span class="muted small" title="{{ p.eeeCode }}">{{ p.eeeCode|truncatechars:60 }}</td>
+            <td>{{ p.exchangePrice|price }}</td>
+            <td>{{ p.stockPrice|price }}</td>
+            <td>
+                <div class="btn-group pull-right">
+                    <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+                        <i class="icon-cog"></i> <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a href="{% url servo.views.product.edit code=p.partNumber %}">{% trans "Luo tuote" %}</a></li>
+                    </ul>
+                </div>
+            </td>
+        </tr>
+    {% endfor %}
+    {% endautoescape %}
+    </tbody>
 </table>

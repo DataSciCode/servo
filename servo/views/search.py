@@ -60,7 +60,7 @@ def spotlight(request, what='warranty'):
     """
     results = dict()
     query = request.GET.get('q')
-
+    
     results['gsx'] = looks_like(query)
     
     if results['gsx'] == 'dispatchId':
