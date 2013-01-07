@@ -13,6 +13,8 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.models import User
 
+from django.views.generic import TemplateView
+
 from servo.models.order import *
 from servo.forms.order import *
 
@@ -21,6 +23,9 @@ from servo.models.customer import Customer
 from servo.models.common import Queue, Status, Tag
 from servo.models.note import Note
 from servo.models.gsx import Lookup
+
+class ModalView(TemplateView):
+    template = 'modal.html'
 
 def close(request, id):
     order = Order.objects.get(pk=id)
@@ -208,9 +213,11 @@ def edit(request, id):
     form = SidebarForm(instance=order)
 
     if order.queue:
-        form.status = forms.ModelChoiceField(queryset=order.queue.queuestatus_set.all())
+        form.status = forms.ModelChoiceField(
+            queryset=order.queue.queuestatus_set.all())
     else:
-        status = forms.ChoiceField(widget=forms.Select(attrs={'disabled': 'disabled'}))
+        status = forms.ChoiceField(widget=forms.Select(
+            attrs={'disabled': 'disabled'}))
 
     tags = Tag.objects.filter(type='order')
     fields = Property.objects.filter(type='order')
@@ -239,7 +246,7 @@ def remove(request, id):
         messages.add_message(request, messages.INFO, 
             _(u'Tilaus %s poistettu' % order.code))
         return redirect('/orders/')
-    else :
+    else:
         order = Order.objects.get(pk=id)
         return render(request, 'orders/remove.html', {'order': order})
 

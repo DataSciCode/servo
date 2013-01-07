@@ -12,28 +12,23 @@
 
 <div class="navbar">
   <div class="navbar-inner">
-    <a class="brand" href="#">#{{ order.code }}</a>
-    <ul class="nav">
-      <li class="dropdown">
-        {% include "dropdown_snippet.html" with title="blaa" items=users %}
-      </li>
-    </ul>
+    <div class="span2"><a class="brand" href="#">#{{ order.code }}</a></div>
     <div class="btn-group pull-right">
       <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
         <i class="icon-cog"></i> <span class="caret"></span>
       </a>
       <ul class="dropdown-menu">
       {% if order.queue.order_template  %}
-        <li><a href="/orders/{{ order.id }}/print/confirmation/" class="window">{% trans "Tulosta huoltotilaus" %}</a></li>
+        <li><a href="print/confirmation/" class="window">{% trans "Tulosta huoltotilaus" %}</a></li>
       {% endif %}
       {% if order.queue.quote_template  %}
-        <li><a href="/orders/{{ order.id }}/print/quote/" class="window">{% trans "Tulosta kustannusarvio" %}</a></li>
+        <li><a href="print/quote/" class="window">{% trans "Tulosta kustannusarvio" %}</a></li>
       {% endif %}
       {% if order.queue.receipt_template  %}
-        <li><a href="/orders/{{ order.id }}/print/receipt/" class="window">{% trans "Tulosta kuitti" %}</a></li>
+        <li><a href="print/receipt/" class="window">{% trans "Tulosta kuitti" %}</a></li>
       {% endif %}
       {% if order.queue.dispatch_template  %}
-        <li><a href="/orders/{{ order.id }}/print/dispatch/{{ order.queue.dispatch_template.id }}" class="window">{% trans "Tulosta lähete" %}</a></li>
+        <li><a href="print/dispatch/{{ order.queue.dispatch_template.id }}" class="window">{% trans "Tulosta lähete" %}</a></li>
         <li class="divider"></li>
       {% endif %}
       {% if order.serviceorderitem_set.count %}
@@ -45,7 +40,7 @@
         <li><a href="/devices/choose/order/{{ order.id }}/">{% trans "Lisää laite" %}</a></li>
         <li><a href="/customers/">{% trans "Valitse asiakas" %}</a></li>
         <li class="divider"></li>
-        <li><a href="remove/">{% trans "Poista tilaus" %}</a></li>
+        <li><a href="remove/" data-modal="#modal">{% trans "Poista tilaus" %}</a></li>
         <li><a href="close/">{% trans "Sulje tilaus" %}</a></li>
         <li class="divider"></li>
         <li><a href="follow/" class="nofollow">{% trans "Seuraa" %}</a></li>

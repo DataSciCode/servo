@@ -53,7 +53,7 @@ class ArticleDetailView(DetailView):
     template_name = 'articles/view.html'
     model = Article
     queryset = Article.objects.all()
-
+    
     def get_context_data(self, **kwargs):
         context = super(ArticleDetailView, self).get_context_data(**kwargs)
         context['object_list'] = Article.objects.all()

@@ -30,7 +30,6 @@
                 <li><a href="{% url servo.views.account.settings %}">{% trans "Asetukset" %}</a></li>
                 <li><a href="/orders/user/{{ request.user.id }}/">{% trans "Tilaukset" %}</a></li>
                 <li><a href="/accounts/messages/unread/">{% trans "Viestit" %}</a></li>
-                <!--<li><a href="/calendars/">{% trans "Työaika" %}</a></li>-->
                 <li><a href="/wiki/">{% trans "Wiki" %}</a></li>
                 <li class="divider"></li>
                 <li><a href="{% url servo.views.account.logout %}">{% trans "Kirjaudu ulos" %}</a></li>
@@ -51,6 +50,7 @@
     <div class="container">
       <div class="row">
         <div class="span12" style="padding-top:20px">
+        <div class="modal hide" id="modal"></div>
         {% if messages %}
           {% for message in messages %}
           <div class="alert alert-block">

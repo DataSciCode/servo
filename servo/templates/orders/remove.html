@@ -1,12 +1,17 @@
-{% extends "default.html" %}
+{% extends "modal.html" %}
 {% load i18n %}
-{% block content %}
-<div class="alert alert-block alert-error">
-	<form action="{% url servo.views.order.remove order.id %}" method="post" accept-charset="utf-8">
-	  {% csrf_token %}
-	  <h4>{% blocktrans with id=order.code%} Haluatko poistaa tilauksen {{ id }}? {% endblocktrans %}</h4>
-	  <p>{% trans 'Tämä poistaa myös tilaukseen lisätyt tehtävät ja tapahtumat. Toimintoa ei voi peruuttaa.' %}</p>
-	  <button type="submit" class="btn btn-danger pull-right">{% trans "Poista" %}</button>
-	</form>
-</div>
-{% endblock content %}
+
+{% block header %}
+    {% blocktrans with id=order.code%}Poistetaanko tilaus {{ id }}? {% endblocktrans %}
+{% endblock header %}
+
+{% block body %}
+    <p>{% trans 'Tämä poistaa myös tilaukseen lisätyt tehtävät ja tapahtumat. Toimintoa ei voi peruuttaa.' %}</p>
+{% endblock body %}
+
+{% block footer %}
+    <form action="remove/" method="post" accept-charset="utf-8">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger pull-right">{% trans "Poista" %}</button>
+    </form>
+{% endblock footer %}

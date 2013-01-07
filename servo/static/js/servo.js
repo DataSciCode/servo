@@ -143,5 +143,12 @@ $(function() {
         var checked = $(this).prop('checked');
         $(this).nextAll('input,select').attr('disabled', !checked);
     });
-    
+
+    $('a[data-modal]').click(function(e){
+        e.preventDefault();
+        $('#modal').load($(this).attr('href'), function(){
+            $('#modal').modal()
+        });
+    });
+
 });
