@@ -1,15 +1,17 @@
-{% extends "default.html" %}
+{% extends "modal.html" %}
 {% load i18n %}
 
-{% block content %}
-<div class="alert alert-block alert-error">
-	<form action="" method="post" accept-charset="utf-8">
-	{% csrf_token %}
-		<h4 class="alert-heading">{% trans 'Haluatko varmasti sulkea tilauksen' %} {{ order.id }}?</h4>
-		<p>{% trans 'Tämä poistaa myös kaikki asiakkaan kontaktit. Asiakkaan tilauksia ei poisteta.' %}</p>
-		<p>
-	  	<button class="btn btn-danger" type="submit">{% trans "Sulje" %}</button> <a class="btn" href="javascript:history.back();">{% trans "Peruuta" %}</a>
-		</p>
-	</form>
-</div>
-{% endblock content %}
+{% block header %}
+    {% trans 'Suljetaanko tilaus' %} {{ order.code }}?
+{% endblock header %}
+
+{% block body %}
+    <p>{% trans 'Tilausta ei voi tämän jälkeen enää muokata.' %}</p>
+{% endblock body %}
+
+{% block footer %}
+<form action="close/" method="post" accept-charset="utf-8">
+    {% csrf_token %}
+    <button class="btn btn-danger" type="submit">{% trans "Sulje" %}</button>
+</form>
+{% endblock footer %}
