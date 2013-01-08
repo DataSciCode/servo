@@ -71,7 +71,7 @@ def spotlight(request, what='warranty'):
 
     if Order.objects.filter(code=query).exists():
         order = Order.objects.get(code=query)
-        return redirect('/orders/%d/' % order.id)
+        return redirect(order)
 
     results['what'] = what
     results['query'] = query
@@ -81,6 +81,10 @@ def spotlight(request, what='warranty'):
 
     if looks_like(query) == 'serialNumber':
         results['orders'] = Order.objects.filter(devices__sn__contains=query)
+
+    if looks_like(query) == 'dispatchId':
+        po = PurchaseOrder.objects.get(confirmation=query)
+        results['orders'] = [po.sales_order]
 
     results['notes'] = Note.objects.filter(body__contains=query)
     results['customers'] = Customer.objects.filter(name__icontains=query)
