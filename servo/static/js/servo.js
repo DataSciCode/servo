@@ -72,7 +72,7 @@ $(function() {
         e.preventDefault();
     });
 
-    $('input.filter').keyup(function() {
+    $('input.filter').live('keyup', function() {
         var rex = new RegExp($(this).val(), 'i');
         $('.searchable tr').hide();
         $('.searchable tr').filter(function() {

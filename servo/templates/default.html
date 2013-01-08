@@ -1,20 +1,17 @@
 {% load i18n %}
+{% load staticfiles %}
 <!DOCTYPE html>
 <html>
   <head>
     <title>{% block title %}{% endblock title %}</title>
-    <link href="/static/js/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/static/js/datepicker/css/datepicker.css" rel="stylesheet">
-    <style type="text/css">
-      td.empty {
-        text-align: center;
-      }
-    </style>
-    <script src="/static/js/jquery.min.js"></script>
-    <script src="/static/js/bootstrap/js/bootstrap.min.js"></script>
-    <script src="/static/js/datepicker/js/bootstrap-datepicker.js"></script>
-    <script src="/static/js/underscore-min.js"></script>
-    <script src="/static/js/servo.js"></script>
+    <link href="{% static "js/bootstrap/css/bootstrap.min.css" %}" rel="stylesheet">
+    <link href="{% static "js/datepicker/css/datepicker.css" %}" rel="stylesheet">
+    <link href="{% static "servo.css" %}" rel="stylesheet">
+    <script src="{% static "js/jquery.min.js" %}"></script>
+    <script src="{% static "js/bootstrap/js/bootstrap.min.js" %}"></script>
+    <script src="{% static "js/datepicker/js/bootstrap-datepicker.js" %}"></script>
+    <script src="{% static "js/underscore-min.js" %}"></script>
+    <script src="{% static "js/servo.js" %}"></script>
   </head>
   <body>
     <div class="navbar navbar-inverse navbar-static-top">
