@@ -55,12 +55,12 @@ def gsx(request, what):
 
 def spotlight(request, what='warranty'):
     """
-    Search for anything
+    Searches for anything
     GSX searches are done separately
     """
     results = dict()
     query = request.GET.get('q')
-    
+
     results['gsx'] = looks_like(query)
     
     if results['gsx'] == 'dispatchId':

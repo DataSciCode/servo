@@ -62,14 +62,13 @@ def edit(request, product_id=0, code=None):
         product_id = product.id
     
     if code:
-        result = Lookup(GsxAccount.default()).lookup(code)
+        lookup = Lookup(partNumber=code)
+        result = lookup.lookup()
         product = Product.from_gsx(result)
         form = ProductForm(instance=product)
     
     return render(request, 'products/form.html', {
-        'form': form,
-        'product_id': product_id,
-        'gsx_data': result
+        'form': form
         })
 
 def remove(request, id):

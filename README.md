@@ -30,6 +30,7 @@ TODO:
 - simplify products inventory. Remove product groups and specs - just use recursive tags.
 [OK] adding tags to orders
 - MRI status?
+- request access on login page!
 
 Service Order
 =============

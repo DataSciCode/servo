@@ -52,7 +52,7 @@ class GsxAccount(models.Model):
         return self.title
 
     def get_absolute_url(self):
-        return "/admin/gsx/accounts/%d/" % self.pk
+        return '/admin/gsx/accounts/%d/' % self.pk
 
     @classmethod
     def default(cls):
@@ -66,28 +66,38 @@ class GsxAccount(models.Model):
         gsx = Gsx(sold_to=self.sold_to, user_id=self.username, 
             password=self.password, environment=self.environment)
         cache.set('gsx', gsx, 60*25)
+
         return gsx
 
     class Meta:
         app_label = 'servo'
 
 class Lookup(object):
-    def __init__(self, account):
+    def __init__(self, *args, **kwargs):
         self.results = {}
+        self.query = kwargs
+        self.account = None
+
+    def set_account(self, account):
         self.account = account
 
-    def lookup(self, query):
+    def lookup(self):
+        key, query = self.query.items()[0]
+
         if cache.get(query):
             return cache.get(query)
 
-        results = self.account.parts_lookup(query)
+        if not self.account:
+            self.account = GsxAccount.default()
+
+        results = self.account.parts_lookup(self.query)
 
         for r in results:
             key = r['partNumber']
             self.results[key] = r
 
         cache.set_many(self.results, 60*20)
-        return self.results
+        return cache.get(query)
 
 class Repair(models.Model):
     pass

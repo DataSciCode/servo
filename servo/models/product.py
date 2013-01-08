@@ -85,6 +85,7 @@ class Product(BaseProduct):
 
     @classmethod
     def from_gsx(cls, gsx_data):
+        
     	conf = Configuration.conf()
         getcontext().rounding = ROUND_UP
 
@@ -94,7 +95,7 @@ class Product(BaseProduct):
         vat = Decimal(conf['pct_vat'])
         margin = Decimal(conf['pct_margin'])
 
-        shipping = conf['shipping_cost']
+        shipping = Decimal(conf['shipping_cost'])
         sp = (sp+(sp/100*margin)).quantize(Decimal('1.')) + shipping
         ep = (ep+(ep/100*margin)+(ep/100*vat)).quantize(Decimal('1.')) + shipping
 

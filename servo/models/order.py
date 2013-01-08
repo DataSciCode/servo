@@ -242,7 +242,10 @@ class Order(models.Model):
 
         return (self.net_total() - total_purchase_price)
 
-    def __str__(self):
+    def is_editable(self):
+        return True
+    
+    def __unicode__(self):
         return 'Order #%d' % self.pk
 
 class OrderItem(models.Model):
