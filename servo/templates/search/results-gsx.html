@@ -1,0 +1,21 @@
+{% load i18n %}
+{% block tabs %}
+    <ul class="nav nav-tabs" id="gsx-tabs">
+        <li><a href="/search/?q={{ query }}">{% trans "Laite" %}</a></li>
+        <li><a href="/search/parts/?q={{ query }}">{% trans "Varaosat" %}</a></li>
+        <li><a href="/search/repairs/?q={{ query }}">{% trans "Huollot" %}</a></li>
+        <li class="pull-right"><a href="#" class="filter_table"><i class="icon-search"></i></a></li>
+    </ul>
+{% endblock tabs %}
+
+{% block results %}
+    <div id="gsx-container" data-source="/search/gsx/{{ what }}/?{{ gsx }}={{ query }}">
+        <div class="progress active">
+            <div class="bar" style="width:1%;" data-progress="0"></div>
+        </div>
+    </div>
+{% endblock results %}
+<script type="text/javascript">
+    var loc = location.pathname + location.search;
+    $('#gsx-tabs>li>a[href="'+loc+'"]').parent().addClass('active');
+</script>

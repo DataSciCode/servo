@@ -57,10 +57,17 @@ $(function() {
 
     if($('.progress .bar').length) {
         window.setInterval(function() {
-            var p = parseInt($('.progress .bar').data('progress')) + 10;
+            var that = $('.progress .bar')
+            var p = parseInt($(that).data('progress')) + 10;
+
             if(p < 100) {
-                $('.progress .bar').data('progress', p).css('width', p+'%')
+                $(that).data('progress', p).css('width', p+'%')
+            } else {
+                $(that).data('progress', 100).css('width', '100%')
+                $(that).parent().addClass('active');
+                $(that).parent().addClass('progress-striped');
             }
+
         }, 500);
     }
 
@@ -136,7 +143,6 @@ $(function() {
     });
 
     $('textarea:first').focus();
-
     $('div.toggle_status_row input:not(:checked)').nextAll().attr('disabled', true);
 
     $('tr.toggle_status_row input[type="checkbox"]').click(function() {

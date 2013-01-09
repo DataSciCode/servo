@@ -1,0 +1,7 @@
+td.empty {
+    text-align: center;
+}
+
+input.filter {
+    width: 180px;
+}

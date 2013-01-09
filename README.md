@@ -27,6 +27,7 @@ TODO:
 - MRI status?
 - request access on login page!
 - escalations?
+- http://localhost:8000/search/parts/?q=661-5948
 
 Service Order
 =============

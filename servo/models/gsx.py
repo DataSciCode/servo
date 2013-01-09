@@ -4,7 +4,7 @@ from django.db import models
 from django.core.cache import cache
 from django.utils.translation import ugettext as _
 
-from servo.lib.gsxlib.gsxlib import Gsx
+from servo.lib.gsx import gsx
 
 class GsxObject(dict):
     def __init__(self, *args, **kwargs):
@@ -63,11 +63,18 @@ class GsxAccount(models.Model):
         return act.connect()
 
     def connect(self):
-        gsx = Gsx(sold_to=self.sold_to, user_id=self.username, 
-            password=self.password, environment=self.environment)
-        cache.set('gsx', gsx, 60*25)
+        if cache.get('gsx_session'):
+            session = cache.get('gsx_session')
+            gsx.SESSION = session
+        
+        session = gsx.connect(sold_to=self.sold_to, 
+                                user_id=self.username, 
+                                password=self.password, 
+                                env=self.environment)
 
-        return gsx
+        cache.set('gsx_session', session, 60*25)
+
+        return session
 
     class Meta:
         app_label = 'servo'

@@ -1,51 +1,60 @@
 #coding=utf-8
 
 import re
+import json
+import cPickle as pickle
+
 from django.shortcuts import render, redirect
 from django.core.cache import cache
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.datastructures import DotExpandedDict
 
-import json, cPickle as pickle
-
-from servo.lib.gsxlib.gsxlib import Gsx, looks_like
+from servo.lib.gsx import gsx
 from servo.models.common import *
 from servo.models.order import *
 from servo.models.note import *
 
-def gsx(request, what):
+def search_gsx(request, what):
+    """
+    Searches for something from GSX
+    """
     results = []
     #results = cache.get('%s-%s' % (what, value))
-    results = False
 
     if not results:
-        gsx = GsxAccount.default()
+        GsxAccount.default()
+
         query = request.GET.get('serialNumber')
+        product = gsx.Product(query)
 
         if what == 'warranty':
-            result = gsx.warranty_status(query)[0]
-
-            if re.match('iPhone', result.get('productDescription')):
-                ad = gsx.fetch_ios_activation(serialNumber=query)
+            result = product.get_warranty()
+            
+            if re.match('iPhone', result.productDescription):
+                ad = product.get_activation()
                 result['activationDetails'] = ad[0]
 
-            results = [result]
+            results.append(result)
 
         if what == 'parts':
             if not query:
                 query = request.GET.get('partNumber')
 
-            results = gsx.parts_lookup(query)
+            results = gsx.Product(query).get_parts()
 
         if what == 'repairs':
             if query:
-                results = gsx.repair_lookup(serialNumber=query)
+                try:
+                    results = product.get_repairs()
+                except Exception, e:
+                    return render(request, 'search/results-notfound.html')
             else:
                 what = 'repair_details'
-                results = gsx.repair_details(request.GET['dispatchId'])
+                repair = gsx.Repair(dispatchId=request.GET['dispatchId'])
+                results = repair.get_details()
 
-        # Cache the results for quicker quicker access later
+        # Cache the results for quicker access later
         cache.set('%s-%s' %(what, query), results)
 
     return render(request, 'search/results-%s.html' % what, {
@@ -61,7 +70,11 @@ def spotlight(request, what='warranty'):
     results = dict()
     query = request.GET.get('q')
 
-    results['gsx'] = looks_like(query)
+    if Order.objects.filter(code=query).exists():
+        order = Order.objects.get(code=query)
+        return redirect(order)
+
+    results['gsx'] = gsx.looks_like(query)
     
     if results['gsx'] == 'dispatchId':
         what = 'repairs'
@@ -69,20 +82,16 @@ def spotlight(request, what='warranty'):
     if results['gsx'] == 'partNumber':
         what = 'parts'
 
-    if Order.objects.filter(code=query).exists():
-        order = Order.objects.get(code=query)
-        return redirect(order)
-
     results['what'] = what
     results['query'] = query
     results['devices'] = Device.objects.filter(sn__icontains=query)
 
     results['orders'] = Order.objects.filter(customer__name__icontains=query)
 
-    if looks_like(query) == 'serialNumber':
+    if gsx.looks_like(query) == 'serialNumber':
         results['orders'] = Order.objects.filter(devices__sn__contains=query)
 
-    if looks_like(query) == 'dispatchId':
+    if gsx.looks_like(query) == 'dispatchId':
         po = PurchaseOrder.objects.get(confirmation=query)
         results['orders'] = [po.sales_order]
 

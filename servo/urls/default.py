@@ -25,7 +25,7 @@ urlpatterns = patterns('',
     url(r'^documents/new$', 'servo.views.documents.create'),
 
     url(r'^search/$', 'servo.views.search.spotlight'),
-    url(r'^search/gsx/(?P<what>\w+)/$', 'servo.views.search.gsx'),
+    url(r'^search/gsx/(?P<what>\w+)/$', 'servo.views.search.search_gsx'),
     url(r'^search/(?P<what>\w+)/$', 'servo.views.search.spotlight'),
 
     url(r'^orders/order/(?P<order_id>\d+)/notes/new/$', 'servo.views.note.edit', {'kind': 'note'}),

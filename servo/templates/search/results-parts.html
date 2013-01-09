@@ -1,11 +1,6 @@
 {% load i18n %}
 {% load servo_extras %}
-<ul class="nav nav-tabs">
-    <li><a href="/search?q={{ query }}">{% trans "Laite" %}</a></li>
-    <li class="active"><a href="/search/parts/?q={{ query }}">{% trans "Varaosat" %}</a></li>
-    <li><a href="/search/repairs/?q={{ query }}">{% trans "Huollot" %}</a></li>
-    <li class="pull-right"><a href="#" class="filter_table"><i class="icon-search"></i></a></li>
-</ul>
+
 <table class="table table-hover searchable">
     <tbody>
     {% autoescape on %}
@@ -34,7 +29,7 @@
 <script type="text/javascript">
     $('a.filter_table').popover({
         html: true,
-        content: '<input type="text" class="search-query filter" style="width:180px"/>',
+        content: '<input type="text" class="search-query filter"/>',
         placement: 'bottom'
     });
 </script>

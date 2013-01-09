@@ -7,7 +7,7 @@
 <h3>{% trans "Asiakkaat" %}</h3>
 {% include "customers/list.html" %}
 {% endif %}
-<a href="/customers/create/{{ query }}/">{% trans "Uusi asiakas" %}</a>
+<a href="/customers/create/{{ query }}/" class="btn btn-primary pull-right">{% trans "Uusi asiakas" %}</a>
 
 {% if products %}
 <h3>{% trans "Tuotteet" %}</h3>
@@ -31,10 +31,6 @@
 
 {% if gsx %}
 <h3>GSX</h3>
-<div id="gsx-container" data-source="/search/gsx/{{ what }}/?{{ gsx }}={{ query }}">
-	<div class="progress active">
-		<div class="bar" style="width:1%;" data-progress="0"></div>
-	</div>
-</div>
+{% include "search/results-gsx.html" %}
 {% endif %}
 {% endblock content %}
