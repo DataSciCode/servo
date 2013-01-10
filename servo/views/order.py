@@ -22,7 +22,7 @@ from servo.models.device import Device
 from servo.models.customer import Customer
 from servo.models.common import Queue, Status, Tag
 from servo.models.note import Note
-from servo.models.gsx import Lookup
+from servo.models.gsx import Lookup, GsxAccount
 
 class ModalView(TemplateView):
     template = 'modal.html'
@@ -45,13 +45,8 @@ def create(request, sn=None, product_id=None, note_id=None):
         try:
             device = Device.objects.get(sn=sn)
         except Device.DoesNotExist:
-            try:
-                cached = cache.get('warranty-%s' % sn)[0]
-                device = Device.objects.create(sn=sn, 
-                    description=cached.get('productDescription'),
-                    purchased_on=cached.get('estimatedPurchaseDate'))
-            except TypeError:
-                device = Device.objects.create(description=_(u'Tuntematon laite'))
+            GsxAccount.default()
+            device = Device.from_gsx(sn)
             
         order.devices.add(device)
         order.save()
@@ -450,10 +445,8 @@ def add_device(request, order_id, device_id=None, sn=None):
         device = Device.objects.get(pk=device_id)
     
     if sn:
-        cached = cache.get('warranty-%s' % sn)[0]
-        device = Device.objects.create(sn=sn, 
-            description=cached.get('productDescription'),
-            purchased_on=cached.get('estimatedPurchaseDate'))
+        act = GsxAccount.default()
+        device = Device.from_gsx(sn)
     
     order.devices.add(device)
     order.save()

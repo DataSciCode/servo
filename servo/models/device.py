@@ -4,6 +4,7 @@ from django.dispatch import receiver
 from django.utils.translation import ugettext as _
 from django.db.models.signals import pre_save, post_save
 
+from servo.lib.gsx import gsx
 from servo.models.common import Tag, Attachment
 
 class Device(models.Model):
@@ -23,6 +24,20 @@ class Device(models.Model):
         verbose_name=_(u'tagit'))
     files = models.ManyToManyField(Attachment)
 
+    @classmethod
+    def from_gsx(cls, sn):
+        """
+        Search GSX and initialize a new Device with the results
+        """
+        dev = gsx.Product(sn).get_warranty()
+        
+        device = Device(sn=dev.serialNumber, 
+                        description=dev.productDescription,
+                        purchased_on=dev.estimatedPurchaseDate)
+        device.save()
+
+        return device
+
     def get_absolute_url(self):
         return "/devices/%d/view/" % self.pk
 
@@ -40,6 +55,6 @@ def create_spec(sender, instance, created, **kwargs):
     # make sure we have this spec
     if created:
         (tag, created) = Tag.objects.get_or_create(title=instance.description, 
-            type='device')
+                                                    type='device')
         instance.tags.add(tag)
         instance.save()

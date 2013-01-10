@@ -26,10 +26,12 @@ def search_gsx(request, what):
     if not results:
         GsxAccount.default()
 
-        if what == 'warranty':
-
+        if request.GET.get('serialNumber'):
             query = request.GET.get('serialNumber')
             product = gsx.Product(query)
+            
+        if what == 'warranty':
+
             result = product.get_warranty()
             
             if re.match('iPhone', result.productDescription):
