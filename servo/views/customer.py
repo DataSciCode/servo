@@ -58,7 +58,7 @@ def add_order(request, customer_id, order_id):
     return redirect(order)
 
 def notes(request, customer_id, note_id=None):
-    from notes.forms import NoteForm
+    from servo.forms.note import NoteForm
     customer = Customer.objects.get(pk=customer_id)
     form = NoteForm(initial={'recipient': customer.name})
 
