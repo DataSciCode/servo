@@ -276,14 +276,14 @@ def submit_gsx_repair(request):
     pass    
 
 def create_gsx_repair(request, order_id):
-    from servo.lib.gsxlib import gsxlib
+    from servo.lib.gsx import gsx
 
     parts = list()
     order = Order.objects.get(pk=order_id)
-    comptia = gsxlib.CompTia().symptoms()
+    comptia = gsx.CompTia().symptoms()
 
+    # find the corresponding compnent code from coptia
     for p in order.serviceorderitem_set.all():
-        # find the corresponding compnent code from coptia
         try:
             comp = p.product.component_code
             symptoms = comptia[comp]
@@ -394,16 +394,18 @@ def create_gsx_repair(request, order_id):
 
         try:
             act = order.queue.gsx_account
-            gsx = act.connect()
+            act.connect()
             repair['shipTo'] = act.ship_to
         except Exception, e:
             print e
             repair['shipTo'] = profile.location.ship_to
-            gsx = GsxAccount.default()
+            GsxAccount.default()
         
         try:
-            result = gsx.create_carryin_repair(repair)
-            confirmation = result[0]['confirmationNumber']
+            print repair
+            rep = gsx.Repair(**repair)
+            result = rep.create_carryin()
+            confirmation = result.confirmationNumber
             po.confirmation = confirmation
             po.date_submitted = datetime.now()
             po.save()
@@ -411,7 +413,7 @@ def create_gsx_repair(request, order_id):
             order.notify('gsx_repair_created', description, request.user)
             messages.add_message(request, messages.INFO, description)
             return redirect(order)
-        except gsxlib.GsxError, e:
+        except Exception, e:
             messages.add_message(request, messages.ERROR, e)
     
     repair_form = GsxRepairForm(order=order)
@@ -421,7 +423,7 @@ def create_gsx_repair(request, order_id):
 
     return render(request, 'orders/gsx_repair_form.html', {
         'parts': parts,
-        'modifiers': gsxlib.CompTia().modifiers,
+        'modifiers': gsx.CompTia().modifiers,
         'order': order,
         'customer_form': customer_form,
         'repair_form': repair_form
