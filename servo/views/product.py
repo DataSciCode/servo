@@ -276,10 +276,11 @@ def index_po(request):
     return render(request, 'products/purchase_orders.html', {'orders': orders})
 
 def order_stock(request, po_id):
-    from lib.gsxlib import gsxlib
+    from lib.gsx import gsx
     po = PurchaseOrder.objects.get(pk=po_id)
     gsx = GsxAccount.default()
     items = []
+
     for i in po.purchaseorderitem_set.all():
         items.append({'partNumber': i.code, 'quantity': str(i.amount)})
 
@@ -287,9 +288,9 @@ def order_stock(request, po_id):
         profile = request.user.get_profile()
         ship_to = profile.location.ship_to
         so = gsx.create_stocking_order(purchaseOrderNumber=str(po.id),
-        shipToCode=ship_to,
-        orderLines=items)
-    except gsxlib.GsxError, e:
+                                        shipToCode=ship_to,
+                                        orderLines=items)
+    except gsx.GsxError, e:
         messages.add_message(request, messages.ERROR, e)
 
     return redirect('/products/po/')
