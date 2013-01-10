@@ -155,7 +155,7 @@ def index(request, *args, **kwargs):
             status = int(request.GET.get('status'))
             status = Status.objects.get(pk=status)
             status_title = status.title
-            orders = orders.filter(status=status)
+            orders = orders.filter(status__status=status)
 
     if request.is_ajax():
         return HttpResponse(orders.filter(state=0).count())
@@ -201,18 +201,19 @@ def edit(request, id):
     order = Order.objects.get(pk=id)
     
     class SidebarForm(forms.ModelForm):
+        def __init__(self, *args, **kwargs):
+            super(SidebarForm, self).__init__(*args, **kwargs)
+            if kwargs['instance'].queue:
+                self.fields['status'] = forms.ModelChoiceField(queryset=order.queue.queuestatus_set.all())
+
         class Meta:
             model = Order
             fields = ('user', 'queue', 'status', 'priority',)
+            widgets = {
+                'status': forms.Select(attrs={'disabled': 'disabled'})
+            }
 
     form = SidebarForm(instance=order)
-
-    if order.queue:
-        form.status = forms.ModelChoiceField(
-            queryset=order.queue.queuestatus_set.all())
-    else:
-        status = forms.ChoiceField(widget=forms.Select(
-            attrs={'disabled': 'disabled'}))
 
     tags = Tag.objects.filter(type='order')
     fields = Property.objects.filter(type='order')
@@ -260,16 +261,15 @@ def update(request, id):
     if 'status' in request.POST:
         status_id = request.POST.get('status')
         order.set_status(status_id, request.user)
-        request.session['current_order'] = order
     
     if 'user' in request.POST:
         order.set_user(request.POST['user'], request.user)
-        request.session['current_order'] = order
     
     if 'priority' in request.POST:
-        request.session['current_order'].priority = request.POST['priority']
-        request.session['current_order'].save()
+        order.priority = request.POST['priority']
+        order.save()
 
+    request.session['current_order'] = order
     return render(request, 'orders/events.html', {'order': order})
 
 def submit_gsx_repair(request):

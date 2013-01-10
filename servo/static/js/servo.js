@@ -118,6 +118,7 @@ $(function() {
 
         $('#events').load(url, args, function() {
             if (arg == 'queue') {
+                $('#id_status').attr('disabled', false);
                 $('#id_status').load('/queues/'+t.val()+'/statuses/');
             };
         });

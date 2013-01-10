@@ -302,7 +302,7 @@ class QueueStatus(models.Model):
     limit_factor = models.IntegerField(default=Status().FACTORS[0], 
         choices=Status().FACTORS,
         verbose_name=_(u'aikayksikkö'))
-
+    
     def __unicode__(self):
         return self.status.title
 

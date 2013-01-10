@@ -1,4 +1,5 @@
 {% load servo_extras %}
+{% load staticfiles %}
 {% load i18n %}
 
 <table class="table table-hover">
@@ -9,7 +10,7 @@
       <td><a href="{% url servo.views.order.index date=order.created_at|date:"Y-m-d" %}">{{ order.created_at|relative_date }}</a></td>
       <td><a href="{% url servo.views.order.index customer=order.customer_tree %}">{{ order.customer_name }}</a></td>
       <td><a href="{% url servo.views.order.index spec=order.device_tag %}">{{ order.device_name }}</a></td>
-      <td><a href="?status={{ order.status_id }}">{{ order.status_name }}</a></td>
+      <td><a href="?status={{ order.get_status_id }}">{{ order.status_name }}</a></td>
       <td><a href="{% url servo.views.order.index color=order.status_img %}"><img src="/static/images/status_{{ order.status_img }}_16.png" title="{{ order.status_title }}" alt="{{ order.status_title }}"/></a></td>
     </tr>
     {% empty %}

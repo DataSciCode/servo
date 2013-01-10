@@ -37,7 +37,7 @@ class Order(models.Model):
     devices = models.ManyToManyField(Device, null=True, blank=True)
 
     queue = models.ForeignKey(Queue, null=True, verbose_name=_(u'jono'))
-    status = models.ForeignKey(Status, null=True, verbose_name=_(u'status'))
+    status = models.ForeignKey(QueueStatus, null=True, verbose_name=_(u'status'))
 
     STATES = ((0, 'unassigned'), (1, 'open'), (2, 'closed'))
     state = models.IntegerField(default = 0, max_length=16, choices=STATES)
@@ -77,13 +77,16 @@ class Order(models.Model):
 
     def status_name(self):
         if self.status:
-            return self.status.title
+            return self.status.status.title
         else:
             return _(u'Ei statusta')
 
-    def status_id(self):
+    def get_status_id(self):
+        """
+        Returns "real" status ID of this order (regardless of queue)
+        """
         if self.status:
-            return self.status.id
+            return self.status.status.id
         else:
             return None
 
@@ -111,24 +114,25 @@ class Order(models.Model):
             action=action,
             triggered_by=user)
 
-    def set_status(self, status_id, user):
-        """Sets status of this order to status_id"""
+    def set_status(self, new_status, user):
+        """
+        Sets status of this order to new_status
+        Status can only be set if order belongs to a queue!
+        """
         from time import time
 
-        if isinstance(status_id, QueueStatus):
-            status = status_id
-        else:
-            status = QueueStatus.objects.get(pk=status_id).status
+        status = QueueStatus.objects.get(pk=new_status)
+        self.status = status
 
         # calculate when this status will timeout
         green = (status.limit_green*status.limit_factor)+time()
         yellow = (status.limit_yellow*status.limit_factor)+time()
+
         self.status_limit_green = green
         self.status_limit_yellow = yellow
-        self.status = status.status
         self.save()
 
-        self.notify('set_status', status.status.title, user)
+        self.notify('set_status', self.status.status.title, user)
 
     def set_queue(self, queue_id, user):
         queue = Queue.objects.get(pk=queue_id)
@@ -244,7 +248,7 @@ class Order(models.Model):
 
     def is_editable(self):
         return True
-    
+
     def __unicode__(self):
         return 'Order #%d' % self.pk
 
