@@ -23,9 +23,9 @@ def search_gsx(request, what):
     #results = cache.get('%s-%s' % (what, value))
 
     if not results:
-        GsxAccount.default()
-
         query = request.GET.get('serialNumber')
+        
+        GsxAccount.default()
         product = gsx.Product(query)
 
         if what == 'warranty':

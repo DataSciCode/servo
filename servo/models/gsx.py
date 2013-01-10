@@ -57,24 +57,25 @@ class GsxAccount(models.Model):
     @classmethod
     def default(cls):
         """
-        Return default GSX account and connect to it
+        Returns the default GSX account and connect to it
         """
         act = GsxAccount.objects.get(is_default=True)
         return act.connect()
 
     def connect(self):
+        """
+        Connects to the selected account and cacches the session
+        """
         if cache.get('gsx_session'):
-            session = cache.get('gsx_session')
-            gsx.SESSION = session
-        
-        session = gsx.connect(sold_to=self.sold_to, 
-                                user_id=self.username, 
-                                password=self.password, 
-                                env=self.environment)
+            gsx.SESSION = cache.get('gsx_session')
+            gsx.init(env=self.environment, region='emea')
+        else:
+            session = gsx.connect(sold_to=self.sold_to, 
+                            user_id=self.username, 
+                            password=self.password, 
+                            env=self.environment)
 
-        cache.set('gsx_session', session, 60*25)
-
-        return session
+            cache.set('gsx_session', session, 60*20)
 
     class Meta:
         app_label = 'servo'
