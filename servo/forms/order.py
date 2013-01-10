@@ -5,7 +5,7 @@ from django.utils.translation import ugettext as _
 
 from django_countries import countries, CountryField
 
-from servo.lib.gsxlib import gsxlib
+from servo.lib.gsx import gsx
 from servo.models.order import *
 from servo.models.common import QueueStatus
 from servo.forms.product import LocalizedModelForm
@@ -85,7 +85,7 @@ class GsxRepairForm(forms.Form):
         del(kwargs['order'])
         super(GsxRepairForm, self).__init__(*args, **kwargs)
         
-        langs = gsxlib.langs('en_XXX')
+        langs = gsx.get_format('en_XXX')
         symptom_text = order.issues()[0].body
 
         try:
