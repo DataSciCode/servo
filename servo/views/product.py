@@ -62,9 +62,10 @@ def edit(request, product_id=0, code=None):
         product_id = product.id
     
     if code:
-        lookup = Lookup(partNumber=code)
-        result = lookup.lookup()
-        product = Product.from_gsx(result)
+        # We shoose the GSX account here since orders in different queues
+        # might use a different accounts...
+        act = GsxAccount.default()
+        product = Product.from_gsx(code, act)
         form = ProductForm(instance=product)
     
     return render(request, 'products/form.html', {

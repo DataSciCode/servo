@@ -5,6 +5,7 @@ from django.db import models
 from django.core.cache import cache
 from mptt.models import MPTTModel, TreeForeignKey
 from django.utils.translation import ugettext as _
+from servo.lib.gsx import gsx
 
 from servo.models.common import Tag, Attachment, Configuration
 
@@ -79,34 +80,38 @@ class Product(BaseProduct):
         return '/products/product/%d/' % self.pk
 
     @classmethod
-    def from_gsx(cls, gsx_data):
-
+    def from_gsx(cls, code, gsx_account):
+        """
+        Searches for a part from GSX and initializes Product
+        with the data and our config
+        """
     	conf = Configuration.conf()
         getcontext().rounding = ROUND_UP
-
-        sp = Decimal(gsx_data.get('stockPrice'))
-        ep = Decimal(gsx_data.get('exchangePrice'))
         
         vat = Decimal(conf['pct_vat'])
         margin = Decimal(conf['pct_margin'])
-
         shipping = Decimal(conf['shipping_cost'])
+
+        part = gsx.Part(partNumber=code).lookup()
+
+        sp = Decimal(part.stockPrice)
+        ep = Decimal(part.exchangePrice)
         sp = (sp+(sp/100*margin)).quantize(Decimal('1.')) + shipping
         ep = (ep+(ep/100*margin)+(ep/100*vat)).quantize(Decimal('1.')) + shipping
 
-        product = Product(code=gsx_data.get('partNumber'),
-            title=gsx_data.get('partDescription'),
-            price_purchase=gsx_data.get('stockPrice'),
-            price_exchange=ep,
-            pct_margin=margin,
-            pct_vat=vat,
-            price_notax=sp,
-            warranty_period=3,
-            brand='Apple',
-            shipping=conf['shipping_cost'],
-            component_code=gsx_data.get('componentCode'),
-            is_serialized=(gsx_data['isSerialized'] == 'Y'),
-            price_sales=sp+(sp/100*vat).quantize(Decimal('1.'))
+        product = Product(code=part.partNumber,
+                        title=part.partDescription,
+                        price_purchase=part.stockPrice,
+                        price_exchange=ep,
+                        pct_margin=margin,
+                        pct_vat=vat,
+                        price_notax=sp,
+                        warranty_period=3,
+                        brand='Apple',
+                        shipping=conf['shipping_cost'],
+                        component_code=part.componentCode,
+                        is_serialized=(part.isSerialized == 'Y'),
+                        price_sales=sp+(sp/100*vat).quantize(Decimal('1.'))
         )
 
         return product
