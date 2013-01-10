@@ -8,9 +8,9 @@ Requirements:
 - python-memcached
 - reportlab
 - PIL
+- py-gsx
 
 TODO:
-- fix links after last refactoring
 - products/outgoing
 - products/incoming
 - notifications
@@ -28,10 +28,3 @@ TODO:
 - request access on login page!
 - escalations?
 - http://localhost:8000/search/parts/?q=661-5948
-
-Service Order
-=============
-
-
-Purchase Order
-==============
