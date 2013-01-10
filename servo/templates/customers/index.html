@@ -1,16 +1,14 @@
 {% extends "default.html" %}
 {% load i18n %}
 
-{% block navtabs %}
-{% endblock navtabs %}
-
 {% block content %}
-<div class="row">
+<div class="row-fluid">
   <div class="span3">
   {% block sidebar %}
     {% include "customers/list.html" %}  
   {% endblock sidebar %}
   </div>
+
   <div class="span9">
     <ul class="nav nav-tabs">
       <li class="dropdown active">
@@ -24,6 +22,7 @@
       </li>
     </ul>
     {% block detail_block %}
+    <a href="create/" class="btn btn-primary pull-right">{% trans "Uusi asiakas" %}</a>
     {% trans "Valitse asiakas..." %}
     {% endblock detail_block %}
   </div>

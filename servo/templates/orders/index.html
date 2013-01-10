@@ -2,12 +2,8 @@
 {% load i18n %}
 {% load servo_extras %}
 
-{% block navtabs %}
-
-{% endblock navtabs %}
-
 {% block content %}
-<div class="row">
+<div class="row-fluid">
   <div class="span12">
     <div class="navbar">
       <div class="navbar-inner">
@@ -52,10 +48,11 @@
     </div>
   </div>
 </div>
-  <div class="row">
-    <div class="span12">
+
+<div class="row-fluid">
+  <div class="span12">
     {% include "orders/list.html" %}{% endblock %}
-    </div>
+  </div>
 </div>
 
 {% block footer %}

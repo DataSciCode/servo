@@ -4,10 +4,6 @@
 
 {% block title %}{% trans "Huoltotilaus #" %}{{ order.code }}{% endblock title %}
 
-{% block navtabs %}
-
-{% endblock navtabs %}
-
 {% block content %}
 
 <div class="navbar">
@@ -59,7 +55,7 @@
   </div>
 </div>
 
-<div class="row">
+<div class="row-fluid">
   <div class="span3" id="order-sidebar">
     <div class="well">
     {% if order.customer %}
