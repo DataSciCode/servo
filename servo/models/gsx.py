@@ -6,28 +6,6 @@ from django.utils.translation import ugettext as _
 
 from servo.lib.gsx import gsx
 
-class GsxObject(dict):
-    def __init__(self, *args, **kwargs):
-        for k, v in args[0].items():
-            self[k] = v
-
-class ServicePart(GsxObject):
-    def title(self):
-        return self['partDescription']
-
-    def description(self):
-        return self['partDescription']
-
-    def code(self):
-        return self['partNumber']
-
-class GsxDevice(GsxObject):
-    def title(self):
-        pass
-
-    def description(self):
-        pass
-
 class GsxAccount(models.Model):
     title = models.CharField(max_length=128, default=_('Uusi tili'),
         verbose_name=_(u'nimi'))
@@ -106,7 +84,3 @@ class Lookup(object):
 
         cache.set_many(self.results, 60*20)
         return cache.get(query)
-
-class Repair(models.Model):
-    pass
-    

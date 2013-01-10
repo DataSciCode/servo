@@ -20,15 +20,16 @@ def search_gsx(request, what):
     Searches for something from GSX
     """
     results = []
+
     #results = cache.get('%s-%s' % (what, value))
 
     if not results:
-        query = request.GET.get('serialNumber')
-        
         GsxAccount.default()
-        product = gsx.Product(query)
 
         if what == 'warranty':
+
+            query = request.GET.get('serialNumber')
+            product = gsx.Product(query)
             result = product.get_warranty()
             
             if re.match('iPhone', result.productDescription):
@@ -38,10 +39,12 @@ def search_gsx(request, what):
             results.append(result)
 
         if what == 'parts':
-            if not query:
+            if request.GET.get('partNumber'):
                 query = request.GET.get('partNumber')
-
-            results = gsx.Product(query).get_parts()
+                part = gsx.Part(partNumber=query)
+                results.append(part.lookup())
+            else:
+                results = product.get_parts()
 
         if what == 'repairs':
             if query:
@@ -74,7 +77,7 @@ def spotlight(request, what='warranty'):
         order = Order.objects.get(code=query)
         return redirect(order)
 
-    results['gsx'] = gsx.looks_like(query)
+    results['gsx'] = gsx.validate(query)
     
     if results['gsx'] == 'dispatchId':
         what = 'repairs'
@@ -88,10 +91,10 @@ def spotlight(request, what='warranty'):
 
     results['orders'] = Order.objects.filter(customer__name__icontains=query)
 
-    if gsx.looks_like(query) == 'serialNumber':
+    if gsx.validate(query, 'serialNumber'):
         results['orders'] = Order.objects.filter(devices__sn__contains=query)
 
-    if gsx.looks_like(query) == 'dispatchId':
+    if gsx.validate(query, 'dispatchId'):
         po = PurchaseOrder.objects.get(confirmation=query)
         results['orders'] = [po.sales_order]
 

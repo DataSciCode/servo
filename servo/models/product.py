@@ -2,9 +2,9 @@
 
 from decimal import *
 from django.db import models
+from django.core.cache import cache
 from mptt.models import MPTTModel, TreeForeignKey
 from django.utils.translation import ugettext as _
-from django.core.cache import cache
 
 from servo.models.common import Tag, Attachment, Configuration
 
@@ -75,17 +75,12 @@ class Product(BaseProduct):
     shipping = models.IntegerField(default=0,
         verbose_name=_(u'Shipping'))
 
-    class Meta:
-        verbose_name = _(u'tuote')
-        ordering = ['-id']
-        app_label = 'servo'
-
     def get_absolute_url(self):
         return '/products/product/%d/' % self.pk
 
     @classmethod
     def from_gsx(cls, gsx_data):
-        
+
     	conf = Configuration.conf()
         getcontext().rounding = ROUND_UP
 
@@ -135,6 +130,12 @@ class Product(BaseProduct):
     def sell(self, amount=1):
         self.amount_stocked = self.amount_stocked - amount
         self.save()
+
+
+    class Meta:
+        verbose_name = _(u'tuote')
+        ordering = ['-id']
+        app_label = 'servo'
 
 class Inventory(models.Model):
     """
