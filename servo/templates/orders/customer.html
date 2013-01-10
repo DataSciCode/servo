@@ -1,5 +1,6 @@
 {% load servo_extras %}
 {% load mptt_tags %}
+
 {% recursetree nodes %}
 <address>
     <strong><a href="{% url servo.views.customer.view node.id %}">{{ node.name }}</a></strong><br/>

@@ -9,7 +9,7 @@
       <dt>{% trans "Sähköposti" %}</dt>
       <dd><a href="{% url servo.views.note.edit recipient=customer.email %}">{{ customer.email }}</a></dd>
   {% endif %}
-  {% if customer.email %}
+  {% if customer.phone %}
     <dt>{% trans "Puhelin" %}</dt>
     <dd><a href="{% url servo.views.note.edit recipient=customer.phone %}">{{ customer.phone }}</a></dd>
   {% endif %}
