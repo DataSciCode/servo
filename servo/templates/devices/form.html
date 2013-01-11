@@ -1,8 +1,7 @@
 {% extends "devices/index.html" %}
 {% load i18n %}
 {% block content %}
-<form method="post" action="{% url servo.views.device.save device.id %}" 
-  accept-charset="utf-8" class="form-horizontal">
+<form method="post" action="" accept-charset="utf-8" class="form-horizontal">
   {% csrf_token %}
   {% include "form_snippet.html" %}
   {% include "form_buttons.html" %}
