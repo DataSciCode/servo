@@ -132,6 +132,9 @@ def index(request, *args, **kwargs):
         tag_title = tag.title
         orders = orders.filter(tags=tag)
 
+        if request.is_ajax():
+            return HttpResponse(orders.count())
+
     if kwargs.get('state'):
         status_title = _(u'Jonossa')
         orders = Order.objects.filter(state=kwargs['state'])
@@ -197,8 +200,8 @@ def toggle_tag(request, order_id, tag_id):
     
     return HttpResponse(tag.title)
 
-def edit(request, id):
-    order = Order.objects.get(pk=id)
+def edit(request, order_id):
+    order = Order.objects.get(pk=order_id)
     
     class SidebarForm(forms.ModelForm):
         def __init__(self, *args, **kwargs):
@@ -220,11 +223,19 @@ def edit(request, id):
 
     # wrap the customer in a list for easier recursetree
     if order.customer:
-        customer = order.customer.get_ancestors(include_self=True, ascending=True)
+        customer = order.customer.get_ancestors(include_self=True)
     else:
         customer = []
 
     request.session['current_order'] = order
+    users_menu = dict(title=_(u'Käsittelijä'), users=[])
+
+    for user in User.objects.all():
+        users_menu['users'].append(user)
+
+    queue_menu = dict(title=_(u'Jono'), queues=[])
+    for q in Queue.objects.all():
+        queue_menu['queues'].append(q)
 
     return render(request, 'orders/edit.html', {
         'order': order,
@@ -232,28 +243,29 @@ def edit(request, id):
         'form': form,
         'fields': fields,
         'customer': customer,
-        'users': User.objects.all()
+        'users_menu': users_menu,
+        'queue_menu': queue_menu
         })
 
-def remove(request, id):
+def remove(request, order_id):
     if request.method == 'POST':
-        order = Order.objects.get(pk=id)
+        order = Order.objects.get(pk=order_id)
         order.delete()
         messages.add_message(request, messages.INFO, 
             _(u'Tilaus %s poistettu' % order.code))
         return redirect('/orders/')
     else:
-        order = Order.objects.get(pk=id)
+        order = Order.objects.get(pk=order_id)
         return render(request, 'orders/remove.html', {'order': order})
 
-def follow(request, id):
-    order = Order.objects.get(pk=id)
+def follow(request, order_id):
+    order = Order.objects.get(pk=order_id)
     order.followed_by.add(request.user)
     return HttpResponse(_('%d seuraa') % order.followed_by.count())
 
 @csrf_exempt
-def update(request, id):
-    order = Order.objects.get(pk=id)
+def update(request, order_id):
+    order = Order.objects.get(pk=order_id)
 
     if 'queue' in request.POST:
         order.set_queue(request.POST['queue'], request.user)

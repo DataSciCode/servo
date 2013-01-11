@@ -2,7 +2,7 @@
 {% load i18n %}
 {% load servo_extras %}
 
-{% block detail_block %}
+{% block middle_column %}
 <legend>{{ customer.fullname }}</legend>
   <dl class="dl-horizontal">
   {% if customer.email %}
@@ -40,4 +40,4 @@
   </div>
   <legend>{% trans "Tilaukset" %}</legend>
   {% include "orders/list.html" %}
-{% endblock detail_block %}
+{% endblock middle_column %}

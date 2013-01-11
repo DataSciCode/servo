@@ -311,12 +311,16 @@ def locations(request):
         return HttpResponse(locations.count())
     return render(request, "admin/locations/index.html", {'locations': locations})
 
-def edit_location(request, id=0):
+def edit_location(request, location_id=None):
+
+    location = Location()
+    form = LocationForm()
+
     if request.method == 'POST':
         form = LocationForm(request.POST)
 
-        if int(id) > 0:
-            location = Location.objects.get(pk=id)
+        if location_id:
+            location = Location.objects.get(pk=location_id)
             form = LocationForm(request.POST, instance=location)
         if form.is_valid():
             form.save()
@@ -324,14 +328,10 @@ def edit_location(request, id=0):
                 _(u"Sijainti tallennettu"))
             return redirect('/admin/locations/')
 
-    if id:
-        location = Location.objects.get(pk=id)
+    if location_id:
+        location = Location.objects.get(pk=location_id)
         form = LocationForm(instance=location)
-    else:
-        location = Location()
-        form = LocationForm()
-    
-    form.pk = id
+        
     return render(request, 'admin/locations/form.html', {'form': form})
 
 def queues(request):

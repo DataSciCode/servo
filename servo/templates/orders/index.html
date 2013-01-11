@@ -1,59 +1,40 @@
-{% extends "default.html" %}
+{% extends "three_column_layout.html" %}
 {% load i18n %}
 {% load servo_extras %}
 
-{% block content %}
-<div class="row-fluid">
-  <div class="span12">
-    <div class="navbar">
-      <div class="navbar-inner">
-        <ul class="nav">
-          <li class="dropdown">
-            <a class="dropdown-toggle" data-toggle="dropdown" href="#">{{ queue_title }} <span class="caret"></span></a>
-              <ul class="dropdown-menu">
-              {% for q in  queues %}
-                <li><a href="{% url servo.views.order.index queue=q.id %}">{{ q.title }}</a></li>
-              {% endfor %}
-              </ul>
-          </li>
-          <li class="dropdown">
-            <a class="dropdown-toggle" data-toggle="dropdown" href="#">{{ status_title }} <span class="caret"></span></a>
-            <ul class="dropdown-menu">
-              <li><a href="{% url servo.views.order.index state=0 %}">{% trans "Kaikki" %}</span></a></li>
-              <li><a href="{% url servo.views.order.index state=0 %}">{% trans "Jonossa" %}</span></a></li>
-            {% for s in  statuses %}
-              <li><a href="?status={{ s.id }}">{{ s.title }}</a></li>
-            {% endfor %}
-            </ul>
-          </li>
-          <li class="dropdown">
-            <a class="dropdown-toggle" data-toggle="dropdown" href="#">{{ user_title }} <span class="caret"></span></a>
-            <ul class="dropdown-menu">
-            {% for u in  users %}
-              <li><a href="{% url servo.views.order.index user=u.id %}">{{ u.get_full_name|default:u.username }}</a></li>
-            {% endfor %}
-            </ul>
-          </li>
-          <li class="dropdown">
-            <a class="dropdown-toggle" data-toggle="dropdown" href="#">{{ tag_title }} <span class="caret"></span></a>
-            <ul class="dropdown-menu">
-            {% for t in  tags %}
-              <li><a href="/orders/?tag={{ t.id }}">{{ t.title }}</a></li>
-            {% endfor %}
-            </ul>
-          </li>
-        </ul>
-        <a class="btn pull-right" href="{% url servo.views.order.create %}"><i class="icon-plus"></i> {% trans "Luo tilaus" %}</a>
-      </div>
-    </div>
-  </div>
-</div>
+{% block title %}
+  {{ orders|length }} {% trans "tilausta" %}
+{% endblock title %}
 
-<div class="row-fluid">
-  <div class="span12">
-    {% include "orders/list.html" %}{% endblock %}
-  </div>
-</div>
+{% block left_column %}
+  <ul id="navtabs" class="nav nav-list well well-small">
+    <li class="nav-header">{% trans "Jono" %}</li>
+    <li><a href="{% url servo.views.order.index state=0 %}" class="counter">{% trans "Kaikki" %}</span></a></li>
+  {% for q in  queues %}
+    <li><a href="{% url servo.views.order.index queue=q.id %}">{{ q.title }}</a></li>
+  {% endfor %}
+    <li class="nav-header">{% trans "Status" %}</li>
+    <li><a href="{% url servo.views.order.index state=0 %}">{% trans "Kaikki" %}</span></a></li>
+  {% for s in  statuses %}
+    <li><a href="?status={{ s.id }}">{{ s.title }}</a></li>
+  {% endfor %}
+    <li class="nav-header">{% trans "Käsittelijä" %}</li>
+    <li><a href="{% url servo.views.order.index state=0 %}">{% trans "Kaikki" %}</span></a></li>
+  {% for u in  users %}
+    <li><a href="{% url servo.views.order.index user=u.id %}">{{ u.get_full_name|default:u.username }}</a></li>
+  {% endfor %}
+    <li class="nav-header">{% trans "Tagi" %}</li>
+  {% for t in  tags %}
+    <li><a href="/orders/?tag={{ t.id }}" class="counter">{{ t.title }}</a></li>
+  {% endfor %}
+</ul>
 
-{% block footer %}
-{% endblock footer %}
+{% endblock left_column %}
+
+{% block middle_column %}
+  {% include "orders/list.html" %}
+{% endblock middle_column %}
+    
+{% block right_column %}
+  <a class="btn btn-primary" href="{% url servo.views.order.create %}">{% trans "Luo tilaus" %}</a>
+{% endblock right_column %}

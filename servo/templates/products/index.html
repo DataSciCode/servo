@@ -1,25 +1,21 @@
-{% extends "default.html" %}
+{% extends "three_column_layout.html" %}
 {% load i18n %}
 {% load mptt_tags %}
 
-{% block title %}Tuotteet{% endblock title %}
+{% block title %}{{ products|length }} {% trans "tuotetta" %}{% endblock title %}
 
-{% block content %}
+{% block left_column %}
+  <ul id="navtabs" class="nav nav-list well well-small">
+    <li class="nav-header">{% trans "Varasto" %}</li>
+    <li><a href="/products/">{% trans "Tuotteet" %}</a></li>
+    <li><a href="/products/incoming/" class="counter">{% trans "Saapuvat" %}</a></li>
+    <li><a href="/products/outgoing/" class="counter">{% trans "Lähtevät" %}</a></li>
+    <li><a href="/products/po/" class="counter">{% trans "Ostotilaukset" %}</a></li>
+    <li><a href="/products/invoices/">{% trans "Laskut" %}</a></li>
+  </ul>
+{% endblock left_column %}
 
-<div class="row-fluid">
-  <div class="span3">
-    <ul id="navtabs" class="nav nav-list well well-small">
-      <li class="nav-header">{% trans "Varasto" %}</li>
-      <li><a href="/products/">{% trans "Tuotteet" %}</a></li>
-      <li><a href="/products/incoming/" class="counter">{% trans "Saapuvat" %}</a></li>
-      <li><a href="/products/outgoing/" class="counter">{% trans "Lähtevät" %}</a></li>
-      <li><a href="/products/po/" class="counter">{% trans "Ostotilaukset" %}</a></li>
-      <li><a href="/products/invoices/">{% trans "Laskut" %}</a></li>
-    </ul>
-  </div>
-
-  <div class="span9">
-  {% block products_content %}
+{% block middle_column %}
     <ul class="nav nav-tabs" id="navtabs">
       <li class="dropdown active"><a href="#" class="dropdown-toggle" data-toggle="dropdown">{% trans "Tagi" %} <b class="caret"></b></a>
         <ul class="dropdown-menu">
@@ -37,19 +33,10 @@
         </ul>
       </li>
     </ul>
-{% include "products/list.html" %}
-<div class="btn-group pull-right">
-  <button class="btn">Action</button>
-  <button class="btn dropdown-toggle" data-toggle="dropdown">
-    <span class="caret"></span>
-  </button>
-  <ul class="dropdown-menu">
-    <li><a href="new/">{% trans "Luo tuote" %}</a></li>
-  </ul>
-</div>
-{% include "pagination.html" with items=products %}
+  {% include "products/list.html" %}
+  {% include "pagination.html" with items=products %}
+{% endblock middle_column %}
 
-{% endblock products_content %}
-{% endblock  %}
-</div>
-</div>
+{% block right_column %}
+  <a href="new/" class="btn btn-primary">{% trans "Luo tuote" %}</a>
+{% endblock right_column %}

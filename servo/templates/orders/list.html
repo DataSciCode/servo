@@ -21,7 +21,7 @@
   </tbody>
 </table>
 <ul class="breadcrumb">
-  <li><a href="{% url servo.views.order.index %}">{% trans "Tilaukset" %}</a></li>
+  <li><i class="icon-home"></i> <a href="{% url servo.views.order.index %}">{% trans "Tilaukset" %}</a></li>
 </ul>
 {% if orders.paginator %}
   {% include "pagination.html" with items=orders %}

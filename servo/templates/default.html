@@ -32,7 +32,7 @@
                 <li><a href="{% url servo.views.account.logout %}">{% trans "Kirjaudu ulos" %}</a></li>
               </ul>
             </li>
-            <li><a href="{% url servo.views.order.index state=0 %}" class="counter">{% trans "Tilaukset" %}</a></li>
+            <li><a href="{% url servo.views.order.index state=0 %}">{% trans "Tilaukset" %}</a></li>
             <li><a href="{% url servo.views.customer.index %}">{% trans "Asiakkaat" %}</a></li>
             <li><a href="{% url servo.views.device.index %}">{% trans "Laitteet" %}</a></li>
             <li><a href="{% url servo.views.product.index %}">{% trans "Varasto" %}</a></li>

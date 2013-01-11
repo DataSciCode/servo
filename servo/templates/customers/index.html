@@ -1,31 +1,28 @@
-{% extends "default.html" %}
+{% extends "three_column_layout.html" %}
 {% load i18n %}
 
-{% block content %}
-<div class="row-fluid">
-  <div class="span3">
-  {% block sidebar %}
-    {% include "customers/list.html" %}  
-  {% endblock sidebar %}
-  </div>
+{% block title %}
+  {{ customers|length }} {% trans "asiakasta" %}
+{% endblock title %}
 
-  <div class="span9">
-    <ul class="nav nav-tabs">
-      <li class="dropdown active">
-        <a href="#" class="dropdown-toggle" data-toggle="dropdown">{% trans "Kaikki" %} <b class="caret"></b></a>
-        <ul class="dropdown-menu">
-          <li><a href="/customers/">{% trans "Kaikki" %}</a></li>
-          {% for t in  tags %}
-          <li><a href="{% url servo.views.customer.index tag=t.id %}">{{ t.title }}</a></li>
-          {% endfor %}
-        </ul>
-      </li>
-    </ul>
-    {% block detail_block %}
-    <a href="new/" class="btn btn-primary pull-right">{% trans "Uusi asiakas" %}</a>
-    {% trans "Valitse asiakas..." %}
-    {% endblock detail_block %}
-  </div>
-</div>
+{% block left_column %}
+  {% include "customers/list.html" %}  
+{% endblock left_column %}
 
-{% endblock content %}
+{% block middle_column %}
+  <ul class="nav nav-tabs">
+    <li class="dropdown active">
+      <a href="#" class="dropdown-toggle" data-toggle="dropdown">{% trans "Kaikki" %} <b class="caret"></b></a>
+      <ul class="dropdown-menu">
+        <li><a href="/customers/">{% trans "Kaikki" %}</a></li>
+        {% for t in  tags %}
+        <li><a href="{% url servo.views.customer.index tag=t.id %}">{{ t.title }}</a></li>
+        {% endfor %}
+      </ul>
+    </li>
+  </ul>
+{% endblock middle_column %}
+
+{% block right_column %}
+  <a href="new/" class="btn btn-primary">{% trans "Luo asiakas" %}</a>
+{% endblock right_column %}

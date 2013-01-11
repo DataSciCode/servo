@@ -1,27 +1,31 @@
-{% extends "default.html" %}
+{% extends "three_column_layout.html" %}
 {% load i18n %}
 {% load mptt_tags %}
 
-{% block content %}
-<div class="row-fluid">
-  <div class="span4">
-    <ul id="navtabs" class="nav nav-list well well-small">
-      <li class="nav-header">{% trans "Mallit" %}</li>
-      <li><a href="{% url servo.views.device.index %}">{% trans "Kaikki" %}</a></li>
-      {% recursetree tags %}
-      <li>
-        <a href="{% url servo.views.device.index tag=node.id %}">{{ node.title }}</a>
-        {% if not node.is_leaf_node %}
-        <ul>{{ children }}</ul>
-        {% endif %}
-      </li>
+{% block title %}
+  {{ devices|length }} {% trans "laitetta" %}
+{% endblock title %}
+
+{% block left_column %}
+  <ul id="navtabs" class="nav nav-list well well-small">
+    <li class="nav-header">{% trans "Mallit" %}</li>
+    <li><a href="{% url servo.views.device.index %}">{% trans "Kaikki" %}</a></li>
+    {% recursetree tags %}
+    <li>
+      <a href="{% url servo.views.device.index tag=node.id %}">{{ node.title }}</a>
+      {% if not node.is_leaf_node %}
+      <ul>{{ children }}</ul>
+      {% endif %}
+    </li>
     {% endrecursetree %}
-    </ul>
-  </div>
-  <div class="span8">
-    <a href="new/" class="btn btn-primary pull-right">{% trans "Uusi laite" %}</a>
-    {% include "devices/list.html" %}
-    {% include "pagination.html" with items=devices %}
-  </div>
-</div>
-{% endblock content %}
+  </ul>
+{% endblock left_column %}
+
+{% block middle_column %}
+  {% include "devices/list.html" %}
+  {% include "pagination.html" with items=devices %}
+{% endblock middle_column %}
+
+{% block right_column %}
+  <a href="new/" class="btn btn-primary">{% trans "Luo laite" %}</a>
+{% endblock right_column %}

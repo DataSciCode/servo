@@ -1,10 +1,7 @@
 {% extends "products/index.html" %}
 {% load i18n %}
 
-{% block products_sidebar %}
-{% endblock products_sidebar %}
-
-{% block products_content %}
+{% block middle_column %}
   <form method="post" action="" class="form-horizontal">
     {% csrf_token %}
     {{ form.component_code }}
@@ -44,4 +41,4 @@
     </div>
     {% include "form_buttons.html" %}
   </form>
-{% endblock products_content %}
+{% endblock middle_column %}
