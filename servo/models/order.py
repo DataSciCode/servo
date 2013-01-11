@@ -90,18 +90,24 @@ class Order(models.Model):
         else:
             return None
 
-    def status_img(self):
+    def get_color(self):
         from time import time
 
-        if not self.status:
-            return 'undefined'
-        else:
+        color = 'undefined'
+
+        if self.status:
             if time() < self.status_limit_green:
-                return 'green'
+                color = 'green'
             if time() < self.status_limit_yellow:
-                return 'yellow'
+                color = 'yellow'
             if time() > self.status_limit_yellow:
-                return 'red'
+                color = 'red'
+
+        return color
+        
+    def get_status_img(self):
+        color = self.get_color()
+        return 'images/status_%s_16.png' % color
     
     def set_property(self, key, value):
         pass
