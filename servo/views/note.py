@@ -48,9 +48,9 @@ def edit(request, note_id='new', kind='note', order_id=None, parent=None,
     return render(request, 'notes/form.html', {'note': note,
         'templates': templates, 'form': form})
 
-def remove(request, id=None):
+def remove(request, note_id):
     if request.method == 'POST':
-        note = Note.objects.get(pk=id)
+        note = Note.objects.get(pk=note_id)
 
         if note.order_id:
             url = note.order.get_absolute_url()
@@ -61,7 +61,7 @@ def remove(request, id=None):
         messages.add_message(request, messages.INFO, _(u'Merkintä poistettu'))
         return redirect(url)
     else:
-        note = Note.objects.get(pk=id)
+        note = Note.objects.get(pk=note_id)
         return render(request, 'notes/remove.html', {'note': note})
 
 def save(request, kind='note', note_id='new'):

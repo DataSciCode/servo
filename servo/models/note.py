@@ -48,7 +48,7 @@ class Note(MPTTModel):
     attachments = models.ManyToManyField(Attachment, null=True, blank=True)
 
     def get_absolute_url(self):
-        return '/notes/note/%d/' % self.pk
+        return '/notes/note/%d' % self.pk
         
     def smsto(self):
         """Return the recipient's SMS address"""
