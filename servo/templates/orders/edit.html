@@ -12,7 +12,8 @@
     <a href="/customers/" class="btn">{% trans "Valitse asiakas" %}</a>
   {% endif %}
   </div>
-  <form action="update/" method="post">
+  <form action="update/" method="post" id="order-sidebar">
+    {{ form }}
     {% for f in fields %}
     <label>{{ f.title }}:</label>
     <select name="{{ f.title }}">
@@ -94,6 +95,7 @@
       </ul>
     </div>
     <hr/>
+<!--
     <div class="btn-group">
       <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
         {{ users_menu.title }}
@@ -140,5 +142,5 @@
       {% endfor %}
       </ul>
     </div>
-
+-->
 {% endblock right_column %}
