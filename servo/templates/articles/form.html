@@ -1,9 +1,9 @@
 {% extends "articles/view.html" %}
 
-{% block col2 %}
+{% block right_column %}
 <form action="" method="post" enctype="utf-8">
     {% csrf_token %}
 	{{ form }}
     {% include "form_buttons.html" %}
 </form>
-{% endblock col2 %}
+{% endblock right_column %}

@@ -1,7 +1,8 @@
 {% extends "articles/index.html" %}
 {% load i18n %}
 {% load markup %}
-{% block col2 %}
+
+{% block right_column %}
     <h2>{{ object.title }}</h2>
     <small>{{ object.updated_by.get_full_name }} @ {{ object.updated_at }}</small>
     <p>{{ object.content|markdown }}</p>
@@ -9,4 +10,4 @@
     <a href="/wiki/articles/new/" class="btn btn-primary">{% trans "Uusi" %}</a>
     <a href="edit/" class="btn btn-warning">{% trans "Muokkaa" %}</a>
     <a href="delete/" class="btn btn-danger">{% trans "Poista" %}</a>
-{% endblock col2 %}
+{% endblock right_column %}

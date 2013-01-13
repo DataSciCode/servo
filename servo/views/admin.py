@@ -321,6 +321,8 @@ def locations(request):
     return render(request, "admin/locations/index.html", {'locations': locations})
 
 def edit_location(request, location_id=None):
+    from django.forms.models import inlineformset_factory
+    LocationFormset = inlineformset_factory(Location, Place)
 
     location = Location()
     form = LocationForm()
@@ -334,14 +336,15 @@ def edit_location(request, location_id=None):
         if form.is_valid():
             form.save()
             messages.add_message(request, messages.INFO, 
-                _(u"Sijainti tallennettu"))
+                _(u'Sijainti tallennettu'))
             return redirect('/admin/locations/')
 
     if location_id:
         location = Location.objects.get(pk=location_id)
         form = LocationForm(instance=location)
-        
-    return render(request, 'admin/locations/form.html', {'form': form})
+    
+    formset = LocationFormset(instance=location)
+    return render(request, 'admin/locations/form.html', {'form': form, 'formset': formset})
 
 def queues(request):
     queues = Queue.objects.all()

@@ -3,7 +3,7 @@
 
 {% block title %}{% trans "Saapuvat tuotteet" %}{% endblock title %}
 
-{% block products_content %}
+{% block middle_column %}
 <ul class="nav nav-tabs">
   <li class="active"><a href="{% url servo.views.product.index_incoming %}">{% trans "Tulossa" %}</a></li>
   <li><a href="#">{% trans "Saavutetut" %}</a></li>
@@ -36,7 +36,9 @@
     {% endfor %}
     </tbody>
   </table>
-  <button type="submit" class="btn" disabled="disabled">{% trans "Saavuta" %}</button>
-  <a href="?i={{ inventory.0.id }}" class="btn btn-primary">{% trans "Jatka..." %}</a>
+  <div class="pull-right">
+    <button type="submit" class="btn" disabled="disabled">{% trans "Saavuta" %}</button>
+    <a href="?i={{ inventory.0.id }}" class="btn btn-primary">{% trans "Jatka..." %}</a>
+  </div>
 </form>
-{% endblock products_content %}
+{% endblock middle_column %}

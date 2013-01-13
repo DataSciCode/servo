@@ -66,6 +66,8 @@
         <li class="divider"></li>
       {% endif %}
       {% if order.serviceorderitem_set.count %}
+        <li><a href="{% url servo.views.order.create_gsx_repair order.id %}">{% trans "Luo GSX korjaus" %}</a></li>
+        <li class="divider"></li>
         <li><a href="{% url servo.views.product.create_po order_id=order.id %}">{% trans "Tilaa tuotteet" %}...</a></li>
         <li><a href="{% url servo.views.order.reserve_products order.id %}">{% trans "Varaa tuotteet" %}...</a></li>
         <li><a href="{% url servo.views.order.dispatch order.id %}">{% trans "Toimita tilaus" %}...</a></li>

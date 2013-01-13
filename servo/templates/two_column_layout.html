@@ -1,15 +1,15 @@
 {% extends "default.html" %}
 {% block content %}
 <div class="row-fluid">
-    <div class="span4">
-        {% block col1 %}
+    <div class="span2">
+        {% block left_column %}
         
-        {% endblock col1 %}
+        {% endblock left_column %}
     </div>
-    <div class="span8">
-        {% block col2 %}
+    <div class="span9">
+        {% block right_column %}
             
-        {% endblock col2 %}
+        {% endblock right_column %}
     </div>
 </div>
 {% endblock content %}

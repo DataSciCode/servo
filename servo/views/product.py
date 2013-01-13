@@ -8,6 +8,7 @@ from django.shortcuts import render, redirect, render_to_response
 from django.utils.translation import ugettext as _
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
+from servo.lib.gsx import gsx
 from servo.models.gsx import Lookup, GsxAccount
 from servo.models.common import *
 from servo.models.order import *
@@ -354,5 +355,16 @@ def index_outgoing(request, shipment=None, date=None):
     if request.is_ajax():
         return HttpResponse('5')
 
-    inventory = ServiceOrderItem.objects.filter(should_return=True)
-    return render(request, 'products/index_outgoing.html', {'inventory': inventory})
+    GsxAccount.default()
+
+    if request.method == 'POST':
+        pass
+
+    parts = gsx.Returns(shipToCode='677592').get_pending()
+
+    return render(request, 'products/index_outgoing.html', {'parts': parts})
+
+def return_label(request, return_order, part_number):
+    GsxAccount.default()
+    label = gsx.Returns(return_order).get_label(part_number)
+    return HttpResponse(label.returnLabelFileData, content_type='application/pdf')
