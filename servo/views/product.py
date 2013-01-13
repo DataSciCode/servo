@@ -277,23 +277,24 @@ def index_po(request):
     return render(request, 'products/purchase_orders.html', {'orders': orders})
 
 def order_stock(request, po_id):
-    from lib.gsx import gsx
     po = PurchaseOrder.objects.get(pk=po_id)
-    gsx = GsxAccount.default()
+    GsxAccount.default()
     items = []
 
+    profile = request.user.get_profile()
+    ship_to = profile.location.ship_to
+
+    stock_order = gsx.Order(shipToCode=ship_to, purchaseOrderNumber=po.id)
+
     for i in po.purchaseorderitem_set.all():
-        items.append({'partNumber': i.code, 'quantity': str(i.amount)})
+        stock_order.add_part(i.code, i.amount)
 
-    try:
-        profile = request.user.get_profile()
-        ship_to = profile.location.ship_to
-        so = gsx.create_stocking_order(purchaseOrderNumber=str(po.id),
-                                        shipToCode=ship_to,
-                                        orderLines=items)
-    except gsx.GsxError, e:
-        messages.add_message(request, messages.ERROR, e)
+    result = stock_order.submit()
+    po.confirmation = result.confirmationNumber
+    po.date_submitted = datetime.now()
+    po.save()
 
+    messages.add_message(request, messages.INFO, _(u'Tuotteet tilattu viittellä %s' % po.confirmation))
     return redirect('/products/po/')
 
 def remove_po(request, po_id):
