@@ -121,7 +121,11 @@ class Order(models.Model):
         """
         from time import time
 
-        status = QueueStatus.objects.get(pk=new_status)
+        if not isinstance(new_status, QueueStatus):
+            status = QueueStatus.objects.get(pk=new_status)
+        else:
+            status = new_status
+            
         self.status = status
 
         # calculate when this status will timeout
