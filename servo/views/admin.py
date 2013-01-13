@@ -283,7 +283,10 @@ def edit_user(request, user_id='new'):
     else:
         user = User.objects.get(pk=user_id)
         form = UserForm(instance=user)
-        profile_form = BasicProfileForm(instance=user.get_profile())
+        try:
+            profile_form = BasicProfileForm(instance=user.get_profile())
+        except UserProfile.DoesNotExist:
+            pass
 
     return render(request, 'admin/users/form.html', {
         'form': form,
