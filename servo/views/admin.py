@@ -277,10 +277,10 @@ def edit_user(request, user_id='new'):
     user = User()
     locations = Location.objects.all()
 
-    if user_id == 'new':
-        form = UserForm()
-        profile_form = BasicProfileForm()
-    else:
+    form = UserForm()
+    profile_form = BasicProfileForm()
+
+    if not user_id == 'new':
         user = User.objects.get(pk=user_id)
         form = UserForm(instance=user)
         try:
