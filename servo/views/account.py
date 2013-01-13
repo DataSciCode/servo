@@ -9,8 +9,12 @@ from servo.models.note import Note
 from servo.models.order import Order
 from servo.models.common import Location
 from servo.models.account import UserProfile
-from servo.forms.account import ProfileForm
-  
+from servo.forms.account import ProfileForm, RegistrationForm
+
+def register(request):
+    form = RegistrationForm()
+    return render(request, 'accounts/register.html', {form: form})
+
 def login(request):
     if 'username' in request.POST:
         user = auth.authenticate(username=request.POST['username'],

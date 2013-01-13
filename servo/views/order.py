@@ -107,18 +107,18 @@ def index(request, *args, **kwargs):
 
     if kwargs.get('customer'):
         if kwargs['customer'] == '0':
-            orders = Order.objects.filter(customer__pk=None)
+            orders = orders.filter(customer__pk=None)
         else:
-            orders = Order.objects.filter(customer__tree_id=kwargs['customer'])
+            orders = orders.filter(customer__tree_id=kwargs['customer'])
 
     if kwargs.get('spec'):
         if kwargs['spec'] == '0':
-            orders = Order.objects.filter(devices=None)
+            orders = orders.filter(devices=None)
         else:
-            orders = Order.objects.filter(devices__tags=kwargs['spec'])
+            orders = orders.filter(devices__tags=kwargs['spec'])
 
     if kwargs.get('device'):
-        orders = Order.objects.filter(devices__pk=kwargs['device'])
+        orders = order.filter(devices__pk=kwargs['device'])
 
     if kwargs.get('queue'):
         queue = Queue.objects.get(pk=kwargs['queue'])
@@ -136,23 +136,23 @@ def index(request, *args, **kwargs):
 
     if kwargs.get('state'):
         status_title = _(u'Jonossa')
-        orders = Order.objects.filter(state=kwargs['state'])
+        orders = orders.filter(state=kwargs['state'])
 
     if kwargs.get('color'):
         from time import time
         color = kwargs.get('color')
         if color == 'undefined':
-            orders = Order.objects.filter(status=None)
+            orders = orders.filter(status=None)
         if color == 'green':
-            orders = Order.objects.filter(status_limit_green__gte=time())
+            orders = orders.filter(status_limit_green__gte=time())
         if color == 'yellow':
-            orders = Order.objects.filter(status_limit_yellow__gte=time())
+            orders = orders.filter(status_limit_yellow__gte=time())
         if color == 'red':
-            orders = Order.objects.filter(status_limit_yellow__lte=time())
+            orders = orders.filter(status_limit_yellow__lte=time())
 
     if request.GET.get('status'):
         if request.GET.get('status') == 'None':
-            orders = Order.objects.filter(status__pk=None)
+            orders = orders.filter(status__pk=None)
         else:
             status = int(request.GET.get('status'))
             status = Status.objects.get(pk=status)
@@ -176,7 +176,7 @@ def index(request, *args, **kwargs):
 
     return render(request, 'orders/index.html', {
         'tags': Tag.objects.filter(type='order'),
-        'users': User.objects.all(),
+        'users': User.objects.filter(userprofile__location=location),
         'orders': orders,
         'queues': queues,
         'statuses': Status.objects.all(),

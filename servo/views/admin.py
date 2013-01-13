@@ -16,7 +16,8 @@ from django.utils.translation import ugettext as _
 
 from servo.models.common import *
 from servo.forms.admin import *
-from servo.models.account import UserProfile
+from servo.models.account import User, Group, UserProfile
+from servo.forms.account import BasicProfileForm
 
 def documents(request):
     files = Attachment.objects.all()
@@ -63,7 +64,7 @@ def settings(request):
             return render(request, 'admin/settings.html', {'form': form})
 
         config = form.save()
-        print type(config['logo'])
+        
         # must use cache and not session since it's shared among
         # all the users of the system
         cache.set('config', config, 60*60*24*1)
@@ -276,20 +277,24 @@ def edit_user(request, user_id='new'):
     user = User()
     locations = Location.objects.all()
 
-    if user_id == "new":
+    if user_id == 'new':
         form = UserForm()
+        profile_form = BasicProfileForm()
     else:
         user = User.objects.get(pk=user_id)
         form = UserForm(instance=user)
+        profile_form = BasicProfileForm(instance=user.get_profile())
 
-    return render(request, "admin/users/form.html", {
+    return render(request, 'admin/users/form.html', {
         'form': form,
-        'user': user,
-        'user_id': user_id,
+        'profile_form': profile_form,
         'locations': locations
         })
 
 def save_user(request, user_id):
+
+    profile_form = BasicProfileForm(request.POST)
+
     if user_id != 'new':
         user = User.objects.get(pk=user_id)
         form = UserForm(request.POST, instance=user)
@@ -300,14 +305,16 @@ def save_user(request, user_id):
         user = form.save()
         user.set_password(request.POST['password'])
         user.save()
+
         # Update profile...
-        profile = user.get_profile()
-
-
-        messages.add_message(request, messages.INFO, _(u'Käyttäjä tallennettu'))
-        return redirect('/admin/users/')
-    else:
-        return render(request, "admin/users/form.html", {'form': form})
+        profile_form = BasicProfileForm(request.POST, instance=user.get_profile())
+        
+        if profile_form.is_valid():
+            profile_form.save()
+            messages.add_message(request, messages.INFO, _(u'Käyttäjä tallennettu'))
+            return redirect('/admin/users/')
+    
+    return render(request, 'admin/users/form.html', {'form': form, 'profile_form': profile_form})
 
 def locations(request):
     locations = Location.objects.all()

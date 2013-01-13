@@ -480,7 +480,7 @@ def trigger_event(sender, instance, created, **kwargs):
     	instance.code = encode_url(instance.id).upper()
         description = _('Tilaus %s luotu' % instance.code)
         #instance.notify('created', description, instance.created_by)
-        #instance.save()
+        instance.save()
 
 @receiver(post_save, sender=Invoice)
 def trigger_order_dispatched(sender, instance, created, **kwargs):
