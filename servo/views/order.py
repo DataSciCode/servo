@@ -155,9 +155,7 @@ def index(request, *args, **kwargs):
             orders = orders.filter(status__pk=None)
         else:
             status = int(request.GET.get('status'))
-            status = Status.objects.get(pk=status)
-            status_title = status.title
-            orders = orders.filter(status__status=status)
+            orders = orders.filter(status__status_id=status)
 
     if request.is_ajax():
         return HttpResponse(orders.filter(state=0).count())
