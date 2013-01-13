@@ -5,16 +5,17 @@ from django.db.models.signals import pre_save, post_save
 from django.utils.translation import ugettext as _
 from django.dispatch import receiver
 from django.core.cache import cache
+
 from django.contrib.auth.models import User, Group
 
 from servo.models.common import Location, Queue
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User)
+
     queues = models.ManyToManyField(Queue, blank=True, null=True,
         verbose_name=_(u'jonot'))
-    location = models.ForeignKey(Location, null=True, 
-    	verbose_name=_(u'sijainti'))
+    location = models.ForeignKey(Location, verbose_name=_(u'sijainti'))
     tech_id = models.CharField(max_length=16, blank=True,
     	verbose_name=_(u'tech ID'))
     phone = models.CharField(max_length=16, blank=True, 

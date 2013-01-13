@@ -32,7 +32,10 @@ def search_gsx(request, what):
             
         if what == 'warranty':
 
-            result = product.get_warranty()
+            try:
+                result = product.get_warranty()
+            except Exception, e:
+                return render(request, 'search/results-error.html', {'message': e})
             
             if re.match('iPhone', result.productDescription):
                 ad = product.get_activation()

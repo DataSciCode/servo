@@ -22,12 +22,6 @@ class Label(models.Model):
     class Meta:
         app_label = 'servo'
 
-class Place(models.Model):
-    name = models.CharField(max_length=255)
-
-    class Meta:
-        app_label = 'servo'
-
 class Tag(MPTTModel):
     """
     A tag is a simple one-word descriptor for something.
@@ -88,6 +82,9 @@ class Attachment(models.Model):
         app_label = 'servo'
 
 class Location(models.Model):
+    """
+    This is basically a company
+    """
     title = models.CharField(max_length=255, default=_('Uusi toimipaikka'),
         verbose_name=_(u'nimi'))
     phone = models.CharField(max_length=32, blank=True, null=True,
@@ -108,6 +105,13 @@ class Location(models.Model):
     def __unicode__(self):
         return self.title
 
+    class Meta:
+        app_label = 'servo'
+
+class Place(models.Model):
+    name = models.CharField(max_length=255)
+    location = models.ForeignKey(Location)
+    
     class Meta:
         app_label = 'servo'
 
