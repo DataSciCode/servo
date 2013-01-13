@@ -290,7 +290,7 @@ def edit_user(request, user_id='new'):
         })
 
 def save_user(request, user_id):
-    if user_id != "new":
+    if user_id != 'new':
         user = User.objects.get(pk=user_id)
         form = UserForm(request.POST, instance=user)
     else:
@@ -300,15 +300,17 @@ def save_user(request, user_id):
         user = form.save()
         user.set_password(request.POST['password'])
         user.save()
+        # Update profile...
+        profile = user.get_profile()
+
+
         messages.add_message(request, messages.INFO, _(u'Käyttäjä tallennettu'))
-        return redirect("/admin/users/")
+        return redirect('/admin/users/')
     else:
         return render(request, "admin/users/form.html", {'form': form})
 
 def locations(request):
     locations = Location.objects.all()
-    if request.is_ajax():
-        return HttpResponse(locations.count())
     return render(request, "admin/locations/index.html", {'locations': locations})
 
 def edit_location(request, location_id=None):

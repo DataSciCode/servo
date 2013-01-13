@@ -41,8 +41,7 @@ def close(request, id):
 def create(request, sn=None, product_id=None, note_id=None):
 
     profile = request.user.get_profile()
-    order = Order.objects.create(created_by=request.user, 
-        location=profile.location)
+    order = Order.objects.create(created_by=request.user)
 
     if sn:
         try:
@@ -89,12 +88,9 @@ def index(request, *args, **kwargs):
     """
     Lists service orders matching specified criteria
     """
-    queue_title = _(u'Jono')
-    status_title = _(u'Status')
-    user_title = _(u'Käsittelijä')
-    tag_title = _(u'Tagi')
 
-    orders = Order.objects.all()
+    location = request.user.get_profile().location
+    orders = Order.objects.filter(location=location)
 
     if kwargs.get('date'):
         (year, month, day) = kwargs['date'].split('-')
@@ -184,10 +180,6 @@ def index(request, *args, **kwargs):
         'orders': orders,
         'queues': queues,
         'statuses': Status.objects.all(),
-        'status_title': status_title,
-        'queue_title': queue_title,
-        'user_title': user_title,
-        'tag_title': tag_title,
         })
 
 def toggle_tag(request, order_id, tag_id):

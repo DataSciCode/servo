@@ -1,8 +1,8 @@
 {% extends "admin/users/index.html" %}
 {% load i18n %}
 {% block admin_content %}
-<form action="#" method="post" accept-charset="utf-8" class="form-horizontal">
-{% csrf_token %}
+<form action="" method="post" accept-charset="utf-8" class="form-horizontal">
+    {% csrf_token %}
     <ul class="nav nav-tabs">
       <li class="active"><a href="#tab1" data-toggle="tab">{% trans "Yleiset" %}</a></li>
       <li><a href="#tab2" data-toggle="tab">{% trans "Oikeudet" %}</a></li>
@@ -22,21 +22,21 @@
         {% include "form_field_snippet.html" with field=form.is_superuser %}
         {% include "form_field_snippet.html" with field=form.groups %}
     </div>
-        <div class="tab-pane" id="tab3">
-            {% include "form_field_snippet.html" with field=form.phone %}
-            {% include "form_field_snippet.html" with field=form.tech_id %}
-            {% include "form_field_snippet.html" with field=form.location %}
-            {% include "form_field_snippet.html" with field=form.locale %}
-            <div class="control-group">
-                <label class="control-label">{% trans "Asiakas" %}</label>
-                <div class="controls">
-                    <div class="input-append">
-                        <input class="input-small" name="customer" id="customer_id" type="text"/>
-                        <button class="btn" type="button">{% trans "Valitse" %}</button>
-                    </div>
+    <div class="tab-pane" id="tab3">
+        {% include "form_field_snippet.html" with field=form.phone %}
+        {% include "form_field_snippet.html" with field=form.tech_id %}
+        {% include "form_field_snippet.html" with field=form.location %}
+        {% include "form_field_snippet.html" with field=form.locale %}
+        <div class="control-group">
+            <label class="control-label">{% trans "Asiakas" %}</label>
+            <div class="controls">
+                <div class="input-append">
+                    <input class="input-small" name="customer" id="customer_id" type="text"/>
+                    <button class="btn" type="button">{% trans "Valitse" %}</button>
                 </div>
             </div>
         </div>
+    </div>
     </div>
     {% include "form_buttons.html" %}
 </form>

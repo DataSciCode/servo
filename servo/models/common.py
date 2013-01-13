@@ -17,6 +17,7 @@ from servo.models.gsx import GsxAccount
 class Label(models.Model):
     title = models.CharField(max_length=255)
     color = models.CharField(max_length=16)
+    priority = models.IntegerField(default=1)
 
     class Meta:
         app_label = 'servo'
@@ -87,7 +88,7 @@ class Attachment(models.Model):
         app_label = 'servo'
 
 class Location(models.Model):
-    title = models.CharField(max_length=255, default=_('Uusi sijainti'),
+    title = models.CharField(max_length=255, default=_('Uusi toimipaikka'),
         verbose_name=_(u'nimi'))
     phone = models.CharField(max_length=32, blank=True, null=True,
         verbose_name=_(u'puhelin'))

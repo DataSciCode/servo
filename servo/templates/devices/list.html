@@ -16,7 +16,7 @@
           <li><a href="{% url servo.views.order.add_device request.session.current_order.id device.id %}">{% trans "Vie tilaukselle" %} #{{ request.session.current_order.id }}</a></li>
           <li class="divider"></li>
         {% endif %}
-          <li><a href="/devices/{{ device.id }}/orders/new/">{% trans "Luo tilaus" %}</a></li>
+          <li><a href="/orders/create/sn/{{ device.sn }}/">{% trans "Luo tilaus" %}</a></li>
           <li><a href="/orders/device/{{ device.id }}">{% trans "Tilaukset" %}</a></li>
           <li class="divider"></li>
           <li><a href="{% url servo.views.device.remove device.id %}">{% trans "Poista" %}</a></li>

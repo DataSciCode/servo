@@ -11,7 +11,7 @@
 <table class="table">
 {% for user in users %}
   <tr>
-    <td><a href="{{ user.pk }}/view/">{{ user.username }}</a></td>
+    <td><a href="{{ user.pk }}/edit/">{{ user.username }}</a></td>
     <td>{{ user.first_name }}</td>
     <td>{{ user.last_name }}</td>
     <td>{{ user.email }}</td>

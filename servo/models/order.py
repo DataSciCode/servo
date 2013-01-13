@@ -46,13 +46,6 @@ class Order(models.Model):
     status_limit_green = models.IntegerField(null=True)   # timestamp in seconds
     status_limit_yellow = models.IntegerField(null=True)  # timestamp in seconds
 
-    class Meta:
-        ordering = ['-priority', 'id']
-        app_label = 'servo'
-
-    def get_absolute_url(self):
-        return '/orders/order/%d' % self.pk
-
     def close(self, user):
         self.closed_at = datetime.now()
         self.state = 2
@@ -255,6 +248,13 @@ class Order(models.Model):
 
     def is_editable(self):
         return True
+
+    class Meta:
+        ordering = ['-priority', 'id']
+        app_label = 'servo'
+
+    def get_absolute_url(self):
+        return '/orders/order/%d' % self.pk
 
     def __unicode__(self):
         return 'Order #%d' % self.pk
@@ -469,13 +469,18 @@ class GsxRepair(models.Model):
     symptom = models.TextField()
     diagnosis = models.TextField()
 
+@receiver(pre_save, sender=Order)
+def trigger_set_location(sender, instance, **kwargs):
+    profile = instance.created_by.get_profile()
+    instance.location = profile.location
+
 @receiver(post_save, sender=Order)
 def trigger_event(sender, instance, created, **kwargs):
     if created:
     	instance.code = encode_url(instance.id).upper()
         description = _('Tilaus %s luotu' % instance.code)
-        instance.notify('created', description, instance.created_by)
-        instance.save()
+        #instance.notify('created', description, instance.created_by)
+        #instance.save()
 
 @receiver(post_save, sender=Invoice)
 def trigger_order_dispatched(sender, instance, created, **kwargs):
