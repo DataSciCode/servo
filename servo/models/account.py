@@ -15,7 +15,11 @@ class UserProfile(models.Model):
 
     queues = models.ManyToManyField(Queue, blank=True, null=True,
         verbose_name=_(u'jonot'))
-    location = models.ForeignKey(Location, verbose_name=_(u'sijainti'))
+
+    # Technically, location should never be NULL, but requiring it
+    # creates a heap of trouble with syncdb so it's set as is for now...
+    location = models.ForeignKey(Location, null=True, verbose_name=_(u'sijainti'))
+
     tech_id = models.CharField(max_length=16, blank=True,
     	verbose_name=_(u'tech ID'))
     phone = models.CharField(max_length=16, blank=True, 
