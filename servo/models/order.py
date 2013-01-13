@@ -31,10 +31,11 @@ class Order(models.Model):
 
     tags = models.ManyToManyField(Tag, verbose_name=u'tagit')
     user = models.ForeignKey(User, null=True, verbose_name=u'käsittelijä')
+    location = models.ForeignKey(Location)
 
     customer = models.ForeignKey(Customer, null=True)
-    products = models.ManyToManyField(Product, through='ServiceOrderItem')
     devices = models.ManyToManyField(Device, null=True, blank=True)
+    products = models.ManyToManyField(Product, through='ServiceOrderItem')
 
     queue = models.ForeignKey(Queue, null=True, verbose_name=_(u'jono'))
     status = models.ForeignKey(QueueStatus, null=True, verbose_name=_(u'status'))

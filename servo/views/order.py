@@ -39,7 +39,10 @@ def close(request, id):
 
 @login_required
 def create(request, sn=None, product_id=None, note_id=None):
-    order = Order.objects.create(created_by=request.user)
+
+    profile = request.user.get_profile()
+    order = Order.objects.create(created_by=request.user, 
+        location=profile.location)
 
     if sn:
         try:

@@ -14,9 +14,22 @@ from django_countries import CountryField
 from servo.lib.shorturl import encode_url
 from servo.models.gsx import GsxAccount
 
+class Label(models.Model):
+    title = models.CharField(max_length=255)
+    color = models.CharField(max_length=16)
+
+    class Meta:
+        app_label = 'servo'
+
+class Place(models.Model):
+    name = models.CharField(max_length=255)
+
+    class Meta:
+        app_label = 'servo'
+
 class Tag(MPTTModel):
     """
-    A tag is a simple ine-word descriptor for something.
+    A tag is a simple one-word descriptor for something.
     The type attribute is used to group tags to make them easier
     to associate with different elements
     """
