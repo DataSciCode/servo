@@ -35,7 +35,7 @@
       <li class="divider"></li>
       <li><a href="{% url servo.views.customer.edit customer_id=customer.id %}">{% trans "Muokkaa" %}</a></li>
       <li><a href="{% url servo.views.customer.move customer.id %}">{% trans "Siirrä" %}</a></li>
-      <li><a href="{% url servo.views.customer.delete customer.id %}">{% trans "Poista" %}</a></li>
+      <li><a href="{% url servo.views.customer.delete customer.id %}" data-modal="#modal">{% trans "Poista" %}</a></li>
     </ul>
   </div>
   <legend>{% trans "Tilaukset" %}</legend>
