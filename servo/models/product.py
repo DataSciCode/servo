@@ -5,7 +5,7 @@ from django.db import models
 from django.core.cache import cache
 from mptt.models import MPTTModel, TreeForeignKey
 from django.utils.translation import ugettext as _
-from servo.lib.gsx import gsx
+import gsx
 
 from servo.models.common import Tag, Attachment, Configuration
 

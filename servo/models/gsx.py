@@ -4,7 +4,7 @@ from django.db import models
 from django.core.cache import cache
 from django.utils.translation import ugettext as _
 
-from servo.lib.gsx import gsx
+import gsx
 
 class GsxAccount(models.Model):
     title = models.CharField(max_length=128, default=_('Uusi tili'),

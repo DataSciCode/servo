@@ -4,7 +4,7 @@ from django.dispatch import receiver
 from django.utils.translation import ugettext as _
 from django.db.models.signals import pre_save, post_save
 
-from servo.lib.gsx import gsx
+import gsx
 from servo.models.common import Tag, Attachment
 
 class Device(models.Model):

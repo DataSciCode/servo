@@ -10,7 +10,7 @@ from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.datastructures import DotExpandedDict
 
-from servo.lib.gsx import gsx
+import gsx
 from servo.models.common import *
 from servo.models.order import *
 from servo.models.note import *

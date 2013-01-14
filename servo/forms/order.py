@@ -5,7 +5,7 @@ from django.utils.translation import ugettext as _
 
 from django_countries import countries, CountryField
 
-from servo.lib.gsx import gsx
+import gsx
 from servo.models.order import *
 from servo.models.common import QueueStatus
 from servo.forms.product import LocalizedModelForm

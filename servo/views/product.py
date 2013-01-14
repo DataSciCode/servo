@@ -8,7 +8,7 @@ from django.shortcuts import render, redirect, render_to_response
 from django.utils.translation import ugettext as _
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
-from servo.lib.gsx import gsx
+import gsx
 from servo.models.gsx import Lookup, GsxAccount
 from servo.models.common import *
 from servo.models.order import *
