@@ -5,6 +5,7 @@
 #     pip install -r requirements.pip
 
 django
+south
 django-countries
 markdown
 python-memcached
