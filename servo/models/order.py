@@ -31,26 +31,20 @@ class Order(models.Model):
 
     tags = models.ManyToManyField(Tag, verbose_name=u'tagit')
     user = models.ForeignKey(User, null=True, verbose_name=u'käsittelijä')
+    location = models.ForeignKey(Location)
 
     customer = models.ForeignKey(Customer, null=True)
-    products = models.ManyToManyField(Product, through='ServiceOrderItem')
     devices = models.ManyToManyField(Device, null=True, blank=True)
+    products = models.ManyToManyField(Product, through='ServiceOrderItem')
 
     queue = models.ForeignKey(Queue, null=True, verbose_name=_(u'jono'))
-    status = models.ForeignKey(Status, null=True, verbose_name=_(u'status'))
+    status = models.ForeignKey(QueueStatus, null=True, verbose_name=_(u'status'))
 
     STATES = ((0, 'unassigned'), (1, 'open'), (2, 'closed'))
     state = models.IntegerField(default = 0, max_length=16, choices=STATES)
 
     status_limit_green = models.IntegerField(null=True)   # timestamp in seconds
     status_limit_yellow = models.IntegerField(null=True)  # timestamp in seconds
-
-    class Meta:
-        ordering = ['-priority', 'id']
-        app_label = 'servo'
-
-    def get_absolute_url(self):
-        return '/orders/order/%d' % self.pk
 
     def close(self, user):
         self.closed_at = datetime.now()
@@ -77,28 +71,37 @@ class Order(models.Model):
 
     def status_name(self):
         if self.status:
-            return self.status.title
+            return self.status.status.title
         else:
             return _(u'Ei statusta')
 
-    def status_id(self):
+    def get_status_id(self):
+        """
+        Returns "real" status ID of this order (regardless of queue)
+        """
         if self.status:
-            return self.status.id
+            return self.status.status.id
         else:
             return None
 
-    def status_img(self):
+    def get_color(self):
         from time import time
 
-        if not self.status:
-            return 'undefined'
-        else:
+        color = 'undefined'
+
+        if self.status:
             if time() < self.status_limit_green:
-                return 'green'
+                color = 'green'
             if time() < self.status_limit_yellow:
-                return 'yellow'
+                color = 'yellow'
             if time() > self.status_limit_yellow:
-                return 'red'
+                color = 'red'
+
+        return color
+        
+    def get_status_img(self):
+        color = self.get_color()
+        return 'images/status_%s_16.png' % color
     
     def set_property(self, key, value):
         pass
@@ -111,27 +114,40 @@ class Order(models.Model):
             action=action,
             triggered_by=user)
 
-    def set_status(self, status_id, user):
-        """Sets status of this order to status_id"""
+    def set_status(self, new_status, user):
+        """
+        Sets status of this order to new_status
+        Status can only be set if order belongs to a queue!
+        """
         from time import time
 
-        status = QueueStatus.objects.get(pk=status_id).status
+        if not isinstance(new_status, QueueStatus):
+            status = QueueStatus.objects.get(pk=new_status)
+        else:
+            status = new_status
+            
+        self.status = status
 
         # calculate when this status will timeout
         green = (status.limit_green*status.limit_factor)+time()
         yellow = (status.limit_yellow*status.limit_factor)+time()
+
         self.status_limit_green = green
         self.status_limit_yellow = yellow
-        self.status = status
         self.save()
 
-        self.notify('set_status', status.title, user)
+        self.notify('set_status', self.status.status.title, user)
 
     def set_queue(self, queue_id, user):
         queue = Queue.objects.get(pk=queue_id)
         self.queue = queue
         self.notify('set_queue', queue.title, user)
-        self.save()
+
+        if queue.default_status:
+            status = QueueStatus.objects.get(status=queue.default_status, queue=queue)
+            self.set_status(status, user)
+        else:
+            self.save()
 
     def set_user(self, user_id, current_user):
         if user_id == '':
@@ -234,7 +250,17 @@ class Order(models.Model):
 
         return (self.net_total() - total_purchase_price)
 
-    def __str__(self):
+    def is_editable(self):
+        return True
+
+    class Meta:
+        ordering = ['-priority', 'id']
+        app_label = 'servo'
+
+    def get_absolute_url(self):
+        return '/orders/order/%d' % self.pk
+
+    def __unicode__(self):
         return 'Order #%d' % self.pk
 
 class OrderItem(models.Model):
@@ -447,12 +473,17 @@ class GsxRepair(models.Model):
     symptom = models.TextField()
     diagnosis = models.TextField()
 
+@receiver(pre_save, sender=Order)
+def trigger_set_location(sender, instance, **kwargs):
+    profile = instance.created_by.get_profile()
+    instance.location = profile.location
+
 @receiver(post_save, sender=Order)
 def trigger_event(sender, instance, created, **kwargs):
     if created:
     	instance.code = encode_url(instance.id).upper()
         description = _('Tilaus %s luotu' % instance.code)
-        instance.notify('created', description, instance.created_by)
+        #instance.notify('created', description, instance.created_by)
         instance.save()
 
 @receiver(post_save, sender=Invoice)

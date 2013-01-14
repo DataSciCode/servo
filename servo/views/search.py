@@ -1,51 +1,68 @@
 #coding=utf-8
 
 import re
+import json
+import cPickle as pickle
+
 from django.shortcuts import render, redirect
 from django.core.cache import cache
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.datastructures import DotExpandedDict
 
-import json, cPickle as pickle
-
-from servo.lib.gsxlib.gsxlib import Gsx, looks_like
+from servo.lib.gsx import gsx
 from servo.models.common import *
 from servo.models.order import *
 from servo.models.note import *
 
-def gsx(request, what):
+def search_gsx(request, what):
+    """
+    Searches for something from GSX
+    """
     results = []
+
     #results = cache.get('%s-%s' % (what, value))
-    results = False
 
     if not results:
-        gsx = GsxAccount.default()
-        query = request.GET.get('serialNumber')
+        GsxAccount.default()
 
+        if request.GET.get('serialNumber'):
+            query = request.GET.get('serialNumber')
+            product = gsx.Product(query)
+            
         if what == 'warranty':
-            result = gsx.warranty_status(query)[0]
 
-            if re.match('iPhone', result.get('productDescription')):
-                ad = gsx.fetch_ios_activation(serialNumber=query)
+            try:
+                result = product.get_warranty()
+            except Exception, e:
+                return render(request, 'search/results-error.html', {'message': e})
+            
+            if re.match('iPhone', result.productDescription):
+                ad = product.get_activation()
                 result['activationDetails'] = ad[0]
 
-            results = [result]
+            results.append(result)
 
         if what == 'parts':
-            if not query:
+            if request.GET.get('partNumber'):
                 query = request.GET.get('partNumber')
-
-            results = gsx.parts_lookup(query)
+                part = gsx.Part(partNumber=query)
+                results.append(part.lookup())
+            else:
+                results = product.get_parts()
 
         if what == 'repairs':
             if query:
-                results = gsx.repair_lookup(serialNumber=query)
+                try:
+                    results = product.get_repairs()
+                except Exception, e:
+                    return render(request, 'search/results-notfound.html')
             else:
                 what = 'repair_details'
-                results = gsx.repair_details(request.GET['dispatchId'])
+                repair = gsx.Repair(dispatchId=request.GET['dispatchId'])
+                results = repair.get_details()
 
-        # Cache the results for quicker quicker access later
+        # Cache the results for quicker access later
         cache.set('%s-%s' %(what, query), results)
 
     return render(request, 'search/results-%s.html' % what, {
@@ -55,13 +72,17 @@ def gsx(request, what):
 
 def spotlight(request, what='warranty'):
     """
-    Search for anything
+    Searches for anything
     GSX searches are done separately
     """
     results = dict()
     query = request.GET.get('q')
 
-    results['gsx'] = looks_like(query)
+    if Order.objects.filter(code=query).exists():
+        order = Order.objects.get(code=query)
+        return redirect(order)
+
+    results['gsx'] = gsx.validate(query)
     
     if results['gsx'] == 'dispatchId':
         what = 'repairs'
@@ -69,18 +90,18 @@ def spotlight(request, what='warranty'):
     if results['gsx'] == 'partNumber':
         what = 'parts'
 
-    if Order.objects.filter(code=query).exists():
-        order = Order.objects.get(code=query)
-        return redirect('/orders/%d/' % order.id)
-
     results['what'] = what
     results['query'] = query
     results['devices'] = Device.objects.filter(sn__icontains=query)
 
     results['orders'] = Order.objects.filter(customer__name__icontains=query)
 
-    if looks_like(query) == 'serialNumber':
+    if gsx.validate(query, 'serialNumber'):
         results['orders'] = Order.objects.filter(devices__sn__contains=query)
+
+    if gsx.validate(query, 'dispatchId'):
+        po = PurchaseOrder.objects.get(confirmation=query)
+        results['orders'] = [po.sales_order]
 
     results['notes'] = Note.objects.filter(body__contains=query)
     results['customers'] = Customer.objects.filter(name__icontains=query)

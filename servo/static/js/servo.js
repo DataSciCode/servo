@@ -31,7 +31,7 @@ $(function() {
 
     _.each($('a.counter'), function(i, e) {
         $.get($(i).attr('href'), function(count) {
-            if (int(count) < 1) {
+            if (parseInt(count) < 1) {
                 return false;
             }
             $('<span class="badge pull-right"/>').text(count).appendTo(i);
@@ -57,10 +57,17 @@ $(function() {
 
     if($('.progress .bar').length) {
         window.setInterval(function() {
-            var p = parseInt($('.progress .bar').data('progress')) + 10;
+            var that = $('.progress .bar')
+            var p = parseInt($(that).data('progress')) + 10;
+
             if(p < 100) {
-                $('.progress .bar').data('progress', p).css('width', p+'%')
+                $(that).data('progress', p).css('width', p+'%')
+            } else {
+                $(that).data('progress', 100).css('width', '100%')
+                $(that).parent().addClass('active');
+                $(that).parent().addClass('progress-striped');
             }
+
         }, 500);
     }
 
@@ -72,7 +79,7 @@ $(function() {
         e.preventDefault();
     });
 
-    $('input.filter').keyup(function() {
+    $('input.filter').live('keyup', function() {
         var rex = new RegExp($(this).val(), 'i');
         $('.searchable tr').hide();
         $('.searchable tr').filter(function() {
@@ -111,6 +118,7 @@ $(function() {
 
         $('#events').load(url, args, function() {
             if (arg == 'queue') {
+                $('#id_status').attr('disabled', false);
                 $('#id_status').load('/queues/'+t.val()+'/statuses/');
             };
         });
@@ -136,12 +144,24 @@ $(function() {
     });
 
     $('textarea:first').focus();
-
     $('div.toggle_status_row input:not(:checked)').nextAll().attr('disabled', true);
 
     $('tr.toggle_status_row input[type="checkbox"]').click(function() {
         var checked = $(this).prop('checked');
         $(this).nextAll('input,select').attr('disabled', !checked);
     });
-    
+
+    $('a[data-modal]').click(function(e){
+        e.preventDefault();
+        $('#modal').load($(this).attr('href'), function(){
+            $('#modal').modal()
+        });
+    });
+
+    $('a.window').click(function(e){
+        e.preventDefault();
+        window.open($(this).attr('href'));
+        return false;
+    });
+
 });

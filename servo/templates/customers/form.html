@@ -1,10 +1,10 @@
 {% extends "customers/index.html" %}
 {% load i18n %}
 
-{% block sidebar %}
-{% endblock sidebar %}
+{% block left_column %}
+{% endblock left_column %}
 
-{% block detail_block %}
+{% block middle_column %}
 <form method="post" action="" accept-charset="utf-8" class="form-horizontal">
   {% csrf_token %}
   <ul class="nav nav-tabs">
@@ -51,4 +51,4 @@
   {% include "form_buttons.html" %}
 </form>
 
-{% endblock detail_block %}
+{% endblock middle_column %}

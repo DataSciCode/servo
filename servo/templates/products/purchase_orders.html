@@ -1,7 +1,7 @@
 {% extends "products/index.html" %}
 {% load i18n %}
-{% block products_content %}
-<a class="btn btn-success pull-right" href="/products/po/new/"><i class="icon-plus"></i> {% trans "Luo tilaus" %}</a>
+
+{% block middle_column %}
 <table class="table">
   <thead>
     <tr>
@@ -45,4 +45,8 @@
   </tbody>
 </table>
 {% include "pagination.html" with items=orders %}
-{% endblock products_content %}
+{% endblock middle_column %}
+
+{% block right_column %}
+  <a class="btn btn-success pull-right" href="/products/po/new/"><i class="icon-plus"></i> {% trans "Luo tilaus" %}</a>
+{% endblock right_column %}

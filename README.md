@@ -8,32 +8,23 @@ Requirements:
 - python-memcached
 - reportlab
 - PIL
+- py-gsx
 
 TODO:
-- fix links after last refactoring
 - products/outgoing
 - products/incoming
 - notifications
-- wiki
 - products/invoices
 - calendars/index
-- queue statuses
 - incoming mail
 - locations/shelf codes?
 - following?
 - give error on no GSX results
-- searching by repair confirmation?
 - logging in as a customer (limiting search results, customers, orders, permissions, etc)
 - Request Review/file uploads (GSX)
-[OK] template chooser
 - modals for GSX submits (so that users don't interrupt the long requests)
 - simplify products inventory. Remove product groups and specs - just use recursive tags.
-[OK] adding tags to orders
 - MRI status?
-
-Service Order
-=============
-
-
-Purchase Order
-==============
+- request access on login page!
+- escalations?
+- http://localhost:8000/search/parts/?q=661-5948

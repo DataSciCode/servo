@@ -34,22 +34,12 @@ class Customer(MPTTModel):
     
     is_company = models.BooleanField(default=False, verbose_name=_(u'yritys'))
 
-    class Meta:
-        ordering = ('name',)
-        app_label = 'servo'
-
-    class MPTTMeta:
-        order_insertion_by = ('name',)
-
-    def __unicode__(self):
-        return self.name
-
     def get_absolute_url(self):
         return "/customers/%d/" % self.pk
 
     def gsx_address(self):
         """
-        Return a dictionary that's compatibly with GSX's Address datatype
+        Returns a dictionary that's compatibly with GSX's Address datatype
         """
         out = dict()
 
@@ -95,6 +85,16 @@ class Customer(MPTTModel):
             props[r.key] = r.value
 
         return props
+
+    class Meta:
+        ordering = ('name',)
+        app_label = 'servo'
+
+    class MPTTMeta:
+        order_insertion_by = ('name',)
+
+    def __unicode__(self):
+        return self.name
 
 class ContactInfo(models.Model):
     customer = models.ForeignKey(Customer)

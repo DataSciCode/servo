@@ -14,9 +14,17 @@ from django_countries import CountryField
 from servo.lib.shorturl import encode_url
 from servo.models.gsx import GsxAccount
 
+class Label(models.Model):
+    title = models.CharField(max_length=255)
+    color = models.CharField(max_length=16)
+    priority = models.IntegerField(default=1)
+
+    class Meta:
+        app_label = 'servo'
+
 class Tag(MPTTModel):
     """
-    A tag is a simple ine-word descriptor for something.
+    A tag is a simple one-word descriptor for something.
     The type attribute is used to group tags to make them easier
     to associate with different elements
     """
@@ -74,7 +82,10 @@ class Attachment(models.Model):
         app_label = 'servo'
 
 class Location(models.Model):
-    title = models.CharField(max_length=255, default=_('Uusi sijainti'),
+    """
+    This is basically a company
+    """
+    title = models.CharField(max_length=255, default=_('Uusi toimipaikka'),
         verbose_name=_(u'nimi'))
     phone = models.CharField(max_length=32, blank=True, null=True,
         verbose_name=_(u'puhelin'))
@@ -94,6 +105,13 @@ class Location(models.Model):
     def __unicode__(self):
         return self.title
 
+    class Meta:
+        app_label = 'servo'
+
+class Place(models.Model):
+    name = models.CharField(max_length=255)
+    location = models.ForeignKey(Location)
+    
     class Meta:
         app_label = 'servo'
 
@@ -302,7 +320,7 @@ class QueueStatus(models.Model):
     limit_factor = models.IntegerField(default=Status().FACTORS[0], 
         choices=Status().FACTORS,
         verbose_name=_(u'aikayksikkö'))
-
+    
     def __unicode__(self):
         return self.status.title
 

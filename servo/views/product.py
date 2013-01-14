@@ -8,6 +8,7 @@ from django.shortcuts import render, redirect, render_to_response
 from django.utils.translation import ugettext as _
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
+from servo.lib.gsx import gsx
 from servo.models.gsx import Lookup, GsxAccount
 from servo.models.common import *
 from servo.models.order import *
@@ -62,14 +63,14 @@ def edit(request, product_id=0, code=None):
         product_id = product.id
     
     if code:
-        result = Lookup(GsxAccount.default()).lookup(code)
-        product = Product.from_gsx(result)
+        # We shoose the GSX account here since orders in different queues
+        # might use a different accounts...
+        act = GsxAccount.default()
+        product = Product.from_gsx(code, act)
         form = ProductForm(instance=product)
     
     return render(request, 'products/form.html', {
-        'form': form,
-        'product_id': product_id,
-        'gsx_data': result
+        'form': form
         })
 
 def remove(request, id):
@@ -276,22 +277,24 @@ def index_po(request):
     return render(request, 'products/purchase_orders.html', {'orders': orders})
 
 def order_stock(request, po_id):
-    from lib.gsxlib import gsxlib
     po = PurchaseOrder.objects.get(pk=po_id)
-    gsx = GsxAccount.default()
+    GsxAccount.default()
     items = []
+
+    profile = request.user.get_profile()
+    ship_to = profile.location.ship_to
+
+    stock_order = gsx.Order(shipToCode=ship_to, purchaseOrderNumber=po.id)
+
     for i in po.purchaseorderitem_set.all():
-        items.append({'partNumber': i.code, 'quantity': str(i.amount)})
+        stock_order.add_part(i.code, i.amount)
 
-    try:
-        profile = request.user.get_profile()
-        ship_to = profile.location.ship_to
-        so = gsx.create_stocking_order(purchaseOrderNumber=str(po.id),
-        shipToCode=ship_to,
-        orderLines=items)
-    except gsxlib.GsxError, e:
-        messages.add_message(request, messages.ERROR, e)
+    result = stock_order.submit()
+    po.confirmation = result.confirmationNumber
+    po.date_submitted = datetime.now()
+    po.save()
 
+    messages.add_message(request, messages.INFO, _(u'Tuotteet tilattu viittellä %s' % po.confirmation))
     return redirect('/products/po/')
 
 def remove_po(request, po_id):
@@ -353,5 +356,16 @@ def index_outgoing(request, shipment=None, date=None):
     if request.is_ajax():
         return HttpResponse('5')
 
-    inventory = ServiceOrderItem.objects.filter(should_return=True)
-    return render(request, 'products/index_outgoing.html', {'inventory': inventory})
+    GsxAccount.default()
+
+    if request.method == 'POST':
+        pass
+
+    parts = gsx.Returns(shipToCode='677592').get_pending()
+
+    return render(request, 'products/index_outgoing.html', {'parts': parts})
+
+def return_label(request, return_order, part_number):
+    GsxAccount.default()
+    label = gsx.Returns(return_order).get_label(part_number)
+    return HttpResponse(label.returnLabelFileData, content_type='application/pdf')

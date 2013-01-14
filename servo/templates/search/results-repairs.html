@@ -1,31 +1,24 @@
 {% load i18n %}
-{% load servo_extras %}
-
-<ul class="nav nav-tabs">
-	<li><a href="/search?q={{ query }}">{% trans "Laite" %}</a></li>
-	<li><a href="/search/parts/?q={{ query }}">{% trans "Varaosat" %}</a></li>
-	<li class="active"><a href="/search/repairs/?q={{ query }}">{% trans "Huollot" %}</a></li>
-</ul>
 
 <table class="table table-hover">
-	<thead>
-		<tr>
-			<th>{% trans "Numero" %}</th>
-			<th>{% trans "Viite" %}</th>
-			<th>{% trans "Luotu" %}</th>
-			<th>{% trans "Asiakas" %}</th>
-			<th>{% trans "Tila" %}</th>
-		</tr>
-	</thead>
-	<tbody>
-{% for r in results %}
-		<tr>
-			<td><a href="/search/?q={{ r.repairConfirmationNumber }}">{{ r.repairConfirmationNumber }}</a></td>
-			<td>{{ r.purchaseOrderNumber }}</td>
-			<td>{{ r.createdOn }}</td>
-			<td>{{ r.customerName }}</td>
-			<td>{{ r.repairStatus }}</td>
-		</tr>
-{% endfor %}
-	</tbody>
+    <thead>
+        <tr>
+            <th>{% trans "Numero" %}</th>
+            <th>{% trans "Viite" %}</th>
+            <th>{% trans "Luotu" %}</th>
+            <th>{% trans "Asiakas" %}</th>
+            <th>{% trans "Tila" %}</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for r in results %}
+        <tr>
+            <td><a href="/search/?q={{ r.repairConfirmationNumber }}">{{ r.repairConfirmationNumber }}</a></td>
+            <td>{{ r.purchaseOrderNumber }}</td>
+            <td>{{ r.createdOn }}</td>
+            <td>{{ r.customerName }}</td>
+            <td>{{ r.repairStatus }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
 </table>

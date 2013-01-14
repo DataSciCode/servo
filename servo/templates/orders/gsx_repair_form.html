@@ -1,8 +1,8 @@
-{% extends "default.html" %}
+{% extends "two_column_layout.html" %}
 {% load i18n %}
 {% load servo_extras %}
 
-{% block content %}
+{% block right_column %}
 <ul class="breadcrumb">
   <li><a href="/orders/">{% trans "Tilaukset" %}</a> <span class="divider">/</span></li>
   <li><a href="{{ order.get_absolute_url }}">{{ order.code }}</a></li> <span class="divider">/</span> 
@@ -33,21 +33,21 @@
           <input type="checkbox" name="ids" value="{{ part.number }}" checked="checked" readonly="readonly"/>
           <input type="text" readonly="readonly" value="{{ part.code }}" name="part_numbers" class="input-small"/>
           <input type="text" readonly="readonly" value="{{ part.title }}" class="input-large"/>
-          <select name="part_codes">
+          <select name="part_codes" class="input-medium">
             <option value="">{% trans "CompTIA code" %}...</option>
             {% for k, v in part.symptoms.items %}
             <option value="{{ k }}">{{ v }}</option>
             {% endfor %}
           </select>
-          <select name="part_modifiers">
+          <select name="part_modifiers" class="input-medium">
             <option value="">{% trans "CompTIA modifier" %}...</option>
             {% for k, v in modifiers.items %}
             <option value="{{ k }}">{{ v }}</option>
             {% endfor %}
           </select>
-          <select name="abused" class="input-small">
-            <option value="N">{% trans "Takuu" %}</option>
-            <option value="Y">{% trans "Vahinko" %}</option>
+          <select name="abused" class="input-medium">
+            <option value="N">{% trans "Returnable Damage" %}</option>
+            <option value="Y">{% trans "Non-returnable Damage" %}</option>
           </select>
         </div>
       {% endfor %}
@@ -60,4 +60,4 @@
       <button type="submit" class="btn btn-primary" data-loading-text="{% trans "Ladataan" %}...">{% trans "Lähetä" %}</button>
     </div>
 </form>
-{% endblock content %}
+{% endblock right_column %}

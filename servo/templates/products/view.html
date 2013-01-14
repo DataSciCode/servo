@@ -1,6 +1,6 @@
 {% extends "products/index.html" %}
 {% load i18n %}
-{% block products_content %}
+{% block middle_column %}
 <h2>{{ product.code }}</h2>
 <h3>{{ product.title }}</h3>
 <dl class="dl-horizontal">
@@ -15,4 +15,4 @@
   <dt>{% trans "Viimeksi saapunut" %}</dt><dd>{{ product.latest_date_arrived }}</dd>
 </dl>
 <a href="javascript:history.back()" class="btn">{% trans "Takaisin" %}</a>
-{% endblock products_content %}
+{% endblock middle_column %}

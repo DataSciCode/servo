@@ -1,7 +1,7 @@
-{% extends "default.html" %}
+{% extends "three_column_layout.html" %}
 {% load i18n %}
 
-{% block content %}
+{% block middle_column %}
 {% if note.order_id %}
 <ul class="breadcrumb">
   <li><a href="/orders/index/">{% trans "Tilaukset" %}</a> <span class="divider">/</span></li>
@@ -35,4 +35,4 @@
     <input type="submit" class="btn btn-primary" value="{% trans "Tallenna" %}"/>
   </div>
 </form>
-{% endblock content %}
+{% endblock middle_column %}

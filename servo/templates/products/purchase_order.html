@@ -2,7 +2,7 @@
 {% load i18n %}
 
 {% block content %}
-<div class="row">
+<div class="row-fluid">
   <form method="post" accept-charset="utf-8" action="{% url servo.views.product.edit_po order.pk %}">
     <div class="span3">
       {% csrf_token %}

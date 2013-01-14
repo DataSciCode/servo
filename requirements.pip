@@ -12,3 +12,4 @@ django-mptt
 psycopg2
 pil
 reportlab
+suds

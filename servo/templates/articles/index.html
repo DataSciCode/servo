@@ -2,7 +2,7 @@
 {% load i18n %}
 {% load servo_extras %}
 
-{% block col1 %}
+{% block left_column %}
 <div>
     <form method="get" action="">
         <input type="text" class="input-search" name="q" placeholder="{% trans "Hae artikkeleita..." %}"/>
@@ -14,9 +14,8 @@
 	</ul>
 </div>
 
-{% endblock col1 %}
+{% endblock left_column %}
 
-
-{% block col2 %}
+{% block right_column %}
     <a href="/wiki/articles/new/" class="btn btn-primary">{% trans "Uusi artikkeli" %}</a>
-{% endblock col2 %}
+{% endblock right_column %}

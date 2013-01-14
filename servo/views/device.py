@@ -51,9 +51,6 @@ def index(request, *args, **kwargs):
         'title': title,
         })
 
-def create(request):
-	return render(request, 'devices/form.html', {'form': DeviceForm()})
-
 def remove(request, id):
     if 'id' in request.POST:
         dev = Device.objects.get(pk=request.POST['id'])
@@ -64,42 +61,37 @@ def remove(request, id):
         dev = Device.objects.get(pk=id)
         return render(request, "devices/remove.html", {'device': dev})
 
-def edit(req, id):
-    gsx_data = {}
+def edit(request, device_id=None):
+    if request.method == 'POST':
+        return save(request, device_id)
 
-    #if id in req.session.get('gsx_data'):
-    #    import json
-    #    result = req.session['gsx_data'].get(id)
-    #    dev = Device(sn=result.get('serialNumber'),\
-    #        description=result.get('productDescription'),
-    #        purchased_on=result.get('estimatedPurchaseDate'))
-    #    gsx_data = result
-    #else:
-    dev = Device.objects.get(pk=id)
-    
-    form = DeviceForm(instance=dev)
-    return render(req, 'devices/form.html', {'device': dev, 'form': form, 
-    	'gsx_data': gsx_data})
+    if device_id:
+        dev = Device.objects.get(pk=device_id)
+        form = DeviceForm(instance=dev)
+    else:
+        form = DeviceForm()
 
-def view(request, id):
-    device = Device.objects.get(pk=id)
+    return render(request, 'devices/form.html', {'form': form})
+
+def view(request, device_id):
+    device = Device.objects.get(pk=device_id)
     return render(request, 'devices/view.html', {'device': device})
 
-@require_POST
-def save(request, id):
-    if request.method == 'POST':
-        # search by SN to avoid duplicates
-        device = Device.objects.get(sn=request.POST['sn'])
-        form = DeviceForm(request.POST, instance=device)
+def save(request, device_id):
+
+    if device_id:
+        device = Device.objects.get(pk=device_id)
     else:
-        form = DeviceForm(request.POST)
+        device = Device()
+
+    form = DeviceForm(request.POST, instance=device)
     
     if form.is_valid():
         device = form.save()
-        messages.add_message(request, messages.INFO, _(u"Laite tallennettu"))
+        messages.add_message(request, messages.INFO, _(u'Laite tallennettu'))
         return redirect('/devices/')
 
-    return render(request, "devices/form.html", {'form': form, 'device': device})
+    return render(request, 'devices/form.html', {'form': form})
 
 def search(request, query):
     if query:
@@ -108,9 +100,9 @@ def search(request, query):
     return render(request, "devices/search.html")
 
 def parts(request, device_id):
-	device = Device.objects.get(pk=device_id)
-	device.parts = Product.objects.filter(tags__pk=device.spec_id)
-	return render(request, "devices/parts.html", {'device': device})
+    device = Device.objects.get(pk=device_id)
+    device.parts = Product.objects.filter(tags__pk=device.spec_id)
+    return render(request, "devices/parts.html", {'device': device})
 
 def choose(request, order_id):
     #request.session['current_order'] = Order.objects

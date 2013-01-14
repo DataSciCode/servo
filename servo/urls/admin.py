@@ -35,7 +35,6 @@ urlpatterns = patterns('servo.views.admin',
     url(r'^templates/(\d+)/delete/$', 'remove_template'),
 
     url(r'^queues/new/$', 'edit_queue'),
-    url(r'^queues/(\d+)/remove/$', 'remove_queue'),
     url(r'^queues/(\d+)/edit/$', 'edit_queue'),
     url(r'^queues/(\d+)/remove/$', 'remove_queue'),
 

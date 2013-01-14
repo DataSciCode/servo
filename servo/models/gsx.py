@@ -4,29 +4,7 @@ from django.db import models
 from django.core.cache import cache
 from django.utils.translation import ugettext as _
 
-from servo.lib.gsxlib.gsxlib import Gsx
-
-class GsxObject(dict):
-    def __init__(self, *args, **kwargs):
-        for k, v in args[0].items():
-            self[k] = v
-
-class ServicePart(GsxObject):
-    def title(self):
-        return self['partDescription']
-
-    def description(self):
-        return self['partDescription']
-
-    def code(self):
-        return self['partNumber']
-
-class GsxDevice(GsxObject):
-    def title(self):
-        pass
-
-    def description(self):
-        pass
+from servo.lib.gsx import gsx
 
 class GsxAccount(models.Model):
     title = models.CharField(max_length=128, default=_('Uusi tili'),
@@ -52,43 +30,57 @@ class GsxAccount(models.Model):
         return self.title
 
     def get_absolute_url(self):
-        return "/admin/gsx/accounts/%d/" % self.pk
+        return '/admin/gsx/accounts/%d/' % self.pk
 
     @classmethod
     def default(cls):
         """
-        Return default GSX account and connect to it
+        Returns the default GSX account and connect to it
         """
         act = GsxAccount.objects.get(is_default=True)
         return act.connect()
 
     def connect(self):
-        gsx = Gsx(sold_to=self.sold_to, user_id=self.username, 
-            password=self.password, environment=self.environment)
-        cache.set('gsx', gsx, 60*25)
-        return gsx
+        """
+        Connects to the selected account and cacches the session
+        """
+        if cache.get('gsx_session'):
+            gsx.SESSION = cache.get('gsx_session')
+            gsx.init(env=self.environment, region='emea')
+        else:
+            session = gsx.connect(sold_to=self.sold_to, 
+                            user_id=self.username, 
+                            password=self.password, 
+                            env=self.environment)
+
+            cache.set('gsx_session', session, 60*20)
 
     class Meta:
         app_label = 'servo'
 
 class Lookup(object):
-    def __init__(self, account):
+    def __init__(self, *args, **kwargs):
         self.results = {}
+        self.query = kwargs
+        self.account = None
+
+    def set_account(self, account):
         self.account = account
 
-    def lookup(self, query):
+    def lookup(self):
+        key, query = self.query.items()[0]
+
         if cache.get(query):
             return cache.get(query)
 
-        results = self.account.parts_lookup(query)
+        if not self.account:
+            self.account = GsxAccount.default()
+
+        results = self.account.parts_lookup(self.query)
 
         for r in results:
             key = r['partNumber']
             self.results[key] = r
 
         cache.set_many(self.results, 60*20)
-        return self.results
-
-class Repair(models.Model):
-    pass
-    
+        return cache.get(query)

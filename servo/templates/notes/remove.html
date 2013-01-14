@@ -2,11 +2,11 @@
 {% load i18n %}
 {% block content %}
 <div class="alert alert-block alert-error">
-	<form action="" method="post" accept-charset="utf-8">
-		{% csrf_token %}
-		<h4>{% trans "Haluatko varmasti poistaa tämän merkinnän?" %}</h4>
-		<p>{% trans "Tämä poistaa myös viestille lisätyt vastaukset." %}</p>
-		<button type="submit" class="btn btn-danger">{% trans "Poista" %}</button>
-	</form>
+    <form action="" method="post" accept-charset="utf-8">
+        {% csrf_token %}
+        <h4>{% trans "Haluatko varmasti poistaa tämän merkinnän?" %}</h4>
+        <p>{% trans "Tämä poistaa myös viestille lisätyt vastaukset." %}</p>
+        <button type="submit" class="btn btn-danger">{% trans "Poista" %}</button>
+    </form>
 </div>
 {% endblock %}

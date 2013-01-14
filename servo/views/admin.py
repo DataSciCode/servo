@@ -16,7 +16,8 @@ from django.utils.translation import ugettext as _
 
 from servo.models.common import *
 from servo.forms.admin import *
-from servo.models.account import UserProfile
+from servo.models.account import User, Group, UserProfile
+from servo.forms.account import BasicProfileForm
 
 def documents(request):
     files = Attachment.objects.all()
@@ -63,7 +64,7 @@ def settings(request):
             return render(request, 'admin/settings.html', {'form': form})
 
         config = form.save()
-        print type(config['logo'])
+        
         # must use cache and not session since it's shared among
         # all the users of the system
         cache.set('config', config, 60*60*24*1)
@@ -276,21 +277,28 @@ def edit_user(request, user_id='new'):
     user = User()
     locations = Location.objects.all()
 
-    if user_id == "new":
-        form = UserForm()
-    else:
+    form = UserForm()
+    profile_form = BasicProfileForm()
+
+    if not user_id == 'new':
         user = User.objects.get(pk=user_id)
         form = UserForm(instance=user)
+        try:
+            profile_form = BasicProfileForm(instance=user.get_profile())
+        except UserProfile.DoesNotExist:
+            pass
 
-    return render(request, "admin/users/form.html", {
+    return render(request, 'admin/users/form.html', {
         'form': form,
-        'user': user,
-        'user_id': user_id,
+        'profile_form': profile_form,
         'locations': locations
         })
 
 def save_user(request, user_id):
-    if user_id != "new":
+
+    profile_form = BasicProfileForm(request.POST)
+
+    if user_id != 'new':
         user = User.objects.get(pk=user_id)
         form = UserForm(request.POST, instance=user)
     else:
@@ -300,39 +308,46 @@ def save_user(request, user_id):
         user = form.save()
         user.set_password(request.POST['password'])
         user.save()
-        messages.add_message(request, messages.INFO, _(u'Käyttäjä tallennettu'))
-        return redirect("/admin/users/")
-    else:
-        return render(request, "admin/users/form.html", {'form': form})
+
+        # Update profile...
+        profile_form = BasicProfileForm(request.POST, instance=user.get_profile())
+        
+        if profile_form.is_valid():
+            profile_form.save()
+            messages.add_message(request, messages.INFO, _(u'Käyttäjä tallennettu'))
+            return redirect('/admin/users/')
+    
+    return render(request, 'admin/users/form.html', {'form': form, 'profile_form': profile_form})
 
 def locations(request):
     locations = Location.objects.all()
-    if request.is_ajax():
-        return HttpResponse(locations.count())
     return render(request, "admin/locations/index.html", {'locations': locations})
 
-def edit_location(request, id=0):
+def edit_location(request, location_id=None):
+    from django.forms.models import inlineformset_factory
+    LocationFormset = inlineformset_factory(Location, Place)
+
+    location = Location()
+    form = LocationForm()
+
     if request.method == 'POST':
         form = LocationForm(request.POST)
 
-        if int(id) > 0:
-            location = Location.objects.get(pk=id)
+        if location_id:
+            location = Location.objects.get(pk=location_id)
             form = LocationForm(request.POST, instance=location)
         if form.is_valid():
             form.save()
             messages.add_message(request, messages.INFO, 
-                _(u"Sijainti tallennettu"))
+                _(u'Sijainti tallennettu'))
             return redirect('/admin/locations/')
 
-    if id:
-        location = Location.objects.get(pk=id)
+    if location_id:
+        location = Location.objects.get(pk=location_id)
         form = LocationForm(instance=location)
-    else:
-        location = Location()
-        form = LocationForm()
     
-    form.pk = id
-    return render(request, 'admin/locations/form.html', {'form': form})
+    formset = LocationFormset(instance=location)
+    return render(request, 'admin/locations/form.html', {'form': form, 'formset': formset})
 
 def queues(request):
     queues = Queue.objects.all()
@@ -346,40 +361,44 @@ def edit_queue(request, queue_id=None):
 
     template = 'admin/queues/form.html'
 
-    queue = Queue()
-    queue_form = QueueForm()
+    if queue_id:
+        queue = Queue.objects.get(pk=queue_id)
+        queue_form = QueueForm(instance=queue, prefix='queue')
+    else:
+        queue = Queue()
+        queue_form = QueueForm(prefix='queue')
 
     if request.method == 'POST':
 
         if queue_id is None:
-            form = QueueForm(request.POST, request.FILES)
+            queue_form = QueueForm(request.POST, request.FILES, prefix='queue')
         else:
             queue = Queue.objects.get(pk=queue_id)
-            form = QueueForm(request.POST, request.FILES, instance=queue)
+            queue_form = QueueForm(request.POST, request.FILES, instance=queue, prefix='queue')
 
-        if not form.is_valid():
-            return render(request, template, {'queue_form': form})
+        if not queue_form.is_valid():
+            return render(request, template, {'queue_form': queue_form})
+
+        queue_form.save()
 
         # process queue's statuses
         queue.queuestatus_set.all().delete()
         data = DotExpandedDict(request.POST)
 
-        for s in data['status'].values():
-            if s.get('status_id'): # status is selected...
-                qs = s
-                qs['queue'] = queue
-                QueueStatus.objects.create(**qs)
+        if data.get('status'):
+            for s in data['status'].values():
+                if s.get('status_id'): # status is selected...
+                    qs = s
+                    qs['queue'] = queue
+                    QueueStatus.objects.create(**qs)
 
         messages.add_message(request, messages.INFO, _(u'Jono tallennettu'))
         return redirect('/admin/queues/')
 
     selected = list()
 
-    if queue_id:
-        queue = Queue.objects.get(pk=queue_id)
-        queue_form = QueueForm(instance=queue)
-        for s in queue.queuestatus_set.all():
-            selected.append(s.status.pk)
+    for s in queue.queuestatus_set.all():
+        selected.append(s.status.pk)
 
     statuses = list()
 
@@ -395,19 +414,19 @@ def edit_queue(request, queue_id=None):
     return render(request, template, {
         'queue_form': queue_form,
         'statuses': statuses,
-        'selected': selected,
-        'queue': queue
+        'selected': selected
     })
 
 def remove_queue(request, id=None):
-    if 'id' in request.POST:
-        queue = Queue.objects.get(pk=request.POST['id'])
+
+    queue = Queue.objects.get(pk=id)
+
+    if request.method == 'POST':
         queue.delete()
-        return HttpResponse('Jono poistettu')
-    else:
-        queue = Queue.objects.get(pk=id)
-    
-    return render(request, 'admin/remove-queue.html', queue)
+        messages.add_message(request, messages.INFO, _(u'Jono poistettu'))
+        return redirect('/admin/queues/')
+        
+    return render(request, 'admin/queues/remove.html', {'queue': queue})
 
 def notifications(request):
     return render(request, 'admin/notifications/index.html')

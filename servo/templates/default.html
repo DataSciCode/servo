@@ -1,15 +1,13 @@
 {% load i18n %}{% load staticfiles %}
+{% load i18n %}
+{% load staticfiles %}
 <!DOCTYPE html>
 <html>
   <head>
     <title>{% block title %}{% endblock title %}</title>
     <link href="{% static "js/bootstrap/css/bootstrap.min.css" %}" rel="stylesheet">
     <link href="{% static "js/datepicker/css/datepicker.css" %}" rel="stylesheet">
-    <style type="text/css">
-      td.empty {
-        text-align: center;
-      }
-    </style>
+    <link href="{% static "servo.css" %}" rel="stylesheet">
     <script src="{% static "js/jquery.min.js" %}"></script>
     <script src="{% static "js/bootstrap/js/bootstrap.min.js" %}"></script>
     <script src="{% static "js/datepicker/js/bootstrap-datepicker.js" %}"></script>
@@ -17,9 +15,9 @@
     <script src="{% static "js/servo.js" %}"></script>
   </head>
   <body>
-    <div class="navbar navbar-inverse navbar-static-top">
+    <div class="navbar navbar-inverse navbar-fixed-top">
       <div class="navbar-inner">
-        <div class="container">
+        <div class="container-fluid">
           <ul class="nav" id="topnav">
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">
@@ -30,13 +28,12 @@
                 <li><a href="{% url servo.views.account.settings %}">{% trans "Asetukset" %}</a></li>
                 <li><a href="/orders/user/{{ request.user.id }}/">{% trans "Tilaukset" %}</a></li>
                 <li><a href="/accounts/messages/unread/">{% trans "Viestit" %}</a></li>
-                <!--<li><a href="/calendars/">{% trans "Työaika" %}</a></li>-->
                 <li><a href="/wiki/">{% trans "Wiki" %}</a></li>
                 <li class="divider"></li>
                 <li><a href="{% url servo.views.account.logout %}">{% trans "Kirjaudu ulos" %}</a></li>
               </ul>
             </li>
-            <li><a href="{% url servo.views.order.index state=0 %}" class="counter">{% trans "Tilaukset" %}</a></li>
+            <li><a href="{% url servo.views.order.index state=0 %}">{% trans "Tilaukset" %}</a></li>
             <li><a href="{% url servo.views.customer.index %}">{% trans "Asiakkaat" %}</a></li>
             <li><a href="{% url servo.views.device.index %}">{% trans "Laitteet" %}</a></li>
             <li><a href="{% url servo.views.product.index %}">{% trans "Varasto" %}</a></li>
@@ -48,9 +45,11 @@
         </div>
       </div>
     </div><!-- /navbar -->
-    <div class="container">
-      <div class="row">
-        <div class="span12" style="padding-top:20px">
+
+    <div class="container-fluid">
+      <div class="row-fluid">
+        <div class="span12">
+          <div class="modal hide fade" id="modal"></div>
         {% if messages %}
           {% for message in messages %}
           <div class="alert alert-block">
@@ -62,14 +61,6 @@
           {% block navtabs %}{% endblock navtabs %}
 
           {% block content %}{% endblock content %}
-        </div>
-      </div>
-      <div class="row">
-        <div class="span12">
-          {% block footer %}
-            
-          {% endblock footer %}
-        </div>
       </div>
     </div>
   </body>

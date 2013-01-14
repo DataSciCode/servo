@@ -9,7 +9,7 @@ from servo.models.account import UserProfile
 class QueueForm(forms.ModelForm):
     class Meta:
         model = Queue
-        exclude = ('statuses',)
+        exclude = ('statuses', )
         widgets = {'description': forms.Textarea(attrs={'rows': 4})}
 
 class TagForm(forms.ModelForm):
@@ -32,16 +32,6 @@ class UserForm(forms.ModelForm):
     class Meta:
         model = User
         exclude = ['last_login', 'date_joined', 'user_permissions']
-
-    password = forms.CharField(widget=forms.PasswordInput, label=_(u'Salasana'))
-    location = forms.ModelChoiceField(queryset=Location.objects.all())
-    locale = forms.ChoiceField(UserProfile.LOCALES)
-    phone = forms.CharField(max_length=128, required=False, 
-        label=_(u'Puhelin'))
-    tech_id = forms.CharField(max_length=128, required=False, 
-        label=_('Tech ID'))
-    customer = forms.CharField(max_length=5, required=False, 
-        widget=forms.TextInput(attrs={'class': 'typeahead'}))
 
 class GroupForm(forms.ModelForm):
     class Meta:

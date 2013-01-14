@@ -2,14 +2,14 @@
 {% load i18n %}
 {% load servo_extras %}
 
-{% block detail_block %}
+{% block middle_column %}
 <legend>{{ customer.fullname }}</legend>
   <dl class="dl-horizontal">
   {% if customer.email %}
       <dt>{% trans "Sähköposti" %}</dt>
       <dd><a href="{% url servo.views.note.edit recipient=customer.email %}">{{ customer.email }}</a></dd>
   {% endif %}
-  {% if customer.email %}
+  {% if customer.phone %}
     <dt>{% trans "Puhelin" %}</dt>
     <dd><a href="{% url servo.views.note.edit recipient=customer.phone %}">{{ customer.phone }}</a></dd>
   {% endif %}
@@ -35,9 +35,9 @@
       <li class="divider"></li>
       <li><a href="{% url servo.views.customer.edit customer_id=customer.id %}">{% trans "Muokkaa" %}</a></li>
       <li><a href="{% url servo.views.customer.move customer.id %}">{% trans "Siirrä" %}</a></li>
-      <li><a href="{% url servo.views.customer.delete customer.id %}">{% trans "Poista" %}</a></li>
+      <li><a href="{% url servo.views.customer.delete customer.id %}" data-modal="#modal">{% trans "Poista" %}</a></li>
     </ul>
   </div>
   <legend>{% trans "Tilaukset" %}</legend>
   {% include "orders/list.html" %}
-{% endblock detail_block %}
+{% endblock middle_column %}

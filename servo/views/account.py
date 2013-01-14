@@ -1,6 +1,5 @@
 # coding=utf-8
 
-from django import forms
 from django.contrib import auth
 from django.contrib import messages as msgs
 from django.shortcuts import redirect, render
@@ -10,17 +9,12 @@ from servo.models.note import Note
 from servo.models.order import Order
 from servo.models.common import Location
 from servo.models.account import UserProfile
+from servo.forms.account import ProfileForm, RegistrationForm
 
-class ProfileForm(forms.ModelForm):
-    class Meta:
-        model = UserProfile
-        exclude = ('user',)
+def register(request):
+    form = RegistrationForm()
+    return render(request, 'accounts/register.html', {form: form})
 
-    password = forms.CharField(widget=forms.PasswordInput, required=False,
-    	label=_(u'salasana'))
-    confirmation = forms.CharField(widget=forms.PasswordInput, required=False,
-        label=_(u'vahvistus'))
-  
 def login(request):
     if 'username' in request.POST:
         user = auth.authenticate(username=request.POST['username'],
